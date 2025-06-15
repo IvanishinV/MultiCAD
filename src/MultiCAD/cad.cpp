@@ -52,7 +52,7 @@ Renderer* InitializeModule()
     g_moduleState.actions.FUN_10007662                      = FUN_10007662;
     g_moduleState.actions.FUN_10007fbc                      = FUN_10007fbc;
     g_moduleState.actions.FUN_10007be8                      = FUN_10007be8;
-    g_moduleState.actions.FUN_100053c3                      = drawMainSurfaceVanishingSprite;
+    g_moduleState.actions.drawMainSurfaceVanishingSprite    = drawMainSurfaceVanishingSprite;
     g_moduleState.actions.drawMainSurfaceColorPoint         = drawMainSurfaceColorPoint;
     g_moduleState.actions.drawMainSurfaceFilledColorRect    = drawMainSurfaceFilledColorRect;
     g_moduleState.actions.drawMainSurfaceColorRect          = drawMainSurfaceColorRect;

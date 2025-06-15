@@ -71,7 +71,7 @@ using FUN_100049E6_PTR = void(*)(S32 param_1, S32 param_2, U16 param_3, LPVOID p
 using FUN_10004DB0_PTR = void(*)(S32 x, S32 y, U16 param_3, S32 param_4, LPVOID param_5);
 
 using DRAW_MAIN_SURFACE_PALETTE_SPRITE_PTR = void(*)(S32 x, S32 y, const Pixel* palette, const ImagePaletteSprite* const sprite);
-using FUN_100053C3_PTR = void(*)(S32 x, S32 y, S32 param_3, Pixel* palette, ImagePaletteSprite* sprite);
+using DRAW_MAIN_SURFACE_VANISHING_SPRITE_PTR = void(*)(S32 x, S32 y, S32 vanishOffset, const Pixel* palette, const ImagePaletteSprite* const sprite);
 using FUN_1000579C_PTR = void(*)(S32 x, S32 y, Pixel* palette, ImagePaletteSprite* sprite);
 using FUN_10005AC6_PTR = void(*)(S32 param_1, S32 param_2, U16 param_3, S32 param_4, LPVOID param_5);
 using DRAW_BACK_SURFACE_PALETTE_SHADE_SPRITE_PTR = void(*)(S32 x, S32 y, U16 level, Pixel* palette, ImagePaletteSprite* sprite);
@@ -133,7 +133,7 @@ struct RendererActions
     FUN_10007662_PTR                                FUN_10007662;
     FUN_10007FBC_PTR                                FUN_10007fbc;
     FUN_10007BE8_PTR                                FUN_10007be8;
-    FUN_100053C3_PTR                                FUN_100053c3;
+    DRAW_MAIN_SURFACE_VANISHING_SPRITE_PTR          drawMainSurfaceVanishingSprite;
     DRAW_MAIN_SURFACE_COLOR_POINT_PTR               drawMainSurfaceColorPoint;
     DRAW_MAIN_SURFACE_FILLED_COLOR_RECT_PTR         drawMainSurfaceFilledColorRect;
     DRAW_MAIN_SURFACE_COLOR_RECT_PTR                drawMainSurfaceColorRect;

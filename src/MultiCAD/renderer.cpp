@@ -2344,7 +2344,7 @@ void drawMainSurfacePaletteSprite(S32 x, S32 y, const Pixel* palette, const Imag
 }
 
 // 0x100053c3
-void drawMainSurfaceVanishingSprite(S32 x, S32 y, S32 vanishOffset, Pixel* palette, ImagePaletteSprite* sprite)
+void drawMainSurfaceVanishingSprite(S32 x, S32 y, const S32 vanishOffset, const Pixel* palette, const ImagePaletteSprite* const sprite)
 {
     g_rendererState.sprite.vanishOffset = vanishOffset;
     U32 colorMask = (U32)g_moduleState.actualGreenMask << 16;
@@ -2359,66 +2359,67 @@ void drawMainSurfaceVanishingSprite(S32 x, S32 y, S32 vanishOffset, Pixel* palet
     g_rendererState.sprite.width = sprite->width + 1;
     g_rendererState.sprite.height = sprite->height;
 
-    S32 newX = x + sprite->x;
-    S32 newY = y + sprite->y;
+    x = x + sprite->x;
+    y = y + sprite->y;
 
-    LPVOID content = &sprite->pixels;
+    const void* content = &sprite->pixels;
     U32* offset_RLE = (U32*)((Addr)content + (Addr)sprite->next);
 
-    if (newY < g_moduleState.windowRect.y)
+    if (y < g_moduleState.windowRect.y)
     {
-        g_rendererState.sprite.height = g_rendererState.sprite.height + newY - g_moduleState.windowRect.y;
-
-        if (g_rendererState.sprite.height <= 0 || g_rendererState.sprite.height == g_moduleState.windowRect.y - newY)
+        g_rendererState.sprite.height = g_rendererState.sprite.height - (g_moduleState.windowRect.y - y);
+        if (g_rendererState.sprite.height <= 0)
         {
             return;
         }
 
-        for (S32 i = 0; i < g_moduleState.windowRect.y - newY; ++i)
+        for (S32 i = 0; i < g_moduleState.windowRect.y - y; ++i)
         {
             content = (LPVOID)((Addr)offset_RLE + (Addr)sizeof(U16));
             offset_RLE = (U32*)((Addr)offset_RLE + (Addr)(((U16*)offset_RLE)[0] + sizeof(U16)));
         }
 
-        newY = g_moduleState.windowRect.y;
+        y = g_moduleState.windowRect.y;
     }
 
-    const S32 overflow = g_rendererState.sprite.height + newY - g_moduleState.windowRect.height - 1;
-    bool draw = overflow == 0 || (g_rendererState.sprite.height + newY < g_moduleState.windowRect.height + 1);
+    const S32 overflow = y + g_rendererState.sprite.height - (g_moduleState.windowRect.height + 1);
+    bool draw = overflow <= 0;
 
     if (!draw)
     {
-        const S32 height = g_rendererState.sprite.height;
-
-        g_rendererState.sprite.height = g_rendererState.sprite.height - overflow;
-
-        draw = g_rendererState.sprite.height != 0 && overflow <= height;
+        draw = !(g_rendererState.sprite.height <= overflow);
+        g_rendererState.sprite.height -= overflow;
     }
 
     if (draw)
     {
+        const Addr linesStride = (Addr)(g_moduleState.surface.stride * y);
+
         g_rendererState.sprite.x = (Pixel*)((Addr)g_rendererState.surfaces.main
-            + (Addr)(g_moduleState.surface.offset * sizeof(Pixel)) + (Addr)(g_moduleState.surface.stride * newY) + (Addr)((newX + sprite->x) * sizeof(Pixel)));
+            + (Addr)(g_moduleState.surface.offset * sizeof(Pixel)) + linesStride + (Addr)(x * sizeof(Pixel)));
         g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.surfaces.main
-            + (Addr)(g_moduleState.surface.offset * sizeof(Pixel)) + (Addr)(g_moduleState.surface.stride * newY) + (Addr)(g_moduleState.windowRect.x * sizeof(Pixel)));
+            + (Addr)(g_moduleState.surface.offset * sizeof(Pixel)) + linesStride + (Addr)(g_moduleState.windowRect.x * sizeof(Pixel)));
         g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.surfaces.main
-            + (Addr)(g_moduleState.surface.offset * sizeof(Pixel)) + (Addr)(g_moduleState.surface.stride * newY) + (Addr)((g_moduleState.windowRect.width + 1) * sizeof(Pixel)));
+            + (Addr)(g_moduleState.surface.offset * sizeof(Pixel)) + linesStride + (Addr)((g_moduleState.windowRect.width + 1) * sizeof(Pixel)));
 
-        const S32 overage = g_rendererState.sprite.height + newY < g_moduleState.surface.y
-            ? 0 : (g_rendererState.sprite.height + newY - g_moduleState.surface.y);
 
-        g_rendererState.sprite.overage = overage;
-        g_rendererState.sprite.height = g_rendererState.sprite.height - overage;
+        const S32 overage = y + g_rendererState.sprite.height < g_moduleState.surface.y
+            ? 0 : y + g_rendererState.sprite.height - g_moduleState.surface.y;
 
-        if (g_rendererState.sprite.height == 0)
+        g_rendererState.sprite.overage = g_rendererState.sprite.height;
+        g_rendererState.sprite.height -= overage;
+
+        if (g_rendererState.sprite.height < 0)
         {
             g_rendererState.sprite.height = g_rendererState.sprite.overage;
             g_rendererState.sprite.overage = 0;
 
-            g_rendererState.sprite.x = (Pixel*)((Addr)g_rendererState.sprite.x - (Addr)(SCREEN_SIZE_IN_PIXELS * sizeof(Pixel)));
-            g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.sprite.minX - (Addr)(SCREEN_SIZE_IN_PIXELS * sizeof(Pixel)));
-            g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.sprite.maxX - (Addr)(SCREEN_SIZE_IN_PIXELS * sizeof(Pixel)));
+            g_rendererState.sprite.x = (Pixel*)((Addr)g_rendererState.sprite.x - (Addr)SCREEN_SIZE_IN_BYTES);
+            g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.sprite.minX - (Addr)SCREEN_SIZE_IN_BYTES);
+            g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.sprite.maxX - (Addr)SCREEN_SIZE_IN_BYTES);
         }
+        else
+            g_rendererState.sprite.overage = overage;
 
         while (g_rendererState.sprite.height > 0)
         {
@@ -2454,7 +2455,6 @@ void drawMainSurfaceVanishingSprite(S32 x, S32 y, S32 vanishOffset, Pixel* palet
 
                 while (sx < g_rendererState.sprite.maxX && (Addr)pixels < (Addr)offset_RLE)
                 {
-
                     const U32 count = (pixels->count & IMAGE_SPRITE_ITEM_COUNT_MASK);
 
                     if (count == 0)
@@ -2480,7 +2480,7 @@ void drawMainSurfaceVanishingSprite(S32 x, S32 y, S32 vanishOffset, Pixel* palet
                                     U32 tempDoublePixel4 = g_rendererState.sprite.colorMask & (((31 - g_rendererState.sprite.vanishOffset) * (g_rendererState.sprite.colorMask & tempDoublePixel3)) >> 5);
                                     U32 tempDoublePixel5 = tempDoublePixel4 | (tempDoublePixel4 >> 16);
 
-                                    sx[i] = tempDoublePixel2 + tempDoublePixel5;        // todo: fix cast from U32 to Pixel, since there is add dx, ax instruction
+                                    sx[i] = (U16)(tempDoublePixel2 + tempDoublePixel5);
                                 }
                             }
                         }
@@ -2506,7 +2506,7 @@ void drawMainSurfaceVanishingSprite(S32 x, S32 y, S32 vanishOffset, Pixel* palet
                                     U32 tempDoublePixel4 = g_rendererState.sprite.colorMask & (((31 - g_rendererState.sprite.vanishOffset) * (g_rendererState.sprite.colorMask & tempDoublePixel3)) >> 5);
                                     U32 tempDoublePixel5 = tempDoublePixel4 | (tempDoublePixel4 >> 16);
 
-                                    sx[i] = tempDoublePixel2 + tempDoublePixel5;        // todo: the same
+                                    sx[i] = (U16)(tempDoublePixel2 + tempDoublePixel5);
                                 }
                             }
                         }
@@ -2532,9 +2532,9 @@ void drawMainSurfaceVanishingSprite(S32 x, S32 y, S32 vanishOffset, Pixel* palet
             g_rendererState.sprite.height = g_rendererState.sprite.overage;
             g_rendererState.sprite.overage = 0;
 
-            g_rendererState.sprite.x = (Pixel*)((Addr)g_rendererState.sprite.x - (Addr)(SCREEN_SIZE_IN_PIXELS * sizeof(Pixel)));
-            g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.sprite.minX - (Addr)(SCREEN_SIZE_IN_PIXELS * sizeof(Pixel)));
-            g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.sprite.maxX - (Addr)(SCREEN_SIZE_IN_PIXELS * sizeof(Pixel)));
+            g_rendererState.sprite.x = (Pixel*)((Addr)g_rendererState.sprite.x - (Addr)SCREEN_SIZE_IN_BYTES);
+            g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.sprite.minX - (Addr)SCREEN_SIZE_IN_BYTES);
+            g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.sprite.maxX - (Addr)SCREEN_SIZE_IN_BYTES);
         }
     }
 }

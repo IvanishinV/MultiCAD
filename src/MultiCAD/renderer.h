@@ -594,7 +594,7 @@ void drawMainSurfacePaletteSprite(S32 x, S32 y, const Pixel* palette, const Imag
  *
  * @return None.
  */
-void drawMainSurfaceVanishingSprite(S32 x, S32 y, S32 vanishOffset, Pixel* palette, ImagePaletteSprite* sprite);
+void drawMainSurfaceVanishingSprite(S32 x, S32 y, const S32 vanishOffset, const Pixel* palette, const ImagePaletteSprite* const sprite);
 
 // 0x1000579c           todo
 void FUN_1000579c(S32 x, S32 y, Pixel* palette, ImagePaletteSprite* sprite);
