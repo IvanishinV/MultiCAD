@@ -225,16 +225,16 @@ struct Renderer
     U16                    unk22;                           //10012b44 TODO
     U16                    unk23;                           //10012b46 TODO
     U16                    unk24;                           //10012b48 TODO
-    U32                    initialRgbMask;                         //10012b4c
+    U32                    initialRgbMask;                  //10012b4c
     U32                    dummy;                           //Выравнивание без него шиш
     U32                    actualRgbMask;                   //10012b50
-    U32                    pitch;                           //10012b54      // Size in bytes of pixel raw in DX renderer. Usually is: width * 2
+    U32                    pitch;                           //10012b54              // Size in bytes of pixel line in DX renderer. Usually is: width * 2
     DoublePixel            backSurfaceShadePixel;           //10012b58
-    Fog                    fogSprites[112];                    //10012b5a-10014e5b туман войны 650 и 8312
+    Fog                    fogSprites[112];                 //10012b5a-10014e5b     // Describes fog of war
     RhombsPalette          rhombsPalette;                   //10014e5c массив палитры ландшафта (rhomb.pl)
 
     HWND                   hwnd;
-    bool                   isFullScreen;                    // 1001'd478
+    bool                   isFullScreen;                    //1001d478
     DirectX                directX;
     RendererActions        actions;
 

@@ -523,19 +523,12 @@ void FUN_10002fb0(S32 x, S32 y, S32 width, S32 height);
 /**
  * Returns a text length in pixels, Default space between letters is 2 pixels.
  *
- * Created by NR 02.04.2025.
+ * Created by NR 02.04.2025. 
  *
  * @param text Text which length has to be calculated.
  * @param asset Letter assets.
  *
  * @return Length of text in pixels.
- *
- *   0    1
- *    +--+
- *    |  |
- *    +--+
- *   3    2
- *
  */
 S32 getTextLength(const char* text, const AssetCollection* asset);
 
