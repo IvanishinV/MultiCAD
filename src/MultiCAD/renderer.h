@@ -3,14 +3,14 @@
 #include "util.h"
 
 
-enum OutlineSkipOptions
+enum OutlintDrawOption
 {
-    OUTLINE_SKIP_OPTIONS_NONE = 0,
-    OUTLINE_SKIP_OPTIONS_TOP = 1,
-    OUTLINE_SKIP_OPTIONS_BOTTOM = 2,
-    OUTLINE_SKIP_OPTIONS_LEFT = 4,
-    OUTLINE_SKIP_OPTIONS_RIGHT = 8,
-    OUTLINE_SKIP_OPTIONS_MAX = 0x7FFFFFFF
+    OUTLINE_DRAW_OPTION_NONE = 0,
+    OUTLINE_DRAW_OPTION_TOP = 1,
+    OUTLINE_DRAW_OPTION_BOTTOM = 2,
+    OUTLINE_DRAW_OPTION_LEFT = 4,
+    OUTLINE_DRAW_OPTION_RIGHT = 8,
+    OUTLINE_DRAW_OPTION_MAX = 0x7FFFFFFF
 };
 
 struct Surfaces
@@ -22,12 +22,12 @@ struct Surfaces
 
 struct Outline
 {
-    OutlineSkipOptions  options;                // 0x1001d55c Опции пропуска строки/контура
-    S32                 horizontalDirection;    // 0x1001d560 Направление движения по горизонтали
-    S32                 stride;                 // 0x1001d564 Шаг между точками
-    S32                 verticalDirection;      // 0x1001d568 Направление движения по вертикали
-    S32                 height;                 // 0x1001d56c Высота контура
-    S32                 width;                  // 0x1001d570 Ширина контура
+    OutlintDrawOption   options;                // 0x1001d55c       // Which rectangle sides to draw
+    S32                 horizontalStride;       // 0x1001d560       // Number of bytes to skip on horizontal lines
+    S32                 stride;                 // 0x1001d564       // Stride between two lines, usually: width * sizeof(Pixel)
+    S32                 verticalStride;         // 0x1001d568       // Number of lines to skip on vertical lines
+    S32                 height;                 // 0x1001d56c       // Height of the rectangle
+    S32                 width;                  // 0x1001d570       // Width of the rectangle
 };
 
 struct Window
@@ -392,7 +392,7 @@ void drawMainSurfaceColorEllipse(const S32 x, const S32 y, S32 size, const Pixel
 
 // 0x100023e0
 /**
- * Sets needed level of Outline and draws colored sth?.
+ * Draws colored unit selection rectangle.
  *
  * @param x Starting X coordinate.
  * @param y Starting Y coordinate.

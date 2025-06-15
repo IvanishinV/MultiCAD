@@ -1097,7 +1097,7 @@ void drawMainSurfaceColorOutline(S32 x, S32 y, S32 width, S32 height, const Pixe
 
     g_rendererState.outline.width = g_moduleState.windowRect.width - g_moduleState.windowRect.x;
     g_rendererState.outline.height = g_moduleState.windowRect.height + 1 - g_moduleState.windowRect.y;
-    g_rendererState.outline.options = OUTLINE_SKIP_OPTIONS_NONE;
+    g_rendererState.outline.options = OUTLINE_DRAW_OPTION_NONE;
 
     x = x - g_moduleState.windowRect.x;
     y = y - g_moduleState.windowRect.y;
@@ -1110,7 +1110,7 @@ void drawMainSurfaceColorOutline(S32 x, S32 y, S32 width, S32 height, const Pixe
             return;
 
         y = 0;
-        g_rendererState.outline.options = (OutlineSkipOptions)(g_rendererState.outline.options | OUTLINE_SKIP_OPTIONS_TOP);
+        g_rendererState.outline.options = (OutlintDrawOption)(g_rendererState.outline.options | OUTLINE_DRAW_OPTION_TOP);
     }
 
     if (y >= g_rendererState.outline.height)
@@ -1121,7 +1121,7 @@ void drawMainSurfaceColorOutline(S32 x, S32 y, S32 width, S32 height, const Pixe
             return;
 
         y = g_rendererState.outline.height - 1;
-        g_rendererState.outline.options = (OutlineSkipOptions)(g_rendererState.outline.options | OUTLINE_SKIP_OPTIONS_TOP);
+        g_rendererState.outline.options = (OutlintDrawOption)(g_rendererState.outline.options | OUTLINE_DRAW_OPTION_TOP);
     }
 
     {
@@ -1130,7 +1130,7 @@ void drawMainSurfaceColorOutline(S32 x, S32 y, S32 width, S32 height, const Pixe
         if (y + 1 + height < 0 != max < 0)
         {
             height = height - max - 1;
-            g_rendererState.outline.options = (OutlineSkipOptions)(g_rendererState.outline.options | OUTLINE_SKIP_OPTIONS_BOTTOM);
+            g_rendererState.outline.options = (OutlintDrawOption)(g_rendererState.outline.options | OUTLINE_DRAW_OPTION_BOTTOM);
         }
     }
 
@@ -1140,7 +1140,7 @@ void drawMainSurfaceColorOutline(S32 x, S32 y, S32 width, S32 height, const Pixe
         if (max >= g_rendererState.outline.height)
         {
             height = height + g_rendererState.outline.height - max;
-            g_rendererState.outline.options = (OutlineSkipOptions)(g_rendererState.outline.options | OUTLINE_SKIP_OPTIONS_BOTTOM);
+            g_rendererState.outline.options = (OutlintDrawOption)(g_rendererState.outline.options | OUTLINE_DRAW_OPTION_BOTTOM);
         }
     }
 
@@ -1154,7 +1154,7 @@ void drawMainSurfaceColorOutline(S32 x, S32 y, S32 width, S32 height, const Pixe
         x = 1;
         width = width - 1;
 
-        g_rendererState.outline.options = (OutlineSkipOptions)(g_rendererState.outline.options | OUTLINE_SKIP_OPTIONS_LEFT);
+        g_rendererState.outline.options = (OutlintDrawOption)(g_rendererState.outline.options | OUTLINE_DRAW_OPTION_LEFT);
     }
 
     if (x >= g_rendererState.outline.width + 2)
@@ -1163,14 +1163,14 @@ void drawMainSurfaceColorOutline(S32 x, S32 y, S32 width, S32 height, const Pixe
         if (width >= 0)
             return;
         x = g_rendererState.outline.width + 1;
-        g_rendererState.outline.options = (OutlineSkipOptions)(g_rendererState.outline.options | OUTLINE_SKIP_OPTIONS_LEFT);
+        g_rendererState.outline.options = (OutlintDrawOption)(g_rendererState.outline.options | OUTLINE_DRAW_OPTION_LEFT);
     }
 
     if (x + width <= 0 != x + width < 0)
     {
         width = width - x - width;
 
-        g_rendererState.outline.options = (OutlineSkipOptions)(g_rendererState.outline.options | OUTLINE_SKIP_OPTIONS_RIGHT);
+        g_rendererState.outline.options = (OutlintDrawOption)(g_rendererState.outline.options | OUTLINE_DRAW_OPTION_RIGHT);
     }
 
     {
@@ -1179,7 +1179,7 @@ void drawMainSurfaceColorOutline(S32 x, S32 y, S32 width, S32 height, const Pixe
         if (max > g_rendererState.outline.width)
         {
             width = width + g_rendererState.outline.width - max;
-            g_rendererState.outline.options = (OutlineSkipOptions)(g_rendererState.outline.options | OUTLINE_SKIP_OPTIONS_RIGHT);
+            g_rendererState.outline.options = (OutlintDrawOption)(g_rendererState.outline.options | OUTLINE_DRAW_OPTION_RIGHT);
         }
     }
 
@@ -1187,24 +1187,24 @@ void drawMainSurfaceColorOutline(S32 x, S32 y, S32 width, S32 height, const Pixe
     g_rendererState.outline.horizontalStride = 1;
     if (width < 0)
     {
-        g_rendererState.outline.horizontalDirection = -g_rendererState.outline.horizontalDirection;
+        g_rendererState.outline.horizontalStride = -g_rendererState.outline.horizontalStride;
         width = -width;
     }
 
-    g_rendererState.outline.verticalDirection = 1;
+    g_rendererState.outline.verticalStride = 1;
     g_rendererState.outline.stride = g_moduleState.surface.stride;
     if (height < 0)
     {
         g_rendererState.outline.stride = -g_moduleState.surface.stride;
         height = -height;
-        g_rendererState.outline.verticalDirection = -g_rendererState.outline.verticalDirection;
+        g_rendererState.outline.verticalStride = -g_rendererState.outline.verticalStride;
     }
 
     Pixel* dst = (Pixel*)((Addr)g_rendererState.surfaces.main
         + (Addr)(g_moduleState.surface.offset * sizeof(Pixel) + y * g_moduleState.surface.stride + x * sizeof(Pixel))
         + (Addr)(g_moduleState.windowRect.y * g_moduleState.surface.stride + g_moduleState.windowRect.x * sizeof(Pixel)));
 
-    if ((g_rendererState.outline.options & OUTLINE_SKIP_OPTIONS_TOP) == OUTLINE_SKIP_OPTIONS_NONE)
+    if ((g_rendererState.outline.options & OUTLINE_DRAW_OPTION_TOP) == OUTLINE_DRAW_OPTION_NONE)
     {
         height = height - 1;
 
@@ -1217,16 +1217,16 @@ void drawMainSurfaceColorOutline(S32 x, S32 y, S32 width, S32 height, const Pixe
 
         for (S32 xx = 0; xx < width; ++xx)
         {
-            pixels[g_rendererState.outline.horizontalDirection * xx] = pixel;
+            pixels[g_rendererState.outline.horizontalStride * xx] = pixel;
         }
 
         dst = (Pixel*)((Addr)dst + (Addr)g_rendererState.outline.stride);
     }
 
-    if ((g_rendererState.outline.options & OUTLINE_SKIP_OPTIONS_RIGHT) == OUTLINE_SKIP_OPTIONS_NONE)
+    if ((g_rendererState.outline.options & OUTLINE_DRAW_OPTION_RIGHT) == OUTLINE_DRAW_OPTION_NONE)
     {
         S32 off = (width - 1) * sizeof(Pixel);
-        if (g_rendererState.outline.horizontalDirection < 0)
+        if (g_rendererState.outline.horizontalStride < 0)
         {
             off = -off;
         }
@@ -1246,7 +1246,7 @@ void drawMainSurfaceColorOutline(S32 x, S32 y, S32 width, S32 height, const Pixe
         }
     }
 
-    if ((g_rendererState.outline.options & OUTLINE_SKIP_OPTIONS_LEFT) == OUTLINE_SKIP_OPTIONS_NONE)
+    if ((g_rendererState.outline.options & OUTLINE_DRAW_OPTION_LEFT) == OUTLINE_DRAW_OPTION_NONE)
     {
         for (S32 yy = 0; yy < height - 1; ++yy)
         {
@@ -1265,7 +1265,7 @@ void drawMainSurfaceColorOutline(S32 x, S32 y, S32 width, S32 height, const Pixe
         dst = (Pixel*)((Addr)dst + (Addr)(g_rendererState.outline.stride * (height - 1)));
     }
 
-    if (height != 0 && (g_rendererState.outline.options & OUTLINE_SKIP_OPTIONS_BOTTOM) == OUTLINE_SKIP_OPTIONS_NONE)
+    if (height != 0 && (g_rendererState.outline.options & OUTLINE_DRAW_OPTION_BOTTOM) == OUTLINE_DRAW_OPTION_NONE)
     {
         if (src <= dst)
         {
@@ -1274,7 +1274,7 @@ void drawMainSurfaceColorOutline(S32 x, S32 y, S32 width, S32 height, const Pixe
 
         for (S32 xx = 0; xx < width; ++xx)
         {
-            dst[g_rendererState.outline.horizontalDirection * xx] = pixel;
+            dst[g_rendererState.outline.horizontalStride * xx] = pixel;
         }
     }
 }
@@ -1810,6 +1810,7 @@ void FUN_100033c0(S32 x, S32 y, LPSTR text, AssetCollection* asset, Pixel* palet
 // 0x10003420
 void drawBackSurfaceRhomb(S32 angle_0, S32 angle_1, S32 angle_2, S32 angle_3, S32 tx, S32 ty, S32 stride, U8* input, Pixel* output)
 {
+    return;
     S32 overage;  //избыток
     S32 overflow; //переполнение
 
