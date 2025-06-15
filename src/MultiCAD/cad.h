@@ -70,7 +70,7 @@ using FUN_100046B6_PTR = void(*)(S32 param_1, S32 param_2, LPVOID param_3);
 using FUN_100049E6_PTR = void(*)(S32 param_1, S32 param_2, U16 param_3, LPVOID param_4);
 using FUN_10004DB0_PTR = void(*)(S32 x, S32 y, U16 param_3, S32 param_4, LPVOID param_5);
 
-using DRAW_MAIN_SURFACE_PALETTE_SPRITE_PTR = void(*)(S32 x, S32 y, Pixel* palette, ImagePaletteSprite* sprite);
+using DRAW_MAIN_SURFACE_PALETTE_SPRITE_PTR = void(*)(S32 x, S32 y, const Pixel* palette, const ImagePaletteSprite* const sprite);
 using FUN_100053C3_PTR = void(*)(S32 x, S32 y, S32 param_3, Pixel* palette, ImagePaletteSprite* sprite);
 using FUN_1000579C_PTR = void(*)(S32 x, S32 y, Pixel* palette, ImagePaletteSprite* sprite);
 using FUN_10005AC6_PTR = void(*)(S32 param_1, S32 param_2, U16 param_3, S32 param_4, LPVOID param_5);

@@ -2150,35 +2150,38 @@ void FUN_10004db0(S32 x, S32 y, U16 param_3, S32 param_4, LPVOID param_5)
 }
 
 // 0x100050df
-void drawMainSurfacePaletteSprite(S32 x, S32 y, Pixel* palette, ImagePaletteSprite* sprite)
+void drawMainSurfacePaletteSprite(S32 x, S32 y, const Pixel* palette, const ImagePaletteSprite* const sprite)
 {
-    //Здесь копируются параметры окна отрисовки из глобального состояния(ModuleState) 
-    // в состояние рендерера(RendererState).
-    // Это определяет область, в которой будет выводиться спрайт.
+    // Копируем глобальные параметры окна отрисовки в отдельную переменную          // todo: check windowRect initialization, because looks like it's not used anywhere
     g_rendererState.sprite.windowRect.x = g_moduleState.windowRect.x;
     g_rendererState.sprite.windowRect.y = g_moduleState.windowRect.y;
     g_rendererState.sprite.windowRect.width = g_moduleState.windowRect.width;
     g_rendererState.sprite.windowRect.height = g_moduleState.windowRect.height;
-    // Установка размеров спрайта, при этом ширина увеличивается на +1 хз зачем
-    g_rendererState.sprite.height = sprite->height;               //высота
-    g_rendererState.sprite.width = sprite->width + 1;            //ширина
-    //content    - получает указатель на пиксельные данные спрайта
-    //offset_RLE - указатель на строку (используется для RLE - сжатых данных)
-    LPVOID content = &sprite->pixels;
+
+    // Копируем высоту и ширину спрайта для дальнейшего изменения в случае необходимости
+    g_rendererState.sprite.height = sprite->height;
+    g_rendererState.sprite.width = sprite->width + 1;
+
+    // content - указатель на пиксели спрайта
+    // offset_RLE - указатель на строку (используется для RLE - сжатых данных)
+    const void* content = &sprite->pixels;
     U32* offset_RLE = (U32*)((Addr)content + (Addr)sprite->next);
-    //x = x + sprite->x;        // todo: AM doesn't has this line, check
-    //смещение спрайта по вертикали
+
+    x = x + sprite->x;
     y = y + sprite->y;
-    // Проверка выхода за верхнюю границу окна и если спрайт начинается выше окна, его верхнюю часть нужно обрезать
+
+    // Проверка выхода за верхнюю границу окна и если спрайт начинается выше окна, то его верхнюю часть нужно обрезать
     if (y < g_moduleState.windowRect.y)
     {
-        // Корректировка высоты спрайта
-        g_rendererState.sprite.height = g_rendererState.sprite.height + y - g_moduleState.windowRect.y;
+        // Корректировка высоты спрайта по разнице между высотами
+        g_rendererState.sprite.height = g_rendererState.sprite.height - (g_moduleState.windowRect.y - y);
+
         // Проверка на полное отсутствие видимой части
-        if (g_rendererState.sprite.height <= 0 || g_rendererState.sprite.height == g_moduleState.windowRect.y - y)
+        if (g_rendererState.sprite.height <= 0)
         {
             return;
         }
+
         // Пропуск невидимых строк спрайта
         for (S32 i = 0; i < g_moduleState.windowRect.y - y; ++i)
         {
@@ -2187,48 +2190,53 @@ void drawMainSurfacePaletteSprite(S32 x, S32 y, Pixel* palette, ImagePaletteSpri
             content = (LPVOID)((Addr)offset_RLE + (Addr)sizeof(U16));
             offset_RLE = (U32*)((Addr)offset_RLE + (Addr)(((U16*)offset_RLE)[0] + sizeof(U16)));
         }
-        // Установка новой начальной позиции Y
+
         y = g_moduleState.windowRect.y;
     }
 
-    const S32 overflow = g_rendererState.sprite.height + y - g_moduleState.windowRect.height - 1;
-    bool draw = overflow == 0 || (g_rendererState.sprite.height + y < g_moduleState.windowRect.height + 1);
+    const S32 overflow = y + g_rendererState.sprite.height - (g_moduleState.windowRect.height + 1);
+    bool draw = overflow <= 0;
 
+    // Если есть overflow, то мы проверяем, можно ли уменьшить высоту отображаемого спрайта на overflow
     if (!draw)
     {
-        const S32 height = g_rendererState.sprite.height;
-
-        g_rendererState.sprite.height = g_rendererState.sprite.height - overflow;
-
-        draw = g_rendererState.sprite.height != 0 && overflow <= height;
+        draw = !(g_rendererState.sprite.height <= overflow);
+        g_rendererState.sprite.height -= overflow;
     }
 
     if (draw)
     {
+        const Addr linesStride = (Addr)(g_moduleState.surface.stride * y);
+
         g_rendererState.sprite.x = (Pixel*)((Addr)g_rendererState.surfaces.main
-            + (Addr)(g_moduleState.surface.offset * sizeof(Pixel)) + (Addr)(g_moduleState.surface.stride * y) + (Addr)((x + sprite->x) * sizeof(Pixel)));
+            + (Addr)(g_moduleState.surface.offset * sizeof(Pixel)) + linesStride + (Addr)(x * sizeof(Pixel)));
         g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.surfaces.main
-            + (Addr)(g_moduleState.surface.offset * sizeof(Pixel)) + (Addr)(g_moduleState.surface.stride * y) + (Addr)(g_moduleState.windowRect.x * sizeof(Pixel)));
+            + (Addr)(g_moduleState.surface.offset * sizeof(Pixel)) + linesStride + (Addr)(g_moduleState.windowRect.x * sizeof(Pixel)));
         g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.surfaces.main
-            + (Addr)(g_moduleState.surface.offset * sizeof(Pixel)) + (Addr)(g_moduleState.surface.stride * y) + (Addr)((g_moduleState.windowRect.width + 1) * sizeof(Pixel)));
+            + (Addr)(g_moduleState.surface.offset * sizeof(Pixel)) + linesStride + (Addr)((g_moduleState.windowRect.width + 1) * sizeof(Pixel)));
 
-        //вычисляем вертикальное переполнение(overage) спрайта относительно поверхности экрана и корректирует высоту спрайта для отрисовки только видимой части
-        const S32 overage = g_rendererState.sprite.height + y < g_moduleState.surface.y
-            ? 0 : (g_rendererState.sprite.height + y - g_moduleState.surface.y);
 
-        // Корректировка высоты спрайта
-        g_rendererState.sprite.overage = overage;
-        g_rendererState.sprite.height = g_rendererState.sprite.height - overage;
+        // Ещё раз проверяем переполнение высоты спрайта, но уже относительно surface, а не windowRect
+        const S32 overage = y + g_rendererState.sprite.height < g_moduleState.surface.y
+            ? 0 : y + g_rendererState.sprite.height - g_moduleState.surface.y;
 
-        if (g_rendererState.sprite.height == 0)
+        g_rendererState.sprite.overage = g_rendererState.sprite.height;
+        // Корректировка высоты спрайта. Если переполнения не было, то высота спрайта не изменится.
+        // Однако в таком случае нужно будет отрисовать спрайт дважды (до переполнения и после, т.е. sprite->height - overage и overage)
+        g_rendererState.sprite.height -= overage;
+
+        // Если нужно отрисовывать только переполнение
+        if (g_rendererState.sprite.height < 0)
         {
             g_rendererState.sprite.height = g_rendererState.sprite.overage;
             g_rendererState.sprite.overage = 0;
 
-            g_rendererState.sprite.x = (Pixel*)((Addr)g_rendererState.sprite.x - (Addr)(SCREEN_SIZE_IN_PIXELS * sizeof(Pixel)));
-            g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.sprite.minX - (Addr)(SCREEN_SIZE_IN_PIXELS * sizeof(Pixel)));
-            g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.sprite.maxX - (Addr)(SCREEN_SIZE_IN_PIXELS * sizeof(Pixel)));
+            g_rendererState.sprite.x = (Pixel*)((Addr)g_rendererState.sprite.x - (Addr)SCREEN_SIZE_IN_BYTES);
+            g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.sprite.minX - (Addr)SCREEN_SIZE_IN_BYTES);
+            g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.sprite.maxX - (Addr)SCREEN_SIZE_IN_BYTES);
         }
+        else
+            g_rendererState.sprite.overage = overage;
 
         while (g_rendererState.sprite.height > 0)
         {
@@ -2237,10 +2245,8 @@ void drawMainSurfacePaletteSprite(S32 x, S32 y, Pixel* palette, ImagePaletteSpri
                 U32 skip = 0;
                 ImagePaletteSpritePixel* pixels = (ImagePaletteSpritePixel*)content;
 
-                // Пропустите пиксели слева от области рисования спрайта
-                // в случае, если спрайт начинается слева от разрешенного прямоугольника рисования.
+                // Если левый край спрайта находится левее прямоугольника для рисования, то пропускаем часть спрайта
                 Pixel* sx = g_rendererState.sprite.x;
-                // MinX и maxX — задают границы, за которые спрайт не должен выходить(обрезание по окну).
                 while (sx < g_rendererState.sprite.minX)
                 {
                     const U32 need = (U32)((Addr)g_rendererState.sprite.minX - (Addr)sx) / sizeof(Pixel);
@@ -2268,7 +2274,6 @@ void drawMainSurfacePaletteSprite(S32 x, S32 y, Pixel* palette, ImagePaletteSpri
 
                 while (sx < g_rendererState.sprite.maxX && (Addr)pixels < (Addr)offset_RLE)
                 {
-
                     const U32 count = (pixels->count & IMAGE_SPRITE_ITEM_COUNT_MASK);
 
                     if (count == 0)
@@ -2327,14 +2332,13 @@ void drawMainSurfacePaletteSprite(S32 x, S32 y, Pixel* palette, ImagePaletteSpri
                 g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.sprite.maxX + (Addr)g_moduleState.surface.stride);
             }
 
-            // Обведите по вертикали и нарисуйте излишек в случае, если у спрайта больше
-            // содержимого, которое может поместиться в разрешенный прямоугольник для рисования.
+            // Если было также и переполнение, то отрисовываем и его
             g_rendererState.sprite.height = g_rendererState.sprite.overage;
             g_rendererState.sprite.overage = 0;
 
-            g_rendererState.sprite.x = (Pixel*)((Addr)g_rendererState.sprite.x - (Addr)(SCREEN_SIZE_IN_PIXELS * sizeof(Pixel)));
-            g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.sprite.minX - (Addr)(SCREEN_SIZE_IN_PIXELS * sizeof(Pixel)));
-            g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.sprite.maxX - (Addr)(SCREEN_SIZE_IN_PIXELS * sizeof(Pixel)));
+            g_rendererState.sprite.x = (Pixel*)((Addr)g_rendererState.sprite.x - (Addr)SCREEN_SIZE_IN_BYTES);
+            g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.sprite.minX - (Addr)SCREEN_SIZE_IN_BYTES);
+            g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.sprite.maxX - (Addr)SCREEN_SIZE_IN_BYTES);
         }
     }
 }

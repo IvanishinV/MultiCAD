@@ -580,7 +580,7 @@ void FUN_10004db0(S32 x, S32 y, U16 param_3, S32 param_4, LPVOID param_5);
  *
  * @return None.
  */
-void drawMainSurfacePaletteSprite(S32 x, S32 y, Pixel* palette, ImagePaletteSprite* sprite);
+void drawMainSurfacePaletteSprite(S32 x, S32 y, const Pixel* palette, const ImagePaletteSprite* const sprite);
 
 // 0x100053c3
 /**
