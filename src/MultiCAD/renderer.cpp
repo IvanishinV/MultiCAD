@@ -1183,7 +1183,8 @@ void drawMainSurfaceColorOutline(S32 x, S32 y, S32 width, S32 height, const Pixe
         }
     }
 
-    g_rendererState.outline.horizontalDirection = 2;
+    // Offset in bytes to the next changed pixel. Since we use Pixel*, I changed it to 1
+    g_rendererState.outline.horizontalStride = 1;
     if (width < 0)
     {
         g_rendererState.outline.horizontalDirection = -g_rendererState.outline.horizontalDirection;
