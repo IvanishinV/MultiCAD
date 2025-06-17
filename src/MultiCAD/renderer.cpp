@@ -2247,7 +2247,7 @@ void drawMainSurfacePaletteSprite(S32 x, S32 y, const Pixel* palette, const Imag
 
                 // Если левый край спрайта находится левее прямоугольника для рисования, то пропускаем часть спрайта
                 Pixel* sx = g_rendererState.sprite.x;
-                while (sx < g_rendererState.sprite.minX)
+                while (sx < g_rendererState.sprite.minX && (std::uintptr_t)pixels < (std::uintptr_t)offset_RLE)
                 {
                     const U32 need = (U32)((Addr)g_rendererState.sprite.minX - (Addr)sx) / sizeof(Pixel);
                     // Компактные блоки(IMAGESPRITE_ITEM_COMPACT_MASK) — один цвет повторяется несколько раз (RLE - сжатие).
@@ -2272,7 +2272,7 @@ void drawMainSurfacePaletteSprite(S32 x, S32 y, const Pixel* palette, const Imag
                     sx = (Pixel*)((Addr)sx + (Addr)(std::min(count, need) * sizeof(Pixel)));
                 }
 
-                while (sx < g_rendererState.sprite.maxX && (Addr)pixels < (Addr)offset_RLE)
+                while (sx < g_rendererState.sprite.maxX && (std::uintptr_t)pixels < (std::uintptr_t)offset_RLE)
                 {
                     const U32 count = (pixels->count & IMAGE_SPRITE_ITEM_COUNT_MASK);
 
@@ -2429,7 +2429,7 @@ void drawMainSurfaceVanishingSprite(S32 x, S32 y, const S32 vanishOffset, const 
                 ImagePaletteSpritePixel* pixels = (ImagePaletteSpritePixel*)content;
 
                 Pixel* sx = g_rendererState.sprite.x;
-                while (sx < g_rendererState.sprite.minX)
+                while (sx < g_rendererState.sprite.minX && (std::uintptr_t)pixels < (std::uintptr_t)offset_RLE)
                 {
                     const U32 need = (U32)((Addr)g_rendererState.sprite.minX - (Addr)sx) / sizeof(Pixel);
                     const U32 count = pixels->count & IMAGE_SPRITE_ITEM_COUNT_MASK;
@@ -2453,7 +2453,7 @@ void drawMainSurfaceVanishingSprite(S32 x, S32 y, const S32 vanishOffset, const 
                     sx = (Pixel*)((Addr)sx + (Addr)(std::min(count, need) * sizeof(Pixel)));
                 }
 
-                while (sx < g_rendererState.sprite.maxX && (Addr)pixels < (Addr)offset_RLE)
+                while (sx < g_rendererState.sprite.maxX && (std::uintptr_t)pixels < (std::uintptr_t)offset_RLE)
                 {
                     const U32 count = (pixels->count & IMAGE_SPRITE_ITEM_COUNT_MASK);
 
@@ -2640,7 +2640,7 @@ void drawMainSurfaceSprite(S32 x, S32 y, ImageSprite* sprite)
                 ImageSpritePixel* pixels = (ImageSpritePixel*)content;
 
                 Pixel* sx = g_rendererState.sprite.x;
-                while (sx < g_rendererState.sprite.minX)
+                while (sx < g_rendererState.sprite.minX && (std::uintptr_t)pixels < (std::uintptr_t)next)
                 {
                     const U32 need = (U32)((Addr)g_rendererState.sprite.minX - (Addr)sx) / sizeof(Pixel);
                     const U32 count = pixels->count & IMAGE_SPRITE_ITEM_COUNT_MASK;
@@ -2663,7 +2663,7 @@ void drawMainSurfaceSprite(S32 x, S32 y, ImageSprite* sprite)
                     sx = (Pixel*)((Addr)sx + (Addr)(std::min(count, need) * sizeof(Pixel)));
                 }
 
-                while (sx < g_rendererState.sprite.maxX && (Addr)pixels < (Addr)next)
+                while (sx < g_rendererState.sprite.maxX && (std::uintptr_t)pixels < (std::uintptr_t)next)
                 {
                     const U32 count = (pixels->count & IMAGE_SPRITE_ITEM_COUNT_MASK);
 
@@ -2831,7 +2831,8 @@ void drawMainSurfaceAnimationSprite(S32 x, S32 y, U16 level, const AnimationPixe
                 // in case the sprite starts to the left of allowed drawing rectangle.
                 Pixel* sx = g_rendererState.sprite.x;
 
-                while (sx < g_rendererState.sprite.minX)
+                // There was a bug, that pixels was bigger than next. According to IDA, there is a separate loop "pixels < next"
+                while (sx < g_rendererState.sprite.minX && (std::uintptr_t)pixels < (std::uintptr_t)next)
                 {
                     const U32 need = (U32)((Addr)g_rendererState.sprite.minX - (Addr)sx) / sizeof(Pixel);
                     const U32 count = pixels->count & IMAGE_SPRITE_ITEM_COUNT_MASK;
@@ -2855,7 +2856,7 @@ void drawMainSurfaceAnimationSprite(S32 x, S32 y, U16 level, const AnimationPixe
                     sx = (Pixel*)((Addr)sx + (Addr)(std::min(count, need) * sizeof(Pixel)));
                 }
 
-                while (sx < g_rendererState.sprite.maxX && (Addr)pixels < (Addr)next)
+                while (sx < g_rendererState.sprite.maxX && (std::uintptr_t)pixels < (std::uintptr_t)next)
                 {
                     U32 count = (pixels->count & IMAGE_SPRITE_ITEM_COUNT_MASK);
 
@@ -2922,7 +2923,7 @@ void drawMainSurfaceAnimationSprite(S32 x, S32 y, U16 level, const AnimationPixe
                         // Blend and draw pixels.
                         if (count != 0)
                         {
-                            for (U32 i = 0; i < count - skip; ++i)          // todo: fix bug - in some cases count is less than skip, so i is too big
+                            for (U32 i = 0; i < count - skip; ++i)
                             {
                                 const U8 indx = pixels->pixels[skip + i];
                                 const AnimationPixel pixel = palette[indx];
