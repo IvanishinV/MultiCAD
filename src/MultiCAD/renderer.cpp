@@ -2741,7 +2741,6 @@ void FUN_100067ad(S32 x, S32 y, S32 param_3, LPVOID param_4)
 // 0x10006b21
 void drawMainSurfaceAnimationSprite(S32 x, S32 y, U16 level, const AnimationPixel* palette, ImagePaletteSprite* sprite)
 {
-    return;
     g_rendererState.sprite.colorMask =
         (((U32)g_moduleState.actualGreenMask) << 16) | g_moduleState.actualRedMask | g_moduleState.actualBlueMask;
     g_rendererState.sprite.adjustedColorMask = (g_rendererState.sprite.colorMask << 1) | g_rendererState.sprite.colorMask;
@@ -2752,7 +2751,7 @@ void drawMainSurfaceAnimationSprite(S32 x, S32 y, U16 level, const AnimationPixe
     g_rendererState.sprite.windowRect.height = g_moduleState.windowRect.height;
 
     level = (level + 0x440) * 0x20;
-    CONST DoublePixel stencil = (level << 16) | level;
+    const DoublePixel stencil = (level << 16) | level;
 
     g_rendererState.sprite.height = sprite->height;
     g_rendererState.sprite.width = sprite->width + 1;
@@ -2760,62 +2759,66 @@ void drawMainSurfaceAnimationSprite(S32 x, S32 y, U16 level, const AnimationPixe
     LPVOID content = &sprite->pixels;
     LPVOID next = (LPVOID)((Addr)content + (Addr)sprite->next);
 
+    x = x + sprite->x;
     y = y + sprite->y;
 
     // Skip the necessary number of rows from the top of the image
     // in case the sprite starts above the allowed drawing rectangle.
     if (y < g_moduleState.windowRect.y)
     {
-        g_rendererState.sprite.height = g_rendererState.sprite.height + y - g_moduleState.windowRect.y;
-
-        if (g_rendererState.sprite.height <= 0 || g_rendererState.sprite.height == g_moduleState.windowRect.y - y) { return; }
+        g_rendererState.sprite.height = g_rendererState.sprite.height - (g_moduleState.windowRect.y - y);
+        if (g_rendererState.sprite.height <= 0)
+        {
+            return;
+        }
 
         for (S32 i = 0; i < g_moduleState.windowRect.y - y; ++i)
         {
             content = (LPVOID)((Addr)next + (Addr)sizeof(U16));
-            next = (LPVOID)((Addr)next + (Addr)(((U16*)next)[0] + sizeof(U16)));
+            next = (U32*)((Addr)next + (Addr)(((U16*)next)[0] + sizeof(U16)));
         }
 
         y = g_moduleState.windowRect.y;
     }
 
-    CONST S32 overflow = g_rendererState.sprite.height + y - g_moduleState.windowRect.height - 1;
-
-    BOOL draw = overflow == 0 || (g_rendererState.sprite.height + y < g_moduleState.windowRect.height + 1);
+    const S32 overflow = y + g_rendererState.sprite.height - (g_moduleState.windowRect.height + 1);
+    bool draw = overflow <= 0;
 
     if (!draw)
     {
-        CONST S32 height = g_rendererState.sprite.height;
-
-        g_rendererState.sprite.height = g_rendererState.sprite.height - overflow;
-
-        draw = g_rendererState.sprite.height != 0 && overflow <= height;
+        draw = !(g_rendererState.sprite.height <= overflow);
+        g_rendererState.sprite.height -= overflow;
     }
 
     if (draw)
     {
+        const Addr linesStride = (Addr)(g_moduleState.surface.stride * y);
+
         g_rendererState.sprite.x = (Pixel*)((Addr)g_rendererState.surfaces.main
-            + (Addr)(g_moduleState.surface.offset * sizeof(Pixel)) + (Addr)(g_moduleState.surface.stride * y) + (Addr)((x + sprite->x) * sizeof(Pixel)));
+            + (Addr)(g_moduleState.surface.offset * sizeof(Pixel)) + linesStride + (Addr)(x * sizeof(Pixel)));
         g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.surfaces.main
-            + (Addr)(g_moduleState.surface.offset * sizeof(Pixel)) + (Addr)(g_moduleState.surface.stride * y) + (Addr)(g_moduleState.windowRect.x * sizeof(Pixel)));
+            + (Addr)(g_moduleState.surface.offset * sizeof(Pixel)) + linesStride + (Addr)(g_moduleState.windowRect.x * sizeof(Pixel)));
         g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.surfaces.main
-            + (Addr)(g_moduleState.surface.offset * sizeof(Pixel)) + (Addr)(g_moduleState.surface.stride * y) + (Addr)((g_moduleState.windowRect.width + 1) * sizeof(Pixel)));
+            + (Addr)(g_moduleState.surface.offset * sizeof(Pixel)) + linesStride + (Addr)((g_moduleState.windowRect.width + 1) * sizeof(Pixel)));
 
-        CONST S32 overage = g_rendererState.sprite.height + y < g_moduleState.surface.y
-            ? 0 : (g_rendererState.sprite.height + y - g_moduleState.surface.y);
 
-        g_rendererState.sprite.overage = overage;
-        g_rendererState.sprite.height = g_rendererState.sprite.height - overage;
+        const S32 overage = y + g_rendererState.sprite.height < g_moduleState.surface.y
+            ? 0 : y + g_rendererState.sprite.height - g_moduleState.surface.y;
 
-        if (g_rendererState.sprite.height == 0)
+        g_rendererState.sprite.overage = g_rendererState.sprite.height;
+        g_rendererState.sprite.height -= overage;
+
+        if (g_rendererState.sprite.height < 0)
         {
             g_rendererState.sprite.height = g_rendererState.sprite.overage;
             g_rendererState.sprite.overage = 0;
 
-            g_rendererState.sprite.x = (Pixel*)((Addr)g_rendererState.sprite.x - (Addr)(SCREEN_WIDTH * SCREEN_HEIGHT * sizeof(Pixel)));
-            g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.sprite.minX - (Addr)(SCREEN_WIDTH * SCREEN_HEIGHT * sizeof(Pixel)));
-            g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.sprite.maxX - (Addr)(SCREEN_WIDTH * SCREEN_HEIGHT * sizeof(Pixel)));
+            g_rendererState.sprite.x = (Pixel*)((Addr)g_rendererState.sprite.x - (Addr)SCREEN_SIZE_IN_BYTES);
+            g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.sprite.minX - (Addr)SCREEN_SIZE_IN_BYTES);
+            g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.sprite.maxX - (Addr)SCREEN_SIZE_IN_BYTES);
         }
+        else
+            g_rendererState.sprite.overage = overage;
 
         while (g_rendererState.sprite.height > 0)
         {
@@ -2830,16 +2833,22 @@ void drawMainSurfaceAnimationSprite(S32 x, S32 y, U16 level, const AnimationPixe
 
                 while (sx < g_rendererState.sprite.minX)
                 {
-                    CONST U32 need = (U32)((Addr)g_rendererState.sprite.minX - (Addr)sx) / sizeof(Pixel);
-                    CONST U32 count = pixels->count & IMAGE_SPRITE_ITEM_COUNT_MASK;
+                    const U32 need = (U32)((Addr)g_rendererState.sprite.minX - (Addr)sx) / sizeof(Pixel);
+                    const U32 count = pixels->count & IMAGE_SPRITE_ITEM_COUNT_MASK;
 
                     if (pixels->count & IMAGE_SPRITE_ITEM_COMPACT_MASK)
                     {
-                        if (count <= need) { pixels = (ImagePaletteSpritePixel*)((Addr)pixels + sizeof(ImagePaletteSpritePixel)); }
+                        if (count <= need)
+                        {
+                            pixels = (ImagePaletteSpritePixel*)((Addr)pixels + sizeof(ImagePaletteSpritePixel));
+                        }
                     }
                     else
                     {
-                        if (count <= need) { pixels = (ImagePaletteSpritePixel*)((Addr)pixels + (count - 1) * sizeof(U8) + sizeof(ImagePaletteSpritePixel)); }
+                        if (count <= need)
+                        {
+                            pixels = (ImagePaletteSpritePixel*)((Addr)pixels + (count - 1) * sizeof(U8) + sizeof(ImagePaletteSpritePixel));
+                        }
                     }
 
                     skip = count == need ? 0 : std::min(count, need);
@@ -2858,29 +2867,32 @@ void drawMainSurfaceAnimationSprite(S32 x, S32 y, U16 level, const AnimationPixe
                     {
                         // Skip pixels that are below required stencil value.
                         {
-                            CONST Addr offset = (Addr)sx - (Addr)g_rendererState.surfaces.main;
+                            const Addr offset = (Addr)sx - (Addr)g_rendererState.surfaces.main;
                             while (stencil <= *(DoublePixel*)((Addr)g_rendererState.surfaces.stencil + offset + (Addr)(x + skip) * (Addr)sizeof(Pixel)))
                             {
                                 count = count - 1;
                                 skip = skip + 1;
 
-                                if (count == 0) { break; }
+                                if (count == 0)
+                                {
+                                    break;
+                                }
                             }
                         }
 
                         // Blend and draw pixels.
                         if (count != 0)
                         {
-                            CONST U8 indx = pixels->pixels[0];
-                            CONST AnimationPixel pixel = palette[indx];
+                            const U8 indx = pixels->pixels[0];
+                            const AnimationPixel pixel = palette[indx];
 
-                            CONST DoublePixel pix = pixel >> 19;
+                            const DoublePixel pix = pixel >> 19;
 
                             if ((pix & 0xFF) != 0x1F)
                             {
                                 for (U32 i = 0; i < count - skip; ++i)
                                 {
-                                    CONST DoublePixel value =
+                                    const DoublePixel value =
                                         (pix * (((sx[i] << 16) | sx[i]) & g_rendererState.sprite.colorMask) >> 5) & g_rendererState.sprite.colorMask;
 
                                     sx[i] = (Pixel)((value >> 16) | value) + (Pixel)pixel;
@@ -2894,13 +2906,16 @@ void drawMainSurfaceAnimationSprite(S32 x, S32 y, U16 level, const AnimationPixe
                     {
                         // Skip pixels that are below required stencil value.
                         {
-                            CONST Addr offset = (Addr)sx - (Addr)g_rendererState.surfaces.main;
+                            const Addr offset = (Addr)sx - (Addr)g_rendererState.surfaces.main;
                             while (stencil <= *(DoublePixel*)((Addr)g_rendererState.surfaces.stencil + offset + (Addr)(x + skip) * (Addr)sizeof(Pixel)))
                             {
                                 count = count - 1;
                                 skip = skip + 1;
 
-                                if (count == 0) { break; }
+                                if (count == 0)
+                                {
+                                    break;
+                                }
                             }
                         }
 
@@ -2909,14 +2924,14 @@ void drawMainSurfaceAnimationSprite(S32 x, S32 y, U16 level, const AnimationPixe
                         {
                             for (U32 i = 0; i < count - skip; ++i)          // todo: fix bug - in some cases count is less than skip, so i is too big
                             {
-                                CONST U8 indx = pixels->pixels[skip + i];
-                                CONST AnimationPixel pixel = palette[indx];
+                                const U8 indx = pixels->pixels[skip + i];
+                                const AnimationPixel pixel = palette[indx];
 
-                                CONST DoublePixel pix = pixel >> 19;
+                                const DoublePixel pix = pixel >> 19;
 
                                 if ((pix & 0xFF) != 0x1F)
                                 {
-                                    CONST DoublePixel value =
+                                    const DoublePixel value =
                                         (pix * (((sx[i] << 16) | sx[i]) & g_rendererState.sprite.colorMask) >> 5) & g_rendererState.sprite.colorMask;
 
                                     sx[i] = (Pixel)((value >> 16) | value) + (Pixel)pixel;
