@@ -810,7 +810,7 @@ void copyMainBackSurfaces(const S32 dx, const S32 dy)
 
         if (length < 0) { length = ((length - 1) | (U32)(-(S32)SCREEN_WIDTH)) + 1; }
 
-        CONST S32 lines = (old_offset + ((old_offset >> 0x1f) & (SCREEN_WIDTH - 1))) / SCREEN_WIDTH;
+        const S32 lines = (old_offset + ((old_offset >> 0x1f) & (SCREEN_WIDTH - 1))) / SCREEN_WIDTH;
 
         assert(length + dx == x_max && std::format("{} {}", length + dx, x_max).c_str());
         assert(old_offset == offset && std::format("{} {}", old_offset, offset).c_str());
@@ -1485,15 +1485,14 @@ void moveStencilSurface(const S32 x, const S32 y, const S32 width, const S32 hei
     //    pixels = (DoublePixel*)((Addr)pixels - (Addr)SCREEN_SIZE_IN_BYTES);
     //    processRows(height);
     //}
-
     if (-1 < offset)
     {
-        CONST Pixel pixel = (Pixel)(offset << STENCIL_PIXEL_COLOR_SHIFT);
-        CONST DoublePixel pix = ((DoublePixel)(pixel) << GRAPHICS_BITS_PER_PIXEL_16) | (DoublePixel)pixel;
+        const Pixel pixel = (Pixel)(offset << STENCIL_PIXEL_COLOR_SHIFT);
+        const DoublePixel pix = ((DoublePixel)(pixel) << GRAPHICS_BITS_PER_PIXEL_16) | (DoublePixel)pixel;
 
         if (y < g_moduleState.surface.y)
         {
-            CONST S32 delta = y + height - g_moduleState.surface.y;
+            const S32 delta = y + height - g_moduleState.surface.y;
 
             if ((y + height) < g_moduleState.surface.y || delta == 0)
             {
@@ -1537,12 +1536,12 @@ void moveStencilSurface(const S32 x, const S32 y, const S32 width, const S32 hei
     }
     else
     {
-        CONST Pixel pixel = (Pixel)(-offset << STENCIL_PIXEL_COLOR_SHIFT);
-        CONST DoublePixel pix = ((DoublePixel)(pixel) << GRAPHICS_BITS_PER_PIXEL_16) | (DoublePixel)pixel;
+        const Pixel pixel = (Pixel)(-offset << STENCIL_PIXEL_COLOR_SHIFT);
+        const DoublePixel pix = ((DoublePixel)(pixel) << GRAPHICS_BITS_PER_PIXEL_16) | (DoublePixel)pixel;
 
         if (y < g_moduleState.surface.y)
         {
-            CONST S32 delta = y + height - g_moduleState.surface.y;
+            const S32 delta = y + height - g_moduleState.surface.y;
 
             if ((y + height) < g_moduleState.surface.y || delta == 0)
             {
