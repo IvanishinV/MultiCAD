@@ -503,10 +503,12 @@ void copyPixelRectFromTo(S32 sx, S32 sy, S32 sstr, Pixel* input, S32 dx, S32 dy,
  */
 bool copyMainSurfaceToRenderer(S32 x, S32 y, S32 width, S32 height);
 
-// 0x10002b90           todo
+// 0x10002b90
 /**
- * Copies a rectangle from main surface to renderer.
+ * Copies a rectangle from main surface to renderer using war fog array.
  *
+ * Create by IVA 20.06.2025.
+ * 
  * @param x Starting X coordinate of the rectangle.
  * @param y Starting Y coordinate of the rectangle.
  * @param width Width of the rectangle to be copied.
@@ -514,7 +516,7 @@ bool copyMainSurfaceToRenderer(S32 x, S32 y, S32 width, S32 height);
  *
  * @return None.
  */
-void FUN_10002b90(S32 x, S32 y, S32 width, S32 height);
+void copyMainSurfaceToRendererWithWarFog(S32 x, S32 y, S32 width, S32 height);
 
 // 0x10002fb0           todo
 void FUN_10002fb0(S32 x, S32 y, S32 width, S32 height);

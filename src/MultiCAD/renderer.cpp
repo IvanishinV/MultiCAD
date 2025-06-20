@@ -1752,8 +1752,268 @@ bool copyMainSurfaceToRenderer(S32 x, S32 y, S32 width, S32 height)
 }
 
 // 0x10002b90
-void FUN_10002b90(const S32 x, const S32 y, const S32 endX, const S32 endY)
+void copyMainSurfaceToRendererWithWarFog(const S32 x, const S32 y, const S32 endX, const S32 endY)
 {
+    bool locked = false;
+
+    if (g_moduleState.surface.renderer == NULL)
+    {
+        if (!lockDxSurface())
+        {
+            return;
+}
+
+        locked = true;
+    }
+
+    S32 delta = (endY + 1) - y;  
+    g_rendererState.rendererStruct02.unk04 = 0;
+    g_moduleState.moduleStruct01.actualRgbMask = g_moduleState.initialRgbMask;
+    g_moduleState.moduleStruct01.dstRowStride = -8 * g_moduleState.pitch + 32;
+    g_moduleState.moduleStruct01.lineStep = -(S32)SCREEN_WIDTH * 16 + 32;
+
+    U8* fogSrc = &g_moduleState.fogSprites[(y >> 3) + 8].unk[(x >> 4) + 8];
+    DoublePixel* src = (DoublePixel*)((Addr)g_rendererState.surfaces.main + (SCREEN_WIDTH * y + x + g_moduleState.surface.offset) * sizeof(Pixel));
+    DoublePixel* dst = (DoublePixel*)((Addr)g_moduleState.surface.renderer + x * sizeof(Pixel) + y * g_moduleState.pitch);
+
+    if (y >= g_moduleState.surface.y)
+        src = (DoublePixel*)((Addr)src - SCREEN_SIZE_IN_BYTES);
+
+    if (y >= g_moduleState.surface.y || y + delta <= g_moduleState.surface.y)
+    {
+        g_rendererState.rendererStruct01.validRowsBlockCount = delta >> 3;
+        g_rendererState.rendererStruct01.unk02 = 0;
+        g_rendererState.rendererStruct02.excessRowsBlockCount = 0;  
+        
+        g_moduleState.moduleStruct01.rowAlignmentMask = SCREEN_WIDTH * sizeof(Pixel);
+    }
+    else
+    {
+        g_rendererState.rendererStruct01.validRowsBlockCount = (g_moduleState.surface.y - y) >> 3;
+        g_rendererState.rendererStruct02.excessRowsBlockCount = (delta + y - g_moduleState.surface.y) >> 3;
+        U32 v7 = ((U8)g_moduleState.surface.y - (U8)y) & 7;
+        v7 = v7 | ((8 - v7) << 8);
+        v7 = v7 << 8;               // v7 now is 0000 ' 8 - v7 ' v7 ' 0000, so the summ of all its bytes is always 8
+        g_rendererState.rendererStruct01.unk02 = (S32)v7;
+
+        if (g_rendererState.rendererStruct01.validRowsBlockCount == 0)
+        {
+            g_moduleState.moduleStruct01.lineStep += SCREEN_SIZE_IN_BYTES;
+            g_moduleState.moduleStruct01.rowAlignmentMask = v7;
+            g_rendererState.rendererStruct01.validRowsBlockCount = 1;
+            g_rendererState.rendererStruct01.unk02 = 0;
+        }
+        else
+            g_moduleState.moduleStruct01.rowAlignmentMask = SCREEN_WIDTH * sizeof(Pixel);
+    }
+
+    S32 remainingExcessRows;
+    DoublePixel* srcTemp;
+    DoublePixel* dstTemp;
+    do
+    {
+        while (true)
+        {
+            do {
+                srcTemp = src;
+                dstTemp = dst;
+
+                U8* someFog = fogSrc;
+                fogSrc = someFog + sizeof(Fog);
+
+                g_moduleState.moduleStruct01.fogPtr = someFog;
+                g_rendererState.rendererStruct01.unk04 = ((endX + 1) - x) >> 4;
+
+                do {
+                    DoublePixel fogPixel = *(DoublePixel*)((Addr)g_moduleState.moduleStruct01.fogPtr - 2);
+                    fogPixel = (fogPixel & 0xFFFF'0000) | (*(Pixel*)((Addr)g_moduleState.moduleStruct01.fogPtr + sizeof(Fog)));
+
+                    if (fogPixel)
+                    {
+                        if (fogPixel == 0x80808080)
+                        {
+                            U32 j = g_moduleState.moduleStruct01.rowAlignmentMask >> 8;
+                            ++g_moduleState.moduleStruct01.fogPtr;
+                            while (true)
+                            {
+                                do
+                                {
+                                    dst[0] = src[0];
+                                    dst[1] = src[1];
+                                    dst[2] = src[2];
+                                    dst[3] = src[3];
+                                    dst[4] = src[4];
+                                    dst[5] = src[5];
+                                    dst[6] = src[6];
+                                    dst[7] = src[7];
+                                    src = (DoublePixel*)((Addr)src + (Addr)SCREEN_WIDTH * sizeof(Pixel));
+                                    dst = (DoublePixel*)((Addr)dst + (Addr)g_moduleState.pitch);
+
+                                    --j;
+                                } while (j & 0xFF);
+                                j >>= 8;
+                                if (j == 0)
+                                    break;
+                                src = (DoublePixel*)((Addr)src - (Addr)SCREEN_SIZE_IN_BYTES);
+                            }
+                        }
+                        else
+                        {
+                            // Break fogPixel into bytes
+                            U8 fogPixelLowByte = fogPixel & 0xFF;          // Byte 0
+                            U8 fogValueMidByte = (fogPixel >> 8) & 0xFF;   // Byte 1
+                            U8 fogPixelHighByte = (fogPixel >> 16) & 0xFF; // Byte 2
+                            U8 fogPixelTopByte = (fogPixel >> 24) & 0xFF;  // Byte 3
+
+                            // Step 1: fogValueMidByte -= fogPixelTopByte, track borrow
+                            bool borrow1 = fogValueMidByte < fogPixelTopByte;
+                            fogValueMidByte -= fogPixelTopByte;
+
+                            // Step 2: fogValueMidByte -= fogPixelLowByte, track another borrow
+                            bool borrow2 = fogValueMidByte < fogPixelLowByte;
+                            fogValueMidByte -= fogPixelLowByte;
+
+                            // Step 3: Compute carry of (fogPixelHighByte + fogValueMidByte)
+                            bool carry = ((uint16_t)fogPixelHighByte + (uint16_t)fogValueMidByte) > 0xFF;
+                            fogValueMidByte += fogPixelHighByte;
+
+                            // Final v27 computation
+                            S32 v27 = carry + (-(S32)borrow1) - (S32)borrow2;
+                            v27 = (v27 & 0xFFFF'FF00) | fogValueMidByte;
+                            g_rendererState.rendererStruct01.unk01 = v27 >> 2;
+
+                            // Compute v28 (difference between fogPixelTopByte and fogPixelHighByte)
+                            S32 v28 = -(S32)(fogPixelTopByte < fogPixelHighByte);
+                            fogPixelTopByte -= fogPixelHighByte;
+                            v28 = (v28 & 0xFFFF'FF00) | fogPixelTopByte;
+                            g_rendererState.rendererStruct02.unk01 = 2 * v28;
+
+                            // Compute v30 (difference between fogPixelLowByte and fogPixelLow)
+                            S32 v30 = -(S32)(fogPixelLowByte < fogPixelHighByte);
+                            fogPixelLowByte -= fogPixelHighByte;
+                            v30 = (v30 & 0xFFFF'FF00) | fogPixelLowByte;
+
+                            S32 v31 = 4 * v30;
+                            g_rendererState.rendererStruct02.unk02 = v31;
+
+                            U32 fogOffset = ((S32)fogPixelHighByte + 0x7F) << 5;
+
+                            const U32 mask = g_moduleState.moduleStruct01.actualRgbMask;
+                            U32 j = g_moduleState.moduleStruct01.rowAlignmentMask >> 8;
+                            ++g_moduleState.moduleStruct01.fogPtr;
+
+                            while (true)
+                            {
+                                g_rendererState.rendererStruct02.unk04 = 0;
+                                do {
+                                    U8 k = 0x10;
+                                    S32 v39 = fogOffset;
+                                    do {
+                                        while ((U8)(fogOffset >> 8) != 0x20)
+                                        {
+                                            const U32 srcPixel = (*src & 0xFFFF) | (*src << 16);
+                                            const U32 v35 = g_rendererState.rendererStruct02.unk04 + (mask & srcPixel) * (U8)(fogOffset >> 8);
+                                            fogOffset += g_rendererState.rendererStruct02.unk01;
+
+                                            const U32 v37 = mask & (v35 >> 5);
+                                            g_rendererState.rendererStruct02.unk04 = mask & v35;
+
+                                            v31 = v37 >> 16;
+                                            *(Pixel*)dst = (Pixel)(v31 | v37);
+
+                                            dst = (DoublePixel*)((Addr)dst + sizeof(Pixel));
+                                            src = (DoublePixel*)((Addr)src + sizeof(Pixel));
+                                            --k;
+                                            if (k == 0)
+                                                break;
+                                        }
+                                        if (k == 0)
+                                            break;
+
+                                        fogOffset += g_rendererState.rendererStruct02.unk01;
+                                        *(Pixel*)dst = (Pixel)v31;
+
+                                        dst = (DoublePixel*)((Addr)dst + sizeof(Pixel));
+                                        src = (DoublePixel*)((Addr)src + sizeof(Pixel));
+                                        --k;
+                                    } while (k);
+
+                                    fogOffset = g_rendererState.rendererStruct02.unk02 + v39;
+                                    src = (DoublePixel*)((Addr)src + SCREEN_WIDTH * sizeof(Pixel) - 32);
+                                    dst = (DoublePixel*)((Addr)dst + g_moduleState.pitch - 32);
+                                    g_rendererState.rendererStruct02.unk01 += g_rendererState.rendererStruct01.unk01;
+
+                                    --j;
+                                } while (j & 0xFF);
+                                j >>= 8;
+                                if (j == 0)
+                                    break;
+                                src = (DoublePixel*)((Addr)src - (Addr)SCREEN_SIZE_IN_BYTES);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        U32 j = g_moduleState.moduleStruct01.rowAlignmentMask >> 8;
+                        ++g_moduleState.moduleStruct01.fogPtr;
+                        const DoublePixel mask = (g_moduleState.unk23 << 16) | g_moduleState.unk23;
+                        while (true)
+                        {
+                            do
+                            {
+                                dst[0] = mask & (src[0] >> 1);
+                                dst[1] = mask & (src[1] >> 1);
+                                dst[2] = mask & (src[2] >> 1);
+                                dst[3] = mask & (src[3] >> 1);
+                                dst[4] = mask & (src[4] >> 1);
+                                dst[5] = mask & (src[5] >> 1);
+                                dst[6] = mask & (src[6] >> 1);
+                                dst[7] = mask & (src[7] >> 1);
+                                src = (DoublePixel*)((Addr)src + (Addr)SCREEN_WIDTH * sizeof(Pixel));
+                                dst = (DoublePixel*)((Addr)dst + (Addr)g_moduleState.pitch);
+
+                                --j;
+                            } while (j & 0xFF);
+                            j >>= 8;
+                            if (j == 0)
+                                break;
+                            src = (DoublePixel*)((Addr)src - (Addr)SCREEN_SIZE_IN_BYTES);
+                        }
+                    }
+
+                    src = (DoublePixel*)((Addr)src + (Addr)g_moduleState.moduleStruct01.lineStep);
+                    dst = (DoublePixel*)((Addr)dst + (Addr)g_moduleState.moduleStruct01.dstRowStride);
+                    --g_rendererState.rendererStruct01.unk04;
+                } while (g_rendererState.rendererStruct01.unk04);
+
+                src = (DoublePixel*)((Addr)srcTemp + (Addr)SCREEN_WIDTH * 16);
+                dst = (DoublePixel*)((Addr)dstTemp + (Addr)g_moduleState.pitch * 8);
+                --g_rendererState.rendererStruct01.validRowsBlockCount;
+            } while (g_rendererState.rendererStruct01.validRowsBlockCount);
+
+            if ((g_rendererState.rendererStruct01.unk02 & 0xFF00) == 0)
+                break;
+
+            g_moduleState.moduleStruct01.rowAlignmentMask = g_rendererState.rendererStruct01.unk02;
+            g_moduleState.moduleStruct01.lineStep = SCREEN_SIZE_IN_BYTES - SCREEN_WIDTH * 16 + 32;
+            g_rendererState.rendererStruct01.validRowsBlockCount = 1;
+            g_rendererState.rendererStruct01.unk02 = 0;
+        }
+
+        g_moduleState.moduleStruct01.lineStep = -(S32)SCREEN_WIDTH * 16 + 32;
+        remainingExcessRows = g_rendererState.rendererStruct02.excessRowsBlockCount;
+        g_rendererState.rendererStruct01.validRowsBlockCount = remainingExcessRows;
+        g_rendererState.rendererStruct02.excessRowsBlockCount = 0;
+        g_moduleState.moduleStruct01.rowAlignmentMask = SCREEN_WIDTH * sizeof(Pixel);
+        src = (DoublePixel*)((Addr)srcTemp - (Addr)SCREEN_SIZE_IN_BYTES);
+    } while (remainingExcessRows);
+
+    if (locked)
+    {
+        unlockDxSurface();
+    }
+
+    return;
 }
 
 // 0x10002fb0

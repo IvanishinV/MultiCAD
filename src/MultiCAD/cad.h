@@ -59,7 +59,7 @@ using UNLOCK_DX_SURFACE_PTR = void(*)(void);
 using COPY_RENDERER_SURFACE_RECT_TO_PTR = bool(*)(S32 sx, S32 sy, S32 width, S32 height, S32 dx, S32 dy, S32 stride, Pixel* pixels);
 using COPY_PIXEL_RECT_FROM_TO_PTR = void(*)(S32 sx, S32 sy, S32 sstr, Pixel* input, S32 dx, S32 dy, S32 dstr, Pixel* output, S32 width, S32 height);
 using COPY_MAIN_SURFACE_TO_RENDERER_PTR = bool(*)(S32 x, S32 y, S32 width, S32 height);
-using FUN_10002B90_PTR = void(*)(S32 x, S32 y, S32 width, S32 height);
+using COPY_MAIN_SURFACE_TO_RENDERER_WITH_WAR_FOG_PTR = void(*)(S32 x, S32 y, S32 width, S32 height);
 using GET_TEXT_LENGTH = S32(*)(const char* text, const AssetCollection* asset);
 
 using FUN_10002FB0_PTR = void(*)(S32 x, S32 y, S32 width, S32 height);
@@ -142,7 +142,7 @@ struct RendererActions
     DRAW_MAIN_SURFACE_SHADED_COLOR_RECT_PTR         drawMainSurfaceShadeColorRect;
     DRAW_MAIN_SURFACE_COLOR_OUTLINE_PTR             drawMainSurfaceColorOutline;
     DRAW_MAIN_SURFACE_COLOR_ELLIPSE_PTR             drawMainSurfaceColorEllipse;
-    FUN_10002B90_PTR                                FUN_10002b90;
+    COPY_MAIN_SURFACE_TO_RENDERER_WITH_WAR_FOG_PTR  copyMainSurfaceToRendererWithWarFog;
     COPY_MAIN_SURFACE_TO_RENDERER_PTR               copyMainSurfaceToRenderer;
     FUN_10002FB0_PTR                                FUN_10002fb0_1;
     READ_MAIN_SURFACE_RECT_PTR                      readMainSurfaceRect;
