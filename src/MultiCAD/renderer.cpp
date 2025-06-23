@@ -2605,9 +2605,9 @@ void drawMainSurfacePaletteSprite(S32 x, S32 y, const Pixel* palette, const Imag
 // 0x100053c3
 void drawMainSurfaceVanishingSprite(S32 x, S32 y, const S32 vanishOffset, const Pixel* palette, const ImagePaletteSprite* const sprite)
 {
+    const U32 colorMask = ((U32)g_moduleState.actualGreenMask << 16) | g_moduleState.actualBlueMask | g_moduleState.actualRedMask;
     g_rendererState.sprite.vanishOffset = vanishOffset;
-    U32 colorMask = (U32)g_moduleState.actualGreenMask << 16;
-    g_rendererState.sprite.colorMask = colorMask | g_moduleState.actualBlueMask | g_moduleState.actualRedMask;
+    g_rendererState.sprite.colorMask = colorMask;
     g_rendererState.sprite.adjustedColorMask = colorMask | (colorMask << 1);
 
     g_rendererState.sprite.windowRect.x = g_moduleState.windowRect.x;
