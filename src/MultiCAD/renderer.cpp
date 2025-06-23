@@ -3000,9 +3000,9 @@ void FUN_100067ad(S32 x, S32 y, S32 param_3, LPVOID param_4)
 // 0x10006b21
 void drawMainSurfaceAnimationSprite(S32 x, S32 y, U16 level, const AnimationPixel* palette, ImagePaletteSprite* sprite)
 {
-    g_rendererState.sprite.colorMask =
-        (((U32)g_moduleState.actualGreenMask) << 16) | g_moduleState.actualRedMask | g_moduleState.actualBlueMask;
-    g_rendererState.sprite.adjustedColorMask = (g_rendererState.sprite.colorMask << 1) | g_rendererState.sprite.colorMask;
+    const U32 colorMask = ((U32)g_moduleState.actualGreenMask << 16) | g_moduleState.actualBlueMask | g_moduleState.actualRedMask;
+    g_rendererState.sprite.colorMask = colorMask;
+    g_rendererState.sprite.adjustedColorMask = colorMask | (colorMask << 1);
 
     g_rendererState.sprite.windowRect.x = g_moduleState.windowRect.x;
     g_rendererState.sprite.windowRect.y = g_moduleState.windowRect.y;
@@ -3090,7 +3090,8 @@ void drawMainSurfaceAnimationSprite(S32 x, S32 y, U16 level, const AnimationPixe
                 // in case the sprite starts to the left of allowed drawing rectangle.
                 Pixel* sx = g_rendererState.sprite.x;
 
-                // There was a bug, that pixels was bigger than next. According to IDA, there is a separate loop "pixels < next"
+                // There was a bug, that 'pixels' was bigger than 'next'. According to IDA, there is a separate loop "pixels < next"
+                // Also, there was a bug that 'i < count - skip', but count has been reduced by skip
                 while (sx < g_rendererState.sprite.minX && (std::uintptr_t)pixels < (std::uintptr_t)next)
                 {
                     const U32 need = (U32)((Addr)g_rendererState.sprite.minX - (Addr)sx) / sizeof(Pixel);
@@ -3150,7 +3151,7 @@ void drawMainSurfaceAnimationSprite(S32 x, S32 y, U16 level, const AnimationPixe
 
                             if ((pix & 0xFF) != 0x1F)
                             {
-                                for (U32 i = 0; i < count - skip; ++i)
+                                for (U32 i = 0; i < count; ++i)
                                 {
                                     const DoublePixel value =
                                         (pix * (((sx[i] << 16) | sx[i]) & g_rendererState.sprite.colorMask) >> 5) & g_rendererState.sprite.colorMask;
@@ -3182,7 +3183,7 @@ void drawMainSurfaceAnimationSprite(S32 x, S32 y, U16 level, const AnimationPixe
                         // Blend and draw pixels.
                         if (count != 0)
                         {
-                            for (U32 i = 0; i < count - skip; ++i)
+                            for (U32 i = 0; i < count; ++i)
                             {
                                 const U8 indx = pixels->pixels[skip + i];
                                 const AnimationPixel pixel = palette[indx];

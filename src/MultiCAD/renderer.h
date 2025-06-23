@@ -637,7 +637,7 @@ void drawMainSurfaceSprite(S32 x, S32 y, ImageSprite* sprite);
 // 0x100067ad           todo
 void FUN_100067ad(S32 x, S32 y, S32 param_3, LPVOID param_4);
 
-// 0x10006b21           fix bug
+// 0x10006b21
 /**
  * Draws an animation sprite via specified level on main surface, e.g. cursor, explodes, etc.
  *
