@@ -58,32 +58,17 @@ struct Sprite
 
 struct Tile
 {
-    S32 unk01;      // 0x10010030
-    S32 unk02;      // 0x10010034
-    Pixel* stencil;      // 0x10010038
-    S8  unk04;      // 0x1001003c
+    S32 unk01;                  // 0x10010030
+    S32 unk02;                  // 0x10010034
+    Pixel* stencil;             // 0x10010038
+    S8  unk04;                  // 0x1001003c
 
-    S32 lerp;      // 0x1001003d
-    S32 height;      // 0x10010041
-    S32 unk07;      // 0x10010045
-    S8  unk08;      // 0x10010049
+    S32 lerp;                   // 0x1001003d
+    S32 tileHeight;             // 0x10010041
+    S32 unk07;                  // 0x10010045
+    S8  unk08;                  // 0x10010049
 
-    Window windowRect; // 0x1001004A
-};
-
-struct RendererTile
-{
-    S32 unk01;
-    S32 unk02;
-    Pixel* stencil;
-    U32* unk04;
-
-    S32 lerp;
-    S32 height;
-    S32 unk07;
-    S8  unk08;
-
-    Window windowRect;
+    Window windowRect;          // 0x1001004A
 };
 
 struct RendererStructTest01
@@ -103,20 +88,14 @@ struct RendererStructTest02
     S32 unk05;                  // 1001d584
 };
 
-struct RendererStructTest03
-{
-    Pixel shadow[SCREEN_HEIGHT * 10]; //1001'2de4 туман войны
-};
-
 struct RendererStateContainer
 {
     Surfaces        surfaces;       // 1001'd5d0
     Outline         outline;        // 1001'd55c
     Sprite          sprite;
-    RendererTile    rendererTile;
+    Tile            tile;
     RendererStructTest01 rendererStruct01;
     RendererStructTest02 rendererStruct02;
-    RendererStructTest03 rendererStruct03;
 };
 
 extern RendererStateContainer g_rendererState;
@@ -352,7 +331,7 @@ void copyMainBackSurfaces(S32 dx, S32 dy);
  *
  * @return None.
  */
-void callDrawBackSurfaceRhomb(S32 tx, S32 ty, S32 angle_0, S32 angle_1, S32 angle_2, S32 angle_3, U8* input);
+void callDrawBackSurfaceRhomb(S32 tx, S32 ty, S32 angle_0, S32 angle_1, S32 angle_2, S32 angle_3, ImagePaletteTile* input);
 
 // 0x10001ed0           todo
 void FUN_10001ed0(S32 param_1, S32 param_2, S32 param_3, S32 param_4, S32 param_5, S32 param_6);
@@ -541,9 +520,11 @@ void FUN_10003360(S32 x, S32 y, LPSTR text, AssetCollection* asset, Pixel* palet
 void FUN_100033c0(S32 x, S32 y, LPSTR text, AssetCollection* asset, Pixel* palette);
 
 
-// 0x10003420           check
+// 0x10003420           todo: refactor
 /**
  * Draws a landscape rhomb on back surface. Used for ground.
+ * 
+ * Created by NR 25.06.2025.
  *
  * @param angle_0 0th angle of the tile.
  * @param angle_1 1th angle of the tile.
@@ -557,7 +538,7 @@ void FUN_100033c0(S32 x, S32 y, LPSTR text, AssetCollection* asset, Pixel* palet
  *
  * @return None.
  */
-void drawBackSurfaceRhomb(S32 angle_0, S32 angle_1, S32 angle_2, S32 angle_3, S32 tx, S32 ty, S32 stride, U8* input, Pixel* output);
+void drawBackSurfaceRhomb(S32 angle_0, S32 angle_1, S32 angle_2, S32 angle_3, S32 tx, S32 ty, S32 stride, ImagePaletteTile* input, Pixel* output);
 
 // 0x10004390           todo
 void FUN_10004390(S32 param_1, S32 param_2, LPVOID param_3);
@@ -574,7 +555,7 @@ void FUN_10004db0(S32 x, S32 y, U16 param_3, S32 param_4, LPVOID param_5);
 // 0x100050df
 /**
  * Draws a sprite on main surface, e.g. text.
- *
+ * 
  * @param x Starting X position of the sprite.
  * @param y Starting Y position of the sprite.
  * @param palette
@@ -587,7 +568,7 @@ void drawMainSurfacePaletteSprite(S32 x, S32 y, const Pixel* palette, const Imag
 // 0x100053c3
 /**
  * Draws a sprite on main surface, e.g. text.
- *
+ * 
  * @param x Starting X position of the sprite.
  * @param y Starting Y position of the sprite.
  * @param vanishOffset Value in [0, 31] responsible for the disappearance of the sprite.
@@ -640,7 +621,7 @@ void FUN_100067ad(S32 x, S32 y, S32 param_3, LPVOID param_4);
 // 0x10006b21
 /**
  * Draws an animation sprite via specified level on main surface, e.g. cursor, explodes, etc.
- *
+ * 
  * @param x Starting X position of the sprite.
  * @param y Starting Y position of the sprite.
  * @param level Displaying level.

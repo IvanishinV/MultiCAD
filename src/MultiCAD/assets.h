@@ -59,7 +59,7 @@ struct ImagePaletteSpritePixel
 #pragma pack(push, 1)
 struct ImagePaletteTile
 {
-    ImagePaletteSpritePixel* pixels[1];
+    U8 pixels[1];
 };
 #pragma pack(pop)
 

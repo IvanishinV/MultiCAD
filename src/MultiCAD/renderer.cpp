@@ -842,7 +842,7 @@ void copyMainBackSurfaces(const S32 dx, const S32 dy)
 }
 
 // 0x10001e90
-void callDrawBackSurfaceRhomb(S32 tx, S32 ty, S32 angle_0, S32 angle_1, S32 angle_2, S32 angle_3, U8* input)
+void callDrawBackSurfaceRhomb(S32 tx, S32 ty, S32 angle_0, S32 angle_1, S32 angle_2, S32 angle_3, ImagePaletteTile* input)
 {
     // This check was added since in the original Cad value 2 * g_moduleState.surface.width is passed to the next called function
 #ifdef CHECK_ASSERTS
@@ -2067,100 +2067,88 @@ void FUN_100033c0(S32 x, S32 y, LPSTR text, AssetCollection* asset, Pixel* palet
 }
 
 // 0x10003420
-void drawBackSurfaceRhomb(S32 angle_0, S32 angle_1, S32 angle_2, S32 angle_3, S32 tx, S32 ty, S32 stride, U8* input, Pixel* output)
+void drawBackSurfaceRhomb(S32 angle_0, S32 angle_1, S32 angle_2, S32 angle_3, S32 tx, S32 ty, S32 stride, ImagePaletteTile* input, Pixel* output)
 {
-    return;
-    S32 overage;  //избыток
-    S32 overflow; //переполнение
+    // Tile height: 32
+    // Tile width: 63
+
+    S32 overage;
+    S32 overflow;
 
     S32 delta2;
-    S32 TileStartDrawLength;
-
+    S32 tileStartDrawLength;
 
     bool draw;
     S16 uVar4;
     S32 iVar6;
     U16 uVar5;
-    //LPVOID content = &input->Pixels;
 
-    /*char debugMsg[256];
-    sprintf(debugMsg, "[%s] unk01=%d, unk02=%d, unk03=%d, unk04=%d, tx=%d, ty=%d, y=%d, delta=%d\n", __FUNCTION__, unk01, unk02, unk03, unk04, tx, ty, g_moduleState.windowRect.y, g_moduleState.windowRect.y - ty);
-    OutputDebugStringA(debugMsg);*/
+    // Инициализация
+    g_rendererState.tile.stencil = (Pixel*)((Addr)output + (g_moduleState.surface.offset % (SCREEN_WIDTH + SCREEN_SIZE_IN_PIXELS)) * sizeof(Pixel));
+    g_rendererState.tile.windowRect.x = (S16)g_moduleState.windowRect.x + 33;        //0 + 33
+    g_rendererState.tile.windowRect.y = (S16)g_moduleState.windowRect.y;                //0
+    g_rendererState.tile.windowRect.width = (S16)g_moduleState.windowRect.width + 33;     //1023 + 33
+    g_rendererState.tile.windowRect.height = (S16)g_moduleState.windowRect.height;           //767
+    g_rendererState.tile.unk02 = 0;
 
-    const Addr offset = (Addr)tx - (Addr)output;
-    g_rendererState.rendererTile.stencil = (Pixel*)((Addr)g_rendererState.surfaces.stencil + offset);
+    // Проверка видимости тайла
+    if (tx > g_rendererState.tile.windowRect.width + 1
+        || tx < g_rendererState.tile.windowRect.x - 64
+        || ty > g_rendererState.tile.windowRect.height + 1
+        || ty < g_rendererState.tile.windowRect.y - 32)
+        return;
 
-    g_rendererState.rendererTile.windowRect.x = g_moduleState.windowRect.x + 0x21;        //0 + 33
-    g_rendererState.rendererTile.windowRect.y = g_moduleState.windowRect.y;                //0
-    g_rendererState.rendererTile.windowRect.width = g_moduleState.windowRect.width + 0x21;     //1023 + 33
-    g_rendererState.rendererTile.windowRect.height = g_moduleState.windowRect.height;           //767
-    g_rendererState.rendererTile.unk02 = 0;
-
-
-    if ((((tx <= (g_rendererState.rendererTile.windowRect.width + 1)) && ((g_rendererState.rendererTile.windowRect.x - 64) <= tx)) && (ty <= (g_rendererState.rendererTile.windowRect.height + 1))) && ((g_moduleState.windowRect.y - 32) <= ty))
-    {
+    // Настройка рендеринга
+    U8* src_input = input->pixels;
         U8* src;
         U8* src1;
-        Pixel* dst = (Pixel*)((Addr)output + (Addr)(g_moduleState.surface.offset + stride * ty + tx * sizeof(Pixel) - 2));
+    Pixel* dst = (Pixel*)((Addr)output + (g_moduleState.surface.offset * sizeof(Pixel)) + stride * ty + tx * sizeof(Pixel) - 2);
         Pixel* dst1;
         Pixel* dst2;
         Pixel* dst3;
+    S32 TileOffsetTX = tx + 32;
+    S32 lerp = (angle_1 - angle_0) << 2;
+    bool isUpperPart = (ty > (g_moduleState.windowRect.y - 16)) ? true : false; // 1 остальное 0 четверь
 
-        S32 TileOffsetTX = tx + 32;//чтото связано с яркостью четверти тайлов
-        S32 lerp = (angle_1 - angle_0) * 4; //Осветление/затемнение
+    /*OutputDebugStringA(std::format("[{}] tx={}, ty={}, X={}, Y={}, Width={}, Height={}\n"
+            , __FUNCTION__
+            , tx
+            , ty
+            , g_moduleState.windowRect.x
+            , g_moduleState.windowRect.x
+            , g_moduleState.windowRect.width
+            , g_moduleState.windowRect.height
+        ).c_str());*/
 
-        // Пропустите необходимое количество строк от верхней части изображения в случае, если спрайт начинается выше допустимого прямоугольника рисования.
-        //if (ty < g_moduleState.windowRect.y)
-        //{
-        //    g_rendererState.rendererTile.height = g_rendererState.rendererTile.height + ty - g_moduleState.windowRect.y;
+    if (!isUpperPart)
+    {
+        // Инициализация параметров рендеринга нижней четверти
+        g_rendererState.tile.lerp = (angle_3 - angle_0) << 4;
+        TileOffsetTX = (angle_0 << 8) + g_rendererState.tile.lerp;
+        dst2 = (Pixel*)((Addr)dst + (Addr)(16 * stride - 29 * sizeof(Pixel)));
+        tx += 3; // Шаг между усеченными пирамидками допустим 32+3
+        tileStartDrawLength = 61; // стартовая длина строки нижней половины тайла
+        src_input += 528; // Пропускаем верхнюю половину тайла для отображения нижней половины тайла
+        ty += 16;// -24+16 скорей всего высота которая вне экрана -8, возможно удаляем верхнюю половину тайла
 
-        //    if (g_rendererState.rendererTile.height <= 0 || g_rendererState.rendererTile.height == g_moduleState.windowRect.y - ty) { return; }
+        // Вычисление высоты
+        g_rendererState.tile.tileHeight = (g_moduleState.windowRect.height + 1) - ty;
+        if (15 < g_rendererState.tile.tileHeight)
+            g_rendererState.tile.tileHeight = 16;
 
-        //    for (S32 x = 0; x < g_moduleState.windowRect.y - ty; ++x)
-        //    {
-        //        content = (LPVOID)((Addr)next + (Addr)sizeof(U16));
-        //        next = (LPVOID)((Addr)next + (Addr)((reinterpret_cast<U16*>(next))[0] + sizeof(U16)));
-        //    }
 
-        //    ty = g_moduleState.windowRect.y;
-        //}
+        overage = g_moduleState.windowRect.y - ty; // Избыток 0
 
-        //g_rendererState.rendererTile.height = 32;
-        //const S32 overflow2 = g_rendererState.rendererTile.height + ty - g_moduleState.windowRect.height - 1;
-        //bool draw = overflow2 == 0 || (g_rendererState.rendererTile.height + ty < g_moduleState.windowRect.height + 1);
-        //if (!draw)
-        //{
-        //    const S32 height = g_rendererState.rendererTile.height; //32
-        //    g_rendererState.rendererTile.height = g_rendererState.rendererTile.height - overflow2; // объявляем новую высоту, учитывая сколько вмещается в кадр
-        //    draw = g_rendererState.rendererTile.height != 0 && overflow2 <= height;
-        //}
-
-        if (ty < (g_moduleState.windowRect.y - 16)) // Фильтр на отображение четверти тайла, в область экрана попадает пирамидка высотой 8 байт ширина этой пирамидки у основания 29 пикскля
+        //Коррекция высоты и позиции
+        if (overage != 0 && ty <= g_moduleState.windowRect.y)
         {
-            g_rendererState.rendererTile.lerp = (angle_3 - angle_0) * 16;
-            TileOffsetTX = angle_0 * 256 + g_rendererState.rendererTile.lerp;
-
-            dst2 = (Pixel*)((Addr)dst + (Addr)(stride * 8 - 29 * sizeof(Pixel)));// выделяет область по четверть тайла предпологаю * это именно его высота
-            tx += 3; //шаг между усеченными пирамидками допустим 32+3
-            TileStartDrawLength = 61; // стартовая длина строки нижней половины тайла
-            input = input + 528; // Пропускаем верхнюю половину тайла для отображения нижней пирамидки, площадь нижней пирамидки 496
-            ty += 16;//-24+16 скорей всего высота которая вне экрана -8, возможно удаляем верхнюю половину тайла
-
-            g_rendererState.rendererTile.height = (g_moduleState.windowRect.height + 1) - ty;//Высота экрана + область тайла что будет не видна 768+8=776
-            if (15 < g_rendererState.rendererTile.height)
+            ty = g_rendererState.tile.windowRect.y; // 8+8 
+            g_rendererState.tile.tileHeight -= overage; // Выравнивание?
+            for (S32 y = 0; y < overage; y++)
             {
-                g_rendererState.rendererTile.height = 16; // высота половины тайла (тайлы в игре рисуются половинками)
-            }
-            overage = g_moduleState.windowRect.y - ty; //Избыток
-            if (ty <= g_moduleState.windowRect.y && overage != 0)
-            {
-                ty = ty + overage; //8+8 
-                g_rendererState.rendererTile.height = g_rendererState.rendererTile.height - overage; // Выравнивание?
-                for (S32 y = 0; y < overage; ++y)
-                {
-                    input = (U8*)((Addr)input + (Addr)TileStartDrawLength);
-                    TileOffsetTX = TileOffsetTX + g_rendererState.rendererTile.lerp;
-                    TileStartDrawLength -= 4;//для ступечатой отричовки каждай последующая отрисовка пирамидки -4 от ее ширины
+                src_input += tileStartDrawLength;
+                TileOffsetTX += g_rendererState.tile.lerp;
+                tileStartDrawLength -= 4;// Для ступечатой отричовки каждай последующая отрисовка пирамидки -4 от ее ширины
                     dst2 = (Pixel*)((Addr)dst2 + (Addr)(stride + 2 * sizeof(Pixel)));// наверно 4 это 2пикселя + мешене для ступечатых операций
                     tx += 2;
                 }
@@ -2168,225 +2156,208 @@ void drawBackSurfaceRhomb(S32 angle_0, S32 angle_1, S32 angle_2, S32 angle_3, S3
         }
         else
         {
-            g_rendererState.rendererTile.lerp = (angle_0 - angle_2) * 16;
-            overage = angle_2 * 256 + g_rendererState.rendererTile.lerp + lerp;
-            g_rendererState.rendererTile.height = (g_moduleState.windowRect.height + 1) - ty;
-            if (15 < g_rendererState.rendererTile.height)
-            {
-                g_rendererState.rendererTile.height = 16;
-            }
-            TileStartDrawLength = 3;   // стартовая длина строки верхней половины тайла
-            delta2 = g_moduleState.windowRect.y - ty;  //Избыток
+        // Инициализация параметров рендеринга
+        g_rendererState.tile.lerp = (angle_0 - angle_2) << 4;
+        overage = (angle_2 << 8) + g_rendererState.tile.lerp + lerp;
+
+        g_rendererState.tile.tileHeight = (g_moduleState.windowRect.height + 1) - ty;
+        if (15 < g_rendererState.tile.tileHeight) g_rendererState.tile.tileHeight = 16;
+
+        tileStartDrawLength = 3;   // Стартовая длина строки верхней половины тайла
+        delta2 = g_moduleState.windowRect.y - ty; // Избыток
             tx = TileOffsetTX;
-            if (ty <= g_moduleState.windowRect.y && delta2 != 0)
+
+        // Коррекция высоты и позиции
+        if (delta2 != 0 && ty <= g_moduleState.windowRect.y)
             {
-                g_rendererState.rendererTile.height -= delta2;
-                ty = ty + delta2;
-                for (S32 y = 0; y < delta2; ++y)
+            g_rendererState.tile.tileHeight -= delta2;
+            ty += delta2;
+            for (S32 y = 0; y < delta2; y++)
                 {
-                    input = (U8*)((Addr)(input)+(Addr)(TileStartDrawLength));
-                    overage = overage + g_rendererState.rendererTile.lerp;
-                    TileStartDrawLength += 4;
+                src_input += tileStartDrawLength;
+                overage += g_rendererState.tile.lerp;
+                tileStartDrawLength += 4;
                     tx -= 2;
                     dst = (Pixel*)((Addr)dst + (Addr)(stride - 2 * sizeof(Pixel)));
                 }
             }
-            g_rendererState.rendererTile.unk07 = g_rendererState.rendererTile.height;
-            if (0 < g_rendererState.rendererTile.height)
+
+        // Подготовка к рендерингу
+        g_rendererState.tile.unk07 = g_rendererState.tile.tileHeight;
+        if (0 < g_rendererState.tile.tileHeight)
             {
-                ty = g_rendererState.rendererTile.height + ty; // -16+32
-                overflow = ty - g_moduleState.surface.y; //  16-0 вычисляется как разница между новым ty и высотой поверхности (ModuleState.Surface.Y).
-                if (ty < g_moduleState.surface.y)
-                {
-                    overflow = 0;
-                }
-                draw = g_rendererState.rendererTile.height < overflow;
-                g_rendererState.rendererTile.height = g_rendererState.rendererTile.height - overflow;
+            ty += g_rendererState.tile.tileHeight;
+
+            overflow = ty - g_moduleState.surface.y;
+            if (ty < g_moduleState.surface.y) overflow = 0;
+
+            draw = (g_rendererState.tile.tileHeight < overflow);
+            g_rendererState.tile.tileHeight -= overflow;
                 dst2 = (Pixel*)dst;
-                if (draw || g_rendererState.rendererTile.height == 0) //goto
-                {
-                    g_rendererState.rendererTile.height = g_rendererState.rendererTile.unk07;
-                    ++g_rendererState.rendererTile.unk02;
-                    draw = g_rendererState.rendererTile.unk07 != 0;
-                    g_rendererState.rendererTile.unk07 = 0;
-                    dst2 = (Pixel*)((Addr)dst - (Addr)(SCREEN_WIDTH * sizeof(Pixel)));
-                    overflow = g_rendererState.rendererTile.unk07;
-                }
+
+            if (draw || g_rendererState.tile.tileHeight == 0)
+                goto higher_render_end;
+
                 do
                 {
-                    for (U16 yy = 0; yy < g_rendererState.rendererTile.height; ++yy)
+                for (U16 yy = 0; yy < g_rendererState.tile.tileHeight; yy++)
                     {
-                        g_rendererState.rendererTile.unk07 = overflow;
+                    g_rendererState.tile.unk07 = overflow;
                         uVar4 = overage;
-                        TileOffsetTX = (g_rendererState.rendererTile.windowRect.width + 1) - tx; //767+1
-                        if (TileOffsetTX != 0 && tx <= (g_rendererState.rendererTile.windowRect.width + 1)) //767+1
+                    TileOffsetTX = (g_rendererState.tile.windowRect.width + 1) - tx;
+                    if (TileOffsetTX != 0 && tx <= (g_rendererState.tile.windowRect.width + 1))
                         {
-                            delta2 = TileStartDrawLength;
-                            if (TileOffsetTX < TileStartDrawLength)
-                            {
-                                delta2 = TileOffsetTX;
-                            }
-                            TileOffsetTX = g_rendererState.rendererTile.windowRect.x - tx;
-                            src = input;
+                        delta2 = tileStartDrawLength;
+                        if (TileOffsetTX < tileStartDrawLength) delta2 = TileOffsetTX;
+
+                        TileOffsetTX = g_rendererState.tile.windowRect.x - tx;
+                        src = src_input;
                             dst3 = (Pixel*)dst2;
-                            if (TileOffsetTX != 0 && tx <= g_rendererState.rendererTile.windowRect.x)
+                        if (TileOffsetTX != 0 && tx <= g_rendererState.tile.windowRect.x)
                             {
-                                if (delta2 <= TileOffsetTX)//goto
-                                {
-                                    input = (U8*)((Addr)input + (Addr)TileStartDrawLength);
-                                    TileStartDrawLength += 4;
-                                    overage = overage + g_rendererState.rendererTile.lerp;
-                                    dst = (Pixel*)((Addr)dst2 + (Addr)(stride - 2 * sizeof(Pixel)));
-                                    tx -= 2;
-                                    dst2 = (Pixel*)dst;
-                                    overflow = g_rendererState.rendererTile.unk07;
-                                }
-                                src = (U8*)((Addr)input + (Addr)TileOffsetTX);
+                            if (delta2 <= TileOffsetTX)
+                                goto next_higher_line;
+                            src = (U8*)((Addr)src_input + (Addr)TileOffsetTX);
                                 dst3 = (Pixel*)((Addr)dst2 + (Addr)TileOffsetTX * sizeof(Pixel));
-                                delta2 = delta2 - TileOffsetTX;
+                            delta2 -= TileOffsetTX;
                                 iVar6 = overage;
-                                for (S32 y = 0; y < TileOffsetTX; ++y)
+                            for (S32 y = 0; y < TileOffsetTX; y++)
                                 {
-                                    iVar6 = iVar6 + lerp;
+                                iVar6 += lerp;
                                     uVar4 = iVar6;
                                 }
                             }
-                            //if (g_rendererState.rendererTile.stencil <= dst3)
-                            //{
-                            //    dst3 = (Pixel*)((Addr)dst3 - (Addr)(MAX_RENDERER_WIDTH * sizeof(Pixel)));
-                            //}
+                        // Glitch
+                        if (g_rendererState.tile.stencil <= dst3)
+                        {
+                            dst3 = (Pixel*)((Addr)dst3 - (Addr)SCREEN_SIZE_IN_BYTES);
+                        }
                             if (dst3 < output)
                             {
-                                dst3 = (Pixel*)((Addr)dst3 + (Addr)(SCREEN_WIDTH * sizeof(Pixel)));
+                            dst3 = (Pixel*)((Addr)dst3 + (Addr)SCREEN_SIZE_IN_BYTES);
                             }
-                            uVar5 = ((U16)((S8)((U16)uVar4 >> 8) ^ g_rendererState.rendererTile.unk08) << 8) | (uVar4 & 0xFF);
-                            g_rendererState.rendererTile.unk08 = g_rendererState.rendererTile.unk08 ^ 32;
-                            for (S32 y = 0; y < delta2; ++y)
+                        uVar5 = ((U16)((S8)((U16)uVar4 >> 8) ^ g_rendererState.tile.unk08) << 8) | (uVar4 & 0xFF);
+                        g_rendererState.tile.unk08 ^= 32;
+                        for (S32 y = 0; y < delta2; y++)
                             {
-                                dst3[y] = g_moduleState.rhombsPalette.palette[((uVar5 >> 8) << 8) | src[y]];
-                                uVar5 = (uVar5 + (U16)(lerp)) ^ 0x2000;
+                            dst3[y] = g_moduleState.rhombsPalette.palette[(uVar5 >> 8) << 8 | src[y]];
+                            uVar5 = uVar5 + (U16)(lerp) ^ 0x2000;
                             }
                         }
-                        //goto
-                        input = (U8*)((S32)input + TileStartDrawLength);
-                        TileStartDrawLength += 4;
-                        overage = overage + g_rendererState.rendererTile.lerp;
-                        dst = (Pixel*)((Addr)dst2 + (Addr)(stride - 2 * sizeof(Pixel)));
+                    // goto переход к следующей строке
+                next_higher_line: // Переход к новой линии
+                    src_input = (U8*)((S32)src_input + tileStartDrawLength);
+                    tileStartDrawLength += 4;
+                    overage += g_rendererState.tile.lerp;
+                    dst = (Pixel*)((Addr)dst2 + (Addr)(stride - 4));
                         tx -= 2;
                         dst2 = (Pixel*)dst;
-                        overflow = g_rendererState.rendererTile.unk07;
+                    overflow = g_rendererState.tile.unk07;
                     }
-                    //goto
-                    g_rendererState.rendererTile.height = g_rendererState.rendererTile.unk07;
-                    ++g_rendererState.rendererTile.unk02;
-                    draw = g_rendererState.rendererTile.unk07 != 0;
-                    g_rendererState.rendererTile.unk07 = 0;
-                    dst2 = (Pixel*)((Addr)dst - (Addr)(SCREEN_WIDTH * sizeof(Pixel)));
-                    overflow = g_rendererState.rendererTile.unk07;
+                // goto завершение рендеринга верхней части
+            higher_render_end: // Конец отрисовки
+                g_rendererState.tile.tileHeight = g_rendererState.tile.unk07;
+                g_rendererState.tile.unk02++;
+                draw = g_rendererState.tile.unk07 != 0;
+                g_rendererState.tile.unk07 = 0;
+                dst2 = (Pixel*)((Addr)dst - (Addr)(SCREEN_SIZE_IN_PIXELS * sizeof(Pixel)));
+                overflow = g_rendererState.tile.unk07;
                 } while (draw);
             }
-            g_rendererState.rendererTile.unk08 = g_rendererState.rendererTile.unk08 ^ 32;
-            TileStartDrawLength -= (Addr)(3 * sizeof(Pixel));                   //сдвигаем нюжнюю часть на 3 пикселя
-            dst2 = (Pixel*)((Addr)dst + (Addr)(3 * sizeof(Pixel)));             //офссет нижней части ромбика
+        // Подготовка к переходу отрисовки нижней части
+        g_rendererState.tile.unk08 ^= 32;
+        tileStartDrawLength -= 6;                   // Сдвигаем нюжнюю часть на 3 пикселя
+        dst2 = (Pixel*)((Addr)dst + (Addr)(3 * sizeof(Pixel)));             // Офссет нижней части ромбика
             tx += 3;
-            overage = (g_rendererState.rendererTile.windowRect.height + 1) - ty;
-            if ((g_rendererState.rendererTile.windowRect.height + 1) < ty)
-            {
+        overage = (g_rendererState.tile.windowRect.height + 1) - ty;
+
+        // overage = std::min((g_moduleState.windowRect.height + 1) - ty, 16);
+
+        if (ty > g_rendererState.tile.windowRect.height + 1) 
                 return;
-            }
-            if (15 < overage)
-            {
+
+        if (overage > 16)
                 overage = 16;
+        g_rendererState.tile.tileHeight = overage;
+        g_rendererState.tile.lerp = (angle_3 - angle_0) << 4;
+        TileOffsetTX = (angle_0 << 8) + g_rendererState.tile.lerp;
             }
-            g_rendererState.rendererTile.lerp = (angle_3 - angle_0) * 16;
-            TileOffsetTX = angle_0 * 256 + g_rendererState.rendererTile.lerp;
-            g_rendererState.rendererTile.height = overage;
-        }
-        if (0 < g_rendererState.rendererTile.height)
+
+    // Рендеринг нижней части
+    if (g_rendererState.tile.tileHeight > 0)
         {
-            overflow = g_rendererState.rendererTile.unk07;
-            if (g_rendererState.rendererTile.unk02 < 2)
+        overflow = g_rendererState.tile.unk07;
+
+        if (g_rendererState.tile.unk02 < 2)
             {
-                g_rendererState.rendererTile.unk07 = g_rendererState.rendererTile.height;
-                overflow = (g_rendererState.rendererTile.height + ty) - g_moduleState.surface.y;
-                if ((g_rendererState.rendererTile.height + ty) < g_moduleState.surface.y)
+            g_rendererState.tile.unk07 = g_rendererState.tile.tileHeight;
+            overflow = g_rendererState.tile.tileHeight + ty - g_moduleState.surface.y; // Новая высота тайла
+            if ((g_rendererState.tile.tileHeight + ty) < g_moduleState.surface.y)
                 {
                     overflow = 0;
                 }
-                draw = g_rendererState.rendererTile.height < overflow;
-                g_rendererState.rendererTile.height = g_rendererState.rendererTile.height - overflow;
-                if (draw || g_rendererState.rendererTile.height == 0)//goto
-                {
-                    dst2 = (Pixel*)((Addr)dst2 - (Addr)(SCREEN_WIDTH * sizeof(Pixel)));
-                    g_rendererState.rendererTile.height = g_rendererState.rendererTile.unk07;
-                    draw = g_rendererState.rendererTile.unk07 != 0;
-                    g_rendererState.rendererTile.unk07 = 0;
-                    overflow = g_rendererState.rendererTile.unk07;
+            draw = g_rendererState.tile.tileHeight < overflow;
+            g_rendererState.tile.tileHeight -= overflow;
+            if (draw || g_rendererState.tile.tileHeight == 0)
+                goto lower_render_end;
                 }
-            }
             do
             {
-                for (U16 yy = 0; yy < g_rendererState.rendererTile.height; ++yy)
+            for (U16 yy = 0; yy < g_rendererState.tile.tileHeight; yy++)
                 {
-                    g_rendererState.rendererTile.unk07 = overflow;
+                g_rendererState.tile.unk07 = overflow;
                     uVar4 = TileOffsetTX;
-                    overage = (g_rendererState.rendererTile.windowRect.width + 1) - tx;
-                    if (overage != 0 && tx <= (g_rendererState.rendererTile.windowRect.width + 1))
+                overage = (g_rendererState.tile.windowRect.width + 1) - tx;
+                if (overage != 0 && tx <= (g_rendererState.tile.windowRect.width + 1))
                     {
-                        delta2 = TileStartDrawLength;
-                        if (overage < TileStartDrawLength)
-                        {
-                            delta2 = overage;
-                        }
-                        overage = g_rendererState.rendererTile.windowRect.x - tx;
-                        src1 = input;///?????? dst3
+                    delta2 = tileStartDrawLength;
+                    if (overage < tileStartDrawLength) delta2 = overage;
+
+                    overage = g_rendererState.tile.windowRect.x - tx;
+                    src1 = src_input; ///?????? dst3
                         dst1 = dst2;
-                        if (overage != 0 && tx <= g_rendererState.rendererTile.windowRect.x)
+                    if (overage != 0 && tx <= g_rendererState.tile.windowRect.x)
                         {
                             if (delta2 <= overage)
-                            {
-                                input = (U8*)((Addr)input + (Addr)TileStartDrawLength);//goto
-                                TileStartDrawLength -= 4;
-                                TileOffsetTX = TileOffsetTX + g_rendererState.rendererTile.lerp;
-                                dst2 = (Pixel*)((Addr)dst2 + (Addr)(stride + 2 * sizeof(Pixel)));
-                                tx += 2;
-                                overflow = g_rendererState.rendererTile.unk07;
-                            }
-                            src1 = (U8*)((Addr)input + overage);
+                            goto next_lower_line;
+                        src1 = (U8*)((Addr)src_input + overage);
                             dst1 = (Pixel*)((Addr)dst2 + (Addr)(overage * sizeof(Pixel))); // Возможно sizeof
-                            delta2 = delta2 - overage;
+                        delta2 -= overage;
                             iVar6 = TileOffsetTX;
-                            for (S32 y = 0; y < overage; ++y)
+                        for (S32 y = 0; y < overage; y++)
                             {
-                                iVar6 = iVar6 + lerp;
+                            iVar6 += lerp;
                                 uVar4 = iVar6;
                             }
                         }
-                        U16 uVar6 = ((U16)((S8)((U16)uVar4 >> 8) ^ g_rendererState.rendererTile.unk08) << 8) | (uVar4 & 0xFF);
-                        g_rendererState.rendererTile.unk08 = g_rendererState.rendererTile.unk08 ^ 0x20;
-                        for (S32 y = 0; y < delta2; ++y)
+                    U16 uVar5 = ((U16)((S8)((U16)uVar4 >> 8) ^ g_rendererState.tile.unk08) << 8) | (uVar4 & 0xFF);
+                    g_rendererState.tile.unk08 ^= 32;
+                    for (S32 y = 0; y < delta2; y++)
                         {
-                            dst1[y] = g_moduleState.rhombsPalette.palette[((uVar6 >> 8) << 8) | src1[y]];
-                            uVar6 = (uVar6 + (U16)(lerp)) ^ 0x2000;
+                        dst1[y] = g_moduleState.rhombsPalette.palette[(uVar5 >> 8) << 8 | src1[y]];
+                        uVar5 = uVar5 + (U16)(lerp) ^ 0x2000;
                         }
 
                     }
-                    input = (U8*)((Addr)input + (Addr)TileStartDrawLength);
-                    TileStartDrawLength -= 4;
-                    TileOffsetTX = TileOffsetTX + g_rendererState.rendererTile.lerp;
+                // goto переход к следующей строке
+            next_lower_line:
+                src_input = (U8*)((Addr)src_input + (Addr)tileStartDrawLength);
+                tileStartDrawLength -= 4;
+                TileOffsetTX += g_rendererState.tile.lerp;
                     dst2 = (Pixel*)((Addr)dst2 + (Addr)(stride + 2 * sizeof(Pixel))); // шаг на новую строку в буфере
                     tx += 2;
-                    overflow = g_rendererState.rendererTile.unk07;
+                overflow = g_rendererState.tile.unk07;
                 }
-                dst2 = (Pixel*)((Addr)dst2 - (Addr)(SCREEN_WIDTH * sizeof(Pixel)));
-                g_rendererState.rendererTile.height = g_rendererState.rendererTile.unk07;
-                draw = g_rendererState.rendererTile.unk07 != 0;
-                g_rendererState.rendererTile.unk07 = 0;
-                overflow = g_rendererState.rendererTile.unk07;
+            // goto завершение рендеринга нижней части
+        lower_render_end:
+            dst2 = (Pixel*)((Addr)dst2 - (Addr)SCREEN_SIZE_IN_BYTES);
+            g_rendererState.tile.tileHeight = g_rendererState.tile.unk07;
+            draw = g_rendererState.tile.unk07 != 0;
+            g_rendererState.tile.unk07 = 0;
+            overflow = g_rendererState.tile.unk07;
             } while (draw);
         }
     }
-}
 
 // 0x10004390
 void FUN_10004390(S32 param_1, S32 param_2, LPVOID param_3)
