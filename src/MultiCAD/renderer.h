@@ -190,7 +190,7 @@ bool initWindowDxSurface(const S32 width, const S32 height);
 
 // 0x10001420
 /**
- * Draws a horizontal line on main surface.
+ * Draws a horizontal line on main surface, e.g. unit bars like health bar, experience bar.
  *
  * @param x Start X position.
  * @param y Start Y position.
@@ -203,7 +203,7 @@ void drawMainSurfaceHorLine(const S32 x, const S32 y, const S32 length, const Pi
 
 // 0x100014b0
 /**
- * Draws a vertical line on main surface.
+ * Draws a vertical line on main surface, e.g. partially passenger cells.
  *
  * @param x Start X position.
  * @param y Start Y position.
