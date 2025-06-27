@@ -13,6 +13,12 @@ enum OutlintDrawOption
     OUTLINE_DRAW_OPTION_MAX = 0x7FFFFFFF
 };
 
+enum TileSize
+{
+    TILE_SIZE_HEIGHT = 32,
+    TILE_SIZE_WIDTH = 63
+};
+
 struct Surfaces
 {
     Pixel main[SCREEN_WIDTH * (SCREEN_HEIGHT + 1)];     // 0x1001d588 Основной буфер кадра (то, что видно на экране).
@@ -59,13 +65,13 @@ struct Sprite
 struct Tile
 {
     S32 unk01;                  // 0x10010030
-    S32 unk02;                  // 0x10010034
+    S32 displayedHalfs;         // 0x10010034
     Pixel* stencil;             // 0x10010038
     S8  unk04;                  // 0x1001003c
 
-    S32 lerp;                   // 0x1001003d
+    S32 diff;                   // 0x1001003d
     S32 tileHeight;             // 0x10010041
-    S32 unk07;                  // 0x10010045
+    S32 tempTileHeight;         // 0x10010045
     S8  unk08;                  // 0x10010049
 
     Window windowRect;          // 0x1001004A
@@ -520,11 +526,11 @@ void FUN_10003360(S32 x, S32 y, LPSTR text, AssetCollection* asset, Pixel* palet
 void FUN_100033c0(S32 x, S32 y, LPSTR text, AssetCollection* asset, Pixel* palette);
 
 
-// 0x10003420           todo: refactor
+// 0x10003420
 /**
  * Draws a landscape rhomb on back surface. Used for ground.
  * 
- * Created by NR 25.06.2025.
+ * Created by NR 25.06.2025. Refactored by IVA 27.06.2025.
  *
  * @param angle_0 0th angle of the tile.
  * @param angle_1 1th angle of the tile.
