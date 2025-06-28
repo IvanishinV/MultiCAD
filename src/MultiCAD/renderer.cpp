@@ -379,7 +379,7 @@ void drawMainSurfaceVertLine(const S32 x, const S32 y, const S32 height, const P
     S32 new_y = y;
 
     if (x < g_moduleState.windowRect.x
-        || g_moduleState.windowRect.width < y)
+        || g_moduleState.windowRect.width < x)
         return;
 
     if (y < g_moduleState.windowRect.y)
