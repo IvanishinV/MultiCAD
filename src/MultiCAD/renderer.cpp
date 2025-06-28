@@ -2072,7 +2072,7 @@ void drawBackSurfaceRhomb(S32 angle_0, S32 angle_1, S32 angle_2, S32 angle_3, S3
     // Tile height: 32
     // Tile width: 63
 
-    g_rendererState.tile.stencil = (Pixel*)((Addr)output + (g_moduleState.surface.offset % (SCREEN_WIDTH + SCREEN_SIZE_IN_PIXELS)) * sizeof(Pixel));
+    g_rendererState.tile.stencil = (Pixel*)((Addr)output + (g_moduleState.surface.offset % SCREEN_WIDTH) * sizeof(Pixel) + SCREEN_SIZE_IN_BYTES);
     g_rendererState.tile.windowRect.x = g_moduleState.windowRect.x + TILE_SIZE_HEIGHT + 1;
     g_rendererState.tile.windowRect.y = g_moduleState.windowRect.y;
     g_rendererState.tile.windowRect.width = g_moduleState.windowRect.width + TILE_SIZE_HEIGHT + 1;
