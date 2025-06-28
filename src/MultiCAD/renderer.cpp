@@ -2005,7 +2005,7 @@ void copyMainSurfaceToRendererWithWarFog(const S32 x, const S32 y, const S32 end
         g_rendererState.rendererStruct01.validRowsBlockCount = remainingExcessRows;
         g_rendererState.rendererStruct02.excessRowsBlockCount = 0;
         g_moduleState.moduleStruct01.rowAlignmentMask = SCREEN_WIDTH * sizeof(Pixel);
-        src = (DoublePixel*)((Addr)srcTemp - (Addr)SCREEN_SIZE_IN_BYTES);
+        src = (DoublePixel*)((Addr)src - (Addr)SCREEN_SIZE_IN_BYTES);
     } while (remainingExcessRows);
 
     if (locked)
