@@ -659,7 +659,7 @@ void readMainSurfaceRect(const S32 sx, const S32 sy, const S32 width, const S32 
         {
             for (S32 yy = 0; yy < height; ++yy)
             {
-                std::memcpy(dst, src, width);
+                std::memcpy(dst, src, width * sizeof(Pixel));
                 src = (Pixel*)((Addr)src + (Addr)(SCREEN_WIDTH * sizeof(Pixel)));
                 dst = (Pixel*)((Addr)dst + (Addr)(stride * sizeof(Pixel)));
             }
@@ -668,7 +668,7 @@ void readMainSurfaceRect(const S32 sx, const S32 sy, const S32 width, const S32 
         {
             for (S32 yy = 0; yy < height - delta; ++yy)
             {
-                std::memcpy(dst, src, width);
+                std::memcpy(dst, src, width * sizeof(Pixel));
                 src = (Pixel*)((Addr)src + (Addr)(SCREEN_WIDTH * sizeof(Pixel)));
                 dst = (Pixel*)((Addr)dst + (Addr)(stride * sizeof(Pixel)));
             }
@@ -677,7 +677,7 @@ void readMainSurfaceRect(const S32 sx, const S32 sy, const S32 width, const S32 
 
             for (S32 yy = 0; yy < delta; ++yy)
             {
-                std::memcpy(dst, src, width);
+                std::memcpy(dst, src, width * sizeof(Pixel));
                 src = (Pixel*)((Addr)src + (Addr)(SCREEN_WIDTH * sizeof(Pixel)));
                 dst = (Pixel*)((Addr)dst + (Addr)(stride * sizeof(Pixel)));
             }
@@ -689,7 +689,7 @@ void readMainSurfaceRect(const S32 sx, const S32 sy, const S32 width, const S32 
 
         for (S32 yy = 0; yy < height; ++yy)
         {
-            std::memcpy(dst, src, width);
+            std::memcpy(dst, src, width * sizeof(Pixel));
             src = (Pixel*)((Addr)src + (Addr)(SCREEN_WIDTH * sizeof(Pixel)));
             dst = (Pixel*)((Addr)dst + (Addr)(stride * sizeof(Pixel)));
         }
