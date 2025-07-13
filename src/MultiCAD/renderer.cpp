@@ -655,7 +655,7 @@ void readMainSurfaceRect(const S32 sx, const S32 sy, const S32 width, const S32 
     {
         const S32 delta = sy + height - g_moduleState.surface.y;
 
-        if ((sy + height) < g_moduleState.surface.y || delta == 0)
+        if (delta <= 0)
         {
             for (S32 yy = 0; yy < height; ++yy)
             {
@@ -1090,7 +1090,7 @@ void drawMainSurfaceColorEllipse(const S32 x, const S32 y, S32 size, const Pixel
 // 0x100023e0
 void drawMainSurfaceColorOutline(S32 x, S32 y, S32 width, S32 height, const Pixel pixel)
 {
-    const S32 offset = g_moduleState.surface.offset % 1024;
+    const S32 offset = g_moduleState.surface.offset % SCREEN_WIDTH;
 
     Pixel* src = (Pixel*)((Addr)g_rendererState.surfaces.main
         + (Addr)((offset + SCREEN_SIZE_IN_PIXELS) * sizeof(Pixel)));
@@ -1698,18 +1698,18 @@ bool copyMainSurfaceToRenderer(S32 x, S32 y, S32 width, S32 height)
         locked = true;
     }
     Pixel* src = (Pixel*)((Addr)g_rendererState.surfaces.main + (Addr)(g_moduleState.surface.offset + y * SCREEN_WIDTH + x) * sizeof(Pixel));
-    LPVOID dst = (LPVOID)((Addr)g_moduleState.surface.renderer + (Addr)(g_moduleState.pitch * y + x * sizeof(Pixel)));
+    void* dst = (void*)((Addr)g_moduleState.surface.renderer + (Addr)(g_moduleState.pitch * y + x * sizeof(Pixel)));
 
     if (y < g_moduleState.surface.y)
     {
         const S32 delta = y + height - g_moduleState.surface.y;
-        if ((y + height) < g_moduleState.surface.y || delta == 0)
+        if (delta <= 0)
         {
             for (S32 vertical = 0; vertical < height; vertical++)
             {
                 std::memcpy(dst, src, width * sizeof(Pixel));
                 src = (Pixel*)((Addr)src + (Addr)(SCREEN_WIDTH * sizeof(Pixel)));
-                dst = (LPVOID)((Addr)dst + (Addr)g_moduleState.pitch);
+                dst = (void*)((Addr)dst + (Addr)g_moduleState.pitch);
             }
         }
         else
@@ -1718,7 +1718,7 @@ bool copyMainSurfaceToRenderer(S32 x, S32 y, S32 width, S32 height)
             {
                 std::memcpy(dst, src, width * sizeof(Pixel));
                 src = (Pixel*)((Addr)src + (Addr)(SCREEN_WIDTH * sizeof(Pixel)));
-                dst = (LPVOID)((Addr)dst + (Addr)g_moduleState.pitch);
+                dst = (void*)((Addr)dst + (Addr)g_moduleState.pitch);
             }
 
             src = (Pixel*)((Addr)src - (Addr)(SCREEN_SIZE_IN_PIXELS * sizeof(Pixel)));
@@ -1727,7 +1727,7 @@ bool copyMainSurfaceToRenderer(S32 x, S32 y, S32 width, S32 height)
             {
                 std::memcpy(dst, src, width * sizeof(Pixel));
                 src = (Pixel*)((Addr)src + (Addr)(SCREEN_WIDTH * sizeof(Pixel)));
-                dst = (LPVOID)((Addr)dst + (Addr)g_moduleState.pitch);
+                dst = (void*)((Addr)dst + (Addr)g_moduleState.pitch);
             }
         }
     }
@@ -1739,7 +1739,7 @@ bool copyMainSurfaceToRenderer(S32 x, S32 y, S32 width, S32 height)
         {
             std::memcpy(dst, src, width * sizeof(Pixel));
             src = (Pixel*)((Addr)src + (Addr)(SCREEN_WIDTH * sizeof(Pixel)));
-            dst = (LPVOID)((Addr)dst + (Addr)g_moduleState.pitch);
+            dst = (void*)((Addr)dst + (Addr)g_moduleState.pitch);
         }
     }
 
@@ -1986,7 +1986,7 @@ void copyMainSurfaceToRendererWithWarFog(const S32 x, const S32 y, const S32 end
                     --g_rendererState.rendererStruct01.unk04;
                 } while (g_rendererState.rendererStruct01.unk04);
 
-                src = (DoublePixel*)((Addr)srcTemp + (Addr)SCREEN_WIDTH * 16);
+                src = (DoublePixel*)((Addr)srcTemp + (Addr)SCREEN_WIDTH * sizeof(Pixel) * 8);
                 dst = (DoublePixel*)((Addr)dstTemp + (Addr)g_moduleState.pitch * 8);
                 --g_rendererState.rendererStruct01.validRowsBlockCount;
             } while (g_rendererState.rendererStruct01.validRowsBlockCount);
@@ -1995,7 +1995,7 @@ void copyMainSurfaceToRendererWithWarFog(const S32 x, const S32 y, const S32 end
                 break;
 
             g_moduleState.moduleStruct01.rowAlignmentMask = g_rendererState.rendererStruct01.unk02;
-            g_moduleState.moduleStruct01.lineStep = SCREEN_SIZE_IN_BYTES - SCREEN_WIDTH * 16 + 32;
+            g_moduleState.moduleStruct01.lineStep = SCREEN_SIZE_IN_BYTES - SCREEN_WIDTH * sizeof(Pixel) * 8 + 32;
             g_rendererState.rendererStruct01.validRowsBlockCount = 1;
             g_rendererState.rendererStruct01.unk02 = 0;
         }
@@ -2401,7 +2401,7 @@ void drawMainSurfacePaletteSprite(S32 x, S32 y, const Pixel* palette, const Imag
         {
             //Каждая строка в RLE - формате начинается с U16(длина данных)
             //Указатели перемещаются на следующую строку, пропуская невидимые
-            content = (LPVOID)((Addr)offset_RLE + (Addr)sizeof(U16));
+            content = (void*)((Addr)offset_RLE + (Addr)sizeof(U16));
             offset_RLE = (U32*)((Addr)offset_RLE + (Addr)(((U16*)offset_RLE)[0] + sizeof(U16)));
         }
 
@@ -2536,7 +2536,7 @@ void drawMainSurfacePaletteSprite(S32 x, S32 y, const Pixel* palette, const Imag
                     skip = 0;
                 }
 
-                content = (LPVOID)((Addr)offset_RLE + (Addr)sizeof(U16));
+                content = (void*)((Addr)offset_RLE + (Addr)sizeof(U16));
                 offset_RLE = (U32*)((Addr)offset_RLE + (Addr)(((U16*)offset_RLE)[0] + sizeof(U16)));
 
                 g_rendererState.sprite.height = g_rendererState.sprite.height - 1;
@@ -2589,7 +2589,7 @@ void drawMainSurfaceVanishingSprite(S32 x, S32 y, const S32 vanishOffset, const 
 
         for (S32 i = 0; i < g_moduleState.windowRect.y - y; ++i)
         {
-            content = (LPVOID)((Addr)offset_RLE + (Addr)sizeof(U16));
+            content = (void*)((Addr)offset_RLE + (Addr)sizeof(U16));
             offset_RLE = (U32*)((Addr)offset_RLE + (Addr)(((U16*)offset_RLE)[0] + sizeof(U16)));
         }
 
@@ -2733,7 +2733,7 @@ void drawMainSurfaceVanishingSprite(S32 x, S32 y, const S32 vanishOffset, const 
                     skip = 0;
                 }
 
-                content = (LPVOID)((Addr)offset_RLE + (Addr)sizeof(U16));
+                content = (void*)((Addr)offset_RLE + (Addr)sizeof(U16));
                 offset_RLE = (U32*)((Addr)offset_RLE + (Addr)(((U16*)offset_RLE)[0] + sizeof(U16)));
 
                 g_rendererState.sprite.height = g_rendererState.sprite.height - 1;
@@ -2784,8 +2784,8 @@ void drawMainSurfaceSprite(S32 x, S32 y, ImageSprite* sprite)
     g_rendererState.sprite.height = sprite->height;
     g_rendererState.sprite.width = sprite->width + 1;
 
-    LPVOID content = &sprite->pixels;
-    LPVOID next = (LPVOID)((Addr)content + (Addr)sprite->next);
+    const void* content = &sprite->pixels;
+    void* next = (void*)((Addr)content + (Addr)sprite->next);
 
     x = x + sprite->x;
     y = y + sprite->y;
@@ -2800,7 +2800,7 @@ void drawMainSurfaceSprite(S32 x, S32 y, ImageSprite* sprite)
 
         for (S32 i = 0; i < g_moduleState.windowRect.y - y; ++i)
         {
-            content = (LPVOID)((Addr)next + (Addr)sizeof(U16));
+            content = (void*)((Addr)next + (Addr)sizeof(U16));
             next = (U32*)((Addr)next + (Addr)(((U16*)next)[0] + sizeof(U16)));
         }
 
@@ -2925,8 +2925,8 @@ void drawMainSurfaceSprite(S32 x, S32 y, ImageSprite* sprite)
                     skip = 0;
                 }
 
-                content = (LPVOID)((Addr)next + (Addr)sizeof(U16));
-                next = (LPVOID)((Addr)next + (Addr)(((U16*)(next))[0] + sizeof(U16)));
+                content = (void*)((Addr)next + (Addr)sizeof(U16));
+                next = (void*)((Addr)next + (Addr)(((U16*)(next))[0] + sizeof(U16)));
 
                 g_rendererState.sprite.height = g_rendererState.sprite.height - 1;
 
@@ -2970,8 +2970,8 @@ void drawMainSurfaceAnimationSprite(S32 x, S32 y, U16 level, const AnimationPixe
     g_rendererState.sprite.height = sprite->height;
     g_rendererState.sprite.width = sprite->width + 1;
 
-    LPVOID content = &sprite->pixels;
-    LPVOID next = (LPVOID)((Addr)content + (Addr)sprite->next);
+    void* content = &sprite->pixels;
+    void* next = (void*)((Addr)content + (Addr)sprite->next);
 
     x = x + sprite->x;
     y = y + sprite->y;
@@ -2988,7 +2988,7 @@ void drawMainSurfaceAnimationSprite(S32 x, S32 y, U16 level, const AnimationPixe
 
         for (S32 i = 0; i < g_moduleState.windowRect.y - y; ++i)
         {
-            content = (LPVOID)((Addr)next + (Addr)sizeof(U16));
+            content = (void*)((Addr)next + (Addr)sizeof(U16));
             next = (U32*)((Addr)next + (Addr)(((U16*)next)[0] + sizeof(U16)));
         }
 
@@ -3147,8 +3147,8 @@ void drawMainSurfaceAnimationSprite(S32 x, S32 y, U16 level, const AnimationPixe
                     skip = 0;
                 }
 
-                content = (LPVOID)((Addr)next + (Addr)sizeof(U16));
-                next = (LPVOID)((Addr)next + (Addr)(((U16*)next)[0] + sizeof(U16)));
+                content = (void*)((Addr)next + (Addr)sizeof(U16));
+                next = (void*)((Addr)next + (Addr)(((U16*)next)[0] + sizeof(U16)));
 
                 g_rendererState.sprite.height = g_rendererState.sprite.height - 1;
 

@@ -10,7 +10,7 @@ using S32               = int;
 
 using F32               = float;
 
-using Addr              = unsigned int;
+using Addr              = std::uintptr_t;
 
 using Pixel             = U16;
 using DoublePixel       = U32;
