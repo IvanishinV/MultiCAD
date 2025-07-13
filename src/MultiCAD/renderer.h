@@ -591,10 +591,12 @@ void FUN_1000579c(S32 x, S32 y, Pixel* palette, ImagePaletteSprite* sprite);
 // 0x10005ac6           todo
 void FUN_10005ac6(S32 param_1, S32 param_2, U16 param_3, S32 param_4, LPVOID param_5);
 
-// 0x10005e31           todo
+// 0x10005e31
 /**
- * Draws a shaded sprite via specified level on main surface, e.g. trees, fences, buildings, hedgehogs, etc.
+ * Draws a shaded sprite on back surface comparing a specified level with stencil, e.g. trees, some buildings, hedgehogs, etc.
  *
+ * Created by IVA 13.07.2025.
+ * 
  * @param x Starting X position of the sprite.
  * @param y Starting Y position of the sprite.
  * @param level Displaying level.
@@ -603,7 +605,7 @@ void FUN_10005ac6(S32 param_1, S32 param_2, U16 param_3, S32 param_4, LPVOID par
  *
  * @return None.
  */
-void drawBackSurfacePaletteShadeSprite(S32 x, S32 y, U16 level, Pixel* palette, ImagePaletteSprite* sprite);
+void drawBackSurfacePaletteShadeSprite(S32 x, S32 y, U16 level, const Pixel* const palette, const ImagePaletteSprite* const sprite);
 
 // 0x1000618d           todo
 void FUN_1000618d(S32 x, S32 y, S32 param_3, LPVOID param_4);

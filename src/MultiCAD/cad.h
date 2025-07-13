@@ -74,7 +74,7 @@ using DRAW_MAIN_SURFACE_PALETTE_SPRITE_PTR = void(*)(S32 x, S32 y, const Pixel* 
 using DRAW_MAIN_SURFACE_VANISHING_SPRITE_PTR = void(*)(S32 x, S32 y, S32 vanishOffset, const Pixel* palette, const ImagePaletteSprite* const sprite);
 using FUN_1000579C_PTR = void(*)(S32 x, S32 y, Pixel* palette, ImagePaletteSprite* sprite);
 using FUN_10005AC6_PTR = void(*)(S32 param_1, S32 param_2, U16 param_3, S32 param_4, LPVOID param_5);
-using DRAW_BACK_SURFACE_PALETTE_SHADE_SPRITE_PTR = void(*)(S32 x, S32 y, U16 level, Pixel* palette, ImagePaletteSprite* sprite);
+using DRAW_BACK_SURFACE_PALETTE_SHADE_SPRITE_PTR = void(*)(S32 x, S32 y, U16 level, const Pixel* const palette, const ImagePaletteSprite* const sprite);
 
 using FUN_1000618D_PTR = void(*)(S32 x, S32 y, S32 param_3, LPVOID param_4);
 using FUN_100067AD_PTR = void(*)(S32 x, S32 y, S32 param_3, LPVOID param_4);
