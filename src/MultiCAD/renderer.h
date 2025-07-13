@@ -269,7 +269,7 @@ void drawBackSurfaceColorPoint(const S32 x, const S32 y, const Pixel pixel);
 
 // 0x100018a0
 /**
- * Copies a rectangle from main surface to a provided surface.
+ * Copies a rectangle from main surface to a provided surface. Used for coping area behind cursor in game.
  *
  * @param sx Source X position of the rectangle.
  * @param sy Source Y position of the rectangle.
@@ -492,7 +492,7 @@ bool copyMainSurfaceToRenderer(S32 x, S32 y, S32 width, S32 height);
 /**
  * Copies a rectangle from main surface to renderer using war fog array.
  *
- * Create by IVA 20.06.2025.
+ * Created by IVA 20.06.2025.
  * 
  * @param x Starting X coordinate of the rectangle.
  * @param y Starting Y coordinate of the rectangle.
@@ -510,7 +510,7 @@ void FUN_10002fb0(S32 x, S32 y, S32 width, S32 height);
 /**
  * Returns a text length in pixels, Default space between letters is 2 pixels.
  *
- * Created by NR 02.04.2025. 
+ * Created by NR 02.04.2025. Refactored by IVA.
  *
  * @param text Text which length has to be calculated.
  * @param asset Letter assets.
@@ -665,6 +665,11 @@ void FUN_10007be8(S32 x, S32 y, U16 param_3, LPVOID param_4);
 // 0x10007fbc           todo
 void FUN_10007fbc(S32 x, S32 y, U16 param_3, S32 param_4, LPVOID param_5);
 // 0x10008ecd           todo
+/**
+ * Draws in-game UI, cursor is displayed always.
+ *
+ * @return None.
+ */
 void FUN_10008ecd(S32 param_1, S32 param_2, LPVOID param_3, S32 param_4, LPVOID param_5);
 // 0x10009eb3           todo
 void FUN_10009eb3(S32 param_1, S32 param_2, LPVOID param_3, S32 param_4, S32 param_5, S32 param_6);

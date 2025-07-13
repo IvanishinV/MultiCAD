@@ -51,8 +51,8 @@ struct ImageSprite
 #pragma pack(push, 1)
 struct ImagePaletteSpritePixel
 {
-    U8      count;
-    U8      pixels[1];
+    U8      count;          // If 0x80 bit is set - amount of the same pixel. If not - count of unique pixels.
+    U8      pixels[1];      // One index of unique pixel if 0x80 was set. Count pixels if not.
 };
 #pragma pack(pop)
 
