@@ -628,6 +628,8 @@ void FUN_100067ad(S32 x, S32 y, S32 param_3, LPVOID param_4);
 /**
  * Draws an animation sprite via specified level on main surface, e.g. cursor, explodes, etc.
  * 
+ * Created by AM. Refactored by IVA 12.07.2025.
+ * 
  * @param x Starting X position of the sprite.
  * @param y Starting Y position of the sprite.
  * @param level Displaying level.

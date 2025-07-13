@@ -3022,7 +3022,7 @@ void drawMainSurfaceAnimationSprite(S32 x, S32 y, U16 level, const AnimationPixe
         g_rendererState.sprite.overage = g_rendererState.sprite.height;
         g_rendererState.sprite.height -= overage;
 
-        if (g_rendererState.sprite.height < 0)
+        if (g_rendererState.sprite.height <= 0)
         {
             g_rendererState.sprite.height = g_rendererState.sprite.overage;
             g_rendererState.sprite.overage = 0;
@@ -3038,7 +3038,7 @@ void drawMainSurfaceAnimationSprite(S32 x, S32 y, U16 level, const AnimationPixe
         {
             while (g_rendererState.sprite.height > 0)
             {
-                U32 skip = 0;
+                U32 skip = 0;       // How many pixels we should skip if pixels->count was bigger than diff between minX and sx
                 ImagePaletteSpritePixel* pixels = (ImagePaletteSpritePixel*)content;
 
                 // Skip the pixels to the left of the sprite drawing area
@@ -3047,6 +3047,7 @@ void drawMainSurfaceAnimationSprite(S32 x, S32 y, U16 level, const AnimationPixe
 
                 // There was a bug, that 'pixels' was bigger than 'next'. According to IDA, there is a separate loop "pixels < next"
                 // Also, there was a bug that 'i < count - skip', but count has been reduced by skip
+                // And also, there was a bug that sx[i] >= maxX
                 while (sx < g_rendererState.sprite.minX && (std::uintptr_t)pixels < (std::uintptr_t)next)
                 {
                     const U32 need = (U32)((Addr)g_rendererState.sprite.minX - (Addr)sx) / sizeof(Pixel);
@@ -3074,6 +3075,7 @@ void drawMainSurfaceAnimationSprite(S32 x, S32 y, U16 level, const AnimationPixe
                 while (sx < g_rendererState.sprite.maxX && (std::uintptr_t)pixels < (std::uintptr_t)next)
                 {
                     U32 count = (pixels->count & IMAGE_SPRITE_ITEM_COUNT_MASK);
+                    const U32 availCount = std::min(count - skip, (U32)(g_rendererState.sprite.maxX - sx));
 
                     if (count == 0)
                     {
@@ -3081,21 +3083,6 @@ void drawMainSurfaceAnimationSprite(S32 x, S32 y, U16 level, const AnimationPixe
                     }
                     else if (pixels->count & IMAGE_SPRITE_ITEM_COMPACT_MASK)
                     {
-                        // Skip pixels that are below required stencil value.
-                        {
-                            const Addr offset = (Addr)sx - (Addr)g_rendererState.surfaces.main;
-                            while (stencil <= *(DoublePixel*)((Addr)g_rendererState.surfaces.stencil + offset + (Addr)(x + skip) * (Addr)sizeof(Pixel)))
-                            {
-                                count = count - 1;
-                                skip = skip + 1;
-
-                                if (count == 0)
-                                {
-                                    break;
-                                }
-                            }
-                        }
-
                         // Blend and draw pixels.
                         if (count != 0)
                         {
@@ -3106,8 +3093,14 @@ void drawMainSurfaceAnimationSprite(S32 x, S32 y, U16 level, const AnimationPixe
 
                             if ((pix & 0xFF) != 0x1F)
                             {
-                                for (U32 i = 0; i < count; ++i)
+                                const ptrdiff_t offset = sx - g_rendererState.surfaces.main;
+                                Pixel* pStencil = g_rendererState.surfaces.stencil + offset;
+
+                                for (U32 i = 0; i < availCount; ++i)
                                 {
+                                    if (stencil <= *(DoublePixel*)((Addr)pStencil + (Addr)(i - 1) * (Addr)sizeof(Pixel)))
+                                        continue;
+
                                     const DoublePixel value =
                                         (pix * (((sx[i] << 16) | sx[i]) & g_rendererState.sprite.colorMask) >> 5) & g_rendererState.sprite.colorMask;
 
@@ -3120,25 +3113,13 @@ void drawMainSurfaceAnimationSprite(S32 x, S32 y, U16 level, const AnimationPixe
                     }
                     else
                     {
-                        // Skip pixels that are below required stencil value.
-                        {
-                            const Addr offset = (Addr)sx - (Addr)g_rendererState.surfaces.main;
-                            while (stencil <= *(DoublePixel*)((Addr)g_rendererState.surfaces.stencil + offset + (Addr)(x + skip) * (Addr)sizeof(Pixel)))
-                            {
-                                count = count - 1;
-                                skip = skip + 1;
-
-                                if (count == 0)
-                                {
-                                    break;
-                                }
-                            }
-                        }
-
                         // Blend and draw pixels.
                         if (count != 0)
                         {
-                            for (U32 i = 0; i < count; ++i)
+                            const ptrdiff_t offset = sx - g_rendererState.surfaces.main;
+                            Pixel* pStencil = g_rendererState.surfaces.stencil + offset;
+
+                            for (U32 i = 0; i < availCount; ++i)
                             {
                                 const U8 indx = pixels->pixels[skip + i];
                                 const AnimationPixel pixel = palette[indx];
@@ -3147,6 +3128,9 @@ void drawMainSurfaceAnimationSprite(S32 x, S32 y, U16 level, const AnimationPixe
 
                                 if ((pix & 0xFF) != 0x1F)
                                 {
+                                    if (stencil <= *(DoublePixel*)((Addr)pStencil + (Addr)(i - 1) * (Addr)sizeof(Pixel)))
+                                        continue;
+
                                     const DoublePixel value =
                                         (pix * (((sx[i] << 16) | sx[i]) & g_rendererState.sprite.colorMask) >> 5) & g_rendererState.sprite.colorMask;
 
