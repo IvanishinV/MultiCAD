@@ -72,7 +72,7 @@ using FUN_10004DB0_PTR = void(*)(S32 x, S32 y, U16 param_3, S32 param_4, LPVOID 
 
 using DRAW_MAIN_SURFACE_PALETTE_SPRITE_PTR = void(*)(S32 x, S32 y, const Pixel* palette, const ImagePaletteSprite* const sprite);
 using DRAW_MAIN_SURFACE_VANISHING_SPRITE_PTR = void(*)(S32 x, S32 y, S32 vanishOffset, const Pixel* palette, const ImagePaletteSprite* const sprite);
-using FUN_1000579C_PTR = void(*)(S32 x, S32 y, Pixel* palette, ImagePaletteSprite* sprite);
+using DRAW_BACK_SURFACE_PALETTE_SPRITE_PTR = void(*)(S32 x, S32 y, const Pixel* const palette, const ImagePaletteSprite* const sprite);
 using FUN_10005AC6_PTR = void(*)(S32 param_1, S32 param_2, U16 param_3, S32 param_4, LPVOID param_5);
 using DRAW_BACK_SURFACE_PALETTE_SHADE_SPRITE_PTR = void(*)(S32 x, S32 y, U16 level, const Pixel* const palette, const ImagePaletteSprite* const sprite);
 
@@ -115,7 +115,7 @@ struct RendererActions
     FUN_100049E6_PTR                                FUN_100049e6;
     DRAW_BACK_SURFACE_PALETTE_SHADE_SPRITE_PTR      drawBackSurfacePaletteShadeSprite;
     FUN_10005AC6_PTR                                FUN_10005ac6;
-    FUN_1000579C_PTR                                FUN_1000579c;
+    DRAW_BACK_SURFACE_PALETTE_SPRITE_PTR            drawBackSurfacePalletteSprite;
     FUN_10007928_PTR                                FUN_10007928;
     COPY_BACK_TO_MAIN_SURFACE_RECT_PTR              copyBackToMainSurfaceRect;
     DRAW_BACK_SURFACE_COLOR_POINT_PTR               drawBackSurfaceColorPoint;

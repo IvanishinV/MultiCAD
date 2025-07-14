@@ -573,7 +573,7 @@ void drawMainSurfacePaletteSprite(S32 x, S32 y, const Pixel* palette, const Imag
 
 // 0x100053c3
 /**
- * Draws a sprite on main surface, e.g. text.
+ * Draws a sprite with specified vanishing level on main surface.
  * 
  * @param x Starting X position of the sprite.
  * @param y Starting Y position of the sprite.
@@ -585,15 +585,27 @@ void drawMainSurfacePaletteSprite(S32 x, S32 y, const Pixel* palette, const Imag
  */
 void drawMainSurfaceVanishingSprite(S32 x, S32 y, const S32 vanishOffset, const Pixel* palette, const ImagePaletteSprite* const sprite);
 
-// 0x1000579c           todo
-void FUN_1000579c(S32 x, S32 y, Pixel* palette, ImagePaletteSprite* sprite);
+// 0x1000579c
+/**
+ * Draws a sprite on back surface, e.g. roads, bridges, cliffs, craters, stumps.
+ *
+ * Created by IVA 14.07.2025.
+ * 
+ * @param x Starting X position of the sprite.
+ * @param y Starting Y position of the sprite.
+ * @param palette
+ * @param sprite
+ *
+ * @return None.
+ */
+void drawBackSurfacePalletteSprite(S32 x, S32 y, const Pixel* const palette, const ImagePaletteSprite* const sprite);
 
 // 0x10005ac6           todo
 void FUN_10005ac6(S32 param_1, S32 param_2, U16 param_3, S32 param_4, LPVOID param_5);
 
 // 0x10005e31
 /**
- * Draws a shaded sprite on back surface comparing a specified level with stencil, e.g. trees, some buildings, hedgehogs, etc.
+ * Draws a shaded sprite on back surface comparing a specified level with stencil, e.g. trees, fences, some buildings, hedgehogs, etc.
  *
  * Created by IVA 13.07.2025.
  * 
@@ -610,7 +622,7 @@ void drawBackSurfacePaletteShadeSprite(S32 x, S32 y, U16 level, const Pixel* con
 // 0x1000618d           todo
 void FUN_1000618d(S32 x, S32 y, S32 param_3, LPVOID param_4);
 
-// 0x100064b6           check
+// 0x100064b6
 /**
  * Draws a sprite on main surface, e.g. main menu.
  *
