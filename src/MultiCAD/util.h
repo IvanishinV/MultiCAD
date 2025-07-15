@@ -28,4 +28,4 @@ const U8 IMAGE_SPRITE_ITEM_COUNT_MASK           = 0x7F;
 const U8 IMAGE_SPRITE_ITEM_COMPACT_MASK         = 0x80;
 const U8 IMAGE_SPRITE_ITEM_EXTENDED_MASK        = 0xC0;
 
-#define SHADEPIXEL(pixel, mask) ((pixel & mask) >> 1)
+#define SHADEPIXEL(pixel, mask) (((pixel) & (mask)) >> 1)

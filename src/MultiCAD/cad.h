@@ -74,7 +74,7 @@ using DRAW_MAIN_SURFACE_PALETTE_SPRITE_PTR = void(*)(S32 x, S32 y, const Pixel* 
 using DRAW_MAIN_SURFACE_VANISHING_SPRITE_PTR = void(*)(S32 x, S32 y, S32 vanishOffset, const Pixel* palette, const ImagePaletteSprite* const sprite);
 using DRAW_BACK_SURFACE_PALETTE_SPRITE_PTR = void(*)(S32 x, S32 y, const Pixel* const palette, const ImagePaletteSprite* const sprite);
 using FUN_10005AC6_PTR = void(*)(S32 param_1, S32 param_2, U16 param_3, S32 param_4, LPVOID param_5);
-using DRAW_BACK_SURFACE_PALETTE_SHADE_SPRITE_PTR = void(*)(S32 x, S32 y, U16 level, const Pixel* const palette, const ImagePaletteSprite* const sprite);
+using DRAW_BACK_SURFACE_PALETTE_SHADED_SPRITE_PTR = void(*)(S32 x, S32 y, U16 level, const Pixel* const palette, const ImagePaletteSprite* const sprite);
 
 using FUN_1000618D_PTR = void(*)(S32 x, S32 y, S32 param_3, LPVOID param_4);
 using FUN_100067AD_PTR = void(*)(S32 x, S32 y, S32 param_3, LPVOID param_4);
@@ -85,7 +85,7 @@ using FUN_10006EF8_PTR = void(*)(S32 x, S32 y, U16 level, Pixel* palette, ImageP
 
 using FUN_10007292_PTR = void(*)(S32 x, S32 y, U16 param_3, S32 param_4, LPVOID param_5);
 using FUN_10007662_PTR = void(*)(S32 x, S32 y, S32 param_3, LPVOID param_4);
-using FUN_10007928_PTR = void(*)(S32 param_1, S32 param_2, S32 param_3, LPVOID param_4);
+using DRAW_BACK_SURFACE_SHADOW_SPRITE_PTR = void(*)(S32 x, S32 y, const DoublePixel shadePixel, const ImagePaletteSprite* const sprite);
 using FUN_10007BE8_PTR = void(*)(S32 x, S32 y, U16 param_3, LPVOID param_4);
 using FUN_10007FBC_PTR = void(*)(S32 x, S32 y, U16 param_3, S32 param_4, LPVOID param_5);
 using FUN_10008ECD_PTR = void(*)(S32 param_1, S32 param_2, LPVOID param_3, S32 param_4, LPVOID param_5);
@@ -113,10 +113,10 @@ struct RendererActions
     FUN_10004390_PTR                                FUN_10004390;
     FUN_100046B6_PTR                                FUN_100046b6;
     FUN_100049E6_PTR                                FUN_100049e6;
-    DRAW_BACK_SURFACE_PALETTE_SHADE_SPRITE_PTR      drawBackSurfacePaletteShadeSprite;
+    DRAW_BACK_SURFACE_PALETTE_SHADED_SPRITE_PTR      drawBackSurfacePaletteShadedSprite;
     FUN_10005AC6_PTR                                FUN_10005ac6;
     DRAW_BACK_SURFACE_PALETTE_SPRITE_PTR            drawBackSurfacePalletteSprite;
-    FUN_10007928_PTR                                FUN_10007928;
+    DRAW_BACK_SURFACE_SHADOW_SPRITE_PTR             drawBackSurfaceShadowSprite;
     COPY_BACK_TO_MAIN_SURFACE_RECT_PTR              copyBackToMainSurfaceRect;
     DRAW_BACK_SURFACE_COLOR_POINT_PTR               drawBackSurfaceColorPoint;
     FUN_10001ED0_PTR                                FUN_10001ed0;
@@ -222,7 +222,7 @@ struct Renderer
     U16                    actualColorMask;                 //10012b3e
     U16                    initialColorMask;                //10012b40
     U16                    shadeColorMask;                  //10012b42
-    U16                    unk22;                           //10012b44 TODO
+    U16                    shadeColorMask2;                 //10012b44
     U16                    unk23;                           //10012b46 TODO
     U16                    unk24;                           //10012b48 TODO
     U32                    initialRgbMask;                  //10012b4c

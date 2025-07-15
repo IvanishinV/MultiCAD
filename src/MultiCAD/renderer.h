@@ -617,7 +617,7 @@ void FUN_10005ac6(S32 param_1, S32 param_2, U16 param_3, S32 param_4, LPVOID par
  *
  * @return None.
  */
-void drawBackSurfacePaletteShadeSprite(S32 x, S32 y, U16 level, const Pixel* const palette, const ImagePaletteSprite* const sprite);
+void drawBackSurfacePaletteShadedSprite(S32 x, S32 y, U16 level, const Pixel* const palette, const ImagePaletteSprite* const sprite);
 
 // 0x1000618d           todo
 void FUN_1000618d(S32 x, S32 y, S32 param_3, LPVOID param_4);
@@ -672,8 +672,23 @@ void drawSurfaceUnitSprite(S32 x, S32 y, U16 level, Pixel* palette, ImagePalette
 void FUN_10007292(S32 x, S32 y, U16 param_3, S32 param_4, LPVOID param_5);
 // 0x10007662           todo
 void FUN_10007662(S32 x, S32 y, S32 param_3, LPVOID param_4);
-// 0x10007928           todo
-void FUN_10007928(S32 param_1, S32 param_2, S32 param_3, LPVOID param_4);
+
+// 0x10007928
+/**
+ * Draws sprite as shadow on back surface. Draws shadows for all static objects like trees, buildings, poles, bushes, hedgehogs, etc.
+ * This function uses 0x80 RLE mask to skip pixels.
+ *
+ * Created by IVA 15.07.2025.
+ *
+ * @param x Starting X position of the sprite.
+ * @param y Starting Y position of the sprite.
+ * @param shadePixel Double pixel for stencil.
+ * @param sprite
+ *
+ * @return None.
+ */
+void drawBackSurfaceShadowSprite(S32 x, S32 y, const DoublePixel shadePixel, const ImagePaletteSprite* const sprite);
+
 // 0x10007be8           todo
 void FUN_10007be8(S32 x, S32 y, U16 param_3, LPVOID param_4);
 // 0x10007fbc           todo
