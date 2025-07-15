@@ -3584,8 +3584,166 @@ void FUN_10007292(S32 x, S32 y, U16 param_3, S32 param_4, LPVOID param_5)
 }
 
 // 0x10007662
-void FUN_10007662(S32 x, S32 y, S32 param_3, LPVOID param_4)
+void drawMainSurfaceShadowSprite(S32 x, S32 y, const DoublePixel shadePixel, const ImagePaletteSprite* const sprite)
 {
+    const U32 colorMask = ((U32)g_moduleState.actualGreenMask << 16) | g_moduleState.actualBlueMask | g_moduleState.actualRedMask;
+    g_rendererState.sprite.colorMask = colorMask;
+    g_rendererState.sprite.adjustedColorMask = colorMask | (colorMask << 1);
+
+    g_rendererState.sprite.windowRect.x = g_moduleState.windowRect.x;
+    g_rendererState.sprite.windowRect.y = g_moduleState.windowRect.y;
+    g_rendererState.sprite.windowRect.width = g_moduleState.windowRect.width;
+    g_rendererState.sprite.windowRect.height = g_moduleState.windowRect.height;
+
+    g_rendererState.sprite.height = sprite->height;
+    g_rendererState.sprite.width = sprite->width + 1;
+
+    const void* content = &sprite->pixels;
+    void* next = (void*)((Addr)content + (Addr)sprite->next);
+
+    x += sprite->x;
+    y += sprite->y;
+
+    // Skip the necessary number of rows from the top of the image
+    // in case the sprite starts above the allowed drawing rectangle.
+    if (y < g_moduleState.windowRect.y)
+    {
+        g_rendererState.sprite.height -= (g_moduleState.windowRect.y - y);
+        if (g_rendererState.sprite.height <= 0)
+        {
+            return;
+        }
+
+        for (S32 i = 0; i < g_moduleState.windowRect.y - y; ++i)
+        {
+            content = (void*)((Addr)next + (Addr)sizeof(U16));
+            next = (U32*)((Addr)next + (Addr)(((U16*)next)[0] + sizeof(U16)));
+        }
+
+        y = g_moduleState.windowRect.y;
+    }
+
+    const S32 overflow = y + g_rendererState.sprite.height - (g_moduleState.windowRect.height + 1);
+    bool draw = overflow <= 0;
+
+    if (!draw)
+    {
+        draw = !(g_rendererState.sprite.height <= overflow);
+        g_rendererState.sprite.height -= overflow;
+    }
+
+    if (draw)
+    {
+        const Addr linesStride = (Addr)(g_moduleState.surface.stride * y);
+
+        g_rendererState.sprite.x = (Pixel*)((Addr)g_rendererState.surfaces.main
+            + (Addr)(g_moduleState.surface.offset * sizeof(Pixel)) + linesStride + (Addr)(x * sizeof(Pixel)));
+        g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.surfaces.main
+            + (Addr)(g_moduleState.surface.offset * sizeof(Pixel)) + linesStride + (Addr)(g_moduleState.windowRect.x * sizeof(Pixel)));
+        g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.surfaces.main
+            + (Addr)(g_moduleState.surface.offset * sizeof(Pixel)) + linesStride + (Addr)((g_moduleState.windowRect.width + 1) * sizeof(Pixel)));
+
+
+        const S32 overage = y + g_rendererState.sprite.height < g_moduleState.surface.y
+            ? 0 : y + g_rendererState.sprite.height - g_moduleState.surface.y;
+
+        g_rendererState.sprite.overage = g_rendererState.sprite.height;
+        g_rendererState.sprite.height -= overage;
+
+        if (g_rendererState.sprite.height <= 0)
+        {
+            g_rendererState.sprite.height = g_rendererState.sprite.overage;
+            g_rendererState.sprite.overage = 0;
+
+            g_rendererState.sprite.x = (Pixel*)((Addr)g_rendererState.sprite.x - (Addr)SCREEN_SIZE_IN_BYTES);
+            g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.sprite.minX - (Addr)SCREEN_SIZE_IN_BYTES);
+            g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.sprite.maxX - (Addr)SCREEN_SIZE_IN_BYTES);
+        }
+        else
+            g_rendererState.sprite.overage = overage;
+
+        while (g_rendererState.sprite.height > 0)
+        {
+            while (g_rendererState.sprite.height > 0)
+            {
+                U32 skip = 0;       // How many pixels we should skip if pixels->count was bigger than diff between minX and sx
+                ImagePaletteSpritePixel* pixels = (ImagePaletteSpritePixel*)content;
+
+                // Skip the pixels to the left of the sprite drawing area
+                // in case the sprite starts to the left of allowed drawing rectangle.
+                Pixel* sx = g_rendererState.sprite.x;
+
+                // This function uses 0x80 RLE mask to skip pixels, not to draw one pixel few times.
+                while (sx < g_rendererState.sprite.minX && (std::uintptr_t)pixels < (std::uintptr_t)next)
+                {
+                    const U32 need = (U32)((Addr)g_rendererState.sprite.minX - (Addr)sx) / sizeof(Pixel);
+                    const U32 count = pixels->count & IMAGE_SPRITE_ITEM_COUNT_MASK;
+
+                    if (count <= need)
+                    {
+                        pixels = (ImagePaletteSpritePixel*)((Addr)pixels + sizeof(pixels->count));
+                    }
+
+                    skip = count == need ? 0 : std::min(count, need);
+                    sx = (Pixel*)((Addr)sx + (Addr)(std::min(count, need) * sizeof(Pixel)));
+                }
+
+                while (sx < g_rendererState.sprite.maxX && (std::uintptr_t)pixels < (std::uintptr_t)next)
+                {
+                    U32 count = (pixels->count & IMAGE_SPRITE_ITEM_COUNT_MASK);
+
+                    if (count == 0)
+                    {
+                        pixels = (ImagePaletteSpritePixel*)((Addr)pixels + sizeof(pixels->count));
+                        continue;
+                    }
+
+                    const U32 availCount = (U32)std::min(count - skip, (U32)(g_rendererState.sprite.maxX - sx));
+
+                    if ((pixels->count & IMAGE_SPRITE_ITEM_COMPACT_MASK) == 0)
+                    {
+                        const ptrdiff_t offset = sx - g_rendererState.surfaces.main;
+                        Pixel* stencil = g_rendererState.surfaces.stencil + offset;
+
+                        for (U32 i = 0; i < availCount; ++i)
+                        {
+                            const DoublePixel sten = *(DoublePixel*)(stencil + i);
+                            if ((sten & 0x8007) == 0)
+{
+                                *(DoublePixel*)(stencil + i) = shadePixel | sten;
+
+                                const Pixel pixel = (Pixel)(g_moduleState.backSurfaceShadePixel + SHADEPIXEL(*(DoublePixel*)(sx + i), *(DoublePixel*)&g_moduleState.shadeColorMask));
+                                sx[i] = pixel;
+                            }
+                        }
+                    }
+
+                    pixels = (ImagePaletteSpritePixel*)((Addr)pixels + sizeof(pixels->count));
+                    sx = (Pixel*)((Addr)sx + (Addr)((count - skip) * sizeof(Pixel)));
+
+                    skip = 0;
+                }
+
+                content = (void*)((Addr)next + (Addr)sizeof(U16));
+                next = (void*)((Addr)next + (Addr)(((U16*)next)[0] + sizeof(U16)));
+
+                --g_rendererState.sprite.height;
+
+                g_rendererState.sprite.x = (Pixel*)((Addr)g_rendererState.sprite.x + (Addr)g_moduleState.surface.stride);
+                g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.sprite.minX + (Addr)g_moduleState.surface.stride);
+                g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.sprite.maxX + (Addr)g_moduleState.surface.stride);
+            }
+
+            // Wrap around vertically, and draw the overage
+            // in case the sprite has more content that can fit into the allowed drawing rectangle.
+            g_rendererState.sprite.height = g_rendererState.sprite.overage;
+            g_rendererState.sprite.overage = 0;
+
+            g_rendererState.sprite.x = (Pixel*)((Addr)g_rendererState.sprite.x - SCREEN_SIZE_IN_BYTES);
+            g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.sprite.minX - SCREEN_SIZE_IN_BYTES);
+            g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.sprite.maxX - SCREEN_SIZE_IN_BYTES);
+        }
+    }
 }
 
 // 0x10007928

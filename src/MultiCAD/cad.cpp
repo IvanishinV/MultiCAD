@@ -49,7 +49,7 @@ Renderer* InitializeModule()
     g_moduleState.actions.FUN_10007292                          = FUN_10007292;
     g_moduleState.actions.drawMainSurfaceAnimationSprite        = drawMainSurfaceAnimationSprite;
     g_moduleState.actions.FUN_100067ad                          = FUN_100067ad;
-    g_moduleState.actions.FUN_10007662                          = FUN_10007662;
+    g_moduleState.actions.drawMainSurfaceShadowSprite           = drawMainSurfaceShadowSprite;
     g_moduleState.actions.FUN_10007fbc                          = FUN_10007fbc;
     g_moduleState.actions.FUN_10007be8                          = FUN_10007be8;
     g_moduleState.actions.drawMainSurfaceVanishingSprite        = drawMainSurfaceVanishingSprite;
