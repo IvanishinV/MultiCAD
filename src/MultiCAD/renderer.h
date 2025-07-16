@@ -721,10 +721,10 @@ void drawBackSurfaceShadowSprite(S32 x, S32 y, const DoublePixel shadePixel, con
 
 // 0x10007be8
 /**
- * Draws an adjusted sprite on main surface comparing a specified level with stencil.
+ * Draws a sprite on main surface comparing a specified level with stencil. Uses adjusted color mask.
  * This function is called, but its purpose is unknown.
  *
- * Created by IVA 13.07.2025.
+ * Created by IVA 16.07.2025.
  *
  * @param x Starting X position of the sprite.
  * @param y Starting Y position of the sprite.
@@ -735,7 +735,23 @@ void drawBackSurfaceShadowSprite(S32 x, S32 y, const DoublePixel shadePixel, con
  */
 void drawMainSurfaceAdjustedSprite(S32 x, S32 y, U16 level, const ImagePaletteSprite* const sprite);
 
-void FUN_10007fbc(S32 x, S32 y, U16 param_3, S32 param_4, LPVOID param_5);
+// 0x10007fbc
+/**
+ * Draws a sprite on main surface comparing a specified level with stencil. Uses actual color mask.
+ * This function is called, but its purpose is unknown.
+ *
+ * Created by IVA 16.07.2025.
+ *
+ * @param x Starting X position of the sprite.
+ * @param y Starting Y position of the sprite.
+ * @param level Stencil level.
+ * @param palette
+ * @param sprite
+ *
+ * @return None.
+ */
+void drawMainSurfaceActualSprite(S32 x, S32 y, U16 level, const Pixel* const palette, const ImagePaletteSprite* const sprite);
+
 // 0x10008ecd           todo
 /**
  * Draws in-game UI, cursor is displayed always.

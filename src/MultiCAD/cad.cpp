@@ -50,7 +50,7 @@ Renderer* InitializeModule()
     g_moduleState.actions.drawMainSurfaceAnimationSprite        = drawMainSurfaceAnimationSprite;
     g_moduleState.actions.FUN_100067ad                          = FUN_100067ad;
     g_moduleState.actions.drawMainSurfaceShadowSprite           = drawMainSurfaceShadowSprite;
-    g_moduleState.actions.FUN_10007fbc                          = FUN_10007fbc;
+    g_moduleState.actions.drawMainSurfaceActualSprite           = drawMainSurfaceActualSprite;
     g_moduleState.actions.drawMainSurfaceAdjustedSprite         = drawMainSurfaceAdjustedSprite;
     g_moduleState.actions.drawMainSurfaceVanishingSprite        = drawMainSurfaceVanishingSprite;
     g_moduleState.actions.drawMainSurfaceColorPoint             = drawMainSurfaceColorPoint;
