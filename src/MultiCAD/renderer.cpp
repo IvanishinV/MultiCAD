@@ -3131,8 +3131,8 @@ void drawBackSurfacePaletteShadedSprite(S32 x, S32 y, U16 level, const Pixel* co
 
                             if (indx != 0)
 {
-                                const Pixel sten = stencil[skip + i];
-                                stencil[skip + i] = level | (sten & 3);
+                                const Pixel sten = stencil[i];
+                                stencil[i] = level | (sten & 3);
 
                                 Pixel pixel = palette[indx];
                                 if (sten & 2)
