@@ -655,9 +655,12 @@ void FUN_100067ad(S32 x, S32 y, S32 param_3, LPVOID param_4);
 void drawMainSurfaceAnimationSprite(S32 x, S32 y, U16 level, const AnimationPixel* palette, ImagePaletteSprite* sprite);
 
 
-// 0x10006ef8           todo
+// 0x10006ef8
 /**
- * Draws a unit sprite via specified level on main surface, e.g. cursor, explodes, etc.
+ * Draws a sprite via specified level on main surface to foreground before static objects. Draws any units, earth explosion, splash of water.
+ * All such objects are considered background within a certain radius from the cursor.
+ * 
+ * Created by IVA 16.07.2025.
  *
  * @param x Starting X position of the sprite.
  * @param y Starting Y position of the sprite.
@@ -667,9 +670,24 @@ void drawMainSurfaceAnimationSprite(S32 x, S32 y, U16 level, const AnimationPixe
  *
  * @return None.
  */
-void drawSurfaceUnitSprite(S32 x, S32 y, U16 level, Pixel* palette, ImagePaletteSprite* sprite);
-// 0x10007292           todo
-void FUN_10007292(S32 x, S32 y, U16 param_3, S32 param_4, LPVOID param_5);
+void drawMainSurfaceSpriteFront(S32 x, S32 y, U16 level, const Pixel* const palette, const ImagePaletteSprite* const sprite);
+
+// 0x10007292
+/**
+ * Draws a sprite via specified level on main surface to background behind static objects. Draws any units, earth explosion, splash of water.
+ * All such objects are considered background within a certain radius from the cursor.
+ * 
+ * Created by IVA 16.07.2025.
+ *
+ * @param x Starting X position of the sprite.
+ * @param y Starting Y position of the sprite.
+ * @param level Displaying level.
+ * @param palette
+ * @param sprite
+ *
+ * @return None.
+ */
+void drawMainSurfaceSpriteBack(S32 x, S32 y, U16 param_3, const Pixel* const palette, const ImagePaletteSprite* const sprite);
 
 // 0x10007662
 /**

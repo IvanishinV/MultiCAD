@@ -81,9 +81,9 @@ using FUN_100067AD_PTR = void(*)(S32 x, S32 y, S32 param_3, LPVOID param_4);
 
 using DRAW_MAIN_SURFACE_ANIMATION_SPRITE_PTR = void(*)(S32 x, S32 y, U16 level, const AnimationPixel* palette, ImagePaletteSprite* sprite);
 using DRAW_MAIN_SURFACE_PALETTE_PTR = void(*)(S32 x, S32 y, ImageSprite* sprite);
-using FUN_10006EF8_PTR = void(*)(S32 x, S32 y, U16 level, Pixel* palette, ImagePaletteSprite* sprite);
+using DRAW_MAIN_SURFACE_SPRITE_FRONT_PTR = void(*)(S32 x, S32 y, U16 level, const Pixel* const palette, const ImagePaletteSprite* const sprite);
 
-using FUN_10007292_PTR = void(*)(S32 x, S32 y, U16 param_3, S32 param_4, LPVOID param_5);
+using DRAW_MAIN_SURFACE_SPRITE_BACK_PTR = void(*)(S32 x, S32 y, U16 param_3, const Pixel* const palette, const ImagePaletteSprite* const sprite);
 using DRAW_MAIN_SURFACE_SHADOW_SPRITE_PTR = void(*)(S32 x, S32 y, const DoublePixel shadePixel, const ImagePaletteSprite* const sprite);
 using DRAW_BACK_SURFACE_SHADOW_SPRITE_PTR = void(*)(S32 x, S32 y, const DoublePixel shadePixel, const ImagePaletteSprite* const sprite);
 using FUN_10007BE8_PTR = void(*)(S32 x, S32 y, U16 param_3, LPVOID param_4);
@@ -126,8 +126,8 @@ struct RendererActions
     DRAW_MAIN_SURFACE_PALETTE_PTR                   drawMainSurfaceSprite;
     FUN_1000618D_PTR                                FUN_1000618d;
     FUN_10004DB0_PTR                                FUN_10004db0;
-    FUN_10006EF8_PTR                                FUN_10006ef8;
-    FUN_10007292_PTR                                FUN_10007292;
+    DRAW_MAIN_SURFACE_SPRITE_FRONT_PTR              drawMainSurfaceSpriteFront;
+    DRAW_MAIN_SURFACE_SPRITE_BACK_PTR               drawMainSurfaceSpriteBack;
     DRAW_MAIN_SURFACE_ANIMATION_SPRITE_PTR          drawMainSurfaceAnimationSprite;
     FUN_100067AD_PTR                                FUN_100067ad;
     DRAW_MAIN_SURFACE_SHADOW_SPRITE_PTR             drawMainSurfaceShadowSprite;
