@@ -2060,7 +2060,7 @@ void FUN_100033c0(S32 x, S32 y, LPSTR text, AssetCollection* asset, Pixel* palet
     {
         ImagePaletteSprite* image = (ImagePaletteSprite*)((Addr)asset + (Addr)asset->items[text[xx]]);
 
-        drawBackSurfacePaletteShadedSprite(x + offset, y, y, palette, image);
+        drawBackSurfacePaletteShadedSprite(x + offset, y, (U16)y, palette, image);
 
         offset = offset + DEFAULT_FONT_ASSET_SPACING + image->width;
     }
@@ -4515,7 +4515,7 @@ void drawMainSurfaceAdjustedSprite(S32 x, S32 y, U16 level, const ImagePaletteSp
                         for (U32 i = 0; i < availCount; ++i)
                         {
                             if (*(DoublePixel*)(stencil + i - 1) < stencilLevel)
-{
+                            {
                                 DoublePixel pixel = g_rendererState.sprite.colorMask & (sx[i] | ((DoublePixel)sx[i] << 16));
                                 pixel = g_rendererState.sprite.adjustedColorMask & ((pixel * (pixels->pixels[skip + i] & IMAGE_SPRITE_ITEM_SMALL_PIXEL_MASK)) >> 4);
                                 pixel = g_rendererState.sprite.colorMask &
