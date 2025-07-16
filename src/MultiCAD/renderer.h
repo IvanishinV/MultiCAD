@@ -687,7 +687,7 @@ void drawMainSurfaceSpriteFront(S32 x, S32 y, U16 level, const Pixel* const pale
  *
  * @return None.
  */
-void drawMainSurfaceSpriteBack(S32 x, S32 y, U16 param_3, const Pixel* const palette, const ImagePaletteSprite* const sprite);
+void drawMainSurfaceSpriteBack(S32 x, S32 y, U16 level, const Pixel* const palette, const ImagePaletteSprite* const sprite);
 
 // 0x10007662
 /**
@@ -719,9 +719,22 @@ void drawMainSurfaceShadowSprite(S32 x, S32 y, const DoublePixel shadePixel, con
  */
 void drawBackSurfaceShadowSprite(S32 x, S32 y, const DoublePixel shadePixel, const ImagePaletteSprite* const sprite);
 
-// 0x10007be8           todo
-void FUN_10007be8(S32 x, S32 y, U16 param_3, LPVOID param_4);
-// 0x10007fbc           todo
+// 0x10007be8
+/**
+ * Draws an adjusted sprite on main surface comparing a specified level with stencil.
+ * This function is called, but its purpose is unknown.
+ *
+ * Created by IVA 13.07.2025.
+ *
+ * @param x Starting X position of the sprite.
+ * @param y Starting Y position of the sprite.
+ * @param level Stencil level.
+ * @param sprite
+ *
+ * @return None.
+ */
+void drawMainSurfaceAdjustedSprite(S32 x, S32 y, U16 level, const ImagePaletteSprite* const sprite);
+
 void FUN_10007fbc(S32 x, S32 y, U16 param_3, S32 param_4, LPVOID param_5);
 // 0x10008ecd           todo
 /**

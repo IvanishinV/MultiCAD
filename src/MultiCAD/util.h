@@ -22,6 +22,7 @@ constexpr U32  SCREEN_SIZE_IN_PIXELS        = SCREEN_WIDTH * SCREEN_HEIGHT;     
 constexpr U32  SCREEN_SIZE_IN_BYTES         = SCREEN_SIZE_IN_PIXELS * sizeof(Pixel);    // How many bytes are in the screen
 constexpr U32  SCREEN_SIZE_IN_DOUBLE_PIXELS = SCREEN_SIZE_IN_PIXELS / 2;                // How many double pixels are in the screen
 
+const U8 IMAGE_SPRITE_ITEM_SMALL_PIXEL_MASK     = 0x1F;
 const U8 IMAGE_SPRITE_ITEM_SHORT_COUNT_MASK     = 0x3F;
 const U8 IMAGE_SPRITE_ITEM_SHORT_COMPACT_MASK   = 0x40;
 const U8 IMAGE_SPRITE_ITEM_COUNT_MASK           = 0x7F;
