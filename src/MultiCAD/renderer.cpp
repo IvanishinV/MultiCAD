@@ -362,7 +362,7 @@ void drawMainSurfaceHorLine(const S32 x, const S32 y, const S32 length, const Pi
         if (new_x <= max_x)
         {
             Pixel* pixels = (Pixel*)((Addr)g_rendererState.surfaces.main
-                + (Addr)((g_moduleState.surface.offset + y * SCREEN_WIDTH + new_x) * sizeof(Pixel)));
+                + g_moduleState.surface.offset + (Addr)(y * SCREEN_WIDTH + new_x) * sizeof(Pixel));
 
             if (g_moduleState.surface.y <= y)
                 pixels = (Pixel*)((Addr)pixels - (Addr)(SCREEN_SIZE_IN_PIXELS * sizeof(Pixel)));
@@ -393,7 +393,7 @@ void drawMainSurfaceVertLine(const S32 x, const S32 y, const S32 height, const P
         return;
 
     Pixel* pixels = (Pixel*)((Addr)g_rendererState.surfaces.main
-        + (Addr)((g_moduleState.surface.offset + new_y * SCREEN_WIDTH + x) * sizeof(Pixel)));
+        + g_moduleState.surface.offset + (Addr)(new_y * SCREEN_WIDTH + x) * sizeof(Pixel));
 
     if (y < g_moduleState.surface.y)
     {
@@ -473,7 +473,7 @@ void drawMainSurfaceFilledColorRect(S32 x, S32 y, S32 width, S32 height, const P
     if (width < 1 || height < 1)
         return;
 
-    Pixel* pixels = (Pixel*)((Addr)g_rendererState.surfaces.main + (Addr)((g_moduleState.surface.offset + y * SCREEN_WIDTH + x) * sizeof(Pixel)));
+    Pixel* pixels = (Pixel*)((Addr)g_rendererState.surfaces.main + g_moduleState.surface.offset + (Addr)(y * SCREEN_WIDTH + x) * sizeof(Pixel));
 
     if (y < g_moduleState.surface.y)
     {
@@ -550,7 +550,7 @@ void drawMainSurfaceShadeColorRect(S32 x, S32 y, S32 width, S32 height, const Pi
     if (width < 1 || height < 1)
         return;
 
-    Pixel* pixels = (Pixel*)((Addr)g_rendererState.surfaces.main + (Addr)((g_moduleState.surface.offset + y * SCREEN_WIDTH + x) * sizeof(Pixel)));
+    Pixel* pixels = (Pixel*)((Addr)g_rendererState.surfaces.main + g_moduleState.surface.offset + (Addr)(y * SCREEN_WIDTH + x) * sizeof(Pixel));
 
     const Pixel color = SHADEPIXEL(pixel, g_moduleState.shadeColorMask);
 
@@ -619,7 +619,7 @@ void drawMainSurfaceColorPoint(const S32 x, const S32 y, const Pixel pixel)
         && x <= g_moduleState.windowRect.width
         && y <= g_moduleState.windowRect.height)
     {
-        S32 offset = g_moduleState.surface.offset + y * SCREEN_WIDTH + x;
+        S32 offset = g_moduleState.surface.offset / sizeof(Pixel) + y * SCREEN_WIDTH + x;
 
         if (g_moduleState.surface.y <= y)
             offset -= SCREEN_SIZE_IN_PIXELS;
@@ -636,7 +636,7 @@ void drawBackSurfaceColorPoint(const S32 x, const S32 y, const Pixel pixel)
         && x <= g_moduleState.windowRect.width
         && y <= g_moduleState.windowRect.height)
     {
-        S32 offset = g_moduleState.surface.offset + y * SCREEN_WIDTH + x;
+        S32 offset = g_moduleState.surface.offset / sizeof(Pixel) + y * SCREEN_WIDTH + x;
 
         if (g_moduleState.surface.y <= y)
             offset -= SCREEN_SIZE_IN_PIXELS;
@@ -648,7 +648,7 @@ void drawBackSurfaceColorPoint(const S32 x, const S32 y, const Pixel pixel)
 // 0x100018a0
 void readMainSurfaceRect(const S32 sx, const S32 sy, const S32 width, const S32 height, const S32 dx, const S32 dy, const S32 stride, Pixel* surface)
 {
-    Pixel* src = (Pixel*)((Addr)g_rendererState.surfaces.main + (Addr)((g_moduleState.surface.offset + (sy * SCREEN_WIDTH + sx)) * sizeof(Pixel)));
+    Pixel* src = (Pixel*)((Addr)g_rendererState.surfaces.main + g_moduleState.surface.offset + (Addr)(sy * SCREEN_WIDTH + sx) * sizeof(Pixel));
     Pixel* dst = (Pixel*)((Addr)surface + (Addr)((stride * dy + dx) * sizeof(Pixel)));
 
     if (sy < g_moduleState.surface.y)
@@ -738,7 +738,7 @@ void copyMainBackSurfaces(const S32 dx, const S32 dy)
     Pixel* src;
     Pixel* dst;
 
-    S32 offset = g_moduleState.surface.offset + dy * SCREEN_WIDTH + dx;
+    S32 offset = g_moduleState.surface.offset / sizeof(Pixel) + dy * SCREEN_WIDTH + dx;
     if (offset < 0)
     {
         do
@@ -752,7 +752,7 @@ void copyMainBackSurfaces(const S32 dx, const S32 dy)
             offset -= SCREEN_SIZE_IN_PIXELS;
     }
 
-    S32 x_max = dx + (g_moduleState.surface.offset * sizeof(Pixel) / 2) % SCREEN_WIDTH;
+    S32 x_max = dx + (g_moduleState.surface.offset / sizeof(Pixel)) % SCREEN_WIDTH;
     do
     {
         if (x_max >= 0)
@@ -789,7 +789,7 @@ void copyMainBackSurfaces(const S32 dx, const S32 dy)
 
 #ifdef CHECK_ASSERTS
     {
-        S32 old_offset = g_moduleState.surface.offset + dy * SCREEN_WIDTH + dx;
+        S32 old_offset = g_moduleState.surface.offset / sizeof(Pixel) + dy * SCREEN_WIDTH + dx;
         // Normalize offset so it is within the expected range.
         if (old_offset < 0)
         {
@@ -806,7 +806,7 @@ void copyMainBackSurfaces(const S32 dx, const S32 dy)
             }
         }
 
-        S32 length = g_moduleState.surface.offset & (0x80000000 | (SCREEN_WIDTH - 1));
+        S32 length = (g_moduleState.surface.offset / sizeof(Pixel)) & (0x80000000 | (SCREEN_WIDTH - 1));
 
         if (length < 0) { length = ((length - 1) | (U32)(-(S32)SCREEN_WIDTH)) + 1; }
 
@@ -819,7 +819,7 @@ void copyMainBackSurfaces(const S32 dx, const S32 dy)
     }
 #endif
 
-    g_moduleState.surface.offset = offset;
+    g_moduleState.surface.offset = offset * sizeof(Pixel);
     g_moduleState.surface.y = SCREEN_HEIGHT - offset / SCREEN_WIDTH;
 
     if (dy <= 0)
@@ -870,8 +870,8 @@ void FUN_10001f40(S32 param_1, S32 param_2, S32 param_3, S32 param_4, S32 param_
 void copyBackToMainSurfaceRect(const S32 x, const S32 y, const U32 width, const U32 height)
 {
     const Addr offset = (Addr)(x + y * SCREEN_WIDTH);
-    Pixel* src = (Pixel*)((Addr)g_rendererState.surfaces.back + (Addr)((g_moduleState.surface.offset + offset) * sizeof(Pixel)));
-    Pixel* dst = (Pixel*)((Addr)g_rendererState.surfaces.main + (Addr)((g_moduleState.surface.offset + offset) * sizeof(Pixel)));
+    Pixel* src = (Pixel*)((Addr)g_rendererState.surfaces.back + g_moduleState.surface.offset + offset * sizeof(Pixel));
+    Pixel* dst = (Pixel*)((Addr)g_rendererState.surfaces.main + g_moduleState.surface.offset + offset * sizeof(Pixel));
 
     auto copyBlock = [&](Pixel*& s, Pixel*& d, int lines)
         {
@@ -1090,7 +1090,7 @@ void drawMainSurfaceColorEllipse(const S32 x, const S32 y, S32 size, const Pixel
 // 0x100023e0
 void drawMainSurfaceColorOutline(S32 x, S32 y, S32 width, S32 height, const Pixel pixel)
 {
-    const S32 offset = g_moduleState.surface.offset % SCREEN_WIDTH;
+    const S32 offset = (g_moduleState.surface.offset / sizeof(Pixel)) % SCREEN_WIDTH;
 
     Pixel* src = (Pixel*)((Addr)g_rendererState.surfaces.main
         + (Addr)((offset + SCREEN_SIZE_IN_PIXELS) * sizeof(Pixel)));
@@ -1201,8 +1201,8 @@ void drawMainSurfaceColorOutline(S32 x, S32 y, S32 width, S32 height, const Pixe
     }
 
     Pixel* dst = (Pixel*)((Addr)g_rendererState.surfaces.main
-        + (Addr)(g_moduleState.surface.offset * sizeof(Pixel) + y * g_moduleState.surface.stride + x * sizeof(Pixel))
-        + (Addr)(g_moduleState.windowRect.y * g_moduleState.surface.stride + g_moduleState.windowRect.x * sizeof(Pixel)));
+        + g_moduleState.surface.offset + y * g_moduleState.surface.stride + x * sizeof(Pixel))
+        + (Addr)(g_moduleState.windowRect.y * g_moduleState.surface.stride + g_moduleState.windowRect.x * sizeof(Pixel));
 
     if ((g_rendererState.outline.options & OUTLINE_DRAW_OPTION_TOP) == OUTLINE_DRAW_OPTION_NONE)
     {
@@ -1282,7 +1282,7 @@ void drawMainSurfaceColorOutline(S32 x, S32 y, S32 width, S32 height, const Pixe
 // 0x100026e0
 void drawStencilSurfaceWindowRect()
 {
-    Pixel* pixels = (Pixel*)((Addr)g_rendererState.surfaces.stencil + (Addr)(g_moduleState.surface.offset + g_moduleState.windowRect.y * SCREEN_WIDTH + g_moduleState.windowRect.x) * (Addr)sizeof(Pixel));
+    Pixel* pixels = (Pixel*)((Addr)g_rendererState.surfaces.stencil + g_moduleState.surface.offset + (g_moduleState.windowRect.y * SCREEN_WIDTH + g_moduleState.windowRect.x) * sizeof(Pixel));
 
     const S32 height = g_moduleState.windowRect.height - g_moduleState.windowRect.y + 1;
     const S32 width = g_moduleState.windowRect.width - g_moduleState.windowRect.x + 1;
@@ -1367,7 +1367,7 @@ void drawStencilSurfaceWindowRect()
 // 0x10002780
 void maskStencilSurfaceRect(S32 x, S32 y, S32 width, S32 height)
 {
-    Pixel* pixels = (Pixel*)((Addr)g_rendererState.surfaces.stencil + (Addr)((g_moduleState.surface.offset + y * SCREEN_WIDTH + x) * sizeof(Pixel)));
+    Pixel* pixels = (Pixel*)((Addr)g_rendererState.surfaces.stencil + g_moduleState.surface.offset + (y * SCREEN_WIDTH + x) * sizeof(Pixel));
 
     const S32 stride = (SCREEN_WIDTH - width) * sizeof(Pixel);
 
@@ -1439,7 +1439,7 @@ void maskStencilSurfaceRect(S32 x, S32 y, S32 width, S32 height)
 // 0x10002810
 void moveStencilSurface(const S32 x, const S32 y, const S32 width, const S32 height, const S32 offset)
 {
-    DoublePixel* pixels = (DoublePixel*)((Addr)g_rendererState.surfaces.stencil + (Addr)((SCREEN_WIDTH * y + x + g_moduleState.surface.offset) * sizeof(Pixel)));
+    DoublePixel* pixels = (DoublePixel*)((Addr)g_rendererState.surfaces.stencil + g_moduleState.surface.offset + (Addr)((SCREEN_WIDTH * y + x) * sizeof(Pixel)));
     const S32 stride = sizeof(Pixel) * (SCREEN_WIDTH - width);
 
     //const bool addOp = offset >= 0;
@@ -1697,7 +1697,7 @@ bool copyMainSurfaceToRenderer(S32 x, S32 y, S32 width, S32 height)
 
         locked = true;
     }
-    Pixel* src = (Pixel*)((Addr)g_rendererState.surfaces.main + (Addr)(g_moduleState.surface.offset + y * SCREEN_WIDTH + x) * sizeof(Pixel));
+    Pixel* src = (Pixel*)((Addr)g_rendererState.surfaces.main + g_moduleState.surface.offset + (y * SCREEN_WIDTH + x) * sizeof(Pixel));
     void* dst = (void*)((Addr)g_moduleState.surface.renderer + (Addr)(g_moduleState.pitch * y + x * sizeof(Pixel)));
 
     if (y < g_moduleState.surface.y)
@@ -1761,19 +1761,19 @@ void copyMainSurfaceToRendererWithWarFog(const S32 x, const S32 y, const S32 end
         if (!lockDxSurface())
         {
             return;
-}
+        }
 
         locked = true;
     }
 
-    S32 delta = (endY + 1) - y;  
+    S32 delta = (endY + 1) - y;
     g_rendererState.rendererStruct02.unk04 = 0;
     g_moduleState.moduleStruct01.actualRgbMask = g_moduleState.initialRgbMask;
     g_moduleState.moduleStruct01.dstRowStride = -8 * g_moduleState.pitch + 32;
     g_moduleState.moduleStruct01.lineStep = -(S32)SCREEN_WIDTH * 16 + 32;
 
     U8* fogSrc = &g_moduleState.fogSprites[(y >> 3) + 8].unk[(x >> 4) + 8];
-    DoublePixel* src = (DoublePixel*)((Addr)g_rendererState.surfaces.main + (SCREEN_WIDTH * y + x + g_moduleState.surface.offset) * sizeof(Pixel));
+    DoublePixel* src = (DoublePixel*)((Addr)g_rendererState.surfaces.main + g_moduleState.surface.offset + (SCREEN_WIDTH * y + x) * sizeof(Pixel));
     DoublePixel* dst = (DoublePixel*)((Addr)g_moduleState.surface.renderer + x * sizeof(Pixel) + y * g_moduleState.pitch);
 
     if (y >= g_moduleState.surface.y)
@@ -1783,8 +1783,8 @@ void copyMainSurfaceToRendererWithWarFog(const S32 x, const S32 y, const S32 end
     {
         g_rendererState.rendererStruct01.validRowsBlockCount = delta >> 3;
         g_rendererState.rendererStruct01.unk02 = 0;
-        g_rendererState.rendererStruct02.excessRowsBlockCount = 0;  
-        
+        g_rendererState.rendererStruct02.excessRowsBlockCount = 0;
+
         g_moduleState.moduleStruct01.rowAlignmentMask = SCREEN_WIDTH * sizeof(Pixel);
     }
     else
@@ -2072,7 +2072,7 @@ void drawBackSurfaceRhomb(S32 angle_0, S32 angle_1, S32 angle_2, S32 angle_3, S3
     // Tile height: 32
     // Tile width: 63
 
-    g_rendererState.tile.stencil = (Pixel*)((Addr)output + (g_moduleState.surface.offset % SCREEN_WIDTH) * sizeof(Pixel) + SCREEN_SIZE_IN_BYTES);
+    g_rendererState.tile.stencil = (Pixel*)((Addr)output + g_moduleState.surface.offset % (SCREEN_WIDTH * sizeof(Pixel)) + SCREEN_SIZE_IN_BYTES);
     g_rendererState.tile.windowRect.x = g_moduleState.windowRect.x + TILE_SIZE_HEIGHT + 1;
     g_rendererState.tile.windowRect.y = g_moduleState.windowRect.y;
     g_rendererState.tile.windowRect.width = g_moduleState.windowRect.width + TILE_SIZE_HEIGHT + 1;
@@ -2090,8 +2090,8 @@ void drawBackSurfaceRhomb(S32 angle_0, S32 angle_1, S32 angle_2, S32 angle_3, S3
 
     // Настройка рендеринга
     U8* srcInput = input->pixels;
-    Pixel* dst = (Pixel*)((Addr)output + (g_moduleState.surface.offset * sizeof(Pixel)) + stride * ty + tx * sizeof(Pixel) - 2);
-        Pixel* dst2;
+    Pixel* dst = (Pixel*)((Addr)output + g_moduleState.surface.offset + stride * ty + tx * sizeof(Pixel) - 2);
+    Pixel* dst2;
     S32 txDelta = tx + TILE_SIZE_HEIGHT;
     S32 diff = (angle_1 - angle_0) << 2;
     bool isUpperPart = (ty > (g_moduleState.windowRect.y - 16)) ? true : false; // 1 остальное 0 четверь
@@ -2129,17 +2129,17 @@ void drawBackSurfaceRhomb(S32 angle_0, S32 angle_1, S32 angle_2, S32 angle_3, S3
             g_rendererState.tile.tileHeight -= overage;
 
             for (S32 y = 0; y < overage; ++y)
-        {
+            {
                 srcInput += tileStartDrawLength;
                 txDelta += g_rendererState.tile.diff;
                 tileStartDrawLength -= 4; // Для ступечатой отрисовки каждай последующая отрисовка пирамидки -4 от ее ширины
                 dst2 = (Pixel*)((Addr)dst2 + (Addr)(stride + 2 * sizeof(Pixel)));   // наверно 4 это 2 пикселя + мешене для ступечатых операций
-                    tx += 2;
-                }
+                tx += 2;
             }
         }
-        else
-        {
+    }
+    else
+    {
         tileStartDrawLength = 3;   // Стартовая длина строки верхней половины тайла
         tx = txDelta;
 
@@ -2160,14 +2160,14 @@ void drawBackSurfaceRhomb(S32 angle_0, S32 angle_1, S32 angle_2, S32 angle_3, S3
                 srcInput += tileStartDrawLength;
                 txDelta += g_rendererState.tile.diff;
                 tileStartDrawLength += 4;
-                    dst = (Pixel*)((Addr)dst + (Addr)(stride - 2 * sizeof(Pixel)));
+                dst = (Pixel*)((Addr)dst + (Addr)(stride - 2 * sizeof(Pixel)));
                 tx -= 2;
-                }
             }
+        }
 
         // Отрисовка части тайла
         if (g_rendererState.tile.tileHeight > 0)
-            {
+        {
             ty += g_rendererState.tile.tileHeight;
             S32 overflow = std::max(ty - g_moduleState.surface.y, 0);
 
@@ -2187,9 +2187,9 @@ void drawBackSurfaceRhomb(S32 angle_0, S32 angle_1, S32 angle_2, S32 angle_3, S3
             }
 
             while (g_rendererState.tile.tileHeight > 0)
-                {
+            {
                 for (S32 yy = 0; yy < g_rendererState.tile.tileHeight; ++yy)
-                    {
+                {
                     g_rendererState.tile.tempTileHeight = overflow;
 
                     S32 totalTxOffset = txDelta;
@@ -2198,18 +2198,18 @@ void drawBackSurfaceRhomb(S32 angle_0, S32 angle_1, S32 angle_2, S32 angle_3, S3
                     S32 delta2 = std::min(delta, tileStartDrawLength);
                     const S32 delta3 = g_rendererState.tile.windowRect.x - tx;
                     if (delta > 0 && delta2 > delta3)
-                        {
+                    {
                         U8* srcTemp = srcInput;
                         Pixel* dstTemp = dst2;
 
                         if (delta3 > 0)
-                            {
+                        {
                             srcTemp = (U8*)((Addr)srcTemp + (Addr)delta3);
                             dstTemp = (Pixel*)((Addr)dstTemp + (Addr)delta3 * sizeof(Pixel));
 
                             delta2 -= delta3;
                             totalTxOffset = txDelta + delta3 * diff;
-                                }
+                        }
 
                         // Glitch
                         if (g_rendererState.tile.stencil <= dstTemp)
@@ -2217,29 +2217,29 @@ void drawBackSurfaceRhomb(S32 angle_0, S32 angle_1, S32 angle_2, S32 angle_3, S3
                             dstTemp = (Pixel*)((Addr)dstTemp - (Addr)SCREEN_SIZE_IN_BYTES);
                         }
                         if (dstTemp < output)
-                            {
+                        {
                             dstTemp = (Pixel*)((Addr)dstTemp + (Addr)SCREEN_SIZE_IN_BYTES);
-                            }
+                        }
 
                         U16 uVar5 = ((U16)((totalTxOffset >> 8) ^ g_rendererState.tile.unk08) << 8) | (totalTxOffset & 0xFF);
                         g_rendererState.tile.unk08 ^= 0x20;
 
                         for (S32 y = 0; y < delta2; ++y)
-                            {
+                        {
                             dstTemp[y] = g_moduleState.rhombsPalette.palette[(uVar5 & 0xFF00) | srcTemp[y]];
                             uVar5 = uVar5 + (U16)(diff) ^ 0x2000;
-                            }
                         }
+                    }
 
                     srcInput = (U8*)((Addr)srcInput + tileStartDrawLength);
                     tileStartDrawLength += 4;
 
                     txDelta += g_rendererState.tile.diff;
                     overflow = g_rendererState.tile.tempTileHeight;
-                        tx -= 2;
+                    tx -= 2;
 
                     dst2 = dst = (Pixel*)((Addr)dst2 + (Addr)(stride - 4));
-                    }
+                }
 
                 // Отрисовываем оставшуюся часть высоты тайла
                 g_rendererState.tile.tileHeight = g_rendererState.tile.tempTileHeight;
@@ -2252,8 +2252,8 @@ void drawBackSurfaceRhomb(S32 angle_0, S32 angle_1, S32 angle_2, S32 angle_3, S3
             }
         }
 
-        if (ty > g_rendererState.tile.windowRect.height + 1) 
-                return;
+        if (ty > g_rendererState.tile.windowRect.height + 1)
+            return;
 
         g_rendererState.tile.unk08 ^= 0x20;
         tileStartDrawLength -= 6;                                   // Сдвигаем нюжнюю часть на 3 пикселя
@@ -2263,35 +2263,35 @@ void drawBackSurfaceRhomb(S32 angle_0, S32 angle_1, S32 angle_2, S32 angle_3, S3
         g_rendererState.tile.tileHeight = std::min((g_rendererState.tile.windowRect.height + 1) - ty, 16);
         g_rendererState.tile.diff = (angle_3 - angle_0) << 4;
         txDelta = (angle_0 << 8) + g_rendererState.tile.diff;
-            }
+    }
 
     // Рендеринг нижней части
     if (g_rendererState.tile.tileHeight > 0)
-        {
+    {
         S32 overflow = g_rendererState.tile.tempTileHeight;
 
         if (g_rendererState.tile.displayedHalfs < 2)
-            {
+        {
             overflow = std::max(g_rendererState.tile.tileHeight + ty - g_moduleState.surface.y, 0);
 
             g_rendererState.tile.tempTileHeight = g_rendererState.tile.tileHeight;
             g_rendererState.tile.tileHeight -= overflow;
 
             if (g_rendererState.tile.tileHeight <= 0)
-                {
+            {
                 g_rendererState.tile.tileHeight = g_rendererState.tile.tempTileHeight;
                 g_rendererState.tile.tempTileHeight = 0;
 
                 overflow = g_rendererState.tile.tempTileHeight;
 
                 dst2 = (Pixel*)((Addr)dst2 - (Addr)SCREEN_SIZE_IN_BYTES);
-                }
-                }
+            }
+        }
 
         while (g_rendererState.tile.tileHeight > 0)
-            {
+        {
             for (U16 yy = 0; yy < g_rendererState.tile.tileHeight; ++yy)
-                {
+            {
                 g_rendererState.tile.tempTileHeight = overflow;
 
                 S32 totalTxOffset = txDelta;
@@ -2300,38 +2300,38 @@ void drawBackSurfaceRhomb(S32 angle_0, S32 angle_1, S32 angle_2, S32 angle_3, S3
                 S32 delta2 = std::min(delta, tileStartDrawLength);
                 const S32 delta3 = g_rendererState.tile.windowRect.x - tx;
                 if (delta > 0 && delta2 > delta3)
-                        {
+                {
                     U8* srcTemp = srcInput;
                     Pixel* dstTemp = dst2;
                     if (delta3 > 0)
-                            {
+                    {
                         srcTemp = (U8*)((Addr)srcTemp + delta3);
                         dstTemp = (Pixel*)((Addr)dstTemp + (Addr)(delta3 * sizeof(Pixel)));
 
                         delta2 -= delta3;
                         totalTxOffset = txDelta + delta3 * diff;
-                            }
+                    }
 
                     U16 uVar5 = ((U16)((totalTxOffset >> 8) ^ g_rendererState.tile.unk08) << 8) | (totalTxOffset & 0xFF);
                     g_rendererState.tile.unk08 ^= 0x20;
 
                     for (S32 y = 0; y < delta2; y++)
-                        {
+                    {
                         dstTemp[y] = g_moduleState.rhombsPalette.palette[(uVar5 & 0xFF00) | srcTemp[y]];
                         uVar5 = uVar5 + (U16)(diff) ^ 0x2000;
-                        }
-
                     }
+
+                }
 
                 srcInput = (U8*)((Addr)srcInput + tileStartDrawLength);
                 tileStartDrawLength -= 4;
 
                 txDelta += g_rendererState.tile.diff;
                 overflow = g_rendererState.tile.tempTileHeight;
-                    tx += 2;
+                tx += 2;
 
                 dst2 = (Pixel*)((Addr)dst2 + (Addr)(stride + 2 * sizeof(Pixel)));
-                }
+            }
 
             g_rendererState.tile.tileHeight = g_rendererState.tile.tempTileHeight;
             g_rendererState.tile.tempTileHeight = 0;
@@ -2340,8 +2340,8 @@ void drawBackSurfaceRhomb(S32 angle_0, S32 angle_1, S32 angle_2, S32 angle_3, S3
 
             dst2 = (Pixel*)((Addr)dst2 - (Addr)SCREEN_SIZE_IN_BYTES);
         };
-        }
     }
+}
 
 // 0x10004390
 void FUN_10004390(S32 param_1, S32 param_2, LPVOID param_3)
@@ -2423,11 +2423,11 @@ void drawMainSurfacePaletteSprite(S32 x, S32 y, const Pixel* palette, const Imag
         const Addr linesStride = (Addr)(g_moduleState.surface.stride * y);
 
         g_rendererState.sprite.x = (Pixel*)((Addr)g_rendererState.surfaces.main
-            + (Addr)(g_moduleState.surface.offset * sizeof(Pixel)) + linesStride + (Addr)(x * sizeof(Pixel)));
+            + g_moduleState.surface.offset + linesStride + (Addr)(x * sizeof(Pixel)));
         g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.surfaces.main
-            + (Addr)(g_moduleState.surface.offset * sizeof(Pixel)) + linesStride + (Addr)(g_moduleState.windowRect.x * sizeof(Pixel)));
+            + g_moduleState.surface.offset + linesStride + (Addr)(g_moduleState.windowRect.x * sizeof(Pixel)));
         g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.surfaces.main
-            + (Addr)(g_moduleState.surface.offset * sizeof(Pixel)) + linesStride + (Addr)((g_moduleState.windowRect.width + 1) * sizeof(Pixel)));
+            + g_moduleState.surface.offset + linesStride + (Addr)((g_moduleState.windowRect.width + 1) * sizeof(Pixel)));
 
 
         // Ещё раз проверяем переполнение высоты спрайта, но уже относительно surface, а не windowRect
@@ -2610,11 +2610,11 @@ void drawMainSurfaceVanishingSprite(S32 x, S32 y, const S32 vanishOffset, const 
         const Addr linesStride = (Addr)(g_moduleState.surface.stride * y);
 
         g_rendererState.sprite.x = (Pixel*)((Addr)g_rendererState.surfaces.main
-            + (Addr)(g_moduleState.surface.offset * sizeof(Pixel)) + linesStride + (Addr)(x * sizeof(Pixel)));
+            + g_moduleState.surface.offset + linesStride + (Addr)(x * sizeof(Pixel)));
         g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.surfaces.main
-            + (Addr)(g_moduleState.surface.offset * sizeof(Pixel)) + linesStride + (Addr)(g_moduleState.windowRect.x * sizeof(Pixel)));
+            + g_moduleState.surface.offset + linesStride + (Addr)(g_moduleState.windowRect.x * sizeof(Pixel)));
         g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.surfaces.main
-            + (Addr)(g_moduleState.surface.offset * sizeof(Pixel)) + linesStride + (Addr)((g_moduleState.windowRect.width + 1) * sizeof(Pixel)));
+            + g_moduleState.surface.offset + linesStride + (Addr)((g_moduleState.windowRect.width + 1) * sizeof(Pixel)));
 
 
         const S32 overage = y + g_rendererState.sprite.height < g_moduleState.surface.y
@@ -2807,11 +2807,11 @@ void drawBackSurfacePalletteSprite(S32 x, S32 y, const Pixel* const palette, con
         const Addr linesStride = (Addr)(g_moduleState.surface.stride * y);
 
         g_rendererState.sprite.x = (Pixel*)((Addr)g_rendererState.surfaces.back
-            + (Addr)(g_moduleState.surface.offset * sizeof(Pixel)) + linesStride + (Addr)(x * sizeof(Pixel)));
+            + g_moduleState.surface.offset + linesStride + (Addr)(x * sizeof(Pixel)));
         g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.surfaces.back
-            + (Addr)(g_moduleState.surface.offset * sizeof(Pixel)) + linesStride + (Addr)(g_moduleState.windowRect.x * sizeof(Pixel)));
+            + g_moduleState.surface.offset + linesStride + (Addr)(g_moduleState.windowRect.x * sizeof(Pixel)));
         g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.surfaces.back
-            + (Addr)(g_moduleState.surface.offset * sizeof(Pixel)) + linesStride + (Addr)((g_moduleState.windowRect.width + 1) * sizeof(Pixel)));
+            + g_moduleState.surface.offset + linesStride + (Addr)((g_moduleState.windowRect.width + 1) * sizeof(Pixel)));
 
 
         const S32 overage = y + g_rendererState.sprite.height < g_moduleState.surface.y
@@ -2929,7 +2929,7 @@ void drawBackSurfacePalletteSprite(S32 x, S32 y, const Pixel* const palette, con
                             const U8 indx = pixels->pixels[skip + i];
 
                             if (indx != 0)
-{
+                            {
                                 const Pixel pixel = palette[indx];
                                 sx[i] = pixel;
                             }
@@ -3026,11 +3026,11 @@ void drawBackSurfacePaletteShadedSprite(S32 x, S32 y, U16 level, const Pixel* co
         const Addr linesStride = (Addr)(g_moduleState.surface.stride * y);
 
         g_rendererState.sprite.x = (Pixel*)((Addr)g_rendererState.surfaces.back
-            + (Addr)(g_moduleState.surface.offset * sizeof(Pixel)) + linesStride + (Addr)(x * sizeof(Pixel)));
+            + g_moduleState.surface.offset + linesStride + (Addr)(x * sizeof(Pixel)));
         g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.surfaces.back
-            + (Addr)(g_moduleState.surface.offset * sizeof(Pixel)) + linesStride + (Addr)(g_moduleState.windowRect.x * sizeof(Pixel)));
+            + g_moduleState.surface.offset + linesStride + (Addr)(g_moduleState.windowRect.x * sizeof(Pixel)));
         g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.surfaces.back
-            + (Addr)(g_moduleState.surface.offset * sizeof(Pixel)) + linesStride + (Addr)((g_moduleState.windowRect.width + 1) * sizeof(Pixel)));
+            + g_moduleState.surface.offset + linesStride + (Addr)((g_moduleState.windowRect.width + 1) * sizeof(Pixel)));
 
 
         const S32 overage = y + g_rendererState.sprite.height < g_moduleState.surface.y
@@ -3130,7 +3130,7 @@ void drawBackSurfacePaletteShadedSprite(S32 x, S32 y, U16 level, const Pixel* co
                             const U8 indx = pixels->pixels[skip + i];
 
                             if (indx != 0)
-{
+                            {
                                 const Pixel sten = stencil[i];
                                 stencil[i] = level | (sten & 3);
 
@@ -3225,11 +3225,11 @@ void drawMainSurfaceSprite(S32 x, S32 y, ImageSprite* sprite)
         const Addr linesStride = (Addr)(g_moduleState.surface.stride * y);
 
         g_rendererState.sprite.x = (Pixel*)((Addr)g_rendererState.surfaces.main
-            + (Addr)(g_moduleState.surface.offset * sizeof(Pixel)) + linesStride + (Addr)(x * sizeof(Pixel)));
+            + g_moduleState.surface.offset + linesStride + (Addr)(x * sizeof(Pixel)));
         g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.surfaces.main
-            + (Addr)(g_moduleState.surface.offset * sizeof(Pixel)) + linesStride + (Addr)(g_moduleState.windowRect.x * sizeof(Pixel)));
+            + g_moduleState.surface.offset + linesStride + (Addr)(g_moduleState.windowRect.x * sizeof(Pixel)));
         g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.surfaces.main
-            + (Addr)(g_moduleState.surface.offset * sizeof(Pixel)) + linesStride + (Addr)((g_moduleState.windowRect.width + 1) * sizeof(Pixel)));
+            + g_moduleState.surface.offset + linesStride + (Addr)((g_moduleState.windowRect.width + 1) * sizeof(Pixel)));
 
 
         const S32 overage = y + g_rendererState.sprite.height < g_moduleState.surface.y
@@ -3413,11 +3413,11 @@ void drawMainSurfaceAnimationSprite(S32 x, S32 y, U16 level, const AnimationPixe
         const Addr linesStride = (Addr)(g_moduleState.surface.stride * y);
 
         g_rendererState.sprite.x = (Pixel*)((Addr)g_rendererState.surfaces.main
-            + (Addr)(g_moduleState.surface.offset * sizeof(Pixel)) + linesStride + (Addr)(x * sizeof(Pixel)));
+            + g_moduleState.surface.offset + linesStride + (Addr)(x * sizeof(Pixel)));
         g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.surfaces.main
-            + (Addr)(g_moduleState.surface.offset * sizeof(Pixel)) + linesStride + (Addr)(g_moduleState.windowRect.x * sizeof(Pixel)));
+            + g_moduleState.surface.offset + linesStride + (Addr)(g_moduleState.windowRect.x * sizeof(Pixel)));
         g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.surfaces.main
-            + (Addr)(g_moduleState.surface.offset * sizeof(Pixel)) + linesStride + (Addr)((g_moduleState.windowRect.width + 1) * sizeof(Pixel)));
+            + g_moduleState.surface.offset + linesStride + (Addr)((g_moduleState.windowRect.width + 1) * sizeof(Pixel)));
 
 
         const S32 overage = y + g_rendererState.sprite.height < g_moduleState.surface.y
@@ -3630,11 +3630,11 @@ void drawMainSurfaceSpriteFront(S32 x, S32 y, U16 level, const Pixel* const pale
         const Addr linesStride = (Addr)(g_moduleState.surface.stride * y);
 
         g_rendererState.sprite.x = (Pixel*)((Addr)g_rendererState.surfaces.main
-            + (Addr)(g_moduleState.surface.offset * sizeof(Pixel)) + linesStride + (Addr)(x * sizeof(Pixel)));
+            + g_moduleState.surface.offset + linesStride + (Addr)(x * sizeof(Pixel)));
         g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.surfaces.main
-            + (Addr)(g_moduleState.surface.offset * sizeof(Pixel)) + linesStride + (Addr)(g_moduleState.windowRect.x * sizeof(Pixel)));
+            + g_moduleState.surface.offset + linesStride + (Addr)(g_moduleState.windowRect.x * sizeof(Pixel)));
         g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.surfaces.main
-            + (Addr)(g_moduleState.surface.offset * sizeof(Pixel)) + linesStride + (Addr)((g_moduleState.windowRect.width + 1) * sizeof(Pixel)));
+            + g_moduleState.surface.offset + linesStride + (Addr)((g_moduleState.windowRect.width + 1) * sizeof(Pixel)));
 
 
         const S32 overage = y + g_rendererState.sprite.height < g_moduleState.surface.y
@@ -3757,11 +3757,11 @@ void drawMainSurfaceSpriteFront(S32 x, S32 y, U16 level, const Pixel* const pale
                         for (U32 i = 0; i < availCount; ++i)
                         {
                             if (*(DoublePixel*)(stencil + i - 1) < stencilLevel)
-{
+                            {
                             const U8 indx = pixels->pixels[skip + i];
                                 const Pixel pixel = palette[indx];
                                 sx[i] = pixel;
-}
+                            }
                         }
 
                         pixels = (ImagePaletteSpritePixel*)((Addr)pixels + (count - 1) * sizeof(U8) + sizeof(ImagePaletteSpritePixel));
@@ -3853,11 +3853,11 @@ void drawMainSurfaceSpriteBack(S32 x, S32 y, U16 level, const Pixel* const palet
         const Addr linesStride = (Addr)(g_moduleState.surface.stride * y);
 
         g_rendererState.sprite.x = (Pixel*)((Addr)g_rendererState.surfaces.main
-            + (Addr)(g_moduleState.surface.offset * sizeof(Pixel)) + linesStride + (Addr)(x * sizeof(Pixel)));
+            + g_moduleState.surface.offset + linesStride + (Addr)(x * sizeof(Pixel)));
         g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.surfaces.main
-            + (Addr)(g_moduleState.surface.offset * sizeof(Pixel)) + linesStride + (Addr)(g_moduleState.windowRect.x * sizeof(Pixel)));
+            + g_moduleState.surface.offset + linesStride + (Addr)(g_moduleState.windowRect.x * sizeof(Pixel)));
         g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.surfaces.main
-            + (Addr)(g_moduleState.surface.offset * sizeof(Pixel)) + linesStride + (Addr)((g_moduleState.windowRect.width + 1) * sizeof(Pixel)));
+            + g_moduleState.surface.offset + linesStride + (Addr)((g_moduleState.windowRect.width + 1) * sizeof(Pixel)));
 
 
         const S32 overage = y + g_rendererState.sprite.height < g_moduleState.surface.y
@@ -3985,7 +3985,7 @@ void drawMainSurfaceSpriteBack(S32 x, S32 y, U16 level, const Pixel* const palet
                         {
                             if ((((Addr)(sx + i) / 2 ^ chessPixel) & 1) != 0
                                 || *(DoublePixel*)(stencil + i - 1) < stencilLevel)
-{
+                            {
                                 const U8 indx = pixels->pixels[skip + i];
                                 const Pixel pixel = palette[indx];
                                 sx[i] = pixel;
@@ -4076,11 +4076,11 @@ void drawMainSurfaceShadowSprite(S32 x, S32 y, const DoublePixel shadePixel, con
         const Addr linesStride = (Addr)(g_moduleState.surface.stride * y);
 
         g_rendererState.sprite.x = (Pixel*)((Addr)g_rendererState.surfaces.main
-            + (Addr)(g_moduleState.surface.offset * sizeof(Pixel)) + linesStride + (Addr)(x * sizeof(Pixel)));
+            + g_moduleState.surface.offset + linesStride + (Addr)(x * sizeof(Pixel)));
         g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.surfaces.main
-            + (Addr)(g_moduleState.surface.offset * sizeof(Pixel)) + linesStride + (Addr)(g_moduleState.windowRect.x * sizeof(Pixel)));
+            + g_moduleState.surface.offset + linesStride + (Addr)(g_moduleState.windowRect.x * sizeof(Pixel)));
         g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.surfaces.main
-            + (Addr)(g_moduleState.surface.offset * sizeof(Pixel)) + linesStride + (Addr)((g_moduleState.windowRect.width + 1) * sizeof(Pixel)));
+            + g_moduleState.surface.offset + linesStride + (Addr)((g_moduleState.windowRect.width + 1) * sizeof(Pixel)));
 
 
         const S32 overage = y + g_rendererState.sprite.height < g_moduleState.surface.y
@@ -4148,7 +4148,7 @@ void drawMainSurfaceShadowSprite(S32 x, S32 y, const DoublePixel shadePixel, con
                         {
                             const DoublePixel sten = *(DoublePixel*)(stencil + i);
                             if ((sten & 0x8007) == 0)
-{
+                            {
                                 *(DoublePixel*)(stencil + i) = shadePixel | sten;
 
                                 const Pixel pixel = (Pixel)(g_moduleState.backSurfaceShadePixel + SHADEPIXEL(*(DoublePixel*)(sx + i), *(DoublePixel*)&g_moduleState.shadeColorMask));
@@ -4239,11 +4239,11 @@ void drawBackSurfaceShadowSprite(S32 x, S32 y, const DoublePixel shadePixel, con
         const Addr linesStride = (Addr)(g_moduleState.surface.stride * y);
 
         g_rendererState.sprite.x = (Pixel*)((Addr)g_rendererState.surfaces.back
-            + (Addr)(g_moduleState.surface.offset * sizeof(Pixel)) + linesStride + (Addr)(x * sizeof(Pixel)));
+            + g_moduleState.surface.offset + linesStride + (Addr)(x * sizeof(Pixel)));
         g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.surfaces.back
-            + (Addr)(g_moduleState.surface.offset * sizeof(Pixel)) + linesStride + (Addr)(g_moduleState.windowRect.x * sizeof(Pixel)));
+            + g_moduleState.surface.offset + linesStride + (Addr)(g_moduleState.windowRect.x * sizeof(Pixel)));
         g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.surfaces.back
-            + (Addr)(g_moduleState.surface.offset * sizeof(Pixel)) + linesStride + (Addr)((g_moduleState.windowRect.width + 1) * sizeof(Pixel)));
+            + g_moduleState.surface.offset + linesStride + (Addr)((g_moduleState.windowRect.width + 1) * sizeof(Pixel)));
 
 
         const S32 overage = y + g_rendererState.sprite.height < g_moduleState.surface.y
@@ -4311,7 +4311,7 @@ void drawBackSurfaceShadowSprite(S32 x, S32 y, const DoublePixel shadePixel, con
                         {
                             const DoublePixel sten = *(DoublePixel*)(stencil + i);
                             if ((sten & 0x8007) == 0)
-{
+                            {
                                 *(DoublePixel*)(stencil + i) = shadePixel | sten;
 
                                 const Pixel pixel = (Pixel)(g_moduleState.backSurfaceShadePixel + SHADEPIXEL(*(DoublePixel*)(sx + i), *(DoublePixel*)&g_moduleState.shadeColorMask));

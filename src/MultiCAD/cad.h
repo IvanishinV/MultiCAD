@@ -166,7 +166,7 @@ struct Rect
 
 struct RendererSurface // TODO Реорганизовать структуру.
 {
-    S32     offset;     //10012b00 Смещение в пределах данных о поверхности. Первоначально в байтах, в настоящее время в пикселях.
+    S32     offset;     //10012b00  // Surface offset in bytes. Depends on screen coordinates, changes when it moves
     S32     y;          //10012b04 эта величина равна высоте экрана, в данном случае всегда 768
 
     S32     width;      //10012b08  // Width in pixels
