@@ -12,6 +12,7 @@ using F32               = float;
 
 using Addr              = std::uintptr_t;
 
+using ButtonType        = U8;
 using Pixel             = U16;
 using DoublePixel       = U32;
 using AnimationPixel    = U32;

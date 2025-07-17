@@ -70,7 +70,7 @@ Renderer* InitializeModule()
     g_moduleState.actions.copyPixelRectFromTo                   = copyPixelRectFromTo;
     g_moduleState.actions.FUN_10008ecd                          = FUN_10008ecd;
     g_moduleState.actions.FUN_1000a4f3                          = FUN_1000a4f3;
-    g_moduleState.actions.FUN_10009eb3                          = FUN_10009eb3;
+    g_moduleState.actions.markUiWithButtonType                  = markUiWithButtonType;
     g_moduleState.actions.releaseDxInstance                     = releaseDxInstance;
 
     return &g_moduleState;

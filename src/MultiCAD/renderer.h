@@ -77,6 +77,15 @@ struct Tile
     Window windowRect;          // 0x1001004A
 };
 
+struct GameUI
+{
+    Addr offset;                        // 0x100100b6
+    U32 stride;                         // 0x100100ba
+    Rect windowRect;                    // 0x100100be
+    U32 type;                           // 0x100100ñe
+    ImagePaletteSprite* imageSprite;    // 0x100100d2
+};
+
 struct RendererStructTest01
 {
     S32 unk01;                  // 1049edd0
@@ -100,6 +109,7 @@ struct RendererStateContainer
     Outline         outline;        // 1001'd55c
     Sprite          sprite;
     Tile            tile;
+    GameUI          gameUI;
     RendererStructTest01 rendererStruct01;
     RendererStructTest02 rendererStruct02;
 };
@@ -759,8 +769,25 @@ void drawMainSurfaceActualSprite(S32 x, S32 y, U16 level, const Pixel* const pal
  * @return None.
  */
 void FUN_10008ecd(S32 param_1, S32 param_2, LPVOID param_3, S32 param_4, LPVOID param_5);
-// 0x10009eb3           todo
-void FUN_10009eb3(S32 param_1, S32 param_2, LPVOID param_3, S32 param_4, S32 param_5, S32 param_6);
+
+// 0x10009eb3
+/**
+ * Marks a given array with button type based on given button sprite. It marks array for both drawn and missing pixels.
+ * The passed array is used by the cursor to determine whether the button is hovered up and pressed.
+ *
+ * Created by IVA 17.07.2025.
+ *
+ * @param x Initial X position of the button sprite in given array.
+ * @param y Initial Y position of the button sprite in given array.
+ * @param sprite Button sprite used for its drawing.
+ * @param type Button type used for recognition by cursor.
+ * @param uiSprite Total sprite of all UI area. Includes the minimap and buttons area. Its size is 352x137.
+ * @param offset The given array of button types.
+ *
+ * @return None.
+ */
+void markUiWithButtonType(S32 x, S32 y, ImagePaletteSprite* const sprite, const ButtonType type, const ImageSpriteUI* const uiSprite, const ButtonType* const offset);
+
 // 0x1000a4f3           todo
 void FUN_1000a4f3(S32 param_1, S32 param_2, S32 param_3, S32 param_4, LPVOID param_5, LPVOID param_6);
 

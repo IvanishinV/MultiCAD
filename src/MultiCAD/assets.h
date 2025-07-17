@@ -49,6 +49,18 @@ struct ImageSprite
 #pragma pack(pop)
 
 #pragma pack(push, 1)
+struct ImageSpriteUI
+{
+    Addr                offset;
+    U32                 stride;
+    S32                 x;
+    S32                 y;
+    S32                 width;
+    S32                 height;
+};
+#pragma pack(pop)
+
+#pragma pack(push, 1)
 struct ImagePaletteSpritePixel
 {
     /*
