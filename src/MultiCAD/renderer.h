@@ -645,8 +645,21 @@ void FUN_1000618d(S32 x, S32 y, S32 param_3, LPVOID param_4);
  */
 void drawMainSurfaceSprite(S32 x, S32 y, ImageSprite* sprite);
 
-// 0x100067ad           todo
-void FUN_100067ad(S32 x, S32 y, S32 param_3, LPVOID param_4);
+// 0x100067ad
+/**
+ * Draws an animation sprite on main surface.
+ * It's unknown for which sprites it is used.
+ *
+ * Created by IVA 18.07.2025.
+ *
+ * @param x Starting X position of the sprite.
+ * @param y Starting Y position of the sprite.
+ * @param palette
+ * @param sprite
+ *
+ * @return None.
+ */
+void drawMainSurfaceAnimationSprite(S32 x, S32 y, const AnimationPixel* palette, const ImagePaletteSprite* const sprite);
 
 // 0x10006b21
 /**
