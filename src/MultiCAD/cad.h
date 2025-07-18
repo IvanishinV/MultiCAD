@@ -44,7 +44,7 @@ using CONVERT_ALL_COLORS_PTR = void(*)(const Pixel* input, Pixel* output, const 
 using COPY_MAIN_BACK_SURFACES_PTR = void(*)(S32 x, S32 y);
 using CALL_DRAWBACK_SURFACE_RHOMB_PTR = void(*)(S32 tx, S32 ty, S32 param_3, S32 param_4, S32 param_5, S32 param_6, ImagePaletteTile* input);
 using FUN_10001ED0_PTR = void(*)(S32 param_1, S32 param_2, S32 param_3, S32 param_4, S32 param_5, S32 param_6);
-using FUN_10001F10_PTR = void(*)(S32 param_1, S32 param_2, S32 param_3);
+using CALL_DRAW_BACK_SURFACE_MASK_RHOMB_PTR = void(*)(S32 param_1, S32 param_2, S32 param_3);
 using FUN_10001F40_PTR = void(*)(S32 param_1, S32 param_2, S32 param_3, S32 param_4, S32 param_5, S32 param_6, S32 param_7);
 
 using COPY_BACK_TO_MAIN_SURFACE_RECT_PTR = void(*)(S32 x, S32 y, U32 width, U32 height);
@@ -109,7 +109,7 @@ struct RendererActions
     FUN_100033C0_PTR                                FUN_100033c0;
     FUN_10003360_PTR                                FUN_10003360;
     CALL_DRAWBACK_SURFACE_RHOMB_PTR                 callDrawBackSurfaceRhomb;
-    FUN_10001F10_PTR                                FUN_10001f10;
+    CALL_DRAW_BACK_SURFACE_MASK_RHOMB_PTR           callDrawBackSurfaceMaskRhomb;
     DRAW_BACK_SURFACE_RHOMBS_PALETTE_SPRITE_PTR     drawBackSurfaceRhombsPaletteSprite;
     DRAW_BACK_SURFACE_RHOMBS_PALETTE_SPRITE2_PTR    drawBackSurfaceRhombsPaletteSprite2;
     DRAW_BACK_SURFACE_RHOMBS_PALETTE_SHADED_SPRTITE_PTR drawBackSurfaceRhombsPaletteShadedSprite;

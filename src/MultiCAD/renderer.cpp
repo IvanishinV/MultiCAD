@@ -842,7 +842,7 @@ void copyMainBackSurfaces(const S32 dx, const S32 dy)
 }
 
 // 0x10001e90
-void callDrawBackSurfaceRhomb(S32 tx, S32 ty, S32 angle_0, S32 angle_1, S32 angle_2, S32 angle_3, ImagePaletteTile* input)
+void callDrawBackSurfacePaletteRhomb(S32 tx, S32 ty, S32 angle_0, S32 angle_1, S32 angle_2, S32 angle_3, ImagePaletteTile* input)
 {
     // This check was added since in the original Cad value 2 * g_moduleState.surface.width is passed to the next called function
 #ifdef CHECK_ASSERTS
@@ -857,8 +857,9 @@ void FUN_10001ed0(S32 param_1, S32 param_2, S32 param_3, S32 param_4, S32 param_
 }
 
 // 0x10001f10
-void FUN_10001f10(S32 param_1, S32 param_2, S32 param_3)
+void callDrawBackSurfaceMaskRhomb(const S32 x, const S32 y, const S32 mask)
 {
+    drawSurfaceMaskRhomb(x, y, g_moduleState.surface.stride, mask, g_rendererState.surfaces.main);
 }
 
 // 0x10001f40
@@ -2329,6 +2330,214 @@ void drawBackSurfaceRhomb(S32 angle_0, S32 angle_1, S32 angle_2, S32 angle_3, S3
                 txDelta += g_rendererState.tile.diff;
                 overflow = g_rendererState.tile.tempHeight;
                 tx += 2;
+
+                dst2 = (Pixel*)((Addr)dst2 + (Addr)(stride + 2 * sizeof(Pixel)));
+            }
+
+            g_rendererState.tile.height = g_rendererState.tile.tempHeight;
+            g_rendererState.tile.tempHeight = 0;
+
+            overflow = g_rendererState.tile.tempHeight;
+
+            dst2 = (Pixel*)((Addr)dst2 - (Addr)SCREEN_SIZE_IN_BYTES);
+        };
+    }
+}
+
+// 0x10004016
+void drawSurfaceMaskRhomb(S32 x, S32 y, const S32 stride, const S32 mask, Pixel* const surface)
+{
+    g_rendererState.tile.stencil = (Pixel*)((Addr)surface + g_moduleState.surface.offset % (SCREEN_WIDTH * sizeof(Pixel)) + SCREEN_SIZE_IN_BYTES);
+    g_rendererState.tile.windowRect.x = g_moduleState.windowRect.x + TILE_SIZE_HEIGHT + 1;
+    g_rendererState.tile.windowRect.y = g_moduleState.windowRect.y;
+    g_rendererState.tile.windowRect.width = g_moduleState.windowRect.width + TILE_SIZE_HEIGHT + 1;
+    g_rendererState.tile.windowRect.height = g_moduleState.windowRect.height;
+    g_rendererState.tile.displayedHalfs = 0;
+
+    if (x > g_rendererState.tile.windowRect.width + 1
+        || x < g_rendererState.tile.windowRect.x - TILE_SIZE_WIDTH - 1
+        || y > g_rendererState.tile.windowRect.height + 1
+        || y < g_rendererState.tile.windowRect.y - TILE_SIZE_HEIGHT)
+        return;
+
+    S32 tileStartDrawLength;
+    Pixel* dst = (Pixel*)((Addr)surface + x * sizeof(Pixel) + stride * y + g_moduleState.surface.offset - 2);
+    Pixel* dst2;
+
+    if (g_rendererState.tile.windowRect.y - 16 > y)
+    {
+        dst2 = dst + 8 * stride - 29;
+        x += TILE_SIZE_HEIGHT - 29;
+        y += 16;
+        tileStartDrawLength = 61;
+        g_rendererState.tile.height = std::min((g_moduleState.windowRect.height + 1) - y, 16);
+
+        S32 overage = g_moduleState.windowRect.y - y;
+        if (overage > 0)
+        {
+            g_rendererState.tile.height -= overage;
+            y = g_rendererState.tile.windowRect.y;
+            do
+            {
+                tileStartDrawLength -= 4;
+                dst2 = (Pixel*)((Addr)dst2 + stride + 4);
+                x += 2;
+            } while (--overage);
+        }
+    }
+    else
+    {
+        x += TILE_SIZE_HEIGHT;
+        tileStartDrawLength = 3;
+        g_rendererState.tile.height = std::min((g_moduleState.windowRect.height + 1) - y, 16);
+
+        S32 overage = g_rendererState.tile.windowRect.y - y;
+        if (overage > 0)
+        {
+            g_rendererState.tile.height -= overage;
+            y = g_rendererState.tile.windowRect.y;
+            do
+            {
+                tileStartDrawLength += 4;
+                x -= 2;
+                dst = (Pixel*)((Addr)dst + (stride - 4));
+            } while (--overage);
+        }
+
+
+        if (g_rendererState.tile.height > 0)
+        {
+            y += g_rendererState.tile.height;
+            S32 overflow = std::max(y - g_moduleState.surface.y, 0);
+
+            g_rendererState.tile.tempHeight = g_rendererState.tile.height;
+            g_rendererState.tile.height -= overflow;
+
+            dst2 = dst;
+            if (g_rendererState.tile.height <= 0)
+            {
+                g_rendererState.tile.height = g_rendererState.tile.tempHeight;
+                g_rendererState.tile.tempHeight = 0;
+                g_rendererState.tile.displayedHalfs++;
+
+                overflow = 0;
+
+                dst2 = (Pixel*)((Addr)dst2 - (Addr)SCREEN_SIZE_IN_BYTES);
+            }
+
+            while (g_rendererState.tile.height > 0)
+            {
+                for (S32 i = 0; i < g_rendererState.tile.height; ++i)
+                {
+                    g_rendererState.tile.tempHeight = overflow;
+
+                    const S32 delta = (g_rendererState.tile.windowRect.width + 1) - x;
+                    S32 delta2 = std::min(delta, tileStartDrawLength);
+                    const S32 delta3 = g_rendererState.tile.windowRect.x - x;
+                    if (delta > 0 && delta2 > delta3)
+                    {
+                        Pixel* dstTemp = dst2;
+
+                        if (delta3 > 0)
+                        {
+                            dstTemp += delta3;
+                            delta2 -= delta3;
+                        }
+
+                        if (dstTemp >= g_rendererState.tile.stencil)
+                        {
+                            dstTemp = (Pixel*)((Addr)dstTemp - (Addr)SCREEN_SIZE_IN_BYTES);
+                        }
+                        if (dstTemp < surface)
+                        {
+                            dstTemp = (Pixel*)((Addr)dstTemp + (Addr)SCREEN_SIZE_IN_BYTES);
+                        }
+
+                        for (S32 j = 0; j < delta2; ++j)
+                        {
+                            dstTemp[j] = (Pixel)mask + ((g_moduleState.shadeColorMask & dstTemp[j]) >> 1);
+                        }
+                    }
+
+                    tileStartDrawLength += 4;
+
+                    overflow = g_rendererState.tile.tempHeight;
+                    x -= 2;
+
+                    dst2 = dst = (Pixel*)((Addr)dst2 + (stride - 4));
+                }
+
+                g_rendererState.tile.height = g_rendererState.tile.tempHeight;
+                g_rendererState.tile.tempHeight = 0;
+                g_rendererState.tile.displayedHalfs++;
+
+                overflow = 0;
+
+                dst2 = (Pixel*)((Addr)dst - (Addr)SCREEN_SIZE_IN_BYTES);
+            }
+        }
+
+        if (y > g_rendererState.tile.windowRect.height + 1)
+            return;
+
+        tileStartDrawLength -= 3 * sizeof(Pixel);
+        dst2 = dst + 3;
+        x += 3;
+
+        g_rendererState.tile.height = std::min((g_rendererState.tile.windowRect.height + 1) - y, 16);
+    }
+
+    if (g_rendererState.tile.height > 0)
+    {
+        S32 overflow = g_rendererState.tile.tempHeight;
+
+        if (g_rendererState.tile.displayedHalfs < 2)
+        {
+            overflow = std::max(g_rendererState.tile.height + y - g_moduleState.surface.y, 0);
+
+            g_rendererState.tile.tempHeight = g_rendererState.tile.height;
+            g_rendererState.tile.height -= overflow;
+
+            if (g_rendererState.tile.height <= 0)
+            {
+                g_rendererState.tile.height = g_rendererState.tile.tempHeight;
+                g_rendererState.tile.tempHeight = 0;
+
+                overflow = g_rendererState.tile.tempHeight;
+
+                dst2 = (Pixel*)((Addr)dst2 - (Addr)SCREEN_SIZE_IN_BYTES);
+            }
+        }
+
+        while (g_rendererState.tile.height > 0)
+        {
+            for (U16 yy = 0; yy < g_rendererState.tile.height; ++yy)
+            {
+                g_rendererState.tile.tempHeight = overflow;
+
+                S32 delta = (g_rendererState.tile.windowRect.width + 1) - x;
+                S32 delta2 = std::min(delta, tileStartDrawLength);
+                const S32 delta3 = g_rendererState.tile.windowRect.x - x;
+                if (delta > 0 && delta2 > delta3)
+                {
+                    Pixel* dstTemp = dst2;
+                    if (delta3 > 0)
+                    {
+                        dstTemp += delta3;
+                        delta2 -= delta3;
+                    }
+
+                    for (S32 j = 0; j < delta2; ++j)
+                    {
+                        dstTemp[j] = (Pixel)mask + ((g_moduleState.shadeColorMask & dstTemp[j]) >> 1);
+                    }
+
+                }
+
+                tileStartDrawLength -= 4;
+
+                overflow = g_rendererState.tile.tempHeight;
+                x += 2;
 
                 dst2 = (Pixel*)((Addr)dst2 + (Addr)(stride + 2 * sizeof(Pixel)));
             }
