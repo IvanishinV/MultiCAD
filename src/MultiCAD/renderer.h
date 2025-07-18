@@ -565,8 +565,22 @@ void FUN_100046b6(S32 param_1, S32 param_2, LPVOID param_3);
 // 0x100049e6           todo
 void FUN_100049e6(S32 param_1, S32 param_2, U16 param_3, LPVOID param_4);
 
-// 0x10004db0           todo
-void FUN_10004db0(S32 x, S32 y, U16 param_3, S32 param_4, LPVOID param_5);
+// 0x10004db0
+/**
+ * Draws a palette sprite on main surface comparing a specified level with stencil.
+ * It's unknown for which sprites it is used.
+ *
+ * Created by IVA 18.07.2025.
+ *
+ * @param x Starting X position of the sprite.
+ * @param y Starting Y position of the sprite.
+ * @param level Stencil level.
+ * @param palette
+ * @param sprite
+ *
+ * @return None.
+ */
+void drawMainSurfacePaletteSpriteStencil(S32 x, S32 y, U16 param_3, const Pixel* const palette, const ImagePaletteSprite* const sprite);
 
 // 0x100050df
 /**

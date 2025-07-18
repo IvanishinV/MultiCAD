@@ -68,7 +68,7 @@ using FUN_100033C0_PTR = void(*)(S32 x, S32 y, LPSTR text, AssetCollection* asse
 using FUN_10004390_PTR = void(*)(S32 param_1, S32 param_2, LPVOID param_3);
 using FUN_100046B6_PTR = void(*)(S32 param_1, S32 param_2, LPVOID param_3);
 using FUN_100049E6_PTR = void(*)(S32 param_1, S32 param_2, U16 param_3, LPVOID param_4);
-using FUN_10004DB0_PTR = void(*)(S32 x, S32 y, U16 param_3, S32 param_4, LPVOID param_5);
+using DRAW_MAIN_SURFACE_PALETTE_SPRITE_STENCIL_PTR = void(*)(S32 x, S32 y, U16 level, const Pixel* const palette, const ImagePaletteSprite* const sprite);
 
 using DRAW_MAIN_SURFACE_PALETTE_SPRITE_COMPACT_PTR = void(*)(S32 x, S32 y, const Pixel* palette, const ImagePaletteSprite* const sprite);
 using DRAW_MAIN_SURFACE_VANISHING_SPRITE_PTR = void(*)(S32 x, S32 y, S32 vanishOffset, const Pixel* palette, const ImagePaletteSprite* const sprite);
@@ -125,7 +125,7 @@ struct RendererActions
     DRAW_MAIN_SURFACE_PALETTE_SPRITE_COMPACT_PTR    drawMainSurfacePaletteSpriteCompact;
     DRAW_MAIN_SURFACE_SPRITE_PTR                    drawMainSurfaceSprite;
     DRAW_MAIN_SURFACE_PALETTE_SPRITE_PTR            drawMainSurfacePaletteSprite;
-    FUN_10004DB0_PTR                                FUN_10004db0;
+    DRAW_MAIN_SURFACE_PALETTE_SPRITE_STENCIL_PTR    drawMainSurfacePaletteSpriteStencil;
     DRAW_MAIN_SURFACE_PALETTE_SPRITE_FRONT_STENCIL_PTR      drawMainSurfacePaletteSpriteFrontStencil;
     DRAW_MAIN_SURFACE_PALETTE_SPRITE_BACK_STENCIL_PTR       drawMainSurfacePaletteSpriteBackStencil;
     DRAW_MAIN_SURFACE_ANIMATION_SPRITE_STENCIL_PTR  drawMainSurfaceAnimationSpriteStencil;

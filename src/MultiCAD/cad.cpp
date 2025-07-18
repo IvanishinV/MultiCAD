@@ -44,7 +44,7 @@ Renderer* InitializeModule()
     g_moduleState.actions.drawMainSurfacePaletteSpriteCompact   = drawMainSurfacePaletteSpriteCompact;
     g_moduleState.actions.drawMainSurfaceSprite                 = drawMainSurfaceSprite;
     g_moduleState.actions.drawMainSurfacePaletteSprite          = drawMainSurfacePaletteSprite;
-    g_moduleState.actions.FUN_10004db0                          = FUN_10004db0;
+    g_moduleState.actions.drawMainSurfacePaletteSpriteStencil   = drawMainSurfacePaletteSpriteStencil;
     g_moduleState.actions.drawMainSurfacePaletteSpriteFrontStencil     = drawMainSurfacePaletteSpriteFrontStencil;
     g_moduleState.actions.drawMainSurfacePaletteSpriteBackStencil      = drawMainSurfacePaletteSpriteBackStencil;
     g_moduleState.actions.drawMainSurfaceAnimationSpriteStencil = drawMainSurfaceAnimationSpriteStencil;
