@@ -76,11 +76,11 @@ using DRAW_BACK_SURFACE_PALETTE_SPRITE_PTR = void(*)(S32 x, S32 y, const Pixel* 
 using FUN_10005AC6_PTR = void(*)(S32 param_1, S32 param_2, U16 param_3, S32 param_4, LPVOID param_5);
 using DRAW_BACK_SURFACE_PALETTE_SHADED_SPRITE_PTR = void(*)(S32 x, S32 y, U16 level, const Pixel* const palette, const ImagePaletteSprite* const sprite);
 
-using FUN_1000618D_PTR = void(*)(S32 x, S32 y, S32 param_3, LPVOID param_4);
+using DRAW_MAIN_SURFACE_PALETTE_SPRITE_PTR = void(*)(S32 x, S32 y, const Pixel* const palette, const ImagePaletteSprite* const sprite);
 using DRAW_MAIN_SURFACE_ANIMATION_SPRITE_PTR = void(*)(S32 x, S32 y, const AnimationPixel* palette, const ImagePaletteSprite* const sprite);
 
 using DRAW_MAIN_SURFACE_ANIMATION_SPRITE_STENCIL_PTR = void(*)(S32 x, S32 y, U16 level, const AnimationPixel* palette, ImagePaletteSprite* sprite);
-using DRAW_MAIN_SURFACE_PALETTE_PTR = void(*)(S32 x, S32 y, ImageSprite* sprite);
+using DRAW_MAIN_SURFACE_SPRITE_PTR = void(*)(S32 x, S32 y, ImageSprite* sprite);
 using DRAW_MAIN_SURFACE_PALETTE_SPRITE_FRONT_STENCIL_PTR = void(*)(S32 x, S32 y, U16 level, const Pixel* const palette, const ImagePaletteSprite* const sprite);
 
 using DRAW_MAIN_SURFACE_PALETTE_SPRITE_BACK_STENCIL_PTR = void(*)(S32 x, S32 y, U16 level, const Pixel* const palette, const ImagePaletteSprite* const sprite);
@@ -123,8 +123,8 @@ struct RendererActions
     FUN_10001F40_PTR                                FUN_10001f40;
     FUN_10002FB0_PTR                                FUN_10002fb0_0;
     DRAW_MAIN_SURFACE_PALETTE_SPRITE_COMPACT_PTR    drawMainSurfacePaletteSpriteCompact;
-    DRAW_MAIN_SURFACE_PALETTE_PTR                   drawMainSurfaceSprite;
-    FUN_1000618D_PTR                                FUN_1000618d;
+    DRAW_MAIN_SURFACE_SPRITE_PTR                    drawMainSurfaceSprite;
+    DRAW_MAIN_SURFACE_PALETTE_SPRITE_PTR            drawMainSurfacePaletteSprite;
     FUN_10004DB0_PTR                                FUN_10004db0;
     DRAW_MAIN_SURFACE_PALETTE_SPRITE_FRONT_STENCIL_PTR      drawMainSurfacePaletteSpriteFrontStencil;
     DRAW_MAIN_SURFACE_PALETTE_SPRITE_BACK_STENCIL_PTR       drawMainSurfacePaletteSpriteBackStencil;
