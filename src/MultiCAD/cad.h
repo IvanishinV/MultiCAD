@@ -90,7 +90,7 @@ using DRAW_MAIN_SURFACE_ADJUSTED_SPRITE_PTR = void(*)(S32 x, S32 y, U16 level, c
 using DRAW_MAIN_SURFACE_ACTUAL_SPRITE_PTR = void(*)(S32 x, S32 y, U16 param_3, const Pixel* const palette, const ImagePaletteSprite* const sprite);
 using FUN_10008ECD_PTR = void(*)(S32 param_1, S32 param_2, LPVOID param_3, S32 param_4, LPVOID param_5);
 using MARK_UI_WITH_BUTTON_TYPE_PTR = void(*)(S32 param_1, S32 param_2, ImagePaletteSprite* const sprite, const ButtonType type, const ImageSpriteUI* const uiSprite, const ButtonType* const offset);
-using FUN_1000A4F3_PTR = void(*)(S32 param_1, S32 param_2, S32 param_3, S32 param_4, LPVOID param_5, LPVOID param_6);
+using DRAW_VANISHING_UI_SPRITE_PTR = void(*)(S32 x, S32 y, const S32 vanishLevel, const Pixel* palette, ImagePaletteSprite* const sprite, const ImageSpriteUI* const uiSprite);
 
 struct RendererActions
 {
@@ -151,7 +151,7 @@ struct RendererActions
     COPY_RENDERER_SURFACE_RECT_TO_PTR               copyToRendererSurfaceRect;
     COPY_PIXEL_RECT_FROM_TO_PTR                     copyPixelRectFromTo;
     FUN_10008ECD_PTR                                FUN_10008ecd;
-    FUN_1000A4F3_PTR                                FUN_1000a4f3;
+    DRAW_VANISHING_UI_SPRITE_PTR                    drawVanishingUiSprite;
     MARK_UI_WITH_BUTTON_TYPE_PTR                    markUiWithButtonType;
     RELEASE_DX_INSTANCE_PTR                         releaseDxInstance;
 };

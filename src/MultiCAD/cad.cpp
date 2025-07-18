@@ -69,7 +69,7 @@ Renderer* InitializeModule()
     g_moduleState.actions.copyToRendererSurfaceRect             = copyToRendererSurfaceRect;
     g_moduleState.actions.copyPixelRectFromTo                   = copyPixelRectFromTo;
     g_moduleState.actions.FUN_10008ecd                          = FUN_10008ecd;
-    g_moduleState.actions.FUN_1000a4f3                          = FUN_1000a4f3;
+    g_moduleState.actions.drawVanishingUiSprite                 = drawVanishingUiSprite;
     g_moduleState.actions.markUiWithButtonType                  = markUiWithButtonType;
     g_moduleState.actions.releaseDxInstance                     = releaseDxInstance;
 

@@ -788,8 +788,22 @@ void FUN_10008ecd(S32 param_1, S32 param_2, LPVOID param_3, S32 param_4, LPVOID 
  */
 void markUiWithButtonType(S32 x, S32 y, ImagePaletteSprite* const sprite, const ButtonType type, const ImageSpriteUI* const uiSprite, const ButtonType* const offset);
 
-// 0x1000a4f3           todo
-void FUN_1000a4f3(S32 param_1, S32 param_2, S32 param_3, S32 param_4, LPVOID param_5, LPVOID param_6);
+// 0x1000a4f3
+/**
+ * Draws a sprite into a given array using the specified vanishing level.
+ *
+ * Created by IVA 18.07.2025.
+ *
+ * @param x Initial X position of the button sprite in given array.
+ * @param y Initial Y position of the button sprite in given array.
+ * @param vanishOffset Value in [0, 31] responsible for the disappearance of the sprite.
+ * @param input The given array to be written.
+ * @param sprite Sprite to be drawn.
+ * @param uiSprite Total sprite of all UI area. Usually it includes the minimap and buttons area. Its size should be 352x137.
+ *
+ * @return None.
+ */
+void drawVanishingUiSprite(S32 x, S32 y, const S32 vanishLevel, const Pixel* palette, ImagePaletteSprite* const sprite, const ImageSpriteUI* const uiSprite);
 
 
 
