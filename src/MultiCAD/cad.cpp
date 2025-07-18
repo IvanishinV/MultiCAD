@@ -30,9 +30,9 @@ Renderer* InitializeModule()
     g_moduleState.actions.FUN_10003360                          = FUN_10003360;
     g_moduleState.actions.callDrawBackSurfaceRhomb              = callDrawBackSurfaceRhomb;
     g_moduleState.actions.FUN_10001f10                          = FUN_10001f10;
-    g_moduleState.actions.FUN_10004390                          = FUN_10004390;
-    g_moduleState.actions.FUN_100046b6                          = FUN_100046b6;
-    g_moduleState.actions.FUN_100049e6                          = FUN_100049e6;
+    g_moduleState.actions.drawBackSurfaceRhombsPaletteSprite    = drawBackSurfaceRhombsPaletteSprite;
+    g_moduleState.actions.drawBackSurfaceRhombsPaletteSprite2   = drawBackSurfaceRhombsPaletteSprite2;
+    g_moduleState.actions.drawBackSurfaceRhombsPaletteShadedSprite  = drawBackSurfaceRhombsPaletteShadedSprite;
     g_moduleState.actions.drawBackSurfacePaletteShadedSprite    = drawBackSurfacePaletteShadedSprite;
     g_moduleState.actions.drawBackSurfacePaletteSpriteAndStencil    = drawBackSurfacePaletteSpriteAndStencil;
     g_moduleState.actions.drawBackSurfacePalletteSprite         = drawBackSurfacePalletteSprite;

@@ -556,14 +556,53 @@ void FUN_100033c0(S32 x, S32 y, LPSTR text, AssetCollection* asset, Pixel* palet
  */
 void drawBackSurfaceRhomb(S32 angle_0, S32 angle_1, S32 angle_2, S32 angle_3, S32 tx, S32 ty, S32 stride, ImagePaletteTile* input, Pixel* output);
 
-// 0x10004390           todo
-void FUN_10004390(S32 param_1, S32 param_2, LPVOID param_3);
+// 0x10004390
+/**
+ * Draws a rhombs palette sprite on back surface using palette offset 0x4100.
+ * It's unknown for which sprites it is used.
+ *
+ * Created by IVA 18.07.2025.
+ *
+ * @param x Starting X position of the sprite.
+ * @param y Starting Y position of the sprite.
+ * @param level Stencil level.
+ * @param sprite
+ *
+ * @return None.
+ */
+void drawBackSurfaceRhombsPaletteSprite(S32 x, S32 y, const ImagePaletteSprite* const sprite);
 
-// 0x100046b6           todo
-void FUN_100046b6(S32 param_1, S32 param_2, LPVOID param_3);
+// 0x100046b6
+/**
+ * Draws a rhombs palette sprite on back surface using palette offset 0x4200.
+ * It's unknown for which sprites it is used.
+ *
+ * Created by IVA 18.07.2025.
+ *
+ * @param x Starting X position of the sprite.
+ * @param y Starting Y position of the sprite.
+ * @param level Stencil level.
+ * @param sprite
+ *
+ * @return None.
+ */
+void drawBackSurfaceRhombsPaletteSprite2(S32 x, S32 y, const ImagePaletteSprite* const sprite);
 
-// 0x100049e6           todo
-void FUN_100049e6(S32 param_1, S32 param_2, U16 param_3, LPVOID param_4);
+// 0x100049e6
+/**
+ * Draws a rhombs palette sprite on back surface comparing a specified level with stencil and writing new stencil value.
+ * It's unknown for which sprites it is used.
+ *
+ * Created by IVA 18.07.2025.
+ *
+ * @param x Starting X position of the sprite.
+ * @param y Starting Y position of the sprite.
+ * @param level Stencil level.
+ * @param sprite
+ *
+ * @return None.
+ */
+void drawBackSurfaceRhombsPaletteShadedSprite(S32 x, S32 y, U16 level, const ImagePaletteSprite* const sprite);
 
 // 0x10004db0
 /**

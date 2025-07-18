@@ -65,9 +65,9 @@ using GET_TEXT_LENGTH = S32(*)(const char* text, const AssetCollection* asset);
 using FUN_10002FB0_PTR = void(*)(S32 x, S32 y, S32 width, S32 height);
 using FUN_10003360_PTR = void(*)(S32 x, S32 y, LPSTR text, AssetCollection* asset, Pixel* palette);
 using FUN_100033C0_PTR = void(*)(S32 x, S32 y, LPSTR text, AssetCollection* asset, Pixel* palette);
-using FUN_10004390_PTR = void(*)(S32 param_1, S32 param_2, LPVOID param_3);
-using FUN_100046B6_PTR = void(*)(S32 param_1, S32 param_2, LPVOID param_3);
-using FUN_100049E6_PTR = void(*)(S32 param_1, S32 param_2, U16 param_3, LPVOID param_4);
+using DRAW_BACK_SURFACE_RHOMBS_PALETTE_SPRITE_PTR = void(*)(S32 x, S32 y, const ImagePaletteSprite* const sprite);
+using DRAW_BACK_SURFACE_RHOMBS_PALETTE_SPRITE2_PTR = void(*)(S32 x, S32 y, const ImagePaletteSprite* const sprite);
+using DRAW_BACK_SURFACE_RHOMBS_PALETTE_SHADED_SPRTITE_PTR = void(*)(S32 x, S32 y, U16 level, const ImagePaletteSprite* const sprite);
 using DRAW_MAIN_SURFACE_PALETTE_SPRITE_STENCIL_PTR = void(*)(S32 x, S32 y, U16 level, const Pixel* const palette, const ImagePaletteSprite* const sprite);
 
 using DRAW_MAIN_SURFACE_PALETTE_SPRITE_COMPACT_PTR = void(*)(S32 x, S32 y, const Pixel* palette, const ImagePaletteSprite* const sprite);
@@ -110,9 +110,9 @@ struct RendererActions
     FUN_10003360_PTR                                FUN_10003360;
     CALL_DRAWBACK_SURFACE_RHOMB_PTR                 callDrawBackSurfaceRhomb;
     FUN_10001F10_PTR                                FUN_10001f10;
-    FUN_10004390_PTR                                FUN_10004390;
-    FUN_100046B6_PTR                                FUN_100046b6;
-    FUN_100049E6_PTR                                FUN_100049e6;
+    DRAW_BACK_SURFACE_RHOMBS_PALETTE_SPRITE_PTR     drawBackSurfaceRhombsPaletteSprite;
+    DRAW_BACK_SURFACE_RHOMBS_PALETTE_SPRITE2_PTR    drawBackSurfaceRhombsPaletteSprite2;
+    DRAW_BACK_SURFACE_RHOMBS_PALETTE_SHADED_SPRTITE_PTR drawBackSurfaceRhombsPaletteShadedSprite;
     DRAW_BACK_SURFACE_PALETTE_SHADED_SPRITE_PTR     drawBackSurfacePaletteShadedSprite;
     DRAW_BACK_SURFACE_PALETTE_SPRITE_AND_STENCIL_PTR    drawBackSurfacePaletteSpriteAndStencil;
     DRAW_BACK_SURFACE_PALETTE_SPRITE_PTR            drawBackSurfacePalletteSprite;
