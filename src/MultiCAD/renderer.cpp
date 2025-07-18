@@ -2119,14 +2119,14 @@ void drawBackSurfaceRhomb(S32 angle_0, S32 angle_1, S32 angle_2, S32 angle_3, S3
         ty += 16; // -24+16 скорей всего высота которая вне экрана -8, возможно удаляем верхнюю половину тайла
 
         // Вычисление высоты
-        g_rendererState.tile.tileHeight = std::min((g_moduleState.windowRect.height + 1) - ty, 16);
+        g_rendererState.tile.height = std::min((g_moduleState.windowRect.height + 1) - ty, 16);
 
         // Если тайл по высоте торчит за пределы экрана, то уменьшаем отображаемую высоту тайла
         const S32 overage = g_moduleState.windowRect.y - ty;
         if (overage >= 0)
         {
             ty = g_rendererState.tile.windowRect.y;
-            g_rendererState.tile.tileHeight -= overage;
+            g_rendererState.tile.height -= overage;
 
             for (S32 y = 0; y < overage; ++y)
             {
@@ -2147,13 +2147,13 @@ void drawBackSurfaceRhomb(S32 angle_0, S32 angle_1, S32 angle_2, S32 angle_3, S3
         g_rendererState.tile.diff = (angle_0 - angle_2) << 4;
         txDelta = (angle_2 << 8) + g_rendererState.tile.diff + diff;
 
-        g_rendererState.tile.tileHeight = std::min((g_moduleState.windowRect.height + 1) - ty, 16);
+        g_rendererState.tile.height = std::min((g_moduleState.windowRect.height + 1) - ty, 16);
 
         S32 overage = g_moduleState.windowRect.y - ty;
         if (overage >= 0)
         {
             ty += overage;
-            g_rendererState.tile.tileHeight -= overage;
+            g_rendererState.tile.height -= overage;
 
             for (S32 y = 0; y < overage; ++y)
             {
@@ -2166,19 +2166,19 @@ void drawBackSurfaceRhomb(S32 angle_0, S32 angle_1, S32 angle_2, S32 angle_3, S3
         }
 
         // Отрисовка части тайла
-        if (g_rendererState.tile.tileHeight > 0)
+        if (g_rendererState.tile.height > 0)
         {
-            ty += g_rendererState.tile.tileHeight;
+            ty += g_rendererState.tile.height;
             S32 overflow = std::max(ty - g_moduleState.surface.y, 0);
 
-            g_rendererState.tile.tempTileHeight = g_rendererState.tile.tileHeight;
-            g_rendererState.tile.tileHeight -= overflow;
+            g_rendererState.tile.tempHeight = g_rendererState.tile.height;
+            g_rendererState.tile.height -= overflow;
 
             dst2 = dst;
-            if (g_rendererState.tile.tileHeight <= 0)
+            if (g_rendererState.tile.height <= 0)
             {
-                g_rendererState.tile.tileHeight = g_rendererState.tile.tempTileHeight;
-                g_rendererState.tile.tempTileHeight = 0;
+                g_rendererState.tile.height = g_rendererState.tile.tempHeight;
+                g_rendererState.tile.tempHeight = 0;
                 g_rendererState.tile.displayedHalfs++;
 
                 overflow = 0;
@@ -2186,11 +2186,11 @@ void drawBackSurfaceRhomb(S32 angle_0, S32 angle_1, S32 angle_2, S32 angle_3, S3
                 dst2 = (Pixel*)((Addr)dst2 - (Addr)SCREEN_SIZE_IN_BYTES);
             }
 
-            while (g_rendererState.tile.tileHeight > 0)
+            while (g_rendererState.tile.height > 0)
             {
-                for (S32 yy = 0; yy < g_rendererState.tile.tileHeight; ++yy)
+                for (S32 yy = 0; yy < g_rendererState.tile.height; ++yy)
                 {
-                    g_rendererState.tile.tempTileHeight = overflow;
+                    g_rendererState.tile.tempHeight = overflow;
 
                     S32 totalTxOffset = txDelta;
 
@@ -2235,15 +2235,15 @@ void drawBackSurfaceRhomb(S32 angle_0, S32 angle_1, S32 angle_2, S32 angle_3, S3
                     tileStartDrawLength += 4;
 
                     txDelta += g_rendererState.tile.diff;
-                    overflow = g_rendererState.tile.tempTileHeight;
+                    overflow = g_rendererState.tile.tempHeight;
                     tx -= 2;
 
                     dst2 = dst = (Pixel*)((Addr)dst2 + (Addr)(stride - 4));
                 }
 
                 // Отрисовываем оставшуюся часть высоты тайла
-                g_rendererState.tile.tileHeight = g_rendererState.tile.tempTileHeight;
-                g_rendererState.tile.tempTileHeight = 0;
+                g_rendererState.tile.height = g_rendererState.tile.tempHeight;
+                g_rendererState.tile.tempHeight = 0;
                 g_rendererState.tile.displayedHalfs++;
 
                 overflow = 0;
@@ -2260,39 +2260,39 @@ void drawBackSurfaceRhomb(S32 angle_0, S32 angle_1, S32 angle_2, S32 angle_3, S3
         dst2 = (Pixel*)((Addr)dst + (Addr)(3 * sizeof(Pixel)));     // Офссет нижней части ромбика
         tx += 3;
 
-        g_rendererState.tile.tileHeight = std::min((g_rendererState.tile.windowRect.height + 1) - ty, 16);
+        g_rendererState.tile.height = std::min((g_rendererState.tile.windowRect.height + 1) - ty, 16);
         g_rendererState.tile.diff = (angle_3 - angle_0) << 4;
         txDelta = (angle_0 << 8) + g_rendererState.tile.diff;
     }
 
     // Рендеринг нижней части
-    if (g_rendererState.tile.tileHeight > 0)
+    if (g_rendererState.tile.height > 0)
     {
-        S32 overflow = g_rendererState.tile.tempTileHeight;
+        S32 overflow = g_rendererState.tile.tempHeight;
 
         if (g_rendererState.tile.displayedHalfs < 2)
         {
-            overflow = std::max(g_rendererState.tile.tileHeight + ty - g_moduleState.surface.y, 0);
+            overflow = std::max(g_rendererState.tile.height + ty - g_moduleState.surface.y, 0);
 
-            g_rendererState.tile.tempTileHeight = g_rendererState.tile.tileHeight;
-            g_rendererState.tile.tileHeight -= overflow;
+            g_rendererState.tile.tempHeight = g_rendererState.tile.height;
+            g_rendererState.tile.height -= overflow;
 
-            if (g_rendererState.tile.tileHeight <= 0)
+            if (g_rendererState.tile.height <= 0)
             {
-                g_rendererState.tile.tileHeight = g_rendererState.tile.tempTileHeight;
-                g_rendererState.tile.tempTileHeight = 0;
+                g_rendererState.tile.height = g_rendererState.tile.tempHeight;
+                g_rendererState.tile.tempHeight = 0;
 
-                overflow = g_rendererState.tile.tempTileHeight;
+                overflow = g_rendererState.tile.tempHeight;
 
                 dst2 = (Pixel*)((Addr)dst2 - (Addr)SCREEN_SIZE_IN_BYTES);
             }
         }
 
-        while (g_rendererState.tile.tileHeight > 0)
+        while (g_rendererState.tile.height > 0)
         {
-            for (U16 yy = 0; yy < g_rendererState.tile.tileHeight; ++yy)
+            for (U16 yy = 0; yy < g_rendererState.tile.height; ++yy)
             {
-                g_rendererState.tile.tempTileHeight = overflow;
+                g_rendererState.tile.tempHeight = overflow;
 
                 S32 totalTxOffset = txDelta;
 
@@ -2327,16 +2327,16 @@ void drawBackSurfaceRhomb(S32 angle_0, S32 angle_1, S32 angle_2, S32 angle_3, S3
                 tileStartDrawLength -= 4;
 
                 txDelta += g_rendererState.tile.diff;
-                overflow = g_rendererState.tile.tempTileHeight;
+                overflow = g_rendererState.tile.tempHeight;
                 tx += 2;
 
                 dst2 = (Pixel*)((Addr)dst2 + (Addr)(stride + 2 * sizeof(Pixel)));
             }
 
-            g_rendererState.tile.tileHeight = g_rendererState.tile.tempTileHeight;
-            g_rendererState.tile.tempTileHeight = 0;
+            g_rendererState.tile.height = g_rendererState.tile.tempHeight;
+            g_rendererState.tile.tempHeight = 0;
 
-            overflow = g_rendererState.tile.tempTileHeight;
+            overflow = g_rendererState.tile.tempHeight;
 
             dst2 = (Pixel*)((Addr)dst2 - (Addr)SCREEN_SIZE_IN_BYTES);
         };

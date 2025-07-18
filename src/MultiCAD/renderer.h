@@ -64,14 +64,14 @@ struct Sprite
 
 struct Tile
 {
-    S32 unk01;                  // 0x10010030
+    S32 colorMask;              // 0x10010030
     S32 displayedHalfs;         // 0x10010034
     Pixel* stencil;             // 0x10010038
     S8  unk04;                  // 0x1001003c
 
     S32 diff;                   // 0x1001003d
-    S32 tileHeight;             // 0x10010041
-    S32 tempTileHeight;         // 0x10010045
+    S32 height;                 // 0x10010041
+    S32 tempHeight;             // 0x10010045
     S8  unk08;                  // 0x10010049
 
     Window windowRect;          // 0x1001004A
