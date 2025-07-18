@@ -79,7 +79,7 @@ using DRAW_BACK_SURFACE_PALETTE_SHADED_SPRITE_PTR = void(*)(S32 x, S32 y, U16 le
 using FUN_1000618D_PTR = void(*)(S32 x, S32 y, S32 param_3, LPVOID param_4);
 using FUN_100067AD_PTR = void(*)(S32 x, S32 y, S32 param_3, LPVOID param_4);
 
-using DRAW_MAIN_SURFACE_ANIMATION_SPRITE_PTR = void(*)(S32 x, S32 y, U16 level, const AnimationPixel* palette, ImagePaletteSprite* sprite);
+using DRAW_MAIN_SURFACE_ANIMATION_SPRITE_STENCIL_PTR = void(*)(S32 x, S32 y, U16 level, const AnimationPixel* palette, ImagePaletteSprite* sprite);
 using DRAW_MAIN_SURFACE_PALETTE_PTR = void(*)(S32 x, S32 y, ImageSprite* sprite);
 using DRAW_MAIN_SURFACE_SPRITE_FRONT_PTR = void(*)(S32 x, S32 y, U16 level, const Pixel* const palette, const ImagePaletteSprite* const sprite);
 
@@ -128,7 +128,7 @@ struct RendererActions
     FUN_10004DB0_PTR                                FUN_10004db0;
     DRAW_MAIN_SURFACE_SPRITE_FRONT_PTR              drawMainSurfaceSpriteFront;
     DRAW_MAIN_SURFACE_SPRITE_BACK_PTR               drawMainSurfaceSpriteBack;
-    DRAW_MAIN_SURFACE_ANIMATION_SPRITE_PTR          drawMainSurfaceAnimationSprite;
+    DRAW_MAIN_SURFACE_ANIMATION_SPRITE_STENCIL_PTR  drawMainSurfaceAnimationSpriteStencil;
     FUN_100067AD_PTR                                FUN_100067ad;
     DRAW_MAIN_SURFACE_SHADOW_SPRITE_PTR             drawMainSurfaceShadowSprite;
     DRAW_MAIN_SURFACE_ACTUAL_SPRITE_PTR             drawMainSurfaceActualSprite;

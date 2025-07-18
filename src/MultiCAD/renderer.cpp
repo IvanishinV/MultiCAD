@@ -3357,7 +3357,7 @@ void FUN_100067ad(S32 x, S32 y, S32 param_3, LPVOID param_4)
 }
 
 // 0x10006b21
-void drawMainSurfaceAnimationSprite(S32 x, S32 y, U16 level, const AnimationPixel* palette, ImagePaletteSprite* sprite)
+void drawMainSurfaceAnimationSpriteStencil(S32 x, S32 y, U16 level, const AnimationPixel* palette, ImagePaletteSprite* sprite)
 {
     const U32 colorMask = ((U32)g_moduleState.actualGreenMask << 16) | g_moduleState.actualBlueMask | g_moduleState.actualRedMask;
     g_rendererState.sprite.colorMask = colorMask;

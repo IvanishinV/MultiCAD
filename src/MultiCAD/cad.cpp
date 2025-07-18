@@ -47,7 +47,7 @@ Renderer* InitializeModule()
     g_moduleState.actions.FUN_10004db0                          = FUN_10004db0;
     g_moduleState.actions.drawMainSurfaceSpriteFront            = drawMainSurfaceSpriteFront;
     g_moduleState.actions.drawMainSurfaceSpriteBack             = drawMainSurfaceSpriteBack;
-    g_moduleState.actions.drawMainSurfaceAnimationSprite        = drawMainSurfaceAnimationSprite;
+    g_moduleState.actions.drawMainSurfaceAnimationSpriteStencil = drawMainSurfaceAnimationSpriteStencil;
     g_moduleState.actions.FUN_100067ad                          = FUN_100067ad;
     g_moduleState.actions.drawMainSurfaceShadowSprite           = drawMainSurfaceShadowSprite;
     g_moduleState.actions.drawMainSurfaceActualSprite           = drawMainSurfaceActualSprite;

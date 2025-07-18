@@ -650,7 +650,7 @@ void FUN_100067ad(S32 x, S32 y, S32 param_3, LPVOID param_4);
 
 // 0x10006b21
 /**
- * Draws an animation sprite via specified level on main surface, e.g. cursor, explodes, etc.
+ * Draws an animation sprite on main surface comparing a specified level with stencil. Draws cursor in motion or pressed, explodes, etc.
  * 
  * Created by AM. Refactored by IVA 12.07.2025.
  * 
@@ -662,7 +662,7 @@ void FUN_100067ad(S32 x, S32 y, S32 param_3, LPVOID param_4);
  *
  * @return None.
  */
-void drawMainSurfaceAnimationSprite(S32 x, S32 y, U16 level, const AnimationPixel* palette, ImagePaletteSprite* sprite);
+void drawMainSurfaceAnimationSpriteStencil(S32 x, S32 y, U16 level, const AnimationPixel* palette, ImagePaletteSprite* sprite);
 
 
 // 0x10006ef8
