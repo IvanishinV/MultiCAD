@@ -570,7 +570,7 @@ void FUN_10004db0(S32 x, S32 y, U16 param_3, S32 param_4, LPVOID param_5);
 
 // 0x100050df
 /**
- * Draws a sprite on main surface, e.g. text.
+ * Draws a sprite on main surface using palette with only 0x80 and 0x00 count mask. Draws text.
  * 
  * @param x Starting X position of the sprite.
  * @param y Starting Y position of the sprite.
@@ -579,7 +579,7 @@ void FUN_10004db0(S32 x, S32 y, U16 param_3, S32 param_4, LPVOID param_5);
  *
  * @return None.
  */
-void drawMainSurfacePaletteSprite(S32 x, S32 y, const Pixel* palette, const ImagePaletteSprite* const sprite);
+void drawMainSurfacePaletteSpriteCompact(S32 x, S32 y, const Pixel* palette, const ImagePaletteSprite* const sprite);
 
 // 0x100053c3
 /**

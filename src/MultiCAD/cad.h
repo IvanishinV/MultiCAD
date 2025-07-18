@@ -70,7 +70,7 @@ using FUN_100046B6_PTR = void(*)(S32 param_1, S32 param_2, LPVOID param_3);
 using FUN_100049E6_PTR = void(*)(S32 param_1, S32 param_2, U16 param_3, LPVOID param_4);
 using FUN_10004DB0_PTR = void(*)(S32 x, S32 y, U16 param_3, S32 param_4, LPVOID param_5);
 
-using DRAW_MAIN_SURFACE_PALETTE_SPRITE_PTR = void(*)(S32 x, S32 y, const Pixel* palette, const ImagePaletteSprite* const sprite);
+using DRAW_MAIN_SURFACE_PALETTE_SPRITE_COMPACT_PTR = void(*)(S32 x, S32 y, const Pixel* palette, const ImagePaletteSprite* const sprite);
 using DRAW_MAIN_SURFACE_VANISHING_SPRITE_PTR = void(*)(S32 x, S32 y, S32 vanishOffset, const Pixel* palette, const ImagePaletteSprite* const sprite);
 using DRAW_BACK_SURFACE_PALETTE_SPRITE_PTR = void(*)(S32 x, S32 y, const Pixel* const palette, const ImagePaletteSprite* const sprite);
 using FUN_10005AC6_PTR = void(*)(S32 param_1, S32 param_2, U16 param_3, S32 param_4, LPVOID param_5);
@@ -122,7 +122,7 @@ struct RendererActions
     FUN_10001ED0_PTR                                FUN_10001ed0;
     FUN_10001F40_PTR                                FUN_10001f40;
     FUN_10002FB0_PTR                                FUN_10002fb0_0;
-    DRAW_MAIN_SURFACE_PALETTE_SPRITE_PTR            drawMainSurfacePaletteSprite;
+    DRAW_MAIN_SURFACE_PALETTE_SPRITE_COMPACT_PTR    drawMainSurfacePaletteSpriteCompact;
     DRAW_MAIN_SURFACE_PALETTE_PTR                   drawMainSurfaceSprite;
     FUN_1000618D_PTR                                FUN_1000618d;
     FUN_10004DB0_PTR                                FUN_10004db0;

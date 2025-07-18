@@ -2045,7 +2045,7 @@ void FUN_10003360(S32 x, S32 y, LPSTR text, AssetCollection* asset, Pixel* palet
     {
         ImagePaletteSprite* image = (ImagePaletteSprite*)((Addr)asset + (Addr)asset->items[text[xx]]);
 
-        drawMainSurfacePaletteSprite(x + offset, y, palette, image);
+        drawMainSurfacePaletteSpriteCompact(x + offset, y, palette, image);
 
         offset = offset + DEFAULT_FONT_ASSET_SPACING + image->width;
     }
@@ -2364,7 +2364,7 @@ void FUN_10004db0(S32 x, S32 y, U16 param_3, S32 param_4, LPVOID param_5)
 }
 
 // 0x100050df
-void drawMainSurfacePaletteSprite(S32 x, S32 y, const Pixel* palette, const ImagePaletteSprite* const sprite)
+void drawMainSurfacePaletteSpriteCompact(S32 x, S32 y, const Pixel* palette, const ImagePaletteSprite* const sprite)
 {
     // Копируем глобальные параметры окна отрисовки в отдельную переменную          // todo: check windowRect initialization, because looks like it's not used anywhere
     g_rendererState.sprite.windowRect.x = g_moduleState.windowRect.x;
