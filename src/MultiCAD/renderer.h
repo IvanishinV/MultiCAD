@@ -680,7 +680,7 @@ void drawMainSurfaceAnimationSpriteStencil(S32 x, S32 y, U16 level, const Animat
 
 // 0x10006ef8
 /**
- * Draws a sprite via specified level on main surface to foreground before static objects. Draws any units, earth explosion, splash of water.
+ * Draws a sprite on main surface to foreground before static objects via specified stencil level . Draws any units, earth explosion, splash of water.
  * All such objects are considered background within a certain radius from the cursor.
  * 
  * Created by IVA 16.07.2025.
@@ -693,11 +693,11 @@ void drawMainSurfaceAnimationSpriteStencil(S32 x, S32 y, U16 level, const Animat
  *
  * @return None.
  */
-void drawMainSurfaceSpriteFront(S32 x, S32 y, U16 level, const Pixel* const palette, const ImagePaletteSprite* const sprite);
+void drawMainSurfacePaletteSpriteFrontStencil(S32 x, S32 y, U16 level, const Pixel* const palette, const ImagePaletteSprite* const sprite);
 
 // 0x10007292
 /**
- * Draws a sprite via specified level on main surface to background behind static objects. Draws any units, earth explosion, splash of water.
+ * Draws a sprite on main surface to background behind static objects via specified stencil level. Draws any units, earth explosion, splash of water.
  * All such objects are considered background within a certain radius from the cursor.
  * 
  * Created by IVA 16.07.2025.
@@ -710,7 +710,7 @@ void drawMainSurfaceSpriteFront(S32 x, S32 y, U16 level, const Pixel* const pale
  *
  * @return None.
  */
-void drawMainSurfaceSpriteBack(S32 x, S32 y, U16 level, const Pixel* const palette, const ImagePaletteSprite* const sprite);
+void drawMainSurfacePaletteSpriteBackStencil(S32 x, S32 y, U16 level, const Pixel* const palette, const ImagePaletteSprite* const sprite);
 
 // 0x10007662
 /**

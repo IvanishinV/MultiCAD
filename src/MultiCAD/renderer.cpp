@@ -3760,7 +3760,7 @@ void drawMainSurfaceAnimationSpriteStencil(S32 x, S32 y, U16 level, const Animat
 }
 
 // 0x10006ef8
-void drawMainSurfaceSpriteFront(S32 x, S32 y, U16 level, const Pixel* const palette, const ImagePaletteSprite* const sprite)
+void drawMainSurfacePaletteSpriteFrontStencil(S32 x, S32 y, U16 level, const Pixel* const palette, const ImagePaletteSprite* const sprite)
 {
     const U32 colorMask = ((U32)g_moduleState.actualGreenMask << 16) | g_moduleState.actualBlueMask | g_moduleState.actualRedMask;
     g_rendererState.sprite.colorMask = colorMask;
@@ -3981,7 +3981,7 @@ void drawMainSurfaceSpriteFront(S32 x, S32 y, U16 level, const Pixel* const pale
 }
 
 // 0x10007292
-void drawMainSurfaceSpriteBack(S32 x, S32 y, U16 level, const Pixel* const palette, const ImagePaletteSprite* const sprite)
+void drawMainSurfacePaletteSpriteBackStencil(S32 x, S32 y, U16 level, const Pixel* const palette, const ImagePaletteSprite* const sprite)
 {
     const U32 colorMask = ((U32)g_moduleState.actualGreenMask << 16) | g_moduleState.actualBlueMask | g_moduleState.actualRedMask;
     g_rendererState.sprite.colorMask = colorMask;

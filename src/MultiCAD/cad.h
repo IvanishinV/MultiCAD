@@ -81,9 +81,9 @@ using DRAW_MAIN_SURFACE_ANIMATION_SPRITE_PTR = void(*)(S32 x, S32 y, const Anima
 
 using DRAW_MAIN_SURFACE_ANIMATION_SPRITE_STENCIL_PTR = void(*)(S32 x, S32 y, U16 level, const AnimationPixel* palette, ImagePaletteSprite* sprite);
 using DRAW_MAIN_SURFACE_PALETTE_PTR = void(*)(S32 x, S32 y, ImageSprite* sprite);
-using DRAW_MAIN_SURFACE_SPRITE_FRONT_PTR = void(*)(S32 x, S32 y, U16 level, const Pixel* const palette, const ImagePaletteSprite* const sprite);
+using DRAW_MAIN_SURFACE_PALETTE_SPRITE_FRONT_STENCIL_PTR = void(*)(S32 x, S32 y, U16 level, const Pixel* const palette, const ImagePaletteSprite* const sprite);
 
-using DRAW_MAIN_SURFACE_SPRITE_BACK_PTR = void(*)(S32 x, S32 y, U16 level, const Pixel* const palette, const ImagePaletteSprite* const sprite);
+using DRAW_MAIN_SURFACE_PALETTE_SPRITE_BACK_STENCIL_PTR = void(*)(S32 x, S32 y, U16 level, const Pixel* const palette, const ImagePaletteSprite* const sprite);
 using DRAW_MAIN_SURFACE_SHADOW_SPRITE_PTR = void(*)(S32 x, S32 y, const DoublePixel shadePixel, const ImagePaletteSprite* const sprite);
 using DRAW_BACK_SURFACE_SHADOW_SPRITE_PTR = void(*)(S32 x, S32 y, const DoublePixel shadePixel, const ImagePaletteSprite* const sprite);
 using DRAW_MAIN_SURFACE_ADJUSTED_SPRITE_PTR = void(*)(S32 x, S32 y, U16 level, const ImagePaletteSprite* const sprite);
@@ -126,8 +126,8 @@ struct RendererActions
     DRAW_MAIN_SURFACE_PALETTE_PTR                   drawMainSurfaceSprite;
     FUN_1000618D_PTR                                FUN_1000618d;
     FUN_10004DB0_PTR                                FUN_10004db0;
-    DRAW_MAIN_SURFACE_SPRITE_FRONT_PTR              drawMainSurfaceSpriteFront;
-    DRAW_MAIN_SURFACE_SPRITE_BACK_PTR               drawMainSurfaceSpriteBack;
+    DRAW_MAIN_SURFACE_PALETTE_SPRITE_FRONT_STENCIL_PTR      drawMainSurfacePaletteSpriteFrontStencil;
+    DRAW_MAIN_SURFACE_PALETTE_SPRITE_BACK_STENCIL_PTR       drawMainSurfacePaletteSpriteBackStencil;
     DRAW_MAIN_SURFACE_ANIMATION_SPRITE_STENCIL_PTR  drawMainSurfaceAnimationSpriteStencil;
     DRAW_MAIN_SURFACE_ANIMATION_SPRITE_PTR          drawMainSurfaceAnimationSprite;
     DRAW_MAIN_SURFACE_SHADOW_SPRITE_PTR             drawMainSurfaceShadowSprite;
