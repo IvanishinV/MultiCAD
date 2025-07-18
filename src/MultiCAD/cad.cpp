@@ -28,7 +28,7 @@ Renderer* InitializeModule()
     g_moduleState.actions.getTextLength                         = getTextLength;
     g_moduleState.actions.FUN_100033c0                          = FUN_100033c0;
     g_moduleState.actions.FUN_10003360                          = FUN_10003360;
-    g_moduleState.actions.callDrawBackSurfaceRhomb              = callDrawBackSurfaceRhomb;
+    g_moduleState.actions.callDrawBackSurfacePaletteRhomb       = callDrawBackSurfacePaletteRhomb;
     g_moduleState.actions.callDrawBackSurfaceMaskRhomb          = callDrawBackSurfaceMaskRhomb;
     g_moduleState.actions.drawBackSurfaceRhombsPaletteSprite    = drawBackSurfaceRhombsPaletteSprite;
     g_moduleState.actions.drawBackSurfaceRhombsPaletteSprite2   = drawBackSurfaceRhombsPaletteSprite2;

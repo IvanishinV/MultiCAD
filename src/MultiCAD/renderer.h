@@ -335,19 +335,19 @@ void copyMainBackSurfaces(S32 dx, S32 dy);
 
 // 0x10001e90
 /**
- * Calls function to draw input rhomb on the back DX surface.
+ * Calls function to draw a rhomb on back surface using the specified palette.
  *
- * @param tx
- * @param ty
- * @param angle_0
- * @param angle_1
- * @param angle_2
- * @param angle_3
- * @param input Input rhomb.
+ * @param x Initial X coordinate of the rhomb.
+ * @param y Initial Y coordinate of the rhomb.
+ * @param angle_0 0th angle of the rhomb.
+ * @param angle_1 1th angle of the rhomb.
+ * @param angle_2 2th angle of the rhomb.
+ * @param angle_3 3th angle of the rhomb.
+ * @param input
  *
  * @return None.
  */
-void callDrawBackSurfaceRhomb(S32 tx, S32 ty, S32 angle_0, S32 angle_1, S32 angle_2, S32 angle_3, ImagePaletteTile* input);
+void callDrawBackSurfacePaletteRhomb(const S32 x, const S32 y, const S32 angle_0, const S32 angle_1, const S32 angle_2, const S32 angle_3, const ImagePaletteTile* const tile);
 
 // 0x10001ed0           todo
 void FUN_10001ed0(S32 param_1, S32 param_2, S32 param_3, S32 param_4, S32 param_5, S32 param_6);
@@ -549,23 +549,23 @@ void FUN_100033c0(S32 x, S32 y, LPSTR text, AssetCollection* asset, Pixel* palet
 
 // 0x10003420
 /**
- * Draws a landscape rhomb on back surface. Used for ground.
+ * Draws a palette rhomb on given surface. Draws ground tiles.
  * 
- * Created by NR 25.06.2025. Refactored by IVA 27.06.2025.
+ * Created by NR 25.06.2025. Refactored by IVA.
  *
- * @param angle_0 0th angle of the tile.
- * @param angle_1 1th angle of the tile.
- * @param angle_2 2th angle of the tile.
- * @param angle_3 3th angle of the tile.
- * @param tx X coordinate of the tile.
- * @param ty Y coordinate of the tile.
- * @param stride Line pitch in bytes, most likely double screen width.
- * @param input Input tile pixels.
- * @param output Output pixel array.
+ * @param angle_0 0th angle of the rhomb.
+ * @param angle_1 1th angle of the rhomb.
+ * @param angle_2 2th angle of the rhomb.
+ * @param angle_3 3th angle of the rhomb.
+ * @param x Initial X coordinate of the rhomb.
+ * @param y Initial Y coordinate of the rhomb.
+ * @param stride Line pitch in bytes, more often double screen width.
+ * @param tile Input tile struct.
+ * @param output Pixel array to be changed.
  *
  * @return None.
  */
-void drawBackSurfaceRhomb(S32 angle_0, S32 angle_1, S32 angle_2, S32 angle_3, S32 tx, S32 ty, S32 stride, ImagePaletteTile* input, Pixel* output);
+void drawSurfacePaletteRhomb(const S32 angle_0, const S32 angle_1, const S32 angle_2, const S32 angle_3, S32 tx, S32 ty, const S32 stride, const ImagePaletteTile* const tile, Pixel* const output);
 
 // 0x10004016
 /**

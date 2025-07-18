@@ -842,13 +842,13 @@ void copyMainBackSurfaces(const S32 dx, const S32 dy)
 }
 
 // 0x10001e90
-void callDrawBackSurfacePaletteRhomb(S32 tx, S32 ty, S32 angle_0, S32 angle_1, S32 angle_2, S32 angle_3, ImagePaletteTile* input)
+void callDrawBackSurfacePaletteRhomb(const S32 tx, const S32 ty, const S32 angle_0, const S32 angle_1, const S32 angle_2, const S32 angle_3, const ImagePaletteTile* const tile)
 {
     // This check was added since in the original Cad value 2 * g_moduleState.surface.width is passed to the next called function
 #ifdef CHECK_ASSERTS
     assert(g_moduleState.surface.width * static_cast<S32>(sizeof(Pixel)) == g_moduleState.surface.stride);
 #endif
-    drawBackSurfaceRhomb(angle_0, angle_1, angle_2, angle_3, tx, ty, g_moduleState.surface.stride, input, g_rendererState.surfaces.back);
+    drawSurfacePaletteRhomb(angle_0, angle_1, angle_2, angle_3, tx, ty, g_moduleState.surface.stride, tile, g_rendererState.surfaces.back);
 }
 
 // 0x10001ed0
@@ -2068,7 +2068,7 @@ void FUN_100033c0(S32 x, S32 y, LPSTR text, AssetCollection* asset, Pixel* palet
 }
 
 // 0x10003420
-void drawBackSurfaceRhomb(S32 angle_0, S32 angle_1, S32 angle_2, S32 angle_3, S32 tx, S32 ty, S32 stride, ImagePaletteTile* input, Pixel* output)
+void drawSurfacePaletteRhomb(const S32 angle_0, const S32 angle_1, const S32 angle_2, const S32 angle_3, S32 tx, S32 ty, const S32 stride, const ImagePaletteTile* const tile, Pixel* const output)
 {
     // Tile height: 32
     // Tile width: 63
@@ -2090,7 +2090,7 @@ void drawBackSurfaceRhomb(S32 angle_0, S32 angle_1, S32 angle_2, S32 angle_3, S3
     S32 tileStartDrawLength;
 
     // Настройка рендеринга
-    U8* srcInput = input->pixels;
+    const U8* srcInput = tile->pixels;
     Pixel* dst = (Pixel*)((Addr)output + g_moduleState.surface.offset + stride * ty + tx * sizeof(Pixel) - 2);
     Pixel* dst2;
     S32 txDelta = tx + TILE_SIZE_HEIGHT;
@@ -2200,7 +2200,7 @@ void drawBackSurfaceRhomb(S32 angle_0, S32 angle_1, S32 angle_2, S32 angle_3, S3
                     const S32 delta3 = g_rendererState.tile.windowRect.x - tx;
                     if (delta > 0 && delta2 > delta3)
                     {
-                        U8* srcTemp = srcInput;
+                        const U8* srcTemp = srcInput;
                         Pixel* dstTemp = dst2;
 
                         if (delta3 > 0)
@@ -2302,7 +2302,7 @@ void drawBackSurfaceRhomb(S32 angle_0, S32 angle_1, S32 angle_2, S32 angle_3, S3
                 const S32 delta3 = g_rendererState.tile.windowRect.x - tx;
                 if (delta > 0 && delta2 > delta3)
                 {
-                    U8* srcTemp = srcInput;
+                    const U8* srcTemp = srcInput;
                     Pixel* dstTemp = dst2;
                     if (delta3 > 0)
                     {
@@ -2577,7 +2577,7 @@ void drawBackSurfaceRhombsPaletteSprite(S32 x, S32 y, const ImagePaletteSprite* 
         if (g_rendererState.sprite.height <= 0)
         {
             return;
-}
+        }
 
         for (S32 i = 0; i < g_moduleState.windowRect.y - y; ++i)
         {
@@ -2911,12 +2911,12 @@ void drawBackSurfaceRhombsPaletteSprite2(S32 x, S32 y, const ImagePaletteSprite*
                     {
                         // Mask 0x00 -> draw pixels
                         for (ptrdiff_t i = 0; i < availCount; ++i)
-{
+                        {
                             const U8 indx = pixels->pixels[skip + i];
                             const Pixel pixel = g_moduleState.rhombsPalette.palette[indx + 0x4200];
 
                             sx[i] = pixel;
-}
+                        }
 
                         pixels = (ImagePaletteSpritePixel*)((Addr)pixels + (count - 1) * sizeof(U8) + sizeof(ImagePaletteSpritePixel));
                     }
@@ -3124,7 +3124,7 @@ void drawBackSurfaceRhombsPaletteShadedSprite(S32 x, S32 y, U16 level, const Ima
                     {
                         // Mask 0x00 -> draw pixels
                         for (ptrdiff_t i = 0; i < availCount; ++i)
-{
+                        {
                             const U8 indx = pixels->pixels[skip + i];
                             Pixel pixel = g_moduleState.rhombsPalette.palette[indx + 0x4000];
 

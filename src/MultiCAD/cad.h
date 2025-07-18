@@ -42,7 +42,7 @@ using READ_MAIN_SURFACE_RECT_PTR = void(*)(S32 sx, S32 sy, S32 width, S32 height
 using CONVERT_NOT_MAGENTA_COLORS_PTR = void(*)(const Pixel* input, Pixel* output, const S32 count);
 using CONVERT_ALL_COLORS_PTR = void(*)(const Pixel* input, Pixel* output, const S32 count);
 using COPY_MAIN_BACK_SURFACES_PTR = void(*)(S32 x, S32 y);
-using CALL_DRAWBACK_SURFACE_RHOMB_PTR = void(*)(S32 tx, S32 ty, S32 param_3, S32 param_4, S32 param_5, S32 param_6, ImagePaletteTile* input);
+using CALL_DRAW_BACK_SURFACE_PALETTE_RHOMB_PTR = void(*)(const S32 tx, const S32 ty, const S32 angle_0, const S32 angle_1, const S32 angle_2, const S32 angle_3, const ImagePaletteTile* const tile);
 using FUN_10001ED0_PTR = void(*)(S32 param_1, S32 param_2, S32 param_3, S32 param_4, S32 param_5, S32 param_6);
 using CALL_DRAW_BACK_SURFACE_MASK_RHOMB_PTR = void(*)(S32 param_1, S32 param_2, S32 param_3);
 using FUN_10001F40_PTR = void(*)(S32 param_1, S32 param_2, S32 param_3, S32 param_4, S32 param_5, S32 param_6, S32 param_7);
@@ -108,7 +108,7 @@ struct RendererActions
     GET_TEXT_LENGTH                                 getTextLength;
     FUN_100033C0_PTR                                FUN_100033c0;
     FUN_10003360_PTR                                FUN_10003360;
-    CALL_DRAWBACK_SURFACE_RHOMB_PTR                 callDrawBackSurfaceRhomb;
+    CALL_DRAW_BACK_SURFACE_PALETTE_RHOMB_PTR        callDrawBackSurfacePaletteRhomb;
     CALL_DRAW_BACK_SURFACE_MASK_RHOMB_PTR           callDrawBackSurfaceMaskRhomb;
     DRAW_BACK_SURFACE_RHOMBS_PALETTE_SPRITE_PTR     drawBackSurfaceRhombsPaletteSprite;
     DRAW_BACK_SURFACE_RHOMBS_PALETTE_SPRITE2_PTR    drawBackSurfaceRhombsPaletteSprite2;
