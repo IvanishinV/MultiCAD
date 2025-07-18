@@ -610,8 +610,22 @@ void drawMainSurfaceVanishingSprite(S32 x, S32 y, const S32 vanishOffset, const 
  */
 void drawBackSurfacePalletteSprite(S32 x, S32 y, const Pixel* const palette, const ImagePaletteSprite* const sprite);
 
-// 0x10005ac6           todo
-void FUN_10005ac6(S32 param_1, S32 param_2, U16 param_3, S32 param_4, LPVOID param_5);
+// 0x10005ac6
+/**
+ * Draws a sprite on back surface and writes stencil value to stencil surface.
+ * It's unknown for which sprites it is used.
+ *
+ * Created by IVA 18.07.2025.
+ *
+ * @param x Starting X position of the sprite.
+ * @param y Starting Y position of the sprite.
+ * @param level Stencil level.
+ * @param palette
+ * @param sprite
+ *
+ * @return None.
+ */
+void drawBackSurfacePaletteSpriteAndStencil(S32 x, S32 y, U16 level, const Pixel* const palette, const ImagePaletteSprite* const sprite);
 
 // 0x10005e31
 /**
