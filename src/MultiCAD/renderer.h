@@ -89,7 +89,7 @@ struct GameUI
 struct RendererStructTest01
 {
     S32 unk01;                  // 1049edd0
-    S32 unk02;                  // 1049edd4
+    U32 tempBlocksCount;        // 1049edd4
     S32 validRowsBlockCount;    // 1049edd8  оличество валидных блоков строк (по 8 строк)..
     U32 unk04;                  // 1049eddc
 };
@@ -548,7 +548,7 @@ bool copyMainSurfaceToRenderer(S32 x, S32 y, S32 width, S32 height);
  *
  * @return None.
  */
-void copyMainSurfaceToRendererWithWarFog(S32 x, S32 y, S32 width, S32 height);
+void copyMainSurfaceToRendererWithWarFog(const S32 x, const S32 y, const S32 width, const S32 height);
 
 // 0x10002fb0           todo
 void FUN_10002fb0(S32 x, S32 y, S32 width, S32 height);
@@ -772,7 +772,7 @@ void drawMainSurfaceVanishingSprite(S32 x, S32 y, const S32 vanishOffset, const 
 
 // 0x1000579c
 /**
- * Draws a sprite on back surface, e.g. roads, bridges, cliffs, craters, stumps.
+ * Draws a sprite on back surface, e.g. roads, bridges, pontoons, cliffs, craters, stumps.
  *
  * Created by IVA 14.07.2025.
  * 

@@ -183,8 +183,8 @@ struct RendererSurface // TODO –еорганизовать структуру.
 
 struct ModuleStructTest01
 {
-    U8* fogPtr;                 //10012ad8    // Pointer to current fog tile. The previous and next fog tiles are used for calculations
-    U32 rowAlignmentMask;       //10012adc Ѕитовый флаг дл€ выравнивани€ строк.
+    U8* fogPtr;                 //10012ad8      // Pointer to current fog tile. The previous and next fog tiles are used for calculations
+    U32 blocksCount;            //10012adc      // Number of blocks to be copied
     S32 lineStep;               //10012ae0 Ўаг рендеринга(1556512 Ч возможно, смещение в пам€ти).
     S32 dstRowStride;           //10012ae4
     S32 actualRgbMask;          //10012ae8

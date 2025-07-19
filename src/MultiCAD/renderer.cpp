@@ -787,38 +787,6 @@ void copyMainBackSurfaces(const S32 dx, const S32 dy)
         std::memcpy(dst, src, SCREEN_WIDTH * sizeof(Pixel));
     } while (false);
 
-#ifdef CHECK_ASSERTS
-    {
-        S32 old_offset = g_moduleState.surface.offset / sizeof(Pixel) + dy * SCREEN_WIDTH + dx;
-        // Normalize offset so it is within the expected range.
-        if (old_offset < 0)
-        {
-            while (old_offset < 0)
-            {
-                old_offset = old_offset + (SCREEN_WIDTH * SCREEN_HEIGHT);
-            }
-        }
-        else
-        {
-            while (old_offset >= SCREEN_WIDTH * SCREEN_HEIGHT)
-            {
-                old_offset = old_offset - (SCREEN_WIDTH * SCREEN_HEIGHT);
-            }
-        }
-
-        S32 length = (g_moduleState.surface.offset / sizeof(Pixel)) & (0x80000000 | (SCREEN_WIDTH - 1));
-
-        if (length < 0) { length = ((length - 1) | (U32)(-(S32)SCREEN_WIDTH)) + 1; }
-
-        const S32 lines = (old_offset + ((old_offset >> 0x1f) & (SCREEN_WIDTH - 1))) / SCREEN_WIDTH;
-
-        assert(length + dx == x_max && std::format("{} {}", length + dx, x_max).c_str());
-        assert(old_offset == offset && std::format("{} {}", old_offset, offset).c_str());
-        assert(SCREEN_HEIGHT - lines == SCREEN_HEIGHT - offset / SCREEN_WIDTH && std::format("{} {}", SCREEN_HEIGHT - lines, SCREEN_HEIGHT - offset / SCREEN_WIDTH).c_str());
-
-    }
-#endif
-
     g_moduleState.surface.offset = offset * sizeof(Pixel);
     g_moduleState.surface.y = SCREEN_HEIGHT - offset / SCREEN_WIDTH;
 
@@ -1769,11 +1737,14 @@ void copyMainSurfaceToRendererWithWarFog(const S32 x, const S32 y, const S32 end
         locked = true;
     }
 
+    constexpr S32 blockSize = 8 * sizeof(DoublePixel);  // 32 bytes
+    constexpr U32 blocksNumber = 8;
+
     S32 delta = (endY + 1) - y;
     g_rendererState.rendererStruct02.unk04 = 0;
     g_moduleState.moduleStruct01.actualRgbMask = g_moduleState.initialRgbMask;
-    g_moduleState.moduleStruct01.dstRowStride = -8 * g_moduleState.pitch + 32;
-    g_moduleState.moduleStruct01.lineStep = -(S32)SCREEN_WIDTH * 16 + 32;
+    g_moduleState.moduleStruct01.dstRowStride = -8 * g_moduleState.pitch + blockSize;
+    g_moduleState.moduleStruct01.lineStep = -(S32)SCREEN_WIDTH * 16 + blockSize;
 
     U8* fogSrc = &g_moduleState.fogSprites[(y >> 3) + 8].unk[(x >> 4) + 8];
     DoublePixel* src = (DoublePixel*)((Addr)g_rendererState.surfaces.main + g_moduleState.surface.offset + (SCREEN_WIDTH * y + x) * sizeof(Pixel));
@@ -1785,29 +1756,28 @@ void copyMainSurfaceToRendererWithWarFog(const S32 x, const S32 y, const S32 end
     if (y >= g_moduleState.surface.y || y + delta <= g_moduleState.surface.y)
     {
         g_rendererState.rendererStruct01.validRowsBlockCount = delta >> 3;
-        g_rendererState.rendererStruct01.unk02 = 0;
+        g_rendererState.rendererStruct01.tempBlocksCount = 0;
         g_rendererState.rendererStruct02.excessRowsBlockCount = 0;
 
-        g_moduleState.moduleStruct01.rowAlignmentMask = SCREEN_WIDTH * sizeof(Pixel);
+        g_moduleState.moduleStruct01.blocksCount = blocksNumber;
     }
     else
     {
         g_rendererState.rendererStruct01.validRowsBlockCount = (g_moduleState.surface.y - y) >> 3;
         g_rendererState.rendererStruct02.excessRowsBlockCount = (delta + y - g_moduleState.surface.y) >> 3;
         U32 v7 = ((U8)g_moduleState.surface.y - (U8)y) & 7;
-        v7 = v7 | ((8 - v7) << 8);
-        v7 = v7 << 8;               // v7 now is 0000 ' 8 - v7 ' v7 ' 0000, so the summ of all its bytes is always 8
-        g_rendererState.rendererStruct01.unk02 = (S32)v7;
+        v7 = v7 | ((8 - v7) << 8);      // v7 now is 0000 ' 0000 ' 8 - v7 ' v7, so the summ of all its bytes is always 8    
+        g_rendererState.rendererStruct01.tempBlocksCount = v7;
 
         if (g_rendererState.rendererStruct01.validRowsBlockCount == 0)
         {
             g_moduleState.moduleStruct01.lineStep += SCREEN_SIZE_IN_BYTES;
-            g_moduleState.moduleStruct01.rowAlignmentMask = v7;
+            g_moduleState.moduleStruct01.blocksCount = v7;
             g_rendererState.rendererStruct01.validRowsBlockCount = 1;
-            g_rendererState.rendererStruct01.unk02 = 0;
+            g_rendererState.rendererStruct01.tempBlocksCount = 0;
         }
         else
-            g_moduleState.moduleStruct01.rowAlignmentMask = SCREEN_WIDTH * sizeof(Pixel);
+            g_moduleState.moduleStruct01.blocksCount = blocksNumber;
     }
 
     S32 remainingExcessRows;
@@ -1835,7 +1805,7 @@ void copyMainSurfaceToRendererWithWarFog(const S32 x, const S32 y, const S32 end
                     {
                         if (fogPixel == 0x80808080)
                         {
-                            U32 j = g_moduleState.moduleStruct01.rowAlignmentMask >> 8;
+                            U32 j = g_moduleState.moduleStruct01.blocksCount;
                             ++g_moduleState.moduleStruct01.fogPtr;
                             while (true)
                             {
@@ -1902,7 +1872,7 @@ void copyMainSurfaceToRendererWithWarFog(const S32 x, const S32 y, const S32 end
                             U32 fogOffset = ((S32)fogPixelHighByte + 0x7F) << 5;
 
                             const U32 mask = g_moduleState.moduleStruct01.actualRgbMask;
-                            U32 j = g_moduleState.moduleStruct01.rowAlignmentMask >> 8;
+                            U32 j = g_moduleState.moduleStruct01.blocksCount;
                             ++g_moduleState.moduleStruct01.fogPtr;
 
                             while (true)
@@ -1942,8 +1912,8 @@ void copyMainSurfaceToRendererWithWarFog(const S32 x, const S32 y, const S32 end
                                     } while (k);
 
                                     fogOffset = g_rendererState.rendererStruct02.unk02 + v39;
-                                    src = (DoublePixel*)((Addr)src + SCREEN_WIDTH * sizeof(Pixel) - 32);
-                                    dst = (DoublePixel*)((Addr)dst + g_moduleState.pitch - 32);
+                                    src = (DoublePixel*)((Addr)src + SCREEN_WIDTH * sizeof(Pixel) - blockSize);
+                                    dst = (DoublePixel*)((Addr)dst + g_moduleState.pitch - blockSize);
                                     g_rendererState.rendererStruct02.unk01 += g_rendererState.rendererStruct01.unk01;
 
                                     --j;
@@ -1957,7 +1927,7 @@ void copyMainSurfaceToRendererWithWarFog(const S32 x, const S32 y, const S32 end
                     }
                     else
                     {
-                        U32 j = g_moduleState.moduleStruct01.rowAlignmentMask >> 8;
+                        U32 j = g_moduleState.moduleStruct01.blocksCount;
                         ++g_moduleState.moduleStruct01.fogPtr;
                         const DoublePixel mask = (g_moduleState.unk23 << 16) | g_moduleState.unk23;
                         while (true)
@@ -1994,20 +1964,20 @@ void copyMainSurfaceToRendererWithWarFog(const S32 x, const S32 y, const S32 end
                 --g_rendererState.rendererStruct01.validRowsBlockCount;
             } while (g_rendererState.rendererStruct01.validRowsBlockCount);
 
-            if ((g_rendererState.rendererStruct01.unk02 & 0xFF00) == 0)
+            if ((g_rendererState.rendererStruct01.tempBlocksCount & 0xFF) == 0)
                 break;
 
-            g_moduleState.moduleStruct01.rowAlignmentMask = g_rendererState.rendererStruct01.unk02;
-            g_moduleState.moduleStruct01.lineStep = SCREEN_SIZE_IN_BYTES - SCREEN_WIDTH * sizeof(Pixel) * 8 + 32;
+            g_moduleState.moduleStruct01.blocksCount = g_rendererState.rendererStruct01.tempBlocksCount;
+            g_moduleState.moduleStruct01.lineStep = SCREEN_SIZE_IN_BYTES - SCREEN_WIDTH * sizeof(Pixel) * 8 + blockSize;
             g_rendererState.rendererStruct01.validRowsBlockCount = 1;
-            g_rendererState.rendererStruct01.unk02 = 0;
+            g_rendererState.rendererStruct01.tempBlocksCount = 0;
         }
 
-        g_moduleState.moduleStruct01.lineStep = -(S32)SCREEN_WIDTH * 16 + 32;
+        g_moduleState.moduleStruct01.lineStep = -(S32)SCREEN_WIDTH * 16 + blockSize;
         remainingExcessRows = g_rendererState.rendererStruct02.excessRowsBlockCount;
         g_rendererState.rendererStruct01.validRowsBlockCount = remainingExcessRows;
         g_rendererState.rendererStruct02.excessRowsBlockCount = 0;
-        g_moduleState.moduleStruct01.rowAlignmentMask = SCREEN_WIDTH * sizeof(Pixel);
+        g_moduleState.moduleStruct01.blocksCount = blocksNumber;
         src = (DoublePixel*)((Addr)src - (Addr)SCREEN_SIZE_IN_BYTES);
     } while (remainingExcessRows);
 
@@ -2015,8 +1985,6 @@ void copyMainSurfaceToRendererWithWarFog(const S32 x, const S32 y, const S32 end
     {
         unlockDxSurface();
     }
-
-    return;
 }
 
 // 0x10002fb0
