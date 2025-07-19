@@ -45,7 +45,7 @@ using COPY_MAIN_BACK_SURFACES_PTR = void(*)(S32 x, S32 y);
 using CALL_DRAW_BACK_SURFACE_PALETTE_RHOMB_PTR = void(*)(const S32 tx, const S32 ty, const S32 angle_0, const S32 angle_1, const S32 angle_2, const S32 angle_3, const ImagePaletteTile* const tile);
 using FUN_10001ED0_PTR = void(*)(S32 param_1, S32 param_2, S32 param_3, S32 param_4, S32 param_5, S32 param_6);
 using CALL_DRAW_BACK_SURFACE_MASK_RHOMB_PTR = void(*)(S32 param_1, S32 param_2, S32 param_3);
-using FUN_10001F40_PTR = void(*)(S32 param_1, S32 param_2, S32 param_3, S32 param_4, S32 param_5, S32 param_6, S32 param_7);
+using CALL_CLEAN_MAIN_SURFACE_RHOMB_PTR = void(*)(const S32 tx, const S32 ty, const S32 angle_0, const S32 angle_1, const S32 angle_2, const S32 angle_3, const ImagePaletteTile* const tile);
 
 using COPY_BACK_TO_MAIN_SURFACE_RECT_PTR = void(*)(S32 x, S32 y, U32 width, U32 height);
 using DRAW_MAIN_SURFACE_COLOR_ELLIPSE_PTR = void(*)(S32 x, S32 y, S32 size, Pixel pixel, S32 step);
@@ -120,7 +120,7 @@ struct RendererActions
     COPY_BACK_TO_MAIN_SURFACE_RECT_PTR              copyBackToMainSurfaceRect;
     DRAW_BACK_SURFACE_COLOR_POINT_PTR               drawBackSurfaceColorPoint;
     FUN_10001ED0_PTR                                FUN_10001ed0;
-    FUN_10001F40_PTR                                FUN_10001f40;
+    CALL_CLEAN_MAIN_SURFACE_RHOMB_PTR               callCleanMainSurfaceRhomb;
     FUN_10002FB0_PTR                                FUN_10002fb0_0;
     DRAW_MAIN_SURFACE_PALETTE_SPRITE_COMPACT_PTR    drawMainSurfacePaletteSpriteCompact;
     DRAW_MAIN_SURFACE_SPRITE_PTR                    drawMainSurfaceSprite;

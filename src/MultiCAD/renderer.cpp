@@ -863,8 +863,9 @@ void callDrawBackSurfaceMaskRhomb(const S32 x, const S32 y, const S32 mask)
 }
 
 // 0x10001f40
-void FUN_10001f40(S32 param_1, S32 param_2, S32 param_3, S32 param_4, S32 param_5, S32 param_6, S32 param_7)
+void callCleanMainSurfaceRhomb(const S32 x, const S32 y, const S32 angle_0, const S32 angle_1, const S32 angle_2, const S32 angle_3, const ImagePaletteTile* const tile)
 {
+    cleanSurfaceRhomb(angle_0, angle_1, angle_2, angle_3, x, y, g_moduleState.surface.stride, tile, g_rendererState.surfaces.main);
 }
 
 // 0x10001f80
@@ -2328,6 +2329,233 @@ void drawSurfacePaletteRhomb(const S32 angle_0, const S32 angle_1, const S32 ang
                 tileStartDrawLength -= 4;
 
                 txDelta += g_rendererState.tile.diff;
+                overflow = g_rendererState.tile.tempHeight;
+                tx += 2;
+
+                dst2 = (Pixel*)((Addr)dst2 + (Addr)(stride + 2 * sizeof(Pixel)));
+            }
+
+            g_rendererState.tile.height = g_rendererState.tile.tempHeight;
+            g_rendererState.tile.tempHeight = 0;
+
+            overflow = g_rendererState.tile.tempHeight;
+
+            dst2 = (Pixel*)((Addr)dst2 - (Addr)SCREEN_SIZE_IN_BYTES);
+        };
+    }
+}
+
+// 0x10003C48
+void cleanSurfaceRhomb(const S32 angle_0, const S32 angle_1, const S32 angle_2, const S32 angle_3, S32 tx, S32 ty, const S32 stride, const ImagePaletteTile* const tile, Pixel* const output)
+{
+    g_rendererState.tile.stencil = (Pixel*)((Addr)output + g_moduleState.surface.offset % (SCREEN_WIDTH * sizeof(Pixel)) + SCREEN_SIZE_IN_BYTES);
+    g_rendererState.tile.windowRect.x = g_moduleState.windowRect.x + TILE_SIZE_HEIGHT + 1;
+    g_rendererState.tile.windowRect.y = g_moduleState.windowRect.y;
+    g_rendererState.tile.windowRect.width = g_moduleState.windowRect.width + TILE_SIZE_HEIGHT + 1;
+    g_rendererState.tile.windowRect.height = g_moduleState.windowRect.height;
+    g_rendererState.tile.displayedHalfs = 0;
+
+    if (tx > g_rendererState.tile.windowRect.width + 1
+        || tx < g_rendererState.tile.windowRect.x - TILE_SIZE_WIDTH - 1
+        || ty > g_rendererState.tile.windowRect.height + 1
+        || ty < g_rendererState.tile.windowRect.y - TILE_SIZE_HEIGHT)
+        return;
+
+    S32 tileStartDrawLength;
+
+    const U8* srcInput = tile->pixels;
+    Pixel* dst = (Pixel*)((Addr)output + g_moduleState.surface.offset + stride * ty + tx * sizeof(Pixel) - 2);
+    Pixel* dst2;
+
+    if (ty <= g_moduleState.windowRect.y - 16)
+    {
+        tileStartDrawLength = 61;
+        tx += 3;
+
+        dst2 = (Pixel*)((Addr)dst + (Addr)(16 * stride - 29 * sizeof(Pixel)));
+        srcInput += 528;
+        ty += 16;
+
+        g_rendererState.tile.height = std::min((g_moduleState.windowRect.height + 1) - ty, 16);
+
+        const S32 overage = g_moduleState.windowRect.y - ty;
+        if (overage >= 0)
+        {
+            ty = g_rendererState.tile.windowRect.y;
+            g_rendererState.tile.height -= overage;
+
+            for (S32 y = 0; y < overage; ++y)
+            {
+                srcInput += tileStartDrawLength;
+                tileStartDrawLength -= 4;
+                dst2 = (Pixel*)((Addr)dst2 + (Addr)(stride + 2 * sizeof(Pixel)));
+                tx += 2;
+            }
+        }
+    }
+    else
+    {
+        tileStartDrawLength = 3;
+        tx += TILE_SIZE_HEIGHT;
+
+        g_rendererState.tile.height = std::min((g_moduleState.windowRect.height + 1) - ty, 16);
+
+        S32 overage = g_moduleState.windowRect.y - ty;
+        if (overage >= 0)
+        {
+            ty += overage;
+            g_rendererState.tile.height -= overage;
+
+            for (S32 y = 0; y < overage; ++y)
+            {
+                srcInput += tileStartDrawLength;
+                tileStartDrawLength += 4;
+                dst = (Pixel*)((Addr)dst + (Addr)(stride - 2 * sizeof(Pixel)));
+                tx -= 2;
+            }
+        }
+
+        if (g_rendererState.tile.height > 0)
+        {
+            ty += g_rendererState.tile.height;
+            S32 overflow = std::max(ty - g_moduleState.surface.y, 0);
+
+            g_rendererState.tile.tempHeight = g_rendererState.tile.height;
+            g_rendererState.tile.height -= overflow;
+
+            dst2 = dst;
+            if (g_rendererState.tile.height <= 0)
+            {
+                g_rendererState.tile.height = g_rendererState.tile.tempHeight;
+                g_rendererState.tile.tempHeight = 0;
+                g_rendererState.tile.displayedHalfs++;
+
+                overflow = 0;
+
+                dst2 = (Pixel*)((Addr)dst2 - (Addr)SCREEN_SIZE_IN_BYTES);
+            }
+
+            while (g_rendererState.tile.height > 0)
+            {
+                for (S32 yy = 0; yy < g_rendererState.tile.height; ++yy)
+                {
+                    g_rendererState.tile.tempHeight = overflow;
+
+                    const S32 delta = (g_rendererState.tile.windowRect.width + 1) - tx;
+                    S32 delta2 = std::min(delta, tileStartDrawLength);
+                    const S32 delta3 = g_rendererState.tile.windowRect.x - tx;
+                    if (delta > 0 && delta2 > delta3)
+                    {
+                        const U8* srcTemp = srcInput;
+                        Pixel* dstTemp = dst2;
+
+                        if (delta3 > 0)
+                        {
+                            srcTemp = (U8*)((Addr)srcTemp + (Addr)delta3);
+                            dstTemp = (Pixel*)((Addr)dstTemp + (Addr)delta3 * sizeof(Pixel));
+
+                            delta2 -= delta3;
+                        }
+
+                        if (g_rendererState.tile.stencil <= dstTemp)
+                        {
+                            dstTemp = (Pixel*)((Addr)dstTemp - (Addr)SCREEN_SIZE_IN_BYTES);
+                        }
+                        if (dstTemp < output)
+                        {
+                            dstTemp = (Pixel*)((Addr)dstTemp + (Addr)SCREEN_SIZE_IN_BYTES);
+                        }
+
+                        for (S32 y = 0; y < delta2; ++y)
+                        {
+                            if (srcTemp[y])
+                                dstTemp[y] = 0;
+                        }
+                    }
+
+                    srcInput = (U8*)((Addr)srcInput + tileStartDrawLength);
+                    tileStartDrawLength += 4;
+
+                    overflow = g_rendererState.tile.tempHeight;
+                    tx -= 2;
+
+                    dst2 = dst = (Pixel*)((Addr)dst2 + (Addr)(stride - 4));
+                }
+
+                g_rendererState.tile.height = g_rendererState.tile.tempHeight;
+                g_rendererState.tile.tempHeight = 0;
+                g_rendererState.tile.displayedHalfs++;
+
+                overflow = 0;
+
+                dst2 = (Pixel*)((Addr)dst - (Addr)SCREEN_SIZE_IN_BYTES);
+            }
+        }
+
+        if (ty > g_rendererState.tile.windowRect.height + 1)
+            return;
+
+        tileStartDrawLength -= 6;
+        dst2 = (Pixel*)((Addr)dst + (Addr)(3 * sizeof(Pixel)));
+        tx += 3;
+
+        g_rendererState.tile.height = std::min((g_rendererState.tile.windowRect.height + 1) - ty, 16);
+    }
+
+    if (g_rendererState.tile.height > 0)
+    {
+        S32 overflow = g_rendererState.tile.tempHeight;
+
+        if (g_rendererState.tile.displayedHalfs < 2)
+        {
+            overflow = std::max(g_rendererState.tile.height + ty - g_moduleState.surface.y, 0);
+
+            g_rendererState.tile.tempHeight = g_rendererState.tile.height;
+            g_rendererState.tile.height -= overflow;
+
+            if (g_rendererState.tile.height <= 0)
+            {
+                g_rendererState.tile.height = g_rendererState.tile.tempHeight;
+                g_rendererState.tile.tempHeight = 0;
+
+                overflow = g_rendererState.tile.tempHeight;
+
+                dst2 = (Pixel*)((Addr)dst2 - (Addr)SCREEN_SIZE_IN_BYTES);
+            }
+        }
+
+        while (g_rendererState.tile.height > 0)
+        {
+            for (U16 yy = 0; yy < g_rendererState.tile.height; ++yy)
+            {
+                g_rendererState.tile.tempHeight = overflow;
+
+                S32 delta = (g_rendererState.tile.windowRect.width + 1) - tx;
+                S32 delta2 = std::min(delta, tileStartDrawLength);
+                const S32 delta3 = g_rendererState.tile.windowRect.x - tx;
+                if (delta > 0 && delta2 > delta3)
+                {
+                    const U8* srcTemp = srcInput;
+                    Pixel* dstTemp = dst2;
+                    if (delta3 > 0)
+                    {
+                        srcTemp = (U8*)((Addr)srcTemp + delta3);
+                        dstTemp = (Pixel*)((Addr)dstTemp + (Addr)(delta3 * sizeof(Pixel)));
+
+                        delta2 -= delta3;
+                    }
+
+                    for (S32 y = 0; y < delta2; y++)
+                    {
+                        if (srcTemp[y])
+                            dstTemp[y] = 0;
+                    }
+
+                }
+
+                srcInput = (U8*)((Addr)srcInput + tileStartDrawLength);
+                tileStartDrawLength -= 4;
+
                 overflow = g_rendererState.tile.tempHeight;
                 tx += 2;
 
