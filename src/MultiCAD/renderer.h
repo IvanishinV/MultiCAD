@@ -555,22 +555,49 @@ void FUN_10002fb0(S32 x, S32 y, S32 width, S32 height);
 
 // 0x10003320
 /**
- * Returns a text length in pixels, Default space between letters is 2 pixels.
+ * Returns a text length in pixels.
+ * Default space between letters is 2 pixels.
  *
  * Created by NR 02.04.2025. Refactored by IVA.
  *
- * @param text Text which length has to be calculated.
+ * @param str Null-terminated ansi string which length should be calculated.
  * @param asset Letter assets.
  *
- * @return Length of text in pixels.
+ * @return Length of the string in pixels.
  */
-S32 getTextLength(const char* text, const AssetCollection* asset);
+S32 getTextLength(const char* const str, const AssetCollection* const asset);
 
-// 0x10003360           todo
-void FUN_10003360(S32 x, S32 y, LPSTR text, AssetCollection* asset, Pixel* palette);
+// 0x10003360
+/**
+ * Draws an ansi string on main surface.
+ *
+ * Created by AM. Refactored by IVA 19.07.2025.
+ *
+ * @param x Initial X coordinate of the text.
+ * @param y Initial Y coordinate of the text.
+ * @param str Null-terminated ansi string to be drawn.
+ * @param asset Letter assets.
+ * @param palette Pixel palette.
+ *
+ * @return None.
+ */
+void drawMainSurfaceText(const S32 x, const S32 y, const char* const str, const AssetCollection* const asset, const Pixel* const palette);
 
-// 0x100033c0           todo
-void FUN_100033c0(S32 x, S32 y, LPSTR text, AssetCollection* asset, Pixel* palette);
+// 0x100033c0
+/**
+ * Draws an ansi string on back surface.
+ *
+ * Created by AM. Refactored by IVA 19.07.2025.
+ *
+ * @param x Initial X coordinate of the text.
+ * @param y Initial Y coordinate of the text.
+ * @param str Null-terminated ansi string to be drawn.
+ * @param asset Letter assets.
+ * @param palette Pixel palette.
+ *
+ * @return None.
+ */
+void drawBackSurfaceText(const S32 x, const S32 y, const char* const str, const AssetCollection* const asset, const Pixel* const palette);
 
 
 // 0x10003420

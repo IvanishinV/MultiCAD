@@ -60,11 +60,11 @@ using COPY_RENDERER_SURFACE_RECT_TO_PTR = bool(*)(S32 sx, S32 sy, S32 width, S32
 using COPY_PIXEL_RECT_FROM_TO_PTR = void(*)(S32 sx, S32 sy, S32 sstr, Pixel* input, S32 dx, S32 dy, S32 dstr, Pixel* output, S32 width, S32 height);
 using COPY_MAIN_SURFACE_TO_RENDERER_PTR = bool(*)(S32 x, S32 y, S32 width, S32 height);
 using COPY_MAIN_SURFACE_TO_RENDERER_WITH_WAR_FOG_PTR = void(*)(S32 x, S32 y, S32 width, S32 height);
-using GET_TEXT_LENGTH = S32(*)(const char* text, const AssetCollection* asset);
+using GET_TEXT_LENGTH_PTR = S32(*)(const char* const str, const AssetCollection* const asset);
 
 using FUN_10002FB0_PTR = void(*)(S32 x, S32 y, S32 width, S32 height);
-using FUN_10003360_PTR = void(*)(S32 x, S32 y, LPSTR text, AssetCollection* asset, Pixel* palette);
-using FUN_100033C0_PTR = void(*)(S32 x, S32 y, LPSTR text, AssetCollection* asset, Pixel* palette);
+using DRAW_MAIN_SURFACE_TEXT_PTR = void(*)(const S32 x, const S32 y, const char* const str, const AssetCollection* const asset, const Pixel* const palette);
+using DRAW_BACK_SURFACE_TEXT_PTR = void(*)(const S32 x, const S32 y, const char* const str, const AssetCollection* const asset, const Pixel* const palette);
 using DRAW_BACK_SURFACE_RHOMBS_PALETTE_SPRITE_PTR = void(*)(S32 x, S32 y, const ImagePaletteSprite* const sprite);
 using DRAW_BACK_SURFACE_RHOMBS_PALETTE_SPRITE2_PTR = void(*)(S32 x, S32 y, const ImagePaletteSprite* const sprite);
 using DRAW_BACK_SURFACE_RHOMBS_PALETTE_SHADED_SPRTITE_PTR = void(*)(S32 x, S32 y, U16 level, const ImagePaletteSprite* const sprite);
@@ -105,9 +105,9 @@ struct RendererActions
     COPY_MAIN_BACK_SURFACES_PTR                     copyMainBackSurfaces;
     CONVERT_NOT_MAGENTA_COLORS_PTR                  convertNotMagentaColors;
     CONVERT_ALL_COLORS_PTR                          convertAllColors;
-    GET_TEXT_LENGTH                                 getTextLength;
-    FUN_100033C0_PTR                                FUN_100033c0;
-    FUN_10003360_PTR                                FUN_10003360;
+    GET_TEXT_LENGTH_PTR                             getTextLength;
+    DRAW_BACK_SURFACE_TEXT_PTR                      drawBackSurfaceText;
+    DRAW_MAIN_SURFACE_TEXT_PTR                      drawMainSurfaceText;
     CALL_DRAW_BACK_SURFACE_PALETTE_RHOMB_PTR        callDrawBackSurfacePaletteRhomb;
     CALL_DRAW_BACK_SURFACE_MASK_RHOMB_PTR           callDrawBackSurfaceMaskRhomb;
     DRAW_BACK_SURFACE_RHOMBS_PALETTE_SPRITE_PTR     drawBackSurfaceRhombsPaletteSprite;

@@ -2025,13 +2025,13 @@ void FUN_10002fb0(S32 x, S32 y, S32 width, S32 height)
 }
 
 // 0x10003320
-S32 getTextLength(const char* text, const AssetCollection* asset)
+S32 getTextLength(const char* const str, const AssetCollection* const asset)
 {
     S32 result = 0;
 
-    for (size_t i = 0; text[i] != ANSI_NULL; ++i)
+    for (const char* s = str; *s; ++s)
     {
-        const ImagePaletteSprite* image = (ImagePaletteSprite*)((Addr)asset + (Addr)asset->items[text[i]]);
+        const ImagePaletteSprite* image = (ImagePaletteSprite*)((Addr)asset + (Addr)asset->items[*s]);
 
         result += DEFAULT_FONT_ASSET_SPACING + image->width;
     }
@@ -2040,32 +2040,32 @@ S32 getTextLength(const char* text, const AssetCollection* asset)
 }
 
 // 0x10003360
-void FUN_10003360(S32 x, S32 y, LPSTR text, AssetCollection* asset, Pixel* palette)
+void drawMainSurfaceText(const S32 x, const S32 y, const char* const str, const AssetCollection* const asset, const Pixel* const palette)
 {
     U32 offset = 0;
 
-    for (U32 xx = 0; text[xx] != NULL; ++xx)
+    for (const char* s = str; *s; ++s)
     {
-        ImagePaletteSprite* image = (ImagePaletteSprite*)((Addr)asset + (Addr)asset->items[text[xx]]);
+        ImagePaletteSprite* image = (ImagePaletteSprite*)((Addr)asset + (Addr)asset->items[*s]);
 
         drawMainSurfacePaletteSpriteCompact(x + offset, y, palette, image);
 
-        offset = offset + DEFAULT_FONT_ASSET_SPACING + image->width;
+        offset += DEFAULT_FONT_ASSET_SPACING + image->width;
     }
 }
 
 // 0x100033c0
-void FUN_100033c0(S32 x, S32 y, LPSTR text, AssetCollection* asset, Pixel* palette)
+void drawBackSurfaceText(const S32 x, const S32 y, const char* const str, const AssetCollection* const asset, const Pixel* const palette)
 {
     U32 offset = 0;
 
-    for (U32 xx = 0; text[xx] != NULL; ++xx)
+    for (const char* s = str; *s; ++s)
     {
-        ImagePaletteSprite* image = (ImagePaletteSprite*)((Addr)asset + (Addr)asset->items[text[xx]]);
+        ImagePaletteSprite* image = (ImagePaletteSprite*)((Addr)asset + (Addr)asset->items[*s]);
 
         drawBackSurfacePaletteShadedSprite(x + offset, y, (U16)y, palette, image);
 
-        offset = offset + DEFAULT_FONT_ASSET_SPACING + image->width;
+        offset += DEFAULT_FONT_ASSET_SPACING + image->width;
     }
 }
 
