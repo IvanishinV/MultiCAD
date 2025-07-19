@@ -349,22 +349,33 @@ void copyMainBackSurfaces(S32 dx, S32 dy);
  */
 void callDrawBackSurfacePaletteRhomb(const S32 x, const S32 y, const S32 angle_0, const S32 angle_1, const S32 angle_2, const S32 angle_3, const ImagePaletteTile* const tile);
 
-// 0x10001ed0           todo
-void FUN_10001ed0(S32 param_1, S32 param_2, S32 param_3, S32 param_4, S32 param_5, S32 param_6);
-
-// 0x10001f10
+// 0x10001ed0
 /**
- * Calls function to draw a blended rhomb on main surface using the specified color mask.
+ * Calls function to blend a rhomb on main surface using the color mask.
  *
- * Create by IVA 18.07.2025.
- * 
+ * Create by IVA 19.07.2025.
+ *
  * @param x
  * @param y
  * @param mask
  *
  * @return None.
  */
-void callDrawBackSurfaceMaskRhomb(const S32 x, const S32 y, const S32 mask);
+void callShadeMainSurfaceRhomb(const S32 x, const S32 y, const S32 angle_0, const S32 angle_1, const S32 angle_2, const S32 angle_3);
+
+// 0x10001f10
+/**
+ * Calls function to draw a blended rhomb on main surface using the specified color.
+ *
+ * Create by IVA 18.07.2025.
+ * 
+ * @param x Initial X coordinate of the rhomb.
+ * @param y Initial Y coordinate of the rhomb.
+ * @param color Color with which the source will be combined.
+ *
+ * @return None.
+ */
+void callDrawBackSurfaceMaskRhomb(const S32 x, const S32 y, const S32 color);
 
 // 0x10001f40
 /**
@@ -582,9 +593,31 @@ void FUN_100033c0(S32 x, S32 y, LPSTR text, AssetCollection* asset, Pixel* palet
  */
 void drawSurfacePaletteRhomb(const S32 angle_0, const S32 angle_1, const S32 angle_2, const S32 angle_3, S32 tx, S32 ty, const S32 stride, const ImagePaletteTile* const tile, Pixel* const output);
 
+// 0x1000381e
+/**
+ * Shades a rhomb on given surface using color mask.
+ * It's unknown for which sprites it is used.
+ *
+ * Created by by IVA 19.07.2025.
+ *
+ * @param angle_0 0th angle of the rhomb.
+ * @param angle_1 1th angle of the rhomb.
+ * @param angle_2 2th angle of the rhomb.
+ * @param angle_3 3th angle of the rhomb.
+ * @param x Initial X coordinate of the rhomb.
+ * @param y Initial Y coordinate of the rhomb.
+ * @param stride Line pitch in bytes, more often double screen width.
+ * @param tile Input tile struct.
+ * @param output Surface pixel array to be changed.
+ *
+ * @return None.
+ */
+void shadeSurfaceRhomb(const S32 angle_0, const S32 angle_1, const S32 angle_2, const S32 angle_3, S32 tx, S32 ty, const S32 stride, Pixel* const output);
+
 // 0x10003C48
 /**
  * Cleans a rhomb on given surface.
+ * It's unknown for which sprites it is used.
  *
  * Created by by IVA 19.07.2025.
  *

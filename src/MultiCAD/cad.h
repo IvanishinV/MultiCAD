@@ -43,7 +43,7 @@ using CONVERT_NOT_MAGENTA_COLORS_PTR = void(*)(const Pixel* input, Pixel* output
 using CONVERT_ALL_COLORS_PTR = void(*)(const Pixel* input, Pixel* output, const S32 count);
 using COPY_MAIN_BACK_SURFACES_PTR = void(*)(S32 x, S32 y);
 using CALL_DRAW_BACK_SURFACE_PALETTE_RHOMB_PTR = void(*)(const S32 tx, const S32 ty, const S32 angle_0, const S32 angle_1, const S32 angle_2, const S32 angle_3, const ImagePaletteTile* const tile);
-using FUN_10001ED0_PTR = void(*)(S32 param_1, S32 param_2, S32 param_3, S32 param_4, S32 param_5, S32 param_6);
+using CALL_SHADE_MAIN_SURFACE_RHOMB_PTR = void(*)(const S32 x, const S32 y, const S32 angle_0, const S32 angle_1, const S32 angle_2, const S32 angle_3);
 using CALL_DRAW_BACK_SURFACE_MASK_RHOMB_PTR = void(*)(S32 param_1, S32 param_2, S32 param_3);
 using CALL_CLEAN_MAIN_SURFACE_RHOMB_PTR = void(*)(const S32 tx, const S32 ty, const S32 angle_0, const S32 angle_1, const S32 angle_2, const S32 angle_3, const ImagePaletteTile* const tile);
 
@@ -119,7 +119,7 @@ struct RendererActions
     DRAW_BACK_SURFACE_SHADOW_SPRITE_PTR             drawBackSurfaceShadowSprite;
     COPY_BACK_TO_MAIN_SURFACE_RECT_PTR              copyBackToMainSurfaceRect;
     DRAW_BACK_SURFACE_COLOR_POINT_PTR               drawBackSurfaceColorPoint;
-    FUN_10001ED0_PTR                                FUN_10001ed0;
+    CALL_SHADE_MAIN_SURFACE_RHOMB_PTR               callShadeMainSurfaceRhomb;
     CALL_CLEAN_MAIN_SURFACE_RHOMB_PTR               callCleanMainSurfaceRhomb;
     FUN_10002FB0_PTR                                FUN_10002fb0_0;
     DRAW_MAIN_SURFACE_PALETTE_SPRITE_COMPACT_PTR    drawMainSurfacePaletteSpriteCompact;

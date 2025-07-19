@@ -39,7 +39,7 @@ Renderer* InitializeModule()
     g_moduleState.actions.drawBackSurfaceShadowSprite           = drawBackSurfaceShadowSprite;
     g_moduleState.actions.copyBackToMainSurfaceRect             = copyBackToMainSurfaceRect;
     g_moduleState.actions.drawBackSurfaceColorPoint             = drawBackSurfaceColorPoint;
-    g_moduleState.actions.FUN_10001ed0                          = FUN_10001ed0;
+    g_moduleState.actions.callShadeMainSurfaceRhomb             = callShadeMainSurfaceRhomb;
     g_moduleState.actions.callCleanMainSurfaceRhomb             = callCleanMainSurfaceRhomb;
     g_moduleState.actions.drawMainSurfacePaletteSpriteCompact   = drawMainSurfacePaletteSpriteCompact;
     g_moduleState.actions.drawMainSurfaceSprite                 = drawMainSurfaceSprite;

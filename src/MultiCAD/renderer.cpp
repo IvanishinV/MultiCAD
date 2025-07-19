@@ -852,14 +852,15 @@ void callDrawBackSurfacePaletteRhomb(const S32 tx, const S32 ty, const S32 angle
 }
 
 // 0x10001ed0
-void FUN_10001ed0(S32 param_1, S32 param_2, S32 param_3, S32 param_4, S32 param_5, S32 param_6)
+void callShadeMainSurfaceRhomb(const S32 x, const S32 y, const S32 angle_0, const S32 angle_1, const S32 angle_2, const S32 angle_3)
 {
+    shadeSurfaceRhomb(angle_0, angle_1, angle_2, angle_3, x, y, g_moduleState.surface.stride, g_rendererState.surfaces.main);
 }
 
 // 0x10001f10
-void callDrawBackSurfaceMaskRhomb(const S32 x, const S32 y, const S32 mask)
+void callDrawBackSurfaceMaskRhomb(const S32 x, const S32 y, const S32 color)
 {
-    drawSurfaceMaskRhomb(x, y, g_moduleState.surface.stride, mask, g_rendererState.surfaces.main);
+    drawSurfaceMaskRhomb(x, y, g_moduleState.surface.stride, color, g_rendererState.surfaces.main);
 }
 
 // 0x10001f40
@@ -2345,6 +2346,270 @@ void drawSurfacePaletteRhomb(const S32 angle_0, const S32 angle_1, const S32 ang
     }
 }
 
+// 0x1000381e
+void shadeSurfaceRhomb(const S32 angle_0, const S32 angle_1, const S32 angle_2, const S32 angle_3, S32 tx, S32 ty, const S32 stride, Pixel* const output)
+{
+    const U32 colorMask = ((U32)g_moduleState.actualGreenMask << 16) | g_moduleState.actualBlueMask | g_moduleState.actualRedMask;
+    g_rendererState.tile.stencil = (Pixel*)((Addr)output + g_moduleState.surface.offset % (SCREEN_WIDTH * sizeof(Pixel)) + SCREEN_SIZE_IN_BYTES);
+    g_rendererState.tile.windowRect.x = g_moduleState.windowRect.x + TILE_SIZE_HEIGHT + 1;
+    g_rendererState.tile.windowRect.y = g_moduleState.windowRect.y;
+    g_rendererState.tile.windowRect.width = g_moduleState.windowRect.width + TILE_SIZE_HEIGHT + 1;
+    g_rendererState.tile.windowRect.height = g_moduleState.windowRect.height;
+    g_rendererState.tile.displayedHalfs = 0;
+
+    if (tx > g_rendererState.tile.windowRect.width + 1
+        || tx < g_rendererState.tile.windowRect.x - TILE_SIZE_WIDTH - 1
+        || ty > g_rendererState.tile.windowRect.height + 1
+        || ty < g_rendererState.tile.windowRect.y - TILE_SIZE_HEIGHT)
+        return;
+
+    S32 tileStartDrawLength;
+
+    Pixel* dst = (Pixel*)((Addr)output + g_moduleState.surface.offset + stride * ty + tx * sizeof(Pixel) - 2);
+    Pixel* dst2;
+    S32 txDelta = tx + TILE_SIZE_HEIGHT;
+    S32 diff = (angle_1 - angle_0) << 2;
+
+    if (ty <= g_moduleState.windowRect.y - 16)
+    {
+        g_rendererState.tile.diff = (angle_3 - angle_0) << 4;
+        txDelta = (angle_0 << 8) + g_rendererState.tile.diff;
+        dst2 = (Pixel*)((Addr)dst + (Addr)(16 * stride - 29 * sizeof(Pixel)));
+        tx += 3;
+
+        tileStartDrawLength = 61;
+        ty += 16;
+
+        // Вычисление высоты
+        g_rendererState.tile.height = std::min((g_moduleState.windowRect.height + 1) - ty, 16);
+
+        // Если тайл по высоте торчит за пределы экрана, то уменьшаем отображаемую высоту тайла
+        const S32 overage = g_moduleState.windowRect.y - ty;
+        if (overage >= 0)
+        {
+            ty = g_rendererState.tile.windowRect.y;
+            g_rendererState.tile.height -= overage;
+
+            for (S32 y = 0; y < overage; ++y)
+            {
+                txDelta += g_rendererState.tile.diff;
+                tileStartDrawLength -= 4; // Для ступечатой отрисовки каждай последующая отрисовка пирамидки -4 от ее ширины
+                dst2 = (Pixel*)((Addr)dst2 + (Addr)(stride + 2 * sizeof(Pixel)));   // наверно 4 это 2 пикселя + мешене для ступечатых операций
+                tx += 2;
+            }
+        }
+    }
+    else
+    {
+        tileStartDrawLength = 3;   // Стартовая длина строки верхней половины тайла
+        tx = txDelta;
+
+        // Инициализация параметров рендеринга
+        g_rendererState.tile.diff = (angle_0 - angle_2) << 4;
+        txDelta = (angle_2 << 8) + g_rendererState.tile.diff + diff;
+
+        g_rendererState.tile.height = std::min((g_moduleState.windowRect.height + 1) - ty, 16);
+
+        S32 overage = g_moduleState.windowRect.y - ty;
+        if (overage >= 0)
+        {
+            ty += overage;
+            g_rendererState.tile.height -= overage;
+
+            for (S32 y = 0; y < overage; ++y)
+            {
+                txDelta += g_rendererState.tile.diff;
+                tileStartDrawLength += 4;
+                dst = (Pixel*)((Addr)dst + (Addr)(stride - 2 * sizeof(Pixel)));
+                tx -= 2;
+            }
+        }
+
+        // Отрисовка части тайла
+        if (g_rendererState.tile.height > 0)
+        {
+            ty += g_rendererState.tile.height;
+            S32 overflow = std::max(ty - g_moduleState.surface.y, 0);
+
+            g_rendererState.tile.tempHeight = g_rendererState.tile.height;
+            g_rendererState.tile.height -= overflow;
+
+            dst2 = dst;
+            if (g_rendererState.tile.height <= 0)
+            {
+                g_rendererState.tile.height = g_rendererState.tile.tempHeight;
+                g_rendererState.tile.tempHeight = 0;
+                g_rendererState.tile.displayedHalfs++;
+
+                overflow = 0;
+
+                dst2 = (Pixel*)((Addr)dst2 - (Addr)SCREEN_SIZE_IN_BYTES);
+            }
+
+            while (g_rendererState.tile.height > 0)
+            {
+                for (S32 yy = 0; yy < g_rendererState.tile.height; ++yy)
+                {
+                    g_rendererState.tile.tempHeight = overflow;
+
+                    S32 totalTxOffset = txDelta;
+
+                    const S32 delta = (g_rendererState.tile.windowRect.width + 1) - tx;
+                    S32 delta2 = std::min(delta, tileStartDrawLength);
+                    const S32 delta3 = g_rendererState.tile.windowRect.x - tx;
+                    if (delta > 0 && delta2 > delta3)
+                    {
+                        Pixel* dstTemp = dst2;
+
+                        if (delta3 > 0)
+                        {
+                            dstTemp = (Pixel*)((Addr)dstTemp + (Addr)delta3 * sizeof(Pixel));
+
+                            delta2 -= delta3;
+                            totalTxOffset = txDelta + delta3 * diff;
+                        }
+
+                        // Glitch
+                        if (g_rendererState.tile.stencil <= dstTemp)
+                        {
+                            dstTemp = (Pixel*)((Addr)dstTemp - (Addr)SCREEN_SIZE_IN_BYTES);
+                        }
+                        if (dstTemp < output)
+                        {
+                            dstTemp = (Pixel*)((Addr)dstTemp + (Addr)SCREEN_SIZE_IN_BYTES);
+                        }
+
+                        for (S32 j = 0; j < delta2; ++j)
+                        {
+                            const U8 byte1 = (U8)((Addr)txDelta >> 8);
+                            if (byte1 >= 0x20)
+                                continue;
+
+                            Pixel res = (Pixel)byte1;
+                            if (byte1)
+                            {
+                                const DoublePixel val = (dstTemp[j] << 16) | dstTemp[j];
+                                const DoublePixel mask = colorMask & (((colorMask & val) * byte1) >> 5);
+                                res = (Pixel)((mask >> 16) | mask);
+                            }
+                            dstTemp[j] = res;
+                        }
+                    }
+
+                    tileStartDrawLength += 4;
+
+                    txDelta += g_rendererState.tile.diff;
+                    overflow = g_rendererState.tile.tempHeight;
+                    tx -= 2;
+
+                    dst2 = dst = (Pixel*)((Addr)dst2 + (Addr)(stride - 4));
+                }
+
+                // Отрисовываем оставшуюся часть высоты тайла
+                g_rendererState.tile.height = g_rendererState.tile.tempHeight;
+                g_rendererState.tile.tempHeight = 0;
+                g_rendererState.tile.displayedHalfs++;
+
+                overflow = 0;
+
+                dst2 = (Pixel*)((Addr)dst - (Addr)SCREEN_SIZE_IN_BYTES);
+            }
+        }
+
+        if (ty > g_rendererState.tile.windowRect.height + 1)
+            return;
+
+        tileStartDrawLength -= 6;                                   // Сдвигаем нюжнюю часть на 3 пикселя
+        dst2 = (Pixel*)((Addr)dst + (Addr)(3 * sizeof(Pixel)));     // Офссет нижней части ромбика
+        tx += 3;
+
+        g_rendererState.tile.height = std::min((g_rendererState.tile.windowRect.height + 1) - ty, 16);
+        g_rendererState.tile.diff = (angle_3 - angle_0) << 4;
+        txDelta = (angle_0 << 8) + g_rendererState.tile.diff;
+    }
+
+    // Рендеринг нижней части
+    if (g_rendererState.tile.height > 0)
+    {
+        S32 overflow = g_rendererState.tile.tempHeight;
+
+        if (g_rendererState.tile.displayedHalfs < 2)
+        {
+            overflow = std::max(g_rendererState.tile.height + ty - g_moduleState.surface.y, 0);
+
+            g_rendererState.tile.tempHeight = g_rendererState.tile.height;
+            g_rendererState.tile.height -= overflow;
+
+            if (g_rendererState.tile.height <= 0)
+            {
+                g_rendererState.tile.height = g_rendererState.tile.tempHeight;
+                g_rendererState.tile.tempHeight = 0;
+
+                overflow = g_rendererState.tile.tempHeight;
+
+                dst2 = (Pixel*)((Addr)dst2 - (Addr)SCREEN_SIZE_IN_BYTES);
+            }
+        }
+
+        while (g_rendererState.tile.height > 0)
+        {
+            for (U16 yy = 0; yy < g_rendererState.tile.height; ++yy)
+            {
+                g_rendererState.tile.tempHeight = overflow;
+
+                S32 totalTxOffset = txDelta;
+
+                S32 delta = (g_rendererState.tile.windowRect.width + 1) - tx;
+                S32 delta2 = std::min(delta, tileStartDrawLength);
+                const S32 delta3 = g_rendererState.tile.windowRect.x - tx;
+                if (delta > 0 && delta2 > delta3)
+                {
+                    Pixel* dstTemp = dst2;
+                    if (delta3 > 0)
+                    {
+                        dstTemp = (Pixel*)((Addr)dstTemp + (Addr)(delta3 * sizeof(Pixel)));
+
+                        delta2 -= delta3;
+                        totalTxOffset = txDelta + delta3 * diff;
+                    }
+
+                    for (S32 j = 0; j < delta2; j++)
+                    {
+                        const U8 byte1 = (U8)((Addr)txDelta >> 8);
+                        if (byte1 >= 0x20)
+                            continue;
+
+                        Pixel res = (Pixel)byte1;
+                        if (byte1)
+                        {
+                            const DoublePixel val = (dstTemp[j] << 16) | dstTemp[j];
+                            const DoublePixel mask = colorMask & (((colorMask & val) * byte1) >> 5);
+                            res = (Pixel)((mask >> 16) | mask);
+                        }
+                        dstTemp[j] = res;
+                    }
+
+                }
+
+                tileStartDrawLength -= 4;
+
+                txDelta += g_rendererState.tile.diff;
+                overflow = g_rendererState.tile.tempHeight;
+                tx += 2;
+
+                dst2 = (Pixel*)((Addr)dst2 + (Addr)(stride + 2 * sizeof(Pixel)));
+            }
+
+            g_rendererState.tile.height = g_rendererState.tile.tempHeight;
+            g_rendererState.tile.tempHeight = 0;
+
+            overflow = g_rendererState.tile.tempHeight;
+
+            dst2 = (Pixel*)((Addr)dst2 - (Addr)SCREEN_SIZE_IN_BYTES);
+        };
+    }
+}
+
 // 0x10003C48
 void cleanSurfaceRhomb(const S32 angle_0, const S32 angle_1, const S32 angle_2, const S32 angle_3, S32 tx, S32 ty, const S32 stride, const ImagePaletteTile* const tile, Pixel* const output)
 {
@@ -2779,6 +3044,7 @@ void drawSurfaceMaskRhomb(S32 x, S32 y, const S32 stride, const S32 mask, Pixel*
         };
     }
 }
+
 
 // 0x10004390
 void drawBackSurfaceRhombsPaletteSprite(S32 x, S32 y, const ImagePaletteSprite* const sprite)
