@@ -62,7 +62,7 @@ using COPY_MAIN_SURFACE_TO_RENDERER_PTR = bool(*)(S32 x, S32 y, S32 width, S32 h
 using COPY_MAIN_SURFACE_TO_RENDERER_WITH_WAR_FOG_PTR = void(*)(S32 x, S32 y, S32 width, S32 height);
 using GET_TEXT_LENGTH_PTR = S32(*)(const char* const str, const AssetCollection* const asset);
 
-using FUN_10002FB0_PTR = void(*)(S32 x, S32 y, S32 width, S32 height);
+using BLEND_MAIN_SURFACE_WITH_WAR_FOG_PTR = void(*)(const S32 x, const S32 y, const S32 width, const S32 height);
 using DRAW_MAIN_SURFACE_TEXT_PTR = void(*)(const S32 x, const S32 y, const char* const str, const AssetCollection* const asset, const Pixel* const palette);
 using DRAW_BACK_SURFACE_TEXT_PTR = void(*)(const S32 x, const S32 y, const char* const str, const AssetCollection* const asset, const Pixel* const palette);
 using DRAW_BACK_SURFACE_RHOMBS_PALETTE_SPRITE_PTR = void(*)(S32 x, S32 y, const ImagePaletteSprite* const sprite);
@@ -121,7 +121,7 @@ struct RendererActions
     DRAW_BACK_SURFACE_COLOR_POINT_PTR               drawBackSurfaceColorPoint;
     CALL_SHADE_MAIN_SURFACE_RHOMB_PTR               callShadeMainSurfaceRhomb;
     CALL_CLEAN_MAIN_SURFACE_RHOMB_PTR               callCleanMainSurfaceRhomb;
-    FUN_10002FB0_PTR                                FUN_10002fb0_0;
+    BLEND_MAIN_SURFACE_WITH_WAR_FOG_PTR             blendMainSurfaceWithWarFog_0;
     DRAW_MAIN_SURFACE_PALETTE_SPRITE_COMPACT_PTR    drawMainSurfacePaletteSpriteCompact;
     DRAW_MAIN_SURFACE_SPRITE_PTR                    drawMainSurfaceSprite;
     DRAW_MAIN_SURFACE_PALETTE_SPRITE_PTR            drawMainSurfacePaletteSprite;
@@ -144,7 +144,7 @@ struct RendererActions
     DRAW_MAIN_SURFACE_COLOR_ELLIPSE_PTR             drawMainSurfaceColorEllipse;
     COPY_MAIN_SURFACE_TO_RENDERER_WITH_WAR_FOG_PTR  copyMainSurfaceToRendererWithWarFog;
     COPY_MAIN_SURFACE_TO_RENDERER_PTR               copyMainSurfaceToRenderer;
-    FUN_10002FB0_PTR                                FUN_10002fb0_1;
+    BLEND_MAIN_SURFACE_WITH_WAR_FOG_PTR             blendMainSurfaceWithWarFog_1;
     READ_MAIN_SURFACE_RECT_PTR                      readMainSurfaceRect;
     MASK_STENCIL_SURFACE_RECT_PTR                   maskStencilSurfaceRect;
     DRAW_STENCIL_SURFACE_WINDOW_RECT_PTR            drawStencilSurfaceWindowRect;

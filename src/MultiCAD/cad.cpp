@@ -12,8 +12,8 @@ Renderer* InitializeModule()
 
     initValues();
 
-    g_moduleState.actions.FUN_10002fb0_0                        = FUN_10002fb0;
-    g_moduleState.actions.FUN_10002fb0_1                        = FUN_10002fb0;
+    g_moduleState.actions.blendMainSurfaceWithWarFog_0          = blendMainSurfaceWithWarFog;
+    g_moduleState.actions.blendMainSurfaceWithWarFog_1          = blendMainSurfaceWithWarFog;
     g_moduleState.actions.initValues                            = initValues;
     g_moduleState.actions.initDxInstance                        = initDxInstance;
     g_moduleState.actions.restoreDxInstance                     = restoreDxInstance;

@@ -538,6 +538,7 @@ bool copyMainSurfaceToRenderer(S32 x, S32 y, S32 width, S32 height);
 // 0x10002b90
 /**
  * Copies a rectangle from main surface to renderer using war fog array.
+ * Copies tiles for the main part of the screen (except the area near the minimap due to the UI template).
  *
  * Created by IVA 20.06.2025.
  * 
@@ -550,8 +551,21 @@ bool copyMainSurfaceToRenderer(S32 x, S32 y, S32 width, S32 height);
  */
 void copyMainSurfaceToRendererWithWarFog(const S32 x, const S32 y, const S32 width, const S32 height);
 
-// 0x10002fb0           todo
-void FUN_10002fb0(S32 x, S32 y, S32 width, S32 height);
+// 0x10002fb0
+/**
+ * Blends main surface with war fog array.
+ * Used to blend a light area near minimap.
+ *
+ * Created by IVA 19.07.2025.
+ *
+ * @param x Starting X coordinate of the rectangle.
+ * @param y Starting Y coordinate of the rectangle.
+ * @param width Width of the rectangle to be copied.
+ * @param height Height of the rectangle to be copied.
+ *
+ * @return None.
+ */
+void blendMainSurfaceWithWarFog(const S32 x, const S32 y, const S32 width, const S32 height);
 
 // 0x10003320
 /**
