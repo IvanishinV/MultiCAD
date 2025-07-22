@@ -19,6 +19,14 @@ enum TileSize
     TILE_SIZE_WIDTH = 63
 };
 
+enum SpriteType
+{
+    SPRITE_TYPE_STATIC = 0xA1,
+    SPRITE_TYPE_DYNAMIC = 0xA2,
+    SPRITE_TYPE_ALPHA = 0xA3,
+    SPRITE_TYPE_ANIMATION = 0xA9,
+};
+
 struct Surfaces
 {
     Pixel main[SCREEN_WIDTH * (SCREEN_HEIGHT + 1)];     // 0x1001d588 Основной буфер кадра (то, что видно на экране).
@@ -991,13 +999,21 @@ void drawMainSurfaceAdjustedSprite(S32 x, S32 y, U16 level, const ImagePaletteSp
  */
 void drawMainSurfaceActualSprite(S32 x, S32 y, U16 level, const Pixel* const palette, const ImagePaletteSprite* const sprite);
 
-// 0x10008ecd           todo
+// 0x10008ecd
 /**
- * Draws in-game UI, cursor is displayed always.
+ * Draws a sprite into a given sprite. Draws all UI near minimap, in-game menu, static cursor, crew and passengers icons.
+ * 
+ * Created by NR 22.07.2025.
+ * 
+ * @param x Initial X position of the sprite in given array.
+ * @param y Initial Y position of the sprite in given array.
+ * @param sprite Sprite to be drawn.
+ * @param palette Pixel palette used with RLE encoding.
+ * @param uiSprite Destination sprite.
  *
  * @return None.
  */
-void FUN_10008ecd(S32 param_1, S32 param_2, LPVOID param_3, S32 param_4, LPVOID param_5);
+void drawUiSprite(S32 x, S32 y, const ImagePaletteSprite* const sprite, const void* palette, const ImageSpriteUI* const uiSprite);
 
 // 0x10009eb3
 /**
@@ -1015,20 +1031,20 @@ void FUN_10008ecd(S32 param_1, S32 param_2, LPVOID param_3, S32 param_4, LPVOID 
  *
  * @return None.
  */
-void markUiWithButtonType(S32 x, S32 y, ImagePaletteSprite* const sprite, const ButtonType type, const ImageSpriteUI* const uiSprite, const ButtonType* const offset);
+void markUiWithButtonType(S32 x, S32 y, const ImagePaletteSprite* const sprite, const ButtonType type, const ImageSpriteUI* const uiSprite, const ButtonType* const offset);
 
 // 0x1000a4f3
 /**
- * Draws a sprite into a given array using the specified vanishing level.
+ * Draws a sprite into a given sprite using the specified vanishing level.
  *
  * Created by IVA 18.07.2025.
  *
  * @param x Initial X position of the button sprite in given array.
  * @param y Initial Y position of the button sprite in given array.
- * @param vanishOffset Value in [0, 31] responsible for the disappearance of the sprite.
- * @param input The given array to be written.
+ * @param vanishLevel Value in [0, 31] responsible for the disappearance of the sprite.
+ * @param palette Pixel palette used with RLE encoding.
  * @param sprite Sprite to be drawn.
- * @param uiSprite Total sprite of all UI area. Usually it includes the minimap and buttons area. Its size should be 352x137.
+ * @param uiSprite Destination sprite. This is a total sprite for all UI area. Usually it includes the minimap and buttons area. Its size should be 352x137.
  *
  * @return None.
  */

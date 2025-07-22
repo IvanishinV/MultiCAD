@@ -91,7 +91,7 @@ struct ImagePaletteSprite
     S16                     y;
     S16                     width;
     S16                     height;
-    U8                      unk04; // TODO
+    U8                      type;
     U16                     next;
     ImagePaletteSpritePixel pixels[1];
 };

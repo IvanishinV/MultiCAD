@@ -88,8 +88,8 @@ using DRAW_MAIN_SURFACE_SHADOW_SPRITE_PTR = void(*)(S32 x, S32 y, const DoublePi
 using DRAW_BACK_SURFACE_SHADOW_SPRITE_PTR = void(*)(S32 x, S32 y, const DoublePixel shadePixel, const ImagePaletteSprite* const sprite);
 using DRAW_MAIN_SURFACE_ADJUSTED_SPRITE_PTR = void(*)(S32 x, S32 y, U16 level, const ImagePaletteSprite* const sprite);
 using DRAW_MAIN_SURFACE_ACTUAL_SPRITE_PTR = void(*)(S32 x, S32 y, U16 param_3, const Pixel* const palette, const ImagePaletteSprite* const sprite);
-using FUN_10008ECD_PTR = void(*)(S32 param_1, S32 param_2, LPVOID param_3, S32 param_4, LPVOID param_5);
-using MARK_UI_WITH_BUTTON_TYPE_PTR = void(*)(S32 param_1, S32 param_2, ImagePaletteSprite* const sprite, const ButtonType type, const ImageSpriteUI* const uiSprite, const ButtonType* const offset);
+using DRAW_UI_SPRITE_PTR = void(*)(S32 x, S32 y, const ImagePaletteSprite* const sprite, const void* palette, const ImageSpriteUI* const uiSprite);
+using MARK_UI_WITH_BUTTON_TYPE_PTR = void(*)(S32 param_1, S32 param_2, const ImagePaletteSprite* const sprite, const ButtonType type, const ImageSpriteUI* const uiSprite, const ButtonType* const offset);
 using DRAW_VANISHING_UI_SPRITE_PTR = void(*)(S32 x, S32 y, const S32 vanishLevel, const Pixel* palette, ImagePaletteSprite* const sprite, const ImageSpriteUI* const uiSprite);
 
 struct RendererActions
@@ -150,7 +150,7 @@ struct RendererActions
     DRAW_STENCIL_SURFACE_WINDOW_RECT_PTR            drawStencilSurfaceWindowRect;
     COPY_RENDERER_SURFACE_RECT_TO_PTR               copyToRendererSurfaceRect;
     COPY_PIXEL_RECT_FROM_TO_PTR                     copyPixelRectFromTo;
-    FUN_10008ECD_PTR                                FUN_10008ecd;
+    DRAW_UI_SPRITE_PTR                              drawUiSprite;
     DRAW_VANISHING_UI_SPRITE_PTR                    drawVanishingUiSprite;
     MARK_UI_WITH_BUTTON_TYPE_PTR                    markUiWithButtonType;
     RELEASE_DX_INSTANCE_PTR                         releaseDxInstance;

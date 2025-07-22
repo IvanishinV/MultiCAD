@@ -7017,12 +7017,792 @@ void drawMainSurfaceActualSprite(S32 x, S32 y, U16 level, const Pixel* const pal
 }
 
 // 0x10008ecd
-void FUN_10008ecd(S32 param_1, S32 param_2, LPVOID param_3, S32 param_4, LPVOID param_5)
+void drawUiSprite(S32 x, S32 y, const ImagePaletteSprite* const sprite, const void* pal, const ImageSpriteUI* const uiSprite)
 {
+    // Копируем глобальные параметры окна отрисовки в отдельную структуру
+    g_rendererState.gameUI.offset = uiSprite->offset;
+    g_rendererState.gameUI.stride = uiSprite->stride * 2;
+    g_rendererState.gameUI.windowRect.x = uiSprite->x;
+    g_rendererState.gameUI.windowRect.y = uiSprite->y;
+    g_rendererState.gameUI.windowRect.width = uiSprite->width;
+    g_rendererState.gameUI.windowRect.height = uiSprite->height;
+
+    S32 x_variable_gameUI = g_rendererState.gameUI.windowRect.x;
+    S32 y_variable_gameUI = g_rendererState.gameUI.windowRect.y;
+    S32 width_variable_gameUI = g_rendererState.gameUI.windowRect.width;
+    S32 height_variable_gameUI = g_rendererState.gameUI.windowRect.height;
+
+    // content - указатель на пиксели спрайта
+    // next - длина строки в байтах + с учетом отступа 
+    const void* content = &sprite->pixels;
+    void* next = (void*)((Addr)content + (Addr)sprite->next);
+
+    switch (sprite->type)
+    {
+    case SPRITE_TYPE_STATIC:
+    {
+        Pixel* palette = (Pixel*)pal;
+        g_rendererState.sprite.windowRect.x = g_rendererState.gameUI.windowRect.x;
+        g_rendererState.sprite.windowRect.y = g_rendererState.gameUI.windowRect.y;
+        g_rendererState.sprite.windowRect.width = g_rendererState.gameUI.windowRect.width;
+        g_rendererState.sprite.windowRect.height = g_rendererState.gameUI.windowRect.height;
+
+        y += sprite->y;
+        x += sprite->x;
+
+        g_rendererState.sprite.height = (U16)sprite->height;
+        g_rendererState.sprite.width = (U16)sprite->width + 1;
+
+        //Проверка выхода за верхнюю границу окна и если спрайт начинается выше окна, то его верхнюю часть нужно обрезать
+        if (y < g_rendererState.gameUI.windowRect.y)
+        {
+            // Корректировка высоты спрайта по разнице между высотами
+            g_rendererState.sprite.height = g_rendererState.sprite.height - (g_rendererState.gameUI.windowRect.y - y);
+            // Проверка на полное отсутствие видимой части
+            if (g_rendererState.sprite.height <= 0)
+            {
+                return;
+            }
+            // Пропуск невидимых строк спрайта
+            for (S32 i = 0; i < g_rendererState.gameUI.windowRect.y - y; ++i)
+            {
+                // Каждая строка в RLE - формате начинается с U16(длина данных)
+                // Указатели перемещаются на следующую строку, пропуская невидимые
+                content = (void*)((Addr)next + (Addr)sizeof(U16));
+                next = (U32*)((Addr)next + (Addr)(((U16*)next)[0] + sizeof(U16)));
+            }
+            y = g_rendererState.gameUI.windowRect.y;
+        }
+
+        const S32 overflow = y + g_rendererState.sprite.height - (g_moduleState.windowRect.height + 1);
+        bool draw = overflow <= 0;
+
+        //Если есть overflow, то мы проверяем, можно ли уменьшить высоту отображаемого спрайта на overflow
+        if (!draw)
+        {
+            draw = !(g_rendererState.sprite.height <= overflow);
+            g_rendererState.sprite.height -= overflow;
+        }
+
+        if (draw)
+        {
+            U32 offset = g_rendererState.gameUI.offset;
+            const Addr linesStride = (Addr)(g_rendererState.gameUI.stride * y);
+
+            g_rendererState.sprite.x = (Pixel*)((Addr)offset + linesStride + (Addr)(x * sizeof(Pixel)));
+            g_rendererState.sprite.minX = (Pixel*)((Addr)offset + linesStride + (Addr)(g_rendererState.sprite.windowRect.x * sizeof(Pixel)));
+            g_rendererState.sprite.maxX = (Pixel*)((Addr)offset + linesStride + (Addr)((g_rendererState.sprite.windowRect.width + 1) * sizeof(Pixel)));
+
+            // Ещё раз проверяем переполнение высоты спрайта, но уже относительно высоты экрана, а не windowRect
+            const S32 overage = y + g_rendererState.sprite.height < SCREEN_HEIGHT ? 0 : y + g_rendererState.sprite.height - SCREEN_HEIGHT;
+
+            g_rendererState.sprite.overage = g_rendererState.sprite.height;
+            // Корректировка высоты спрайта. Если переполнения не было, то высота спрайта не изменится.
+            // Однако в таком случае нужно будет отрисовать спрайт дважды (до переполнения и после, т.е. sprite->height - overage и overage)
+            g_rendererState.sprite.height -= overage;
+
+
+            // Если нужно отрисовывать только переполнение
+            if (g_rendererState.sprite.height < 0)
+            {
+                g_rendererState.sprite.height = g_rendererState.sprite.overage;
+                g_rendererState.sprite.overage = 0;
+
+                g_rendererState.sprite.x = (Pixel*)((Addr)g_rendererState.sprite.x - (Addr)SCREEN_SIZE_IN_BYTES);
+                g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.sprite.minX - (Addr)SCREEN_SIZE_IN_BYTES);
+                g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.sprite.maxX - (Addr)SCREEN_SIZE_IN_BYTES);
+            }
+            else
+                g_rendererState.sprite.overage = overage;
+
+            while (g_rendererState.sprite.height > 0)
+            {
+                while (g_rendererState.sprite.height > 0)
+                {
+                    U32 skip = 0;
+                    ImagePaletteSpritePixel* pixels = (ImagePaletteSpritePixel*)content;
+                    Pixel* sx = g_rendererState.sprite.x;
+                    // Если левый край спрайта находится левее прямоугольника для рисования, то пропускаем часть спрайта
+                    while (sx < g_rendererState.sprite.minX && (std::uintptr_t)pixels < (std::uintptr_t)next)
+                    {
+                        const U32 need = (U32)((Addr)g_rendererState.sprite.minX - (Addr)sx) / sizeof(Pixel);
+                        const U32 count = pixels->count & IMAGE_SPRITE_ITEM_COUNT_MASK;
+
+                        if (pixels->count & IMAGE_SPRITE_ITEM_COMPACT_MASK)
+                        {
+                            if (count <= need)
+                            {
+                                pixels = (ImagePaletteSpritePixel*)((Addr)pixels + sizeof(ImagePaletteSpritePixel));
+                            }
+                        }
+                        else
+                        {
+                            if (count <= need)
+                            {
+                                pixels = (ImagePaletteSpritePixel*)((Addr)pixels + (count - 1) * sizeof(U8) + sizeof(ImagePaletteSpritePixel));
+                            }
+                        }
+
+                        skip = count == need ? 0 : std::min(count, need);
+                        sx = (Pixel*)((Addr)sx + (Addr)(std::min(count, need) * sizeof(Pixel)));
+                    }
+
+                    //for (int i = 0; i < sprite->width; ++i)
+                    //    if (sx + i < g_rendererState.sprite.maxX)
+                    //        sx[i] = (Pixel)PixelColor::WHITE;
+
+                    //Отрисовка
+                    while (sx < g_rendererState.sprite.maxX && (std::uintptr_t)pixels < (std::uintptr_t)next)
+                    {
+                        const U32 count = (pixels->count & IMAGE_SPRITE_ITEM_COUNT_MASK); //0X7f
+
+                        if (count == 0)
+                        {
+                            pixels = (ImagePaletteSpritePixel*)((Addr)pixels + (Addr)sizeof(ImagePaletteSpritePixel));
+                        }
+                        else if (pixels->count & IMAGE_SPRITE_ITEM_COMPACT_MASK) //0x80
+                        {
+                            const U8 indx = pixels->pixels[0];
+
+                            if (indx != 0)
+                            {
+                                const Pixel pixel = palette[indx];
+
+                                for (U32 i = 0; i < count - skip; ++i)
+                                {
+                                    if (((Addr)sx + (Addr)(i * sizeof(Pixel))) < (Addr)g_rendererState.sprite.maxX)
+                                    {
+                                        sx[i] = pixel;
+                                    }
+                                }
+                            }
+
+                            pixels = (ImagePaletteSpritePixel*)((Addr)pixels + (Addr)sizeof(ImagePaletteSpritePixel));
+                        }
+                        else
+                        {
+                            for (U32 i = 0; i < count - skip; ++i)
+                            {
+                                const U8 indx = pixels->pixels[skip + i];                                           // Получаем цвет из палитры по индексу
+
+                                if (indx != 0)
+                                {
+                                    if (((Addr)sx + (Addr)(i * sizeof(Pixel))) < (Addr)g_rendererState.sprite.maxX) // Проверка, не выходит ли запись за границы maxX
+                                    {
+                                        sx[i] = palette[indx];                                                      // Копируем цвет из палитры в целевой буфер
+                                    }
+                                }
+                            }
+
+                            pixels = (ImagePaletteSpritePixel*)((Addr)pixels + (Addr)((count - 1) * sizeof(U8) + sizeof(ImagePaletteSpritePixel)));
+                        }
+
+                        sx = (Pixel*)((Addr)sx + (Addr)((count - skip) * sizeof(Pixel)));
+
+                        skip = 0;
+                    }
+
+                    content = (LPVOID)((Addr)next + (Addr)sizeof(U16));
+                    next = (U32*)((Addr)next + (Addr)(((U16*)next)[0] + sizeof(U16)));
+
+                    g_rendererState.sprite.height--;
+
+                    g_rendererState.sprite.x = (Pixel*)((Addr)g_rendererState.sprite.x + (Addr)g_rendererState.gameUI.stride);
+                    g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.sprite.minX + (Addr)g_rendererState.gameUI.stride);
+                    g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.sprite.maxX + (Addr)g_rendererState.gameUI.stride);
+                }
+                // Обведите по вертикали и нарисуйте излишек
+                // в случае, если у спрайта больше содержимого, которое может поместиться в разрешенный прямоугольник для рисования.
+                g_rendererState.sprite.height = g_rendererState.sprite.overage;
+                g_rendererState.sprite.overage = 0;
+
+                g_rendererState.sprite.x = (Pixel*)((Addr)g_rendererState.sprite.x - (Addr)SCREEN_SIZE_IN_BYTES);
+                g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.sprite.minX - (Addr)SCREEN_SIZE_IN_BYTES);
+                g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.sprite.maxX - (Addr)SCREEN_SIZE_IN_BYTES);
+            }
+        }
+        break;
+    }
+    case SPRITE_TYPE_DYNAMIC:
+    {
+        Pixel* palette = (Pixel*)pal;
+        g_rendererState.sprite.windowRect.x = g_rendererState.gameUI.windowRect.x;
+        g_rendererState.sprite.windowRect.y = g_rendererState.gameUI.windowRect.y;
+        g_rendererState.sprite.windowRect.width = g_rendererState.gameUI.windowRect.width;
+        g_rendererState.sprite.windowRect.height = g_rendererState.gameUI.windowRect.height;
+
+        y += sprite->y;
+        x += sprite->x;
+
+        g_rendererState.sprite.height = (U16)sprite->height;
+        g_rendererState.sprite.width = (U16)sprite->width + 1;
+
+        if (y < g_rendererState.gameUI.windowRect.y)
+        {
+            g_rendererState.sprite.height = g_rendererState.sprite.height - (g_rendererState.gameUI.windowRect.y - y);
+
+            if (g_rendererState.sprite.height <= 0)
+            {
+                return;
+            }
+
+            for (S32 i = 0; i < g_rendererState.gameUI.windowRect.y - y; ++i)
+            {
+                content = (void*)((Addr)next + (Addr)sizeof(U16));
+                next = (U32*)((Addr)next + (Addr)(((U16*)next)[0] + sizeof(U16)));
+            }
+            y = g_rendererState.gameUI.windowRect.y;
+        }
+
+        const S32 overflow = y + g_rendererState.sprite.height - (g_moduleState.windowRect.height + 1);
+        bool draw = overflow <= 0;
+
+        if (!draw)
+        {
+            draw = !(g_rendererState.sprite.height <= overflow);
+            g_rendererState.sprite.height -= overflow;
+        }
+
+        if (draw)
+        {
+            U32 offset = g_rendererState.gameUI.offset;
+            const Addr linesStride = (Addr)(g_rendererState.gameUI.stride * y);
+
+            g_rendererState.sprite.x = (Pixel*)((Addr)offset + linesStride + (Addr)(x * sizeof(Pixel)));
+            g_rendererState.sprite.minX = (Pixel*)((Addr)offset + linesStride + (Addr)(g_rendererState.sprite.windowRect.x * sizeof(Pixel)));
+            g_rendererState.sprite.maxX = (Pixel*)((Addr)offset + linesStride + (Addr)((g_rendererState.sprite.windowRect.width + 1) * sizeof(Pixel)));
+
+            const S32 overage = y + g_rendererState.sprite.height < SCREEN_HEIGHT ? 0 : y + g_rendererState.sprite.height - SCREEN_HEIGHT;
+
+            g_rendererState.sprite.overage = g_rendererState.sprite.height;
+            g_rendererState.sprite.height -= overage;
+
+            if (g_rendererState.sprite.height < 0)
+            {
+                g_rendererState.sprite.height = g_rendererState.sprite.overage;
+                g_rendererState.sprite.overage = 0;
+
+                g_rendererState.sprite.x = (Pixel*)((Addr)g_rendererState.sprite.x - (Addr)SCREEN_SIZE_IN_BYTES);
+                g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.sprite.minX - (Addr)SCREEN_SIZE_IN_BYTES);
+                g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.sprite.maxX - (Addr)SCREEN_SIZE_IN_BYTES);
+            }
+            else
+                g_rendererState.sprite.overage = overage;
+
+            while (g_rendererState.sprite.height > 0)
+            {
+                while (g_rendererState.sprite.height > 0)
+                {
+                    U32 skip = 0;
+                    ImagePaletteSpritePixel* pixels = (ImagePaletteSpritePixel*)content;
+                    Pixel* sx = g_rendererState.sprite.x;
+
+                    while (sx < g_rendererState.sprite.minX && (std::uintptr_t)pixels < (std::uintptr_t)next)
+                    {
+                        const U32 need = (U32)((Addr)g_rendererState.sprite.minX - (Addr)sx) / sizeof(Pixel);
+                        const U32 count = pixels->count & IMAGE_SPRITE_ITEM_COUNT_MASK;
+
+                        if (pixels->count & IMAGE_SPRITE_ITEM_COMPACT_MASK)
+                        {
+                            if (count <= need)
+                            {
+                                pixels = (ImagePaletteSpritePixel*)((Addr)pixels + sizeof(ImagePaletteSpritePixel));
+                            }
+                        }
+                        else
+                        {
+                            if (count <= need)
+                            {
+                                pixels = (ImagePaletteSpritePixel*)((Addr)pixels + (count - 1) * sizeof(U8) + sizeof(ImagePaletteSpritePixel));
+                            }
+                        }
+
+                        skip = count == need ? 0 : std::min(count, need);
+                        sx = (Pixel*)((Addr)sx + (Addr)(std::min(count, need) * sizeof(Pixel)));
+                    }
+
+                    //Отрисовка
+                    while (sx < g_rendererState.sprite.maxX && (std::uintptr_t)pixels < (std::uintptr_t)next)
+                    {
+                        U32 skip = 0;       // How many pixels we should skip if pixels->count was bigger than diff between minX and sx
+                        ImagePaletteSpritePixel* pixels = (ImagePaletteSpritePixel*)content;
+
+                        // Skip the pixels to the left of the sprite drawing area
+                        // in case the sprite starts to the left of allowed drawing rectangle.
+                        Pixel* sx = g_rendererState.sprite.x;
+
+                        while (sx < g_rendererState.sprite.minX && (std::uintptr_t)pixels < (std::uintptr_t)next)
+                        {
+                            const U32 need = (U32)((Addr)g_rendererState.sprite.minX - (Addr)sx) / sizeof(Pixel);
+                            const U32 count = pixels->count & IMAGE_SPRITE_ITEM_SHORT_COUNT_MASK;
+
+                            if (count <= need)
+                            {
+                                if ((pixels->count & IMAGE_SPRITE_ITEM_EXTENDED_MASK) == IMAGE_SPRITE_ITEM_EXTENDED_MASK)
+                                {
+                                    // Mask 0xC0 -> only count
+                                    pixels = (ImagePaletteSpritePixel*)((Addr)pixels + sizeof(U8));
+                                }
+                                else if ((pixels->count & IMAGE_SPRITE_ITEM_EXTENDED_MASK) == IMAGE_SPRITE_ITEM_COMPACT_MASK)
+                                {
+                                    // Mask 0x80 -> count and one pixel
+                                    pixels = (ImagePaletteSpritePixel*)((Addr)pixels + sizeof(ImagePaletteSpritePixel));
+                                }
+                                else
+                                {
+                                    // Mask 0x40 and 0x00 -> count and few pixels
+                                    pixels = (ImagePaletteSpritePixel*)((Addr)pixels + (count - 1) * sizeof(U8) + sizeof(ImagePaletteSpritePixel));
+                                }
+                            }
+
+                            skip = count == need ? 0 : std::min(count, need);
+                            sx = (Pixel*)((Addr)sx + (Addr)(std::min(count, need) * sizeof(Pixel)));
+                        }
+
+                        while (sx < g_rendererState.sprite.maxX && (std::uintptr_t)pixels < (std::uintptr_t)next)
+                        {
+                            U32 count = (pixels->count & IMAGE_SPRITE_ITEM_SHORT_COUNT_MASK);
+
+                            if (count == 0)
+                            {
+                                pixels = (ImagePaletteSpritePixel*)((Addr)pixels + sizeof(ImagePaletteSpritePixel));
+                                continue;
+                            }
+
+                            const U32 availCount = (U32)std::min(count - skip, (U32)(g_rendererState.sprite.maxX - sx));
+
+                            if ((pixels->count & IMAGE_SPRITE_ITEM_EXTENDED_MASK) == IMAGE_SPRITE_ITEM_EXTENDED_MASK)
+                            {
+                                // Mask 0xC0 -> skip pixels
+                                pixels = (ImagePaletteSpritePixel*)((Addr)pixels + sizeof(U8));
+                            }
+                            else if ((pixels->count & IMAGE_SPRITE_ITEM_EXTENDED_MASK) == IMAGE_SPRITE_ITEM_COMPACT_MASK)
+                            {
+                                // Mask 0x80 -> repeat one pixel
+                                const U8 indx = pixels->pixels[0];
+                                const Pixel pixel = palette[indx];
+
+                                for (U32 i = 0; i < availCount; ++i)
+                                {
+                                    sx[i] = pixel;
+                                }
+
+                                pixels = (ImagePaletteSpritePixel*)((Addr)pixels + sizeof(ImagePaletteSpritePixel));
+                            }
+                            else if ((pixels->count & IMAGE_SPRITE_ITEM_SHORT_COMPACT_MASK) == IMAGE_SPRITE_ITEM_SHORT_COMPACT_MASK)
+                            {
+                                // Mask 0x40 -> repeat and blend pixels
+                                for (U32 i = 0; i < availCount; ++i)
+                                {
+                                    const U8 indx = pixels->pixels[skip + i];
+                                    const Pixel pixel = palette[indx];
+                                    sx[i] = (sx[i] + pixel - (g_moduleState.actualColorBits & (sx[i] ^ pixel))) >> 1;
+                                }
+
+                                pixels = (ImagePaletteSpritePixel*)((Addr)pixels + (count - 1) * sizeof(U8) + sizeof(ImagePaletteSpritePixel));
+                            }
+                            else if ((pixels->count & IMAGE_SPRITE_ITEM_EXTENDED_MASK) == 0)
+                            {
+                                // Mask 0x00 -> draw pixels
+                                for (U32 i = 0; i < availCount; ++i)
+                                {
+                                    const U8 indx = pixels->pixels[skip + i];
+                                    const Pixel pixel = palette[indx];
+                                    sx[i] = pixel;
+                                }
+
+                                pixels = (ImagePaletteSpritePixel*)((Addr)pixels + (count - 1) * sizeof(U8) + sizeof(ImagePaletteSpritePixel));
+                            }
+
+                            sx = (Pixel*)((Addr)sx + (Addr)((count - skip) * sizeof(Pixel)));
+
+                            skip = 0;
+                        }
+
+                        content = (LPVOID)((Addr)next + (Addr)sizeof(U16));
+                        next = (U32*)((Addr)next + (Addr)(((U16*)next)[0] + sizeof(U16)));
+
+                        g_rendererState.sprite.height--;
+
+                        g_rendererState.sprite.x = (Pixel*)((Addr)g_rendererState.sprite.x + (Addr)g_rendererState.gameUI.stride);
+                        g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.sprite.minX + (Addr)g_rendererState.gameUI.stride);
+                        g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.sprite.maxX + (Addr)g_rendererState.gameUI.stride);
+                    }
+                    g_rendererState.sprite.height = g_rendererState.sprite.overage;
+                    g_rendererState.sprite.overage = 0;
+
+                    g_rendererState.sprite.x = (Pixel*)((Addr)g_rendererState.sprite.x - (Addr)SCREEN_SIZE_IN_BYTES);
+                    g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.sprite.minX - (Addr)SCREEN_SIZE_IN_BYTES);
+                    g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.sprite.maxX - (Addr)SCREEN_SIZE_IN_BYTES);
+                }
+            }
+            break;
+        }
+    }
+    case SPRITE_TYPE_ALPHA:
+    {
+        Pixel* palette = (Pixel*)pal;
+        g_rendererState.sprite.windowRect.x = g_rendererState.gameUI.windowRect.x;
+        g_rendererState.sprite.windowRect.y = g_rendererState.gameUI.windowRect.y;
+        g_rendererState.sprite.windowRect.width = g_rendererState.gameUI.windowRect.width;
+        g_rendererState.sprite.windowRect.height = g_rendererState.gameUI.windowRect.height;
+
+        y += sprite->y;
+        x += sprite->x;
+
+        g_rendererState.sprite.height = (U16)sprite->height;
+        g_rendererState.sprite.width = (U16)sprite->width + 1;
+
+        if (y < g_rendererState.gameUI.windowRect.y)
+        {
+            g_rendererState.sprite.height = g_rendererState.sprite.height - (g_rendererState.gameUI.windowRect.y - y);
+
+            if (g_rendererState.sprite.height <= 0)
+            {
+                return;
+            }
+
+            for (S32 i = 0; i < g_rendererState.gameUI.windowRect.y - y; ++i)
+            {
+                content = (void*)((Addr)next + (Addr)sizeof(U16));
+                next = (U32*)((Addr)next + (Addr)(((U16*)next)[0] + sizeof(U16)));
+            }
+            y = g_rendererState.gameUI.windowRect.y;
+        }
+
+        const S32 overflow = y + g_rendererState.sprite.height - (g_moduleState.windowRect.height + 1);
+        bool draw = overflow <= 0;
+
+        if (!draw)
+        {
+            draw = !(g_rendererState.sprite.height <= overflow);
+            g_rendererState.sprite.height -= overflow;
+        }
+
+        if (draw)
+        {
+            U32 offset = g_rendererState.gameUI.offset;
+            const Addr linesStride = (Addr)(g_rendererState.gameUI.stride * y);
+
+            g_rendererState.sprite.x = (Pixel*)((Addr)offset + linesStride + (Addr)(x * sizeof(Pixel)));
+            g_rendererState.sprite.minX = (Pixel*)((Addr)offset + linesStride + (Addr)(g_rendererState.sprite.windowRect.x * sizeof(Pixel)));
+            g_rendererState.sprite.maxX = (Pixel*)((Addr)offset + linesStride + (Addr)((g_rendererState.sprite.windowRect.width + 1) * sizeof(Pixel)));
+
+            const S32 overage = y + g_rendererState.sprite.height < SCREEN_HEIGHT ? 0 : y + g_rendererState.sprite.height - SCREEN_HEIGHT;
+
+            g_rendererState.sprite.overage = g_rendererState.sprite.height;
+            g_rendererState.sprite.height -= overage;
+
+            if (g_rendererState.sprite.height < 0)
+            {
+                g_rendererState.sprite.height = g_rendererState.sprite.overage;
+                g_rendererState.sprite.overage = 0;
+
+                g_rendererState.sprite.x = (Pixel*)((Addr)g_rendererState.sprite.x - (Addr)SCREEN_SIZE_IN_BYTES);
+                g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.sprite.minX - (Addr)SCREEN_SIZE_IN_BYTES);
+                g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.sprite.maxX - (Addr)SCREEN_SIZE_IN_BYTES);
+            }
+            else
+                g_rendererState.sprite.overage = overage;
+
+            while (g_rendererState.sprite.height > 0)
+            {
+                while (g_rendererState.sprite.height > 0)
+                {
+                    U32 skip = 0;
+                    ImagePaletteSpritePixel* pixels = (ImagePaletteSpritePixel*)content;
+                    Pixel* sx = g_rendererState.sprite.x;
+
+                    while (sx < g_rendererState.sprite.minX && (std::uintptr_t)pixels < (std::uintptr_t)next)
+                    {
+                        const U32 need = (U32)((Addr)g_rendererState.sprite.minX - (Addr)sx) / sizeof(Pixel);
+                        const U32 count = pixels->count & IMAGE_SPRITE_ITEM_COUNT_MASK;
+
+                        if (pixels->count & IMAGE_SPRITE_ITEM_COMPACT_MASK)
+                        {
+                            if (count <= need)
+                            {
+                                pixels = (ImagePaletteSpritePixel*)((Addr)pixels + sizeof(ImagePaletteSpritePixel));
+                            }
+                        }
+                        else
+                        {
+                            if (count <= need)
+                            {
+                                pixels = (ImagePaletteSpritePixel*)((Addr)pixels + (count - 1) * sizeof(U8) + sizeof(ImagePaletteSpritePixel));
+                            }
+                        }
+
+                        skip = count == need ? 0 : std::min(count, need);
+                        sx = (Pixel*)((Addr)sx + (Addr)(std::min(count, need) * sizeof(Pixel)));
+                    }
+
+                    //Отрисовка
+                    while (sx < g_rendererState.sprite.maxX && (std::uintptr_t)pixels < (std::uintptr_t)next)
+                    {
+                        U32 skip = 0;       // How many pixels we should skip if pixels->count was bigger than diff between minX and sx
+                        ImagePaletteSpritePixel* pixels = (ImagePaletteSpritePixel*)content;
+
+                        // Skip the pixels to the left of the sprite drawing area
+                        // in case the sprite starts to the left of allowed drawing rectangle.
+                        Pixel* sx = g_rendererState.sprite.x;
+
+                        // This function uses 0x80 RLE mask to skip pixels, not to draw one pixel few times.
+                        while (sx < g_rendererState.sprite.minX && (std::uintptr_t)pixels < (std::uintptr_t)next)
+                        {
+                            const U32 need = (U32)((Addr)g_rendererState.sprite.minX - (Addr)sx) / sizeof(Pixel);
+                            const U32 count = pixels->count & IMAGE_SPRITE_ITEM_COUNT_MASK;
+
+                            if (count <= need)
+                            {
+                                pixels = (ImagePaletteSpritePixel*)((Addr)pixels + sizeof(pixels->count));
+                            }
+
+                            skip = count == need ? 0 : std::min(count, need);
+                            sx = (Pixel*)((Addr)sx + (Addr)(std::min(count, need) * sizeof(Pixel)));
+                        }
+
+                        while (sx < g_rendererState.sprite.maxX && (std::uintptr_t)pixels < (std::uintptr_t)next)
+                        {
+                            U32 count = (pixels->count & IMAGE_SPRITE_ITEM_COUNT_MASK);
+
+                            if (count == 0)
+                            {
+                                pixels = (ImagePaletteSpritePixel*)((Addr)pixels + sizeof(pixels->count));
+                                continue;
+                            }
+
+                            const U32 availCount = (U32)std::min(count - skip, (U32)(g_rendererState.sprite.maxX - sx));
+
+                            if ((pixels->count & IMAGE_SPRITE_ITEM_COMPACT_MASK) == 0)
+                            {
+                                for (U32 i = 0; i < availCount; ++i)
+                                {
+                                    if (((*(Pixel*)sx) & 0x8007) == 0)
+                                    {
+                                        const Pixel pixel = (Pixel)(g_moduleState.backSurfaceShadePixel + SHADEPIXEL(*(DoublePixel*)(sx + i), *(DoublePixel*)&g_moduleState.shadeColorMask));
+                                        sx[i] = pixel;
+                                    }
+                                }
+                            }
+                            pixels = (ImagePaletteSpritePixel*)((Addr)pixels + sizeof(pixels->count));
+                            sx = (Pixel*)((Addr)sx + (Addr)((count - skip) * sizeof(Pixel)));
+
+                            skip = 0;
+                        }
+                    }
+
+                    content = (LPVOID)((Addr)next + (Addr)sizeof(U16));
+                    next = (U32*)((Addr)next + (Addr)(((U16*)next)[0] + sizeof(U16)));
+
+                    g_rendererState.sprite.height--;
+
+                    g_rendererState.sprite.x = (Pixel*)((Addr)g_rendererState.sprite.x + (Addr)g_rendererState.gameUI.stride);
+                    g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.sprite.minX + (Addr)g_rendererState.gameUI.stride);
+                    g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.sprite.maxX + (Addr)g_rendererState.gameUI.stride);
+                }
+                g_rendererState.sprite.height = g_rendererState.sprite.overage;
+                g_rendererState.sprite.overage = 0;
+
+                g_rendererState.sprite.x = (Pixel*)((Addr)g_rendererState.sprite.x - (Addr)SCREEN_SIZE_IN_BYTES);
+                g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.sprite.minX - (Addr)SCREEN_SIZE_IN_BYTES);
+                g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.sprite.maxX - (Addr)SCREEN_SIZE_IN_BYTES);
+            }
+        }
+        break;
+    }
+    case SPRITE_TYPE_ANIMATION:
+    {
+        AnimationPixel* palette = (AnimationPixel*)pal;
+        const U32 colorMask = ((U32)g_moduleState.actualGreenMask << 16) | g_moduleState.actualBlueMask | g_moduleState.actualRedMask;
+        g_rendererState.sprite.colorMask = colorMask;
+        g_rendererState.sprite.adjustedColorMask = colorMask | (colorMask << 1);
+
+        g_rendererState.sprite.windowRect.x = g_rendererState.gameUI.windowRect.x;
+        g_rendererState.sprite.windowRect.y = g_rendererState.gameUI.windowRect.y;
+        g_rendererState.sprite.windowRect.width = g_rendererState.gameUI.windowRect.width;
+        g_rendererState.sprite.windowRect.height = g_rendererState.gameUI.windowRect.height;
+
+        y += sprite->y;
+        x += sprite->x;
+
+        g_rendererState.sprite.height = (U16)sprite->height;
+        g_rendererState.sprite.width = (U16)sprite->width + 1;
+
+        if (y < g_rendererState.gameUI.windowRect.y)
+        {
+            g_rendererState.sprite.height = g_rendererState.sprite.height - (g_rendererState.gameUI.windowRect.y - y);
+            if (g_rendererState.sprite.height <= 0)
+            {
+                return;
+            }
+            for (S32 i = 0; i < g_rendererState.gameUI.windowRect.y - y; ++i)
+            {
+                content = (void*)((Addr)next + (Addr)sizeof(U16));
+                next = (U32*)((Addr)next + (Addr)(((U16*)next)[0] + sizeof(U16)));
+            }
+            y = g_rendererState.gameUI.windowRect.y;
+        }
+
+        const S32 overflow = y + g_rendererState.sprite.height - (g_moduleState.windowRect.height + 1);
+        bool draw = overflow <= 0;
+
+        if (!draw)
+        {
+            draw = !(g_rendererState.sprite.height <= overflow);
+            g_rendererState.sprite.height -= overflow;
+        }
+
+
+        if (draw)
+        {
+            U32 offset = g_rendererState.gameUI.offset;
+            const Addr linesStride = (Addr)(g_rendererState.gameUI.stride * y);
+
+            g_rendererState.sprite.x = (Pixel*)((Addr)offset + linesStride + (Addr)(x * sizeof(Pixel)));
+            g_rendererState.sprite.minX = (Pixel*)((Addr)offset + linesStride + (Addr)(g_rendererState.sprite.windowRect.x * sizeof(Pixel)));
+            g_rendererState.sprite.maxX = (Pixel*)((Addr)offset + linesStride + (Addr)((g_rendererState.sprite.windowRect.width + 1) * sizeof(Pixel)));
+
+            const S32 overage = y + g_rendererState.sprite.height < SCREEN_HEIGHT ? 0 : y + g_rendererState.sprite.height - SCREEN_HEIGHT;
+
+            g_rendererState.sprite.overage = g_rendererState.sprite.height;
+            g_rendererState.sprite.height -= overage;
+
+            if (g_rendererState.sprite.height < 0)
+            {
+                g_rendererState.sprite.height = g_rendererState.sprite.overage;
+                g_rendererState.sprite.overage = 0;
+
+                g_rendererState.sprite.x = (Pixel*)((Addr)g_rendererState.sprite.x - (Addr)SCREEN_SIZE_IN_BYTES);
+                g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.sprite.minX - (Addr)SCREEN_SIZE_IN_BYTES);
+                g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.sprite.maxX - (Addr)SCREEN_SIZE_IN_BYTES);
+            }
+            else
+                g_rendererState.sprite.overage = overage;
+
+            while (g_rendererState.sprite.height > 0)
+            {
+                while (g_rendererState.sprite.height > 0)
+                {
+                    U32 skip = 0;       // How many pixels we should skip if pixels->count was bigger than diff between minX and sx
+                    ImagePaletteSpritePixel* pixels = (ImagePaletteSpritePixel*)content;
+
+                    // Skip the pixels to the left of the sprite drawing area
+                    // in case the sprite starts to the left of allowed drawing rectangle.
+                    Pixel* sx = g_rendererState.sprite.x;
+
+                    while (sx < g_rendererState.sprite.minX && (std::uintptr_t)pixels < (std::uintptr_t)next)
+                    {
+                        const U32 need = (U32)((Addr)g_rendererState.sprite.minX - (Addr)sx) / sizeof(Pixel);
+                        const U32 count = pixels->count & IMAGE_SPRITE_ITEM_SHORT_COUNT_MASK;
+
+                        if (count <= need)
+                        {
+                            if ((pixels->count & IMAGE_SPRITE_ITEM_EXTENDED_MASK) == IMAGE_SPRITE_ITEM_EXTENDED_MASK)
+                            {
+                                // Mask 0xC0 -> only count
+                                pixels = (ImagePaletteSpritePixel*)((Addr)pixels + sizeof(U8));
+                            }
+                            else if ((pixels->count & IMAGE_SPRITE_ITEM_EXTENDED_MASK) == IMAGE_SPRITE_ITEM_COMPACT_MASK)
+                            {
+                                // Mask 0x80 -> count and one pixel
+                                pixels = (ImagePaletteSpritePixel*)((Addr)pixels + sizeof(ImagePaletteSpritePixel));
+                            }
+                            else
+                            {
+                                // Mask 0x40 and 0x00 -> count and few pixels
+                                pixels = (ImagePaletteSpritePixel*)((Addr)pixels + (count - 1) * sizeof(U8) + sizeof(ImagePaletteSpritePixel));
+                            }
+                        }
+                        skip = count == need ? 0 : std::min(count, need);
+                        sx = (Pixel*)((Addr)sx + (Addr)(std::min(count, need) * sizeof(Pixel)));
+                    }
+
+                    while (sx < g_rendererState.sprite.maxX && (std::uintptr_t)pixels < (std::uintptr_t)next)
+                    {
+                        U32 count = (pixels->count & IMAGE_SPRITE_ITEM_COUNT_MASK); //0x7F
+                        const U32 availCount = std::min(count - skip, (U32)(g_rendererState.sprite.maxX - sx));
+
+                        if (count == 0)
+                        {
+                            pixels = (ImagePaletteSpritePixel*)((Addr)pixels + (Addr)sizeof(ImagePaletteSpritePixel));
+                        }
+                        else if (pixels->count & IMAGE_SPRITE_ITEM_COMPACT_MASK) //0x80
+                        {
+                            // Blend and draw pixels.
+                            if (count != 0)
+                            {
+                                const U8 indx = pixels->pixels[0];
+                                const AnimationPixel pixel = palette[indx];
+                                const DoublePixel pix = pixel >> 19;
+
+                                if ((pix & 0xFF) != 0x1F)
+                                {
+                                    for (U32 i = 0; i < availCount; ++i)
+                                    {
+                                        const DoublePixel value =
+                                            (pix * (((sx[i] << 16) | sx[i]) & g_rendererState.sprite.colorMask) >> 5) & g_rendererState.sprite.colorMask;
+
+                                        sx[i] = (Pixel)((value >> 16) | value) + (Pixel)pixel;
+                                    }
+                                }
+                            }
+
+                            pixels = (ImagePaletteSpritePixel*)((Addr)pixels + (Addr)sizeof(ImagePaletteSpritePixel));
+                        }
+                        else
+                        {
+                            // Blend and draw pixels.
+                            if (count != 0)
+                            {
+                                for (U32 i = 0; i < availCount; ++i)
+                                {
+                                    const U8 indx = pixels->pixels[skip + i];               // Берём индекс цвета из буфера пикселей
+                                    const AnimationPixel pixel = palette[indx];             // Получаем цвет из палитры по индексу
+                                    const DoublePixel pix = pixel >> 19;                    // Сдвигаем цвет вправо на 19 бит(вероятно, для извлечения компонент)
+
+                                    if ((pix & 0xFF) != 0x1F)                               // Проверяем условие (скорее всего, на прозрачность)                  
+                                    {
+                                        // Вычисляем новое значение пикселя с учётом маски
+                                        const DoublePixel value = (pix * (((sx[i] << 16) | sx[i]) & g_rendererState.sprite.colorMask) >> 5) & g_rendererState.sprite.colorMask;
+                                        // Записываем результат обратно в буфер
+                                        sx[i] = (Pixel)((value >> 16) | value) + (Pixel)pixel;
+                                    }
+                                }
+                            }
+
+                            pixels = (ImagePaletteSpritePixel*)((Addr)pixels + (Addr)((count - 1) * sizeof(U8) + sizeof(ImagePaletteSpritePixel)));
+                        }
+
+                        sx = (Pixel*)((Addr)sx + (Addr)((count - skip) * sizeof(Pixel)));
+                        skip = 0;
+                    }
+
+                    content = (void*)((Addr)next + (Addr)sizeof(U16));
+                    next = (void*)((Addr)next + (Addr)(((U16*)next)[0] + sizeof(U16)));
+
+                    g_rendererState.sprite.height--;
+
+                    g_rendererState.sprite.x = (Pixel*)((Addr)g_rendererState.sprite.x + (Addr)g_rendererState.gameUI.stride);
+                    g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.sprite.minX + (Addr)g_rendererState.gameUI.stride);
+                    g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.sprite.maxX + (Addr)g_rendererState.gameUI.stride);
+                }
+                g_rendererState.sprite.height = g_rendererState.sprite.overage;
+                g_rendererState.sprite.overage = 0;
+
+                g_rendererState.sprite.x = (Pixel*)((Addr)g_rendererState.sprite.x - (Addr)SCREEN_SIZE_IN_BYTES);
+                g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.sprite.minX - (Addr)SCREEN_SIZE_IN_BYTES);
+                g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.sprite.maxX - (Addr)SCREEN_SIZE_IN_BYTES);
+            }
+        }
+        break;
+    }
+    }
+
 }
 
 // 0x10009eb3
-void markUiWithButtonType(S32 x, S32 y, ImagePaletteSprite* const sprite, const ButtonType type, const ImageSpriteUI* const uiSprite, const ButtonType* const offset)
+void markUiWithButtonType(S32 x, S32 y, const ImagePaletteSprite* const sprite, const ButtonType type, const ImageSpriteUI* const uiSprite, const ButtonType* const offset)
 {
     g_rendererState.gameUI.offset = (Addr)offset;
     g_rendererState.gameUI.stride = uiSprite->stride;
