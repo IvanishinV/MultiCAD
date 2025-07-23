@@ -1003,7 +1003,7 @@ void drawMainSurfaceActualSprite(S32 x, S32 y, U16 level, const Pixel* const pal
 /**
  * Draws a sprite into a given sprite. Draws all UI near minimap, in-game menu, static cursor, crew and passengers icons.
  * 
- * Created by NR 22.07.2025.
+ * Created by NR 22.07.2025. Refactored by IVA 23.07.2025.
  * 
  * @param x Initial X position of the sprite in given array.
  * @param y Initial Y position of the sprite in given array.
