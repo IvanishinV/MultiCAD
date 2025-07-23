@@ -1251,7 +1251,7 @@ void drawMainSurfaceColorOutline(S32 x, S32 y, S32 width, S32 height, const Pixe
 }
 
 // 0x100026e0
-void drawStencilSurfaceWindowRect()
+void resetStencilSurface()
 {
     Pixel* pixels = (Pixel*)((Addr)g_rendererState.surfaces.stencil + g_moduleState.surface.offset + (g_moduleState.windowRect.y * SCREEN_WIDTH + g_moduleState.windowRect.x) * sizeof(Pixel));
 

@@ -50,7 +50,7 @@ using CALL_CLEAN_MAIN_SURFACE_RHOMB_PTR = void(*)(const S32 tx, const S32 ty, co
 using COPY_BACK_TO_MAIN_SURFACE_RECT_PTR = void(*)(S32 x, S32 y, U32 width, U32 height);
 using DRAW_MAIN_SURFACE_COLOR_ELLIPSE_PTR = void(*)(S32 x, S32 y, S32 size, Pixel pixel, S32 step);
 using DRAW_MAIN_SURFACE_COLOR_OUTLINE_PTR = void(*)(S32 x, S32 y, S32 width, S32 height, Pixel pixel);
-using DRAW_STENCIL_SURFACE_WINDOW_RECT_PTR = void(*)(void);
+using RESET_STENCIL_SURFACE_PTR = void(*)();
 using MASK_STENCIL_SURFACE_RECT_PTR = void(*)(S32 x, S32 y, S32 width, S32 height);
 
 using LOCK_DX_SURFACE_PTR = bool(*)(void);
@@ -147,7 +147,7 @@ struct RendererActions
     BLEND_MAIN_SURFACE_WITH_WAR_FOG_PTR             blendMainSurfaceWithWarFog_1;
     READ_MAIN_SURFACE_RECT_PTR                      readMainSurfaceRect;
     MASK_STENCIL_SURFACE_RECT_PTR                   maskStencilSurfaceRect;
-    DRAW_STENCIL_SURFACE_WINDOW_RECT_PTR            drawStencilSurfaceWindowRect;
+    RESET_STENCIL_SURFACE_PTR                       resetStencilSurface;
     COPY_RENDERER_SURFACE_RECT_TO_PTR               copyToRendererSurfaceRect;
     COPY_PIXEL_RECT_FROM_TO_PTR                     copyPixelRectFromTo;
     DRAW_UI_SPRITE_PTR                              drawUiSprite;

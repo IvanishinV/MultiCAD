@@ -137,6 +137,9 @@ void initValues();
 // 0x10001050
 /**
  * Restores and creates a new DX instance, sets cooperative level.
+ * 
+ * @param hwnd Window handle to be associtaed with the device.
+ * @param fullscreen If the game was run in full screen.
  *
  * @return None.
  */
@@ -195,8 +198,10 @@ bool initWindowDxSurface(const S32 width, const S32 height);
 /**
  * Draws a horizontal line on main surface, e.g. unit bars like health bar, experience bar.
  *
- * @param x Start X position.
- * @param y Start Y position.
+ * Created by AM.
+ *
+ * @param x Initial X coordinate of the line.
+ * @param y Initial Y coordinate of the line.
  * @param length Length of the line.
  * @param pixel Color of the line.
  *
@@ -208,8 +213,10 @@ void drawMainSurfaceHorLine(const S32 x, const S32 y, const S32 length, const Pi
 /**
  * Draws a vertical line on main surface, e.g. partially passenger cells.
  *
- * @param x Start X position.
- * @param y Start Y position.
+ * Created by AM.
+ *
+ * @param x Initial X coordinate of the line.
+ * @param y Initial Y coordinate of the line.
  * @param length Length of the line.
  * @param pixel Color of the line.
  *
@@ -221,8 +228,10 @@ void drawMainSurfaceVertLine(const S32 x, const S32 y, const S32 height, const P
 /**
  * Draws a rectangle on main surface.
  *
- * @param x Start X position.
- * @param y Start Y position.
+ * Created by AM.
+ *
+ * @param x Initial X coordinate of the rectangle.
+ * @param y Initial Y coordinate of the rectangle.
  * @param width Width of the rectangle.
  * @param height Height of the rectangle.
  * @param pixel Color of the rectangle.
@@ -235,8 +244,10 @@ void drawMainSurfaceColorRect(S32 x, S32 y, S32 width, S32 height, const Pixel p
 /**
  * Draws a filled rectangle on main surface.
  *
- * @param x Start X position.
- * @param y Start Y position.
+ * Created by AM.
+ *
+ * @param x Initial X coordinate of the rectangle.
+ * @param y Initial Y coordinate of the rectangle.
  * @param width Width of the rectangle.
  * @param height Height of the rectangle.
  * @param pixel Color of the rectangle.
@@ -249,8 +260,10 @@ void drawMainSurfaceFilledColorRect(S32 x, S32 y, S32 width, S32 height, const P
 /**
  * Draws a shaded colored rectangle on main surface.
  *
- * @param x Start X position.
- * @param y Start Y position.
+ * Created by AM.
+ *
+ * @param x Initial X coordinate of the rectangle.
+ * @param y Initial Y coordinate of the rectangle.
  * @param width Width of the rectangle.
  * @param height Height of the rectangle.
  * @param pixel Color of the rectangle.
@@ -262,11 +275,12 @@ void drawMainSurfaceShadeColorRect(S32 x, S32 y, S32 width, S32 height, const Pi
 // 0x100017e0
 /**
  * Draws a colored point on main surface.
+ * This function is used for displaying the mission minimap in the corner and in a large size.
+ * 
+ * Created by AM.
  *
- * Most likely this function is used for displaying the mission minimap in the corner and in a large size.
- *
- * @param x X position of the point.
- * @param y Y position of the point.
+ * @param x X coordinate of the point.
+ * @param y Y coordinate of the point.
  * @param pixel Preferred color of the point.
  *
  * @return None.
@@ -276,9 +290,11 @@ void drawMainSurfaceColorPoint(const S32 x, const S32 y, const Pixel pixel);
 // 0x10001840
 /**
  * Draws a colored point on back surface.
+ * 
+ * Created by AM.
  *
- * @param x X position of the point.
- * @param y Y position of the point.
+ * @param x X coordinate of the point.
+ * @param y Y coordinate of the point.
  * @param pixel Preferred color of the point.
  *
  * @return None.
@@ -288,13 +304,15 @@ void drawBackSurfaceColorPoint(const S32 x, const S32 y, const Pixel pixel);
 // 0x100018a0
 /**
  * Copies a rectangle from main surface to a provided surface. Used for coping area behind cursor in game.
+ * 
+ * Created by AM.
  *
- * @param sx Source X position of the rectangle.
- * @param sy Source Y position of the rectangle.
+ * @param sx Source X coordinate of the rectangle.
+ * @param sy Source Y coordinate of the rectangle.
  * @param width Width of the rectangle.
  * @param height Height of the rectangle.
- * @param dx Destination X position of the rectangle.
- * @param dy Source Y position of the rectangle.
+ * @param dx Destination X coordinate of the rectangle.
+ * @param dy Source Y coordinate of the rectangle.
  * @param surface Destination surface which the rectangle is copied to.
  *
  * @return None.
@@ -306,6 +324,8 @@ void readMainSurfaceRect(const S32 sx, const S32 sy, const S32 width, const S32 
  * Transforms each not magenta pixel from the input array into a new format. Pixel should be a 16-bit value.
  * The funciton transform it according to the settings store in g_moduleState.
  * Magenta color is 0xF81F.
+ * 
+ * Created by AM.
  *
  * @param input Pointer to the start of the input pixel array.
  * @param output Pointer to the start of the output pixel array.
@@ -319,6 +339,8 @@ void convertNotMagentaColors(const Pixel* input, Pixel* output, const S32 count)
 /**
  * Transforms each pixel from the input array into a new format. Pixel should be a 16-bit value.
  * The funciton transform it according to the settings store in g_moduleState.
+ * 
+ * Created by AM.
  *
  * @param input Pointer to the start of the input pixel array.
  * @param output Pointer to the start of the output pixel array.
@@ -333,17 +355,21 @@ void convertAllColors(const Pixel* input, Pixel* output, const S32 count);
 // 0x10001d00
 /**
  * Moves main, back and stencil surfaces according to dx and dy offsets.
+ * 
+ * Created by IVA 05.2025.
  *
- * @param dx Horizontal offset after camera move.
- * @param dy Vertical offset after camera move.
+ * @param dx Horizontal offset after camera move. To the right - positive, to the left - negative.
+ * @param dy Vertical offset after camera move. To the bottom - positive, to the top - negative.
  *
  * @return None.
  */
-void copyMainBackSurfaces(S32 dx, S32 dy);
+void copyMainBackSurfaces(const S32 dx, const S32 dy);
 
 // 0x10001e90
 /**
  * Calls function to draw a rhomb on back surface using the specified palette.
+ * 
+ * Created by AM.
  *
  * @param x Initial X coordinate of the rhomb.
  * @param y Initial Y coordinate of the rhomb.
@@ -351,7 +377,7 @@ void copyMainBackSurfaces(S32 dx, S32 dy);
  * @param angle_1 1th angle of the rhomb.
  * @param angle_2 2th angle of the rhomb.
  * @param angle_3 3th angle of the rhomb.
- * @param input
+ * @param tile Tile sprite to be drawn.
  *
  * @return None.
  */
@@ -361,11 +387,14 @@ void callDrawBackSurfacePaletteRhomb(const S32 x, const S32 y, const S32 angle_0
 /**
  * Calls function to blend a rhomb on main surface using the color mask.
  *
- * Create by IVA 19.07.2025.
+ * Created by IVA 19.07.2025.
  *
- * @param x
- * @param y
- * @param mask
+ * @param x Initial X coordinate of the rhomb.
+ * @param y Initial Y coordinate of the rhomb.
+ * @param angle_0 0th angle of the rhomb.
+ * @param angle_1 1th angle of the rhomb.
+ * @param angle_2 2th angle of the rhomb.
+ * @param angle_3 3th angle of the rhomb.
  *
  * @return None.
  */
@@ -397,7 +426,7 @@ void callDrawBackSurfaceMaskRhomb(const S32 x, const S32 y, const S32 color);
  * @param angle_1 1th angle of the rhomb.
  * @param angle_2 2th angle of the rhomb.
  * @param angle_3 3th angle of the rhomb.
- * @param input
+ * @param tile Tile sprite to be drawn.
  *
  * @return None.
  */
@@ -407,10 +436,12 @@ void callCleanMainSurfaceRhomb(const S32 x, const S32 y, const S32 angle_0, cons
 /**
  * Copies rectangle with landscape and static objects from back to main surface.
  *
- * @param x Starting X position of the rectangle.
- * @param y Starting Y position of the rectangle.
- * @param width Width of the rectangle
- * @param height Height of the rectangle
+ * Created by AM. Refactored by IVA.
+ * 
+ * @param x Initial X coordinate of the rectangle.
+ * @param y Initial Y coordinate of the rectangle.
+ * @param width Width of the rectangle.
+ * @param height Height of the rectangle.
  *
  * @return None.
  */
@@ -420,11 +451,13 @@ void copyBackToMainSurfaceRect(const S32 x, const S32 y, const U32 width, const 
 /**
  * Draws colored ellipse on main surface.
  *
- * @param x Starting X position of the ellipse.
- * @param y Starting Y position of the ellipse.
- * @param size Size of the ellipse
- * @param pixel Color of the ellipse
- * @param step
+ * Created by AM.
+ * 
+ * @param x Initial X coordinate of the ellipse.
+ * @param y Initial Y coordinate of the ellipse.
+ * @param size Size of the ellipse.
+ * @param pixel Color of the ellipse.
+ * @param step Smoothing step.
  *
  * @return None.
  */
@@ -432,32 +465,38 @@ void drawMainSurfaceColorEllipse(const S32 x, const S32 y, S32 size, const Pixel
 
 // 0x100023e0
 /**
- * Draws colored unit selection rectangle.
+ * Draws colored rectangle on main surface. Draws unit selection rectangle.
+ * 
+ * Created by AM. Refactored by IVA.
  *
- * @param x Starting X coordinate.
- * @param y Starting Y coordinate.
- * @param width
- * @param height
+ * @param x Initial X coordinate of the rectangle.
+ * @param y Initial Y coordinate of the rectangle.
+ * @param width Width of the rectangle.
+ * @param height Height of the rectangle.
  * @param Pixel Preferred color.
  *
  * @return None.
  */
-void drawMainSurfaceColorOutline(S32 x, S32 y, S32 width, S32 height, Pixel pixel);
+void drawMainSurfaceColorOutline(S32 x, S32 y, S32 width, S32 height, const Pixel pixel);
 
 // 0x100026e0
 /**
- * Unknown target.
+ * Resets stencil surface with values depending on pixel's Y coordinate.
+ * 
+ * Created by AM.
  *
  * @return None.
  */
-void drawStencilSurfaceWindowRect();
+void resetStencilSurface();
 
 // 0x10002780
 /**
  * Masks a rectangle on stencil surface.
+ * 
+ * Created by AM.
  *
- * @param x Starting X coordinate of the rectangle.
- * @param y Starting Y coordinate of the rectangle.
+ * @param x Initial X coordinate of the rectangle.
+ * @param y Initial Y coordinate of the rectangle.
  * @param width Width of the rectangle.
  * @param height Height of the rectangle.
  *
@@ -467,12 +506,13 @@ void maskStencilSurfaceRect(S32 x, S32 y, S32 width, S32 height);
 
 // 0x10002810
 /**
- * Moves stencil surface depending on g_moduleState.surface.offset and other values.
- * x
- * y
- * width
- * height
- * offset
+ * Moves stencil surface vertically depending on global offset.
+ * 
+ * @param x Initial X coordinate of the rectangle to be moved.
+ * @param y Initial Y coordinate of the rectangle to be moved.
+ * @param width Width of the rectangle to be moved.
+ * @param height Height of the rectangle to be moved.
+ * @param offset Vertical offset
  *
  * @return None.
  */
@@ -497,13 +537,15 @@ void unlockDxSurface();
 // 0x10002990
 /**
  * Copies a rectangle from the provided pixel array to renderer. Displays minimap, toolbar, menu.
+ * 
+ * Created by IVA 06.2025.
  *
- * @param sx Starting X coordinate of the rectangle in source array.
- * @param sy Starting Y coordinate of the rectangle in source array.
+ * @param sx Initial X coordinate of the rectangle in source array.
+ * @param sy Initial Y coordinate of the rectangle in source array.
  * @param width Width of the rectangle to be copied.
  * @param height Height of the rectangle to be copied.
- * @param dx Starting X coordinate of the rectangle in renderer.
- * @param dy Starting Y coordinate of the rectangle in renderer.
+ * @param dx Initial X coordinate of the rectangle in renderer.
+ * @param dy Initial Y coordinate of the rectangle in renderer.
  * @param stride Line pitch. Usually double screen width.
  * @param pixels Source pixel array from which the rectangle will be copied.
  *
@@ -514,13 +556,15 @@ bool copyToRendererSurfaceRect(S32 sx, S32 sy, S32 width, S32 height, S32 dx, S3
 // 0x10002a30
 /**
  * Copies a rectangle from source to destination array.
+ * 
+ * Created by IVA 06.2025.
  *
- * @param sx Starting X coordinate of the source array.
- * @param sy Starting Y coordinate of the source array.
+ * @param sx Initial X coordinate of the source array.
+ * @param sy Initial Y coordinate of the source array.
  * @param sstr Row stride of the source array.
  * @param input Source array.
- * @param dx Starting X coordinate of the destination array.
- * @param dy Starting Y coordinate of the destination array.
+ * @param dx Initial X coordinate of the destination array.
+ * @param dy Initial Y coordinate of the destination array.
  * @param dstr Row stride of the destination array.
  * @param output Destination array.
  * @param width Width to be copied in pixels.
@@ -533,9 +577,11 @@ void copyPixelRectFromTo(S32 sx, S32 sy, S32 sstr, Pixel* input, S32 dx, S32 dy,
 // 0x10002a90
 /**
  * Copies a rectangle from main surface to renderer.
+ * 
+ * Created by IVA 06.2025.
  *
- * @param x Starting X coordinate of the rectangle.
- * @param y Starting Y coordinate of the rectangle.
+ * @param x Initial X coordinate of the rectangle.
+ * @param y Initial Y coordinate of the rectangle.
  * @param width Width of the rectangle to be copied.
  * @param height Height of the rectangle to be copied.
  *
@@ -550,8 +596,8 @@ bool copyMainSurfaceToRenderer(S32 x, S32 y, S32 width, S32 height);
  *
  * Created by IVA 20.06.2025.
  * 
- * @param x Starting X coordinate of the rectangle.
- * @param y Starting Y coordinate of the rectangle.
+ * @param x Initial X coordinate of the rectangle.
+ * @param y Initial Y coordinate of the rectangle.
  * @param width Width of the rectangle to be copied.
  * @param height Height of the rectangle to be copied.
  *
@@ -566,8 +612,8 @@ void copyMainSurfaceToRendererWithWarFog(const S32 x, const S32 y, const S32 wid
  *
  * Created by IVA 19.07.2025.
  *
- * @param x Starting X coordinate of the rectangle.
- * @param y Starting Y coordinate of the rectangle.
+ * @param x Initial X coordinate of the rectangle.
+ * @param y Initial Y coordinate of the rectangle.
  * @param width Width of the rectangle to be copied.
  * @param height Height of the rectangle to be copied.
  *
@@ -707,10 +753,10 @@ void drawSurfaceMaskRhomb(S32 x, S32 y, const S32 stride, const S32 mask, Pixel*
  *
  * Created by IVA 18.07.2025.
  *
- * @param x Starting X position of the sprite.
- * @param y Starting Y position of the sprite.
+ * @param x Initial X coordinate of the sprite.
+ * @param y Initial Y coordinate of the sprite.
  * @param level Stencil level.
- * @param sprite
+ * @param sprite Sprite to be drawn.
  *
  * @return None.
  */
@@ -723,10 +769,10 @@ void drawBackSurfaceRhombsPaletteSprite(S32 x, S32 y, const ImagePaletteSprite* 
  *
  * Created by IVA 18.07.2025.
  *
- * @param x Starting X position of the sprite.
- * @param y Starting Y position of the sprite.
+ * @param x Initial X coordinate of the sprite.
+ * @param y Initial Y coordinate of the sprite.
  * @param level Stencil level.
- * @param sprite
+ * @param sprite Sprite to be drawn.
  *
  * @return None.
  */
@@ -739,10 +785,10 @@ void drawBackSurfaceRhombsPaletteSprite2(S32 x, S32 y, const ImagePaletteSprite*
  *
  * Created by IVA 18.07.2025.
  *
- * @param x Starting X position of the sprite.
- * @param y Starting Y position of the sprite.
+ * @param x Initial X coordinate of the sprite.
+ * @param y Initial Y coordinate of the sprite.
  * @param level Stencil level.
- * @param sprite
+ * @param sprite Sprite to be drawn.
  *
  * @return None.
  */
@@ -755,11 +801,11 @@ void drawBackSurfaceRhombsPaletteShadedSprite(S32 x, S32 y, U16 level, const Ima
  *
  * Created by IVA 18.07.2025.
  *
- * @param x Starting X position of the sprite.
- * @param y Starting Y position of the sprite.
+ * @param x Initial X coordinate of the sprite.
+ * @param y Initial Y coordinate of the sprite.
  * @param level Stencil level.
- * @param palette
- * @param sprite
+ * @param palette Pixel palette used with RLE encoding.
+ * @param sprite Sprite to be drawn.
  *
  * @return None.
  */
@@ -769,10 +815,12 @@ void drawMainSurfacePaletteSpriteStencil(S32 x, S32 y, U16 param_3, const Pixel*
 /**
  * Draws a sprite on main surface using palette with only 0x80 and 0x00 count mask. Draws text.
  * 
- * @param x Starting X position of the sprite.
- * @param y Starting Y position of the sprite.
- * @param palette
- * @param sprite
+ * Created by IVA 18.07.2025.
+ * 
+ * @param x Initial X coordinate of the sprite.
+ * @param y Initial Y coordinate of the sprite.
+ * @param palette Pixel palette used with RLE encoding.
+ * @param sprite Sprite to be drawn.
  *
  * @return None.
  */
@@ -782,11 +830,13 @@ void drawMainSurfacePaletteSpriteCompact(S32 x, S32 y, const Pixel* palette, con
 /**
  * Draws a sprite with specified vanishing level on main surface.
  * 
- * @param x Starting X position of the sprite.
- * @param y Starting Y position of the sprite.
+ * Create by IVA 06.2025.
+ * 
+ * @param x Initial X coordinate of the sprite.
+ * @param y Initial Y coordinate of the sprite.
  * @param vanishOffset Value in [0, 31] responsible for the disappearance of the sprite.
- * @param palette
- * @param sprite
+ * @param palette Pixel palette used with RLE encoding.
+ * @param sprite Sprite to be drawn.
  *
  * @return None.
  */
@@ -798,10 +848,10 @@ void drawMainSurfaceVanishingSprite(S32 x, S32 y, const S32 vanishOffset, const 
  *
  * Created by IVA 14.07.2025.
  * 
- * @param x Starting X position of the sprite.
- * @param y Starting Y position of the sprite.
- * @param palette
- * @param sprite
+ * @param x Initial X coordinate of the sprite.
+ * @param y Initial Y coordinate of the sprite.
+ * @param palette Pixel palette used with RLE encoding.
+ * @param sprite Sprite to be drawn.
  *
  * @return None.
  */
@@ -814,11 +864,11 @@ void drawBackSurfacePalletteSprite(S32 x, S32 y, const Pixel* const palette, con
  *
  * Created by IVA 18.07.2025.
  *
- * @param x Starting X position of the sprite.
- * @param y Starting Y position of the sprite.
+ * @param x Initial X coordinate of the sprite.
+ * @param y Initial Y coordinate of the sprite.
  * @param level Stencil level.
- * @param palette
- * @param sprite
+ * @param palette Pixel palette used with RLE encoding.
+ * @param sprite Sprite to be drawn.
  *
  * @return None.
  */
@@ -830,11 +880,11 @@ void drawBackSurfacePaletteSpriteAndStencil(S32 x, S32 y, U16 level, const Pixel
  *
  * Created by IVA 13.07.2025.
  * 
- * @param x Starting X position of the sprite.
- * @param y Starting Y position of the sprite.
+ * @param x Initial X coordinate of the sprite.
+ * @param y Initial Y coordinate of the sprite.
  * @param level Displaying level.
  * @param palette
- * @param sprite
+ * @param sprite Sprite to be drawn.
  *
  * @return None.
  */
@@ -847,10 +897,10 @@ void drawBackSurfacePaletteShadedSprite(S32 x, S32 y, U16 level, const Pixel* co
  *
  * Created by IVA 18.07.2025.
  * 
- * @param x Starting X position of the sprite.
- * @param y Starting Y position of the sprite.
- * @param palette
- * @param sprite
+ * @param x Initial X coordinate of the sprite.
+ * @param y Initial Y coordinate of the sprite.
+ * @param palette Pixel palette used with RLE encoding.
+ * @param sprite Sprite to be drawn.
  *
  * @return None.
  */
@@ -859,11 +909,13 @@ void drawMainSurfacePaletteSprite(S32 x, S32 y, const Pixel* const palette, cons
 // 0x100064b6
 /**
  * Draws a sprite on main surface, e.g. main menu.
+ * 
+ * Create by AM. Refactored by IVA.
  *
- * @param x Starting X position of the sprite.
- * @param y Starting Y position of the sprite.
- * @param palette
- * @param sprite
+ * @param x Initial X coordinate of the sprite.
+ * @param y Initial Y coordinate of the sprite.
+ * @param palette Pixel palette used with RLE encoding.
+ * @param sprite Sprite to be drawn.
  *
  * @return None.
  */
@@ -876,10 +928,10 @@ void drawMainSurfaceSprite(S32 x, S32 y, ImageSprite* sprite);
  *
  * Created by IVA 18.07.2025.
  *
- * @param x Starting X position of the sprite.
- * @param y Starting Y position of the sprite.
- * @param palette
- * @param sprite
+ * @param x Initial X coordinate of the sprite.
+ * @param y Initial Y coordinate of the sprite.
+ * @param palette Pixel palette used with RLE encoding.
+ * @param sprite Sprite to be drawn.
  *
  * @return None.
  */
@@ -891,11 +943,11 @@ void drawMainSurfaceAnimationSprite(S32 x, S32 y, const AnimationPixel* palette,
  * 
  * Created by AM. Refactored by IVA 12.07.2025.
  * 
- * @param x Starting X position of the sprite.
- * @param y Starting Y position of the sprite.
+ * @param x Initial X coordinate of the sprite.
+ * @param y Initial Y coordinate of the sprite.
  * @param level Displaying level.
- * @param palette
- * @param sprite
+ * @param palette Pixel palette used with RLE encoding.
+ * @param sprite Sprite to be drawn.
  *
  * @return None.
  */
@@ -909,11 +961,11 @@ void drawMainSurfaceAnimationSpriteStencil(S32 x, S32 y, U16 level, const Animat
  * 
  * Created by IVA 16.07.2025.
  *
- * @param x Starting X position of the sprite.
- * @param y Starting Y position of the sprite.
+ * @param x Initial X coordinate of the sprite.
+ * @param y Initial Y coordinate of the sprite.
  * @param level Displaying level.
- * @param palette
- * @param sprite
+ * @param palette Pixel palette used with RLE encoding.
+ * @param sprite Sprite to be drawn.
  *
  * @return None.
  */
@@ -926,11 +978,11 @@ void drawMainSurfacePaletteSpriteFrontStencil(S32 x, S32 y, U16 level, const Pix
  * 
  * Created by IVA 16.07.2025.
  *
- * @param x Starting X position of the sprite.
- * @param y Starting Y position of the sprite.
+ * @param x Initial X coordinate of the sprite.
+ * @param y Initial Y coordinate of the sprite.
  * @param level Displaying level.
- * @param palette
- * @param sprite
+ * @param palette Pixel palette used with RLE encoding.
+ * @param sprite Sprite to be drawn.
  *
  * @return None.
  */
@@ -942,10 +994,10 @@ void drawMainSurfacePaletteSpriteBackStencil(S32 x, S32 y, U16 level, const Pixe
  *
  * Created by IVA 15.07.2025.
  *
- * @param x Starting X position of the sprite.
- * @param y Starting Y position of the sprite.
+ * @param x Initial X coordinate of the sprite.
+ * @param y Initial Y coordinate of the sprite.
  * @param shadePixel Double pixel for stencil.
- * @param sprite
+ * @param sprite Sprite to be drawn.
  *
  * @return None.
  */
@@ -957,10 +1009,10 @@ void drawMainSurfaceShadowSprite(S32 x, S32 y, const DoublePixel shadePixel, con
  *
  * Created by IVA 15.07.2025.
  *
- * @param x Starting X position of the sprite.
- * @param y Starting Y position of the sprite.
+ * @param x Initial X coordinate of the sprite.
+ * @param y Initial Y coordinate of the sprite.
  * @param shadePixel Double pixel for stencil.
- * @param sprite
+ * @param sprite Sprite to be drawn.
  *
  * @return None.
  */
@@ -973,10 +1025,10 @@ void drawBackSurfaceShadowSprite(S32 x, S32 y, const DoublePixel shadePixel, con
  *
  * Created by IVA 16.07.2025.
  *
- * @param x Starting X position of the sprite.
- * @param y Starting Y position of the sprite.
+ * @param x Initial X coordinate of the sprite.
+ * @param y Initial Y coordinate of the sprite.
  * @param level Stencil level.
- * @param sprite
+ * @param sprite Sprite to be drawn.
  *
  * @return None.
  */
@@ -989,11 +1041,11 @@ void drawMainSurfaceAdjustedSprite(S32 x, S32 y, U16 level, const ImagePaletteSp
  *
  * Created by IVA 16.07.2025.
  *
- * @param x Starting X position of the sprite.
- * @param y Starting Y position of the sprite.
+ * @param x Initial X coordinate of the sprite.
+ * @param y Initial Y coordinate of the sprite.
  * @param level Stencil level.
- * @param palette
- * @param sprite
+ * @param palette Pixel palette used with RLE encoding.
+ * @param sprite Sprite to be drawn.
  *
  * @return None.
  */

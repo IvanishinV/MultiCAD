@@ -65,7 +65,7 @@ Renderer* InitializeModule()
     g_moduleState.actions.copyMainSurfaceToRenderer             = copyMainSurfaceToRenderer;
     g_moduleState.actions.readMainSurfaceRect                   = readMainSurfaceRect;
     g_moduleState.actions.maskStencilSurfaceRect                = maskStencilSurfaceRect;
-    g_moduleState.actions.drawStencilSurfaceWindowRect          = drawStencilSurfaceWindowRect;
+    g_moduleState.actions.resetStencilSurface                   = resetStencilSurface;
     g_moduleState.actions.copyToRendererSurfaceRect             = copyToRendererSurfaceRect;
     g_moduleState.actions.copyPixelRectFromTo                   = copyPixelRectFromTo;
     g_moduleState.actions.drawUiSprite                          = drawUiSprite;
