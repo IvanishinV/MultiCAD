@@ -5232,7 +5232,7 @@ void drawMainSurfacePaletteSprite(S32 x, S32 y, const Pixel* const palette, cons
 }
 
 // 0x100064b6
-void drawMainSurfaceSprite(S32 x, S32 y, ImageSprite* sprite)
+void drawMainSurfaceSprite(S32 x, S32 y, const ImageSprite* const sprite)
 {
     g_rendererState.sprite.windowRect.x = g_moduleState.windowRect.x;
     g_rendererState.sprite.windowRect.y = g_moduleState.windowRect.y;

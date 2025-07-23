@@ -890,6 +890,7 @@ void drawBackSurfacePaletteSpriteAndStencil(S32 x, S32 y, U16 level, const Pixel
  */
 void drawBackSurfacePaletteShadedSprite(S32 x, S32 y, U16 level, const Pixel* const palette, const ImagePaletteSprite* const sprite);
 
+
 // 0x1000618d
 /**
  * Draws a sprite on main surface using palette with full RLE encoding.
@@ -919,7 +920,7 @@ void drawMainSurfacePaletteSprite(S32 x, S32 y, const Pixel* const palette, cons
  *
  * @return None.
  */
-void drawMainSurfaceSprite(S32 x, S32 y, ImageSprite* sprite);
+void drawMainSurfaceSprite(S32 x, S32 y, const ImageSprite* const sprite);
 
 // 0x100067ad
 /**
@@ -952,7 +953,6 @@ void drawMainSurfaceAnimationSprite(S32 x, S32 y, const AnimationPixel* palette,
  * @return None.
  */
 void drawMainSurfaceAnimationSpriteStencil(S32 x, S32 y, U16 level, const AnimationPixel* palette, ImagePaletteSprite* sprite);
-
 
 // 0x10006ef8
 /**
@@ -987,6 +987,7 @@ void drawMainSurfacePaletteSpriteFrontStencil(S32 x, S32 y, U16 level, const Pix
  * @return None.
  */
 void drawMainSurfacePaletteSpriteBackStencil(S32 x, S32 y, U16 level, const Pixel* const palette, const ImagePaletteSprite* const sprite);
+
 
 // 0x10007662
 /**
@@ -1050,6 +1051,7 @@ void drawMainSurfaceAdjustedSprite(S32 x, S32 y, U16 level, const ImagePaletteSp
  * @return None.
  */
 void drawMainSurfaceActualSprite(S32 x, S32 y, U16 level, const Pixel* const palette, const ImagePaletteSprite* const sprite);
+
 
 // 0x10008ecd
 /**
