@@ -7069,7 +7069,7 @@ void drawUiSprite(S32 x, S32 y, const ImagePaletteSprite* const sprite, const vo
         y = g_rendererState.gameUI.windowRect.y;
     }
 
-    const S32 overflow = y + g_rendererState.sprite.height - (g_moduleState.windowRect.height + 1);
+    const S32 overflow = y + g_rendererState.sprite.height - (g_rendererState.gameUI.windowRect.height + 1);
     bool draw = overflow <= 0;
 
     if (!draw)
