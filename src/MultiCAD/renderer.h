@@ -29,9 +29,9 @@ enum SpriteType
 
 struct Surfaces
 {
-    Pixel main[SCREEN_WIDTH * (SCREEN_HEIGHT + 1)];     // 0x1001d588 Основной буфер кадра (то, что видно на экране).
-    Pixel back[SCREEN_WIDTH * (SCREEN_HEIGHT + 1)];     // 0x1019ddac Буфер заднего плана (для двойной буферизации).
-    Pixel stencil[SCREEN_WIDTH * (SCREEN_HEIGHT + 1)];  // 0x1031e5d0 Буфер трафарета (для маскирования пикселей).
+    Pixel main[SCREEN_WIDTH * (SCREEN_HEIGHT + 1)];     // 0x1001d588   // Main buffer. Contains the final image. Used for dynamic objects like units, explosions
+    Pixel back[SCREEN_WIDTH * (SCREEN_HEIGHT + 1)];     // 0x1019ddac   // Secondary buffer. Used mainly for static objects like ground, trees, buildings, roads
+    Pixel stencil[SCREEN_WIDTH * (SCREEN_HEIGHT + 1)];  // 0x1031e5d0   // Stencil buffer. Used for calculating frame depth for units, buildings, trees, poles
 };
 
 struct Outline
@@ -44,24 +44,16 @@ struct Outline
     S32                 width;                  // 0x1001d570       // Width of the rectangle
 };
 
-struct Window
-{
-    S32 x;                      // 0x10010070
-    S32 y;                      // 0x10010072
-    S32 width;                  // 0x10010074
-    S32 height;                 // 0x10010076 0x10010050
-};
-
 struct Sprite
 {
-    Pixel* minX;                // 0x1001005c
-    Pixel* maxX;                // 0x10010060
-    U32    width;               // 0x10010064
-    S32    vanishOffset;        // 0x10010068
+    Pixel*  minX;               // 0x1001005c
+    Pixel*  maxX;               // 0x10010060
+    U32     width;              // 0x10010064
+    S32     vanishOffset;       // 0x10010068
 
-    Window  windowRect;         // 0x10010070
+    Rect    windowRect;         // 0x10010070
 
-    Pixel* x;                   // 0x1001007c
+    Pixel*  x;                  // 0x1001007c
 
     U32     colorMask;          // 0x10010084
     U32     adjustedColorMask;  // 0x10010088
@@ -82,7 +74,7 @@ struct Tile
     S32 tempHeight;             // 0x10010045
     S8  unk08;                  // 0x10010049
 
-    Window windowRect;          // 0x1001004A
+    Rect windowRect;          // 0x1001004A
 };
 
 struct GameUI
@@ -98,7 +90,7 @@ struct RendererStructTest01
 {
     S32 unk01;                  // 1049edd0
     U32 tempBlocksCount;        // 1049edd4
-    S32 validRowsBlockCount;    // 1049edd8 Количество валидных блоков строк (по 8 строк)..
+    S32 validRowsBlockCount;    // 1049edd8     // Number of valid row blocks (8 rows each)
     U32 unk04;                  // 1049eddc
 };
 
@@ -106,7 +98,7 @@ struct RendererStructTest02
 {
     S32 unk01;                  // 1001d574
     S32 unk02;                  // 1001d578
-    S32 excessRowsBlockCount;   // 1001d57c Количество лишних блоков строк (по 8 строк).
+    S32 excessRowsBlockCount;   // 1001d57c     // Number of extra row blocks (8 rows each)
     S32 unk04;                  // 1001d580
     S32 unk05;                  // 1001d584
 };
@@ -551,7 +543,7 @@ void unlockDxSurface();
  *
  * @return None.
  */
-bool copyToRendererSurfaceRect(S32 sx, S32 sy, S32 width, S32 height, S32 dx, S32 dy, S32 stride, Pixel* pixels);
+bool copyToRendererSurfaceRect(S32 sx, S32 sy, S32 width, S32 height, S32 dx, S32 dy, S32 stride, const Pixel* const pixels);
 
 // 0x10002a30
 /**
@@ -572,7 +564,7 @@ bool copyToRendererSurfaceRect(S32 sx, S32 sy, S32 width, S32 height, S32 dx, S3
  *
  * @return None.
  */
-void copyPixelRectFromTo(S32 sx, S32 sy, S32 sstr, Pixel* input, S32 dx, S32 dy, S32 dstr, Pixel* output, S32 width, S32 height);
+void copyPixelRectFromTo(S32 sx, S32 sy, S32 sstr, const Pixel* const input, S32 dx, S32 dy, S32 dstr, Pixel* const output, S32 width, S32 height);
 
 // 0x10002a90
 /**
@@ -840,7 +832,7 @@ void drawMainSurfacePaletteSpriteCompact(S32 x, S32 y, const Pixel* palette, con
  *
  * @return None.
  */
-void drawMainSurfaceVanishingSprite(S32 x, S32 y, const S32 vanishOffset, const Pixel* palette, const ImagePaletteSprite* const sprite);
+void drawMainSurfaceVanishingPaletteSprite(S32 x, S32 y, const S32 vanishOffset, const Pixel* palette, const ImagePaletteSprite* const sprite);
 
 // 0x1000579c
 /**

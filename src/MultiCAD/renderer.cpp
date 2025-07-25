@@ -207,10 +207,10 @@ void setPixelColorMasks(const U32 r, const U32 g, const U32 b)
 
     g_moduleState.initialColorMask = g_moduleState.actualColorMask;
 
-    g_moduleState.unk23 = ~g_moduleState.actualColorMask;
-    g_moduleState.unk24 = ~g_moduleState.actualColorMask;
+    g_moduleState.invActualColorBits = ~g_moduleState.actualColorMask;
+    g_moduleState.invActualColorBits2 = ~g_moduleState.actualColorMask;
 
-    g_moduleState.unk18 = g_moduleState.actualColorBits;
+    g_moduleState.actualColorBits2 = g_moduleState.actualColorBits;
     g_moduleState.shadeColorMask = ~g_moduleState.actualColorBits;
     g_moduleState.shadeColorMask2 = ~g_moduleState.actualColorBits;
 
@@ -342,7 +342,6 @@ bool initWindowDxSurface(S32 width, S32 height)
 
     return true;
 }
-
 
 
 // 0x10001420
@@ -645,6 +644,7 @@ void drawBackSurfaceColorPoint(const S32 x, const S32 y, const Pixel pixel)
     }
 }
 
+
 // 0x100018a0
 void readMainSurfaceRect(const S32 sx, const S32 sy, const S32 width, const S32 height, const S32 dx, const S32 dy, const S32 stride, Pixel* surface)
 {
@@ -731,6 +731,7 @@ void convertAllColors(const Pixel* input, Pixel* output, const S32 count)
         output[x] = (Pixel)(r | g | b);
     }
 }
+
 
 // 0x10001d00
 void copyMainBackSurfaces(const S32 dx, const S32 dy)
@@ -836,6 +837,7 @@ void callCleanMainSurfaceRhomb(const S32 x, const S32 y, const S32 angle_0, cons
 {
     cleanSurfaceRhomb(angle_0, angle_1, angle_2, angle_3, x, y, g_moduleState.surface.stride, tile, g_rendererState.surfaces.main);
 }
+
 
 // 0x10001f80
 void copyBackToMainSurfaceRect(const S32 x, const S32 y, const U32 width, const U32 height)
@@ -1250,6 +1252,7 @@ void drawMainSurfaceColorOutline(S32 x, S32 y, S32 width, S32 height, const Pixe
     }
 }
 
+
 // 0x100026e0
 void resetStencilSurface()
 {
@@ -1556,6 +1559,7 @@ void moveStencilSurface(const S32 x, const S32 y, const S32 width, const S32 hei
     }
 }
 
+
 // 0x100028f0
 bool lockDxSurface()
 {
@@ -1611,8 +1615,9 @@ void unlockDxSurface()
     g_moduleState.surface.renderer = NULL;
 }
 
+
 // 0x10002990
-bool copyToRendererSurfaceRect(S32 sx, S32 sy, S32 width, S32 height, S32 dx, S32 dy, S32 stride, Pixel* pixels)
+bool copyToRendererSurfaceRect(S32 sx, S32 sy, S32 width, S32 height, S32 dx, S32 dy, S32 stride, const Pixel* const pixels)
 {
     bool locked = false;
 
@@ -1641,7 +1646,7 @@ bool copyToRendererSurfaceRect(S32 sx, S32 sy, S32 width, S32 height, S32 dx, S3
 }
 
 // 0x10002a30
-void copyPixelRectFromTo(S32 sx, S32 sy, S32 sstr, Pixel* input, S32 dx, S32 dy, S32 dstr, Pixel* output, S32 width, S32 height)
+void copyPixelRectFromTo(S32 sx, S32 sy, S32 sstr, const Pixel* const input, S32 dx, S32 dy, S32 dstr, Pixel* const output, S32 width, S32 height)
 {
     Pixel* src = (Pixel*)((Addr)input + (Addr)((sstr * sy + sx) * sizeof(Pixel)));
     Pixel* dst = (Pixel*)((Addr)output + (Addr)((dstr * dy + dx) * sizeof(Pixel)));
@@ -1929,7 +1934,7 @@ void copyMainSurfaceToRendererWithWarFog(const S32 x, const S32 y, const S32 end
                     {
                         U32 j = g_moduleState.moduleStruct01.blocksCount;
                         ++g_moduleState.moduleStruct01.fogPtr;
-                        const DoublePixel mask = (g_moduleState.unk23 << 16) | g_moduleState.unk23;
+                        const DoublePixel mask = *(DoublePixel*)&g_moduleState.invActualColorBits;
                         while (true)
                         {
                             do
@@ -2153,7 +2158,7 @@ void blendMainSurfaceWithWarFog(const S32 x, const S32 y, const S32 endX, const 
                     {
                         U32 j = g_moduleState.moduleStruct01.blocksCount;
                         ++g_moduleState.moduleStruct01.fogPtr;
-                        const DoublePixel mask = ((g_moduleState.unk23 << 16) | g_moduleState.unk23) & 0x7FFF7FFF;
+                        const DoublePixel mask = (*(DoublePixel*)&g_moduleState.invActualColorBits) & 0x7FFF7FFF;
                         while (true)
                         {
                             do
@@ -2203,6 +2208,7 @@ void blendMainSurfaceWithWarFog(const S32 x, const S32 y, const S32 endX, const 
     } while (remainingExcessRows);
 }
 
+
 // 0x10003320
 S32 getTextLength(const char* const str, const AssetCollection* const asset)
 {
@@ -2248,6 +2254,7 @@ void drawBackSurfaceText(const S32 x, const S32 y, const char* const str, const 
     }
 }
 
+
 // 0x10003420
 void drawSurfacePaletteRhomb(const S32 angle_0, const S32 angle_1, const S32 angle_2, const S32 angle_3, S32 tx, S32 ty, const S32 stride, const ImagePaletteTile* const tile, Pixel* const output)
 {
@@ -2277,16 +2284,6 @@ void drawSurfacePaletteRhomb(const S32 angle_0, const S32 angle_1, const S32 ang
     S32 txDelta = tx + TILE_SIZE_HEIGHT;
     S32 diff = (angle_1 - angle_0) << 2;
     bool isUpperPart = (ty > (g_moduleState.windowRect.y - 16)) ? true : false; // 1 остальное 0 четверь
-
-    /*OutputDebugStringA(std::format("[{}] tx={}, ty={}, X={}, Y={}, Width={}, Height={}\n"
-            , __FUNCTION__
-            , tx
-            , ty
-            , g_moduleState.windowRect.x
-            , g_moduleState.windowRect.x
-            , g_moduleState.windowRect.width
-            , g_moduleState.windowRect.height
-        ).c_str());*/
 
     if (!isUpperPart)
     {
@@ -4219,7 +4216,7 @@ void drawMainSurfacePaletteSpriteCompact(S32 x, S32 y, const Pixel* palette, con
 }
 
 // 0x100053c3
-void drawMainSurfaceVanishingSprite(S32 x, S32 y, const S32 vanishOffset, const Pixel* palette, const ImagePaletteSprite* const sprite)
+void drawMainSurfaceVanishingPaletteSprite(S32 x, S32 y, const S32 vanishOffset, const Pixel* palette, const ImagePaletteSprite* const sprite)
 {
     const U32 colorMask = ((U32)g_moduleState.actualGreenMask << 16) | g_moduleState.actualBlueMask | g_moduleState.actualRedMask;
     g_rendererState.sprite.vanishOffset = vanishOffset;
@@ -5034,6 +5031,7 @@ void drawBackSurfacePaletteShadedSprite(S32 x, S32 y, U16 level, const Pixel* co
         }
     }
 }
+
 
 // 0x1000618d
 void drawMainSurfacePaletteSprite(S32 x, S32 y, const Pixel* const palette, const ImagePaletteSprite* const sprite)
@@ -6262,6 +6260,7 @@ void drawMainSurfacePaletteSpriteBackStencil(S32 x, S32 y, U16 level, const Pixe
     }
 }
 
+
 // 0x10007662
 void drawMainSurfaceShadowSprite(S32 x, S32 y, const DoublePixel shadePixel, const ImagePaletteSprite* const sprite)
 {
@@ -7015,6 +7014,7 @@ void drawMainSurfaceActualSprite(S32 x, S32 y, U16 level, const Pixel* const pal
         }
     }
 }
+
 
 // 0x10008ecd
 void drawUiSprite(S32 x, S32 y, const ImagePaletteSprite* const sprite, const void* pal, const ImageSpriteUI* const uiSprite)

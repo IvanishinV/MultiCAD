@@ -59,8 +59,8 @@ using MASK_STENCIL_SURFACE_RECT_PTR     = void(*)(S32 x, S32 y, S32 width, S32 h
 using LOCK_DX_SURFACE_PTR       = bool(*)();
 using UNLOCK_DX_SURFACE_PTR     = void(*)();
 
-using COPY_TO_RENDERER_SURFACE_RECT_TO_PTR              = bool(*)(S32 sx, S32 sy, S32 width, S32 height, S32 dx, S32 dy, S32 stride, Pixel* pixels);
-using COPY_PIXEL_RECT_FROM_TO_PTR                       = void(*)(S32 sx, S32 sy, S32 sstr, Pixel* input, S32 dx, S32 dy, S32 dstr, Pixel* output, S32 width, S32 height);
+using COPY_TO_RENDERER_SURFACE_RECT_TO_PTR              = bool(*)(S32 sx, S32 sy, S32 width, S32 height, S32 dx, S32 dy, S32 stride, const Pixel* const pixels);
+using COPY_PIXEL_RECT_FROM_TO_PTR                       = void(*)(S32 sx, S32 sy, S32 sstr, const Pixel* const input, S32 dx, S32 dy, S32 dstr, Pixel* const output, S32 width, S32 height);
 using COPY_MAIN_SURFACE_TO_RENDERER_PTR                 = bool(*)(S32 x, S32 y, S32 width, S32 height);
 using COPY_MAIN_SURFACE_TO_RENDERER_WITH_WAR_FOG_PTR    = void(*)(S32 x, S32 y, S32 width, S32 height);
 using BLEND_MAIN_SURFACE_WITH_WAR_FOG_PTR               = void(*)(S32 x, S32 y, S32 width, S32 height);
@@ -75,7 +75,7 @@ using DRAW_BACK_SURFACE_RHOMBS_PALETTE_SHADED_SPRTITE_PTR   = void(*)(S32 x, S32
 
 using DRAW_MAIN_SURFACE_PALETTE_SPRITE_STENCIL_PTR      = void(*)(S32 x, S32 y, U16 level, const Pixel* const palette, const ImagePaletteSprite* const sprite);
 using DRAW_MAIN_SURFACE_PALETTE_SPRITE_COMPACT_PTR      = void(*)(S32 x, S32 y, const Pixel* palette, const ImagePaletteSprite* const sprite);
-using DRAW_MAIN_SURFACE_VANISHING_SPRITE_PTR            = void(*)(S32 x, S32 y, S32 vanishOffset, const Pixel* palette, const ImagePaletteSprite* const sprite);
+using DRAW_MAIN_SURFACE_VANISHING_PALETTE_SPRITE_PTR    = void(*)(S32 x, S32 y, S32 vanishOffset, const Pixel* palette, const ImagePaletteSprite* const sprite);
 using DRAW_BACK_SURFACE_PALETTE_SPRITE_PTR              = void(*)(S32 x, S32 y, const Pixel* const palette, const ImagePaletteSprite* const sprite);
 using DRAW_BACK_SURFACE_PALETTE_SPRITE_AND_STENCIL_PTR  = void(*)(S32 x, S32 y, U16 level, const Pixel* const palette, const ImagePaletteSprite* const sprite);
 using DRAW_BACK_SURFACE_PALETTE_SHADED_SPRITE_PTR       = void(*)(S32 x, S32 y, U16 level, const Pixel* const palette, const ImagePaletteSprite* const sprite);
@@ -137,7 +137,7 @@ struct RendererActions
     DRAW_MAIN_SURFACE_SHADOW_SPRITE_PTR                     drawMainSurfaceShadowSprite;
     DRAW_MAIN_SURFACE_ACTUAL_SPRITE_PTR                     drawMainSurfaceActualSprite;
     DRAW_MAIN_SURFACE_ADJUSTED_SPRITE_PTR                   drawMainSurfaceAdjustedSprite;
-    DRAW_MAIN_SURFACE_VANISHING_SPRITE_PTR                  drawMainSurfaceVanishingSprite;
+    DRAW_MAIN_SURFACE_VANISHING_PALETTE_SPRITE_PTR          drawMainSurfaceVanishingPaletteSprite;
     DRAW_MAIN_SURFACE_COLOR_POINT_PTR                       drawMainSurfaceColorPoint;
     DRAW_MAIN_SURFACE_FILLED_COLOR_RECT_PTR                 drawMainSurfaceFilledColorRect;
     DRAW_MAIN_SURFACE_COLOR_RECT_PTR                        drawMainSurfaceColorRect;
@@ -168,40 +168,40 @@ struct Rect
     S32 height;         //10012afc
 };
 
-struct RendererSurface // TODO Реорганизовать структуру.
+struct RendererSurface
 {
-    S32     offset;     //10012b00  // Surface offset in bytes. Depends on screen coordinates, changes when it moves
-    S32     y;          //10012b04 эта величина равна высоте экрана, в данном случае всегда 768
+    S32     offset;     //10012b00      // Surface offset in bytes. Depends on screen coordinates, changes when it moves
+    S32     y;          //10012b04      // Usually it is height of the window screen
 
-    S32     width;      //10012b08  // Width in pixels
-    S32     height;     //10012b0c  // Height in pixels
+    S32     width;      //10012b08      // Width in pixels
+    S32     height;     //10012b0c      // Height in pixels
 
-    S32     stride;     //10012b10  // Width * 2 (sizeof Pixel)
+    S32     stride;     //10012b10      // Width * 2 (sizeof Pixel)
 
-    Pixel*  main;        //10012b14 Содержит конечное изображение кадра, исключая пользовательский интерфейс.
-    Pixel*  back;        //10012b18 Удерживает фон кадра, включая землю, здания, рельсы, деревья, кусты и т.д.
-    Pixel*  stencil;     //10012b1c Содержит буфер трафарета для рамки. Сюда входят здания, заборы, столбы электропередач.
+    Pixel*  main;        //10012b14     // Contains the final image of the frame, excluding the user interface
+    Pixel*  back;        //10012b18     // Holds the background of the frame, including the ground, buildings, rails, trees, bushes, etc
+    Pixel*  stencil;     //10012b1c     // Contains the stencil buffer for the frame. This includes buildings, fences, utility poles
 
-    void*   renderer;   //10012b20 Поверхность DirectDraw.
+    void*   renderer;   //10012b20      // DirectDraw surface
 };
 
 struct ModuleStructTest01
 {
     U8* fogPtr;                 //10012ad8      // Pointer to current fog tile. The previous and next fog tiles are used for calculations
     U32 blocksCount;            //10012adc      // Number of blocks to be copied
-    S32 lineStep;               //10012ae0 Шаг рендеринга(1556512 — возможно, смещение в памяти).
+    S32 lineStep;               //10012ae0      // Size in bytes between two lines
     S32 dstRowStride;           //10012ae4
     S32 actualRgbMask;          //10012ae8
 };
 
 struct Fog
 {
-    U8    unk[0x50]; // TODO
+    U8    unk[0x50];        // Fog array for visible screen
 };
 
 struct RhombsPalette
 {
-    Pixel     palette[GRAPHICS_SIZE_PALETTE * 67];
+    Pixel palette[GRAPHICS_SIZE_PALETTE * 67];
 };
 
 struct Renderer
@@ -220,22 +220,22 @@ struct Renderer
     U16                    greenOffset;                     //10012b32
     U16                    blueOffset;                      //10012b34
 
-    U16                    unk16;                           //10012b38 TODO
+    U16                    pad_1;                           //10012b38              // Not used
     U16                    actualColorBits;                 //10012b3a
-    U16                    unk18;                           //10012b3c TODO
+    U16                    actualColorBits2;                //10012b3c              // Just for actualColorBits mask of size of DoublePixel
     U16                    actualColorMask;                 //10012b3e
     U16                    initialColorMask;                //10012b40
     U16                    shadeColorMask;                  //10012b42
-    U16                    shadeColorMask2;                 //10012b44
-    U16                    unk23;                           //10012b46 TODO
-    U16                    unk24;                           //10012b48 TODO
+    U16                    shadeColorMask2;                 //10012b44              // Just for shadeColorMask mask of size of DoublePixel
+    U16                    invActualColorBits;              //10012b46
+    U16                    invActualColorBits2;             //10012b48              // Just for invActualColorBits mask of size of DoublePixel
     U32                    initialRgbMask;                  //10012b4c
-    U32                    dummy;                           //Выравнивание без него шиш
+    U32                    pad_2;                                                   // Used for padding. Without it game_dll won't work correctly
     U32                    actualRgbMask;                   //10012b50
     U32                    pitch;                           //10012b54              // Size in bytes of pixel line in DX renderer. Usually is: width * 2
     DoublePixel            backSurfaceShadePixel;           //10012b58
     Fog                    fogSprites[112];                 //10012b5a-10014e5b     // Describes fog of war
-    RhombsPalette          rhombsPalette;                   //10014e5c массив палитры ландшафта (rhomb.pl)
+    RhombsPalette          rhombsPalette;                   //10014e5c              // Landscape palette array (rhomb.pl)
 
     HWND                   hwnd;
     bool                   isFullScreen;                    //1001d478
@@ -246,10 +246,5 @@ struct Renderer
 
     ModuleStructTest01 moduleStruct01;
 };
-
-
-typedef Renderer*(*RENDERERINITACTIONLAMBDA)(void);
-
-typedef BOOL(*ACQUIRERENDERERSETTINGSVALUELAMBDA)(void);
 
 extern Renderer g_moduleState;

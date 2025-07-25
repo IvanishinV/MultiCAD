@@ -52,7 +52,7 @@ Renderer* InitializeModule()
     g_moduleState.actions.drawMainSurfaceShadowSprite               = drawMainSurfaceShadowSprite;
     g_moduleState.actions.drawMainSurfaceActualSprite               = drawMainSurfaceActualSprite;
     g_moduleState.actions.drawMainSurfaceAdjustedSprite             = drawMainSurfaceAdjustedSprite;
-    g_moduleState.actions.drawMainSurfaceVanishingSprite            = drawMainSurfaceVanishingSprite;
+    g_moduleState.actions.drawMainSurfaceVanishingPaletteSprite     = drawMainSurfaceVanishingPaletteSprite;
     g_moduleState.actions.drawMainSurfaceColorPoint                 = drawMainSurfaceColorPoint;
     g_moduleState.actions.drawMainSurfaceFilledColorRect            = drawMainSurfaceFilledColorRect;
     g_moduleState.actions.drawMainSurfaceColorRect                  = drawMainSurfaceColorRect;
