@@ -3225,11 +3225,6 @@ void drawSurfaceMaskRhomb(S32 x, S32 y, const S32 stride, const S32 mask, Pixel*
 // 0x10004390
 void drawBackSurfaceRhombsPaletteSprite(S32 x, S32 y, const ImagePaletteSprite* const sprite)
 {
-    g_rendererState.sprite.windowRect.x = g_moduleState.windowRect.x;
-    g_rendererState.sprite.windowRect.y = g_moduleState.windowRect.y;
-    g_rendererState.sprite.windowRect.width = g_moduleState.windowRect.width;
-    g_rendererState.sprite.windowRect.height = g_moduleState.windowRect.height;
-
     g_rendererState.sprite.height = sprite->height;
     //g_rendererState.sprite.width = sprite->width + 1;
 
@@ -3423,11 +3418,6 @@ void drawBackSurfaceRhombsPaletteSprite(S32 x, S32 y, const ImagePaletteSprite* 
 // 0x100046b6
 void drawBackSurfaceRhombsPaletteSprite2(S32 x, S32 y, const ImagePaletteSprite* const sprite)
 {
-    g_rendererState.sprite.windowRect.x = g_moduleState.windowRect.x;
-    g_rendererState.sprite.windowRect.y = g_moduleState.windowRect.y;
-    g_rendererState.sprite.windowRect.width = g_moduleState.windowRect.width;
-    g_rendererState.sprite.windowRect.height = g_moduleState.windowRect.height;
-
     g_rendererState.sprite.height = sprite->height;
     //g_rendererState.sprite.width = sprite->width + 1;
 
@@ -3621,11 +3611,6 @@ void drawBackSurfaceRhombsPaletteSprite2(S32 x, S32 y, const ImagePaletteSprite*
 // 0x100049e6
 void drawBackSurfaceRhombsPaletteShadedSprite(S32 x, S32 y, U16 level, const ImagePaletteSprite* const sprite)
 {
-    g_rendererState.sprite.windowRect.x = g_moduleState.windowRect.x;
-    g_rendererState.sprite.windowRect.y = g_moduleState.windowRect.y;
-    g_rendererState.sprite.windowRect.width = g_moduleState.windowRect.width;
-    g_rendererState.sprite.windowRect.height = g_moduleState.windowRect.height;
-
     g_rendererState.sprite.height = sprite->height;
     //g_rendererState.sprite.width = sprite->width + 1;
 
@@ -3839,11 +3824,6 @@ void drawBackSurfaceRhombsPaletteShadedSprite(S32 x, S32 y, U16 level, const Ima
 // 0x10004db0
 void drawMainSurfacePaletteSpriteStencil(S32 x, S32 y, U16 level, const Pixel* const palette, const ImagePaletteSprite* const sprite)
 {
-    g_rendererState.sprite.windowRect.x = g_moduleState.windowRect.x;
-    g_rendererState.sprite.windowRect.y = g_moduleState.windowRect.y;
-    g_rendererState.sprite.windowRect.width = g_moduleState.windowRect.width;
-    g_rendererState.sprite.windowRect.height = g_moduleState.windowRect.height;
-
     g_rendererState.sprite.height = sprite->height;
     //g_rendererState.sprite.width = sprite->width + 1;
 
@@ -4024,12 +4004,6 @@ void drawMainSurfacePaletteSpriteStencil(S32 x, S32 y, U16 level, const Pixel* c
 // 0x100050df
 void drawMainSurfacePaletteSpriteCompact(S32 x, S32 y, const Pixel* palette, const ImagePaletteSprite* const sprite)
 {
-    // Копируем глобальные параметры окна отрисовки в отдельную переменную          // todo: check windowRect initialization, because looks like it's not used anywhere
-    g_rendererState.sprite.windowRect.x = g_moduleState.windowRect.x;
-    g_rendererState.sprite.windowRect.y = g_moduleState.windowRect.y;
-    g_rendererState.sprite.windowRect.width = g_moduleState.windowRect.width;
-    g_rendererState.sprite.windowRect.height = g_moduleState.windowRect.height;
-
     // Копируем высоту и ширину спрайта для дальнейшего изменения в случае необходимости
     g_rendererState.sprite.height = sprite->height;
     g_rendererState.sprite.width = sprite->width + 1;
@@ -4223,11 +4197,6 @@ void drawMainSurfaceVanishingPaletteSprite(S32 x, S32 y, const S32 vanishOffset,
     g_rendererState.sprite.colorMask = colorMask;
     g_rendererState.sprite.adjustedColorMask = colorMask | (colorMask << 1);
 
-    g_rendererState.sprite.windowRect.x = g_moduleState.windowRect.x;
-    g_rendererState.sprite.windowRect.y = g_moduleState.windowRect.y;
-    g_rendererState.sprite.windowRect.width = g_moduleState.windowRect.width;
-    g_rendererState.sprite.windowRect.height = g_moduleState.windowRect.height;
-
     g_rendererState.sprite.width = sprite->width + 1;
     g_rendererState.sprite.height = sprite->height;
 
@@ -4417,11 +4386,6 @@ void drawBackSurfacePalletteSprite(S32 x, S32 y, const Pixel* const palette, con
     const U32 colorMask = ((U32)g_moduleState.actualGreenMask << 16) | g_moduleState.actualBlueMask | g_moduleState.actualRedMask;
     g_rendererState.sprite.colorMask = colorMask;
     g_rendererState.sprite.adjustedColorMask = colorMask | (colorMask << 1);
-
-    g_rendererState.sprite.windowRect.x = g_moduleState.windowRect.x;
-    g_rendererState.sprite.windowRect.y = g_moduleState.windowRect.y;
-    g_rendererState.sprite.windowRect.width = g_moduleState.windowRect.width;
-    g_rendererState.sprite.windowRect.height = g_moduleState.windowRect.height;
 
     g_rendererState.sprite.height = sprite->height;
     g_rendererState.sprite.width = sprite->width + 1;
@@ -4626,11 +4590,6 @@ void drawBackSurfacePalletteSprite(S32 x, S32 y, const Pixel* const palette, con
 // 0x10005ac6
 void drawBackSurfacePaletteSpriteAndStencil(S32 x, S32 y, U16 level, const Pixel* const palette, const ImagePaletteSprite* const sprite)
 {
-    g_rendererState.sprite.windowRect.x = g_moduleState.windowRect.x;
-    g_rendererState.sprite.windowRect.y = g_moduleState.windowRect.y;
-    g_rendererState.sprite.windowRect.width = g_moduleState.windowRect.width;
-    g_rendererState.sprite.windowRect.height = g_moduleState.windowRect.height;
-
     g_rendererState.sprite.height = sprite->height;
     //g_rendererState.sprite.width = sprite->width + 1;
 
@@ -4837,11 +4796,6 @@ void drawBackSurfacePaletteShadedSprite(S32 x, S32 y, U16 level, const Pixel* co
     g_rendererState.sprite.colorMask = colorMask;
     g_rendererState.sprite.adjustedColorMask = colorMask | (colorMask << 1);
 
-    g_rendererState.sprite.windowRect.x = g_moduleState.windowRect.x;
-    g_rendererState.sprite.windowRect.y = g_moduleState.windowRect.y;
-    g_rendererState.sprite.windowRect.width = g_moduleState.windowRect.width;
-    g_rendererState.sprite.windowRect.height = g_moduleState.windowRect.height;
-
     level = (level + 0x440) * 0x20;
 
     g_rendererState.sprite.height = sprite->height;
@@ -5036,11 +4990,6 @@ void drawBackSurfacePaletteShadedSprite(S32 x, S32 y, U16 level, const Pixel* co
 // 0x1000618d
 void drawMainSurfacePaletteSprite(S32 x, S32 y, const Pixel* const palette, const ImagePaletteSprite* const sprite)
 {
-    g_rendererState.sprite.windowRect.x = g_moduleState.windowRect.x;
-    g_rendererState.sprite.windowRect.y = g_moduleState.windowRect.y;
-    g_rendererState.sprite.windowRect.width = g_moduleState.windowRect.width;
-    g_rendererState.sprite.windowRect.height = g_moduleState.windowRect.height;
-
     g_rendererState.sprite.height = sprite->height;
     //g_rendererState.sprite.width = sprite->width + 1;
 
@@ -5232,11 +5181,6 @@ void drawMainSurfacePaletteSprite(S32 x, S32 y, const Pixel* const palette, cons
 // 0x100064b6
 void drawMainSurfaceSprite(S32 x, S32 y, const ImageSprite* const sprite)
 {
-    g_rendererState.sprite.windowRect.x = g_moduleState.windowRect.x;
-    g_rendererState.sprite.windowRect.y = g_moduleState.windowRect.y;
-    g_rendererState.sprite.windowRect.width = g_moduleState.windowRect.width;
-    g_rendererState.sprite.windowRect.height = g_moduleState.windowRect.height;
-
     g_rendererState.sprite.height = sprite->height;
     g_rendererState.sprite.width = sprite->width + 1;
 
@@ -5409,11 +5353,6 @@ void drawMainSurfaceAnimationSprite(S32 x, S32 y, const AnimationPixel* palette,
     const U32 colorMask = ((U32)g_moduleState.actualGreenMask << 16) | g_moduleState.actualBlueMask | g_moduleState.actualRedMask;
     g_rendererState.sprite.colorMask = colorMask;
     g_rendererState.sprite.adjustedColorMask = colorMask | (colorMask << 1);
-
-    g_rendererState.sprite.windowRect.x = g_moduleState.windowRect.x;
-    g_rendererState.sprite.windowRect.y = g_moduleState.windowRect.y;
-    g_rendererState.sprite.windowRect.width = g_moduleState.windowRect.width;
-    g_rendererState.sprite.windowRect.height = g_moduleState.windowRect.height;
 
     g_rendererState.sprite.height = sprite->height;
     //g_rendererState.sprite.width = sprite->width + 1;
@@ -5600,11 +5539,6 @@ void drawMainSurfaceAnimationSpriteStencil(S32 x, S32 y, U16 level, const Animat
     const U32 colorMask = ((U32)g_moduleState.actualGreenMask << 16) | g_moduleState.actualBlueMask | g_moduleState.actualRedMask;
     g_rendererState.sprite.colorMask = colorMask;
     g_rendererState.sprite.adjustedColorMask = colorMask | (colorMask << 1);
-
-    g_rendererState.sprite.windowRect.x = g_moduleState.windowRect.x;
-    g_rendererState.sprite.windowRect.y = g_moduleState.windowRect.y;
-    g_rendererState.sprite.windowRect.width = g_moduleState.windowRect.width;
-    g_rendererState.sprite.windowRect.height = g_moduleState.windowRect.height;
 
     level = (level + 0x440) * 0x20;
     const DoublePixel stencil = (level << 16) | level;
@@ -5817,11 +5751,6 @@ void drawMainSurfacePaletteSpriteFrontStencil(S32 x, S32 y, U16 level, const Pix
     const U32 colorMask = ((U32)g_moduleState.actualGreenMask << 16) | g_moduleState.actualBlueMask | g_moduleState.actualRedMask;
     g_rendererState.sprite.colorMask = colorMask;
     g_rendererState.sprite.adjustedColorMask = colorMask | (colorMask << 1);
-
-    g_rendererState.sprite.windowRect.x = g_moduleState.windowRect.x;
-    g_rendererState.sprite.windowRect.y = g_moduleState.windowRect.y;
-    g_rendererState.sprite.windowRect.width = g_moduleState.windowRect.width;
-    g_rendererState.sprite.windowRect.height = g_moduleState.windowRect.height;
 
     level = (level + 0x440) * 0x20;
     const DoublePixel stencilLevel = (level << 16) | level;
@@ -6038,11 +5967,6 @@ void drawMainSurfacePaletteSpriteBackStencil(S32 x, S32 y, U16 level, const Pixe
     const U32 colorMask = ((U32)g_moduleState.actualGreenMask << 16) | g_moduleState.actualBlueMask | g_moduleState.actualRedMask;
     g_rendererState.sprite.colorMask = colorMask;
     g_rendererState.sprite.adjustedColorMask = colorMask | (colorMask << 1);
-
-    g_rendererState.sprite.windowRect.x = g_moduleState.windowRect.x;
-    g_rendererState.sprite.windowRect.y = g_moduleState.windowRect.y;
-    g_rendererState.sprite.windowRect.width = g_moduleState.windowRect.width;
-    g_rendererState.sprite.windowRect.height = g_moduleState.windowRect.height;
 
     level = (level + 0x440) * 0x20;
     const DoublePixel stencilLevel = (level << 16) | level;
@@ -6268,11 +6192,6 @@ void drawMainSurfaceShadowSprite(S32 x, S32 y, const DoublePixel shadePixel, con
     g_rendererState.sprite.colorMask = colorMask;
     g_rendererState.sprite.adjustedColorMask = colorMask | (colorMask << 1);
 
-    g_rendererState.sprite.windowRect.x = g_moduleState.windowRect.x;
-    g_rendererState.sprite.windowRect.y = g_moduleState.windowRect.y;
-    g_rendererState.sprite.windowRect.width = g_moduleState.windowRect.width;
-    g_rendererState.sprite.windowRect.height = g_moduleState.windowRect.height;
-
     g_rendererState.sprite.height = sprite->height;
     g_rendererState.sprite.width = sprite->width + 1;
 
@@ -6431,11 +6350,6 @@ void drawBackSurfaceShadowSprite(S32 x, S32 y, const DoublePixel shadePixel, con
     g_rendererState.sprite.colorMask = colorMask;
     g_rendererState.sprite.adjustedColorMask = colorMask | (colorMask << 1);
 
-    g_rendererState.sprite.windowRect.x = g_moduleState.windowRect.x;
-    g_rendererState.sprite.windowRect.y = g_moduleState.windowRect.y;
-    g_rendererState.sprite.windowRect.width = g_moduleState.windowRect.width;
-    g_rendererState.sprite.windowRect.height = g_moduleState.windowRect.height;
-
     g_rendererState.sprite.height = sprite->height;
     g_rendererState.sprite.width = sprite->width + 1;
 
@@ -6593,11 +6507,6 @@ void drawMainSurfaceAdjustedSprite(S32 x, S32 y, U16 level, const ImagePaletteSp
     const U32 colorMask = ((U32)g_moduleState.actualGreenMask << 16) | g_moduleState.actualBlueMask | g_moduleState.actualRedMask;
     g_rendererState.sprite.colorMask = colorMask;
     g_rendererState.sprite.adjustedColorMask = colorMask | (colorMask << 1);
-
-    g_rendererState.sprite.windowRect.x = g_moduleState.windowRect.x;
-    g_rendererState.sprite.windowRect.y = g_moduleState.windowRect.y;
-    g_rendererState.sprite.windowRect.width = g_moduleState.windowRect.width;
-    g_rendererState.sprite.windowRect.height = g_moduleState.windowRect.height;
 
     level = (level + 0x440) * 0x20;
     const DoublePixel stencilLevel = (level << 16) | level;
@@ -6800,11 +6709,6 @@ void drawMainSurfaceActualSprite(S32 x, S32 y, U16 level, const Pixel* const pal
     const U32 colorMask = ((U32)g_moduleState.actualGreenMask << 16) | g_moduleState.actualBlueMask | g_moduleState.actualRedMask;
     g_rendererState.sprite.colorMask = colorMask;
     g_rendererState.sprite.adjustedColorMask = colorMask | (colorMask << 1);
-
-    g_rendererState.sprite.windowRect.x = g_moduleState.windowRect.x;
-    g_rendererState.sprite.windowRect.y = g_moduleState.windowRect.y;
-    g_rendererState.sprite.windowRect.width = g_moduleState.windowRect.width;
-    g_rendererState.sprite.windowRect.height = g_moduleState.windowRect.height;
 
     level = (level + 0x440) * 0x20;
     const DoublePixel stencilLevel = (level << 16) | level;
@@ -7041,11 +6945,6 @@ void drawUiSprite(S32 x, S32 y, const ImagePaletteSprite* const sprite, const vo
     const void* content = &sprite->pixels;
     void* next = (void*)((Addr)content + (Addr)sprite->next);
 
-    g_rendererState.sprite.windowRect.x = g_rendererState.gameUI.windowRect.x;
-    g_rendererState.sprite.windowRect.y = g_rendererState.gameUI.windowRect.y;
-    g_rendererState.sprite.windowRect.width = g_rendererState.gameUI.windowRect.width;
-    g_rendererState.sprite.windowRect.height = g_rendererState.gameUI.windowRect.height;
-
     y += sprite->y;
     x += sprite->x;
 
@@ -7084,8 +6983,8 @@ void drawUiSprite(S32 x, S32 y, const ImagePaletteSprite* const sprite, const vo
         const Addr linesStride = g_rendererState.gameUI.stride * y;
 
         g_rendererState.sprite.x = (Pixel*)(offset + linesStride + x * sizeof(Pixel));
-        g_rendererState.sprite.minX = (Pixel*)(offset + linesStride + g_rendererState.sprite.windowRect.x * sizeof(Pixel));
-        g_rendererState.sprite.maxX = (Pixel*)(offset + linesStride + (g_rendererState.sprite.windowRect.width + 1) * sizeof(Pixel));
+        g_rendererState.sprite.minX = (Pixel*)(offset + linesStride + g_rendererState.gameUI.windowRect.x * sizeof(Pixel));
+        g_rendererState.sprite.maxX = (Pixel*)(offset + linesStride + (g_rendererState.gameUI.windowRect.width + 1) * sizeof(Pixel));
 
         const S32 overage = y + g_rendererState.sprite.height < SCREEN_HEIGHT ? 0 : y + g_rendererState.sprite.height - SCREEN_HEIGHT;
 
@@ -7556,11 +7455,6 @@ void markUiWithButtonType(S32 x, S32 y, const ImagePaletteSprite* const sprite, 
     g_rendererState.gameUI.windowRect.width = uiSprite->width;
     g_rendererState.gameUI.windowRect.height = uiSprite->height;
 
-    g_rendererState.sprite.windowRect.x = g_rendererState.gameUI.windowRect.x;
-    g_rendererState.sprite.windowRect.y = g_rendererState.gameUI.windowRect.y;
-    g_rendererState.sprite.windowRect.width = g_rendererState.gameUI.windowRect.width;
-    g_rendererState.sprite.windowRect.height = g_rendererState.gameUI.windowRect.height;
-
     g_rendererState.sprite.height = sprite->height;
     //g_rendererState.sprite.width = sprite->width + 1;
 
@@ -7603,8 +7497,8 @@ void markUiWithButtonType(S32 x, S32 y, const ImagePaletteSprite* const sprite, 
         const Addr linesStride = (Addr)(g_rendererState.gameUI.stride * y);
 
         g_rendererState.sprite.x = (Pixel*)(g_rendererState.gameUI.offset + linesStride + x);
-        g_rendererState.sprite.minX = (Pixel*)(g_rendererState.gameUI.offset + linesStride + g_rendererState.sprite.windowRect.x);
-        g_rendererState.sprite.maxX = (Pixel*)(g_rendererState.gameUI.offset + linesStride + g_rendererState.sprite.windowRect.width + 1);
+        g_rendererState.sprite.minX = (Pixel*)(g_rendererState.gameUI.offset + linesStride + g_rendererState.gameUI.windowRect.x);
+        g_rendererState.sprite.maxX = (Pixel*)(g_rendererState.gameUI.offset + linesStride + g_rendererState.gameUI.windowRect.width + 1);
 
 
         const S32 overage = y + g_rendererState.sprite.height < SCREEN_HEIGHT
@@ -7720,11 +7614,6 @@ void drawVanishingUiSprite(S32 x, S32 y, const S32 vanishLevel, const Pixel* pal
     g_rendererState.gameUI.windowRect.width = uiSprite->width;
     g_rendererState.gameUI.windowRect.height = uiSprite->height;
 
-    g_rendererState.sprite.windowRect.x = g_rendererState.gameUI.windowRect.x;
-    g_rendererState.sprite.windowRect.y = g_rendererState.gameUI.windowRect.y;
-    g_rendererState.sprite.windowRect.width = g_rendererState.gameUI.windowRect.width;
-    g_rendererState.sprite.windowRect.height = g_rendererState.gameUI.windowRect.height;
-
     g_rendererState.sprite.height = sprite->height;
     //g_rendererState.sprite.width = sprite->width + 1;
 
@@ -7767,8 +7656,8 @@ void drawVanishingUiSprite(S32 x, S32 y, const S32 vanishLevel, const Pixel* pal
         const Addr linesStride = (Addr)(g_rendererState.gameUI.stride * y);
 
         g_rendererState.sprite.x = (Pixel*)(g_rendererState.gameUI.offset + linesStride + x * sizeof(Pixel));
-        g_rendererState.sprite.minX = (Pixel*)(g_rendererState.gameUI.offset + linesStride + g_rendererState.sprite.windowRect.x * sizeof(Pixel));
-        g_rendererState.sprite.maxX = (Pixel*)(g_rendererState.gameUI.offset + linesStride + (g_rendererState.sprite.windowRect.width + 1) * sizeof(Pixel));
+        g_rendererState.sprite.minX = (Pixel*)(g_rendererState.gameUI.offset + linesStride + g_rendererState.gameUI.windowRect.x * sizeof(Pixel));
+        g_rendererState.sprite.maxX = (Pixel*)(g_rendererState.gameUI.offset + linesStride + (g_rendererState.gameUI.windowRect.width + 1) * sizeof(Pixel));
 
 
         const S32 overage = y + g_rendererState.sprite.height < SCREEN_HEIGHT

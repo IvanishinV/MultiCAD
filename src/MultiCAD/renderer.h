@@ -51,7 +51,7 @@ struct Sprite
     U32     width;              // 0x10010064
     S32     vanishOffset;       // 0x10010068
 
-    Rect    windowRect;         // 0x10010070
+    //Rect    windowRect;         // 0x10010070
 
     Pixel*  x;                  // 0x1001007c
 
@@ -74,7 +74,7 @@ struct Tile
     S32 tempHeight;             // 0x10010045
     S8  unk08;                  // 0x10010049
 
-    Rect windowRect;          // 0x1001004A
+    Rect windowRect;            // 0x1001004A
 };
 
 struct GameUI
