@@ -74,14 +74,14 @@ struct Tile
     S32 tempHeight;             // 0x10010045
     S8  unk08;                  // 0x10010049
 
-    Rect windowRect;            // 0x1001004A
+    Rect rect;                  // 0x1001004A
 };
 
 struct GameUI
 {
     Addr offset;                        // 0x100100b6
     U32 stride;                         // 0x100100ba
-    Rect windowRect;                    // 0x100100be
+    Rect rect;                          // 0x100100be
     U32 type;                           // 0x100100ñe
     ImagePaletteSprite* imageSprite;    // 0x100100d2
 };

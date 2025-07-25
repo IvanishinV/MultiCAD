@@ -2262,17 +2262,17 @@ void drawSurfacePaletteRhomb(const S32 angle_0, const S32 angle_1, const S32 ang
     // Tile width: 63
 
     g_rendererState.tile.stencil = (Pixel*)((Addr)output + g_moduleState.surface.offset % (SCREEN_WIDTH * sizeof(Pixel)) + SCREEN_SIZE_IN_BYTES);
-    g_rendererState.tile.windowRect.x = g_moduleState.windowRect.x + TILE_SIZE_HEIGHT + 1;
-    g_rendererState.tile.windowRect.y = g_moduleState.windowRect.y;
-    g_rendererState.tile.windowRect.width = g_moduleState.windowRect.width + TILE_SIZE_HEIGHT + 1;
-    g_rendererState.tile.windowRect.height = g_moduleState.windowRect.height;
+    g_rendererState.tile.rect.x = g_moduleState.windowRect.x + TILE_SIZE_HEIGHT + 1;
+    g_rendererState.tile.rect.y = g_moduleState.windowRect.y;
+    g_rendererState.tile.rect.width = g_moduleState.windowRect.width + TILE_SIZE_HEIGHT + 1;
+    g_rendererState.tile.rect.height = g_moduleState.windowRect.height;
     g_rendererState.tile.displayedHalfs = 0;
 
     // Проверка видимости тайла
-    if (tx > g_rendererState.tile.windowRect.width + 1
-        || tx < g_rendererState.tile.windowRect.x - TILE_SIZE_WIDTH - 1
-        || ty > g_rendererState.tile.windowRect.height + 1
-        || ty < g_rendererState.tile.windowRect.y - TILE_SIZE_HEIGHT)
+    if (tx > g_rendererState.tile.rect.width + 1
+        || tx < g_rendererState.tile.rect.x - TILE_SIZE_WIDTH - 1
+        || ty > g_rendererState.tile.rect.height + 1
+        || ty < g_rendererState.tile.rect.y - TILE_SIZE_HEIGHT)
         return;
 
     S32 tileStartDrawLength;
@@ -2304,7 +2304,7 @@ void drawSurfacePaletteRhomb(const S32 angle_0, const S32 angle_1, const S32 ang
         const S32 overage = g_moduleState.windowRect.y - ty;
         if (overage >= 0)
         {
-            ty = g_rendererState.tile.windowRect.y;
+            ty = g_rendererState.tile.rect.y;
             g_rendererState.tile.height -= overage;
 
             for (S32 y = 0; y < overage; ++y)
@@ -2373,9 +2373,9 @@ void drawSurfacePaletteRhomb(const S32 angle_0, const S32 angle_1, const S32 ang
 
                     S32 totalTxOffset = txDelta;
 
-                    const S32 delta = (g_rendererState.tile.windowRect.width + 1) - tx;
+                    const S32 delta = (g_rendererState.tile.rect.width + 1) - tx;
                     S32 delta2 = std::min(delta, tileStartDrawLength);
-                    const S32 delta3 = g_rendererState.tile.windowRect.x - tx;
+                    const S32 delta3 = g_rendererState.tile.rect.x - tx;
                     if (delta > 0 && delta2 > delta3)
                     {
                         const U8* srcTemp = srcInput;
@@ -2431,7 +2431,7 @@ void drawSurfacePaletteRhomb(const S32 angle_0, const S32 angle_1, const S32 ang
             }
         }
 
-        if (ty > g_rendererState.tile.windowRect.height + 1)
+        if (ty > g_rendererState.tile.rect.height + 1)
             return;
 
         g_rendererState.tile.unk08 ^= 0x20;
@@ -2439,7 +2439,7 @@ void drawSurfacePaletteRhomb(const S32 angle_0, const S32 angle_1, const S32 ang
         dst2 = (Pixel*)((Addr)dst + (Addr)(3 * sizeof(Pixel)));     // Офссет нижней части ромбика
         tx += 3;
 
-        g_rendererState.tile.height = std::min((g_rendererState.tile.windowRect.height + 1) - ty, 16);
+        g_rendererState.tile.height = std::min((g_rendererState.tile.rect.height + 1) - ty, 16);
         g_rendererState.tile.diff = (angle_3 - angle_0) << 4;
         txDelta = (angle_0 << 8) + g_rendererState.tile.diff;
     }
@@ -2475,9 +2475,9 @@ void drawSurfacePaletteRhomb(const S32 angle_0, const S32 angle_1, const S32 ang
 
                 S32 totalTxOffset = txDelta;
 
-                S32 delta = (g_rendererState.tile.windowRect.width + 1) - tx;
+                S32 delta = (g_rendererState.tile.rect.width + 1) - tx;
                 S32 delta2 = std::min(delta, tileStartDrawLength);
-                const S32 delta3 = g_rendererState.tile.windowRect.x - tx;
+                const S32 delta3 = g_rendererState.tile.rect.x - tx;
                 if (delta > 0 && delta2 > delta3)
                 {
                     const U8* srcTemp = srcInput;
@@ -2527,16 +2527,16 @@ void shadeSurfaceRhomb(const S32 angle_0, const S32 angle_1, const S32 angle_2, 
 {
     const U32 colorMask = ((U32)g_moduleState.actualGreenMask << 16) | g_moduleState.actualBlueMask | g_moduleState.actualRedMask;
     g_rendererState.tile.stencil = (Pixel*)((Addr)output + g_moduleState.surface.offset % (SCREEN_WIDTH * sizeof(Pixel)) + SCREEN_SIZE_IN_BYTES);
-    g_rendererState.tile.windowRect.x = g_moduleState.windowRect.x + TILE_SIZE_HEIGHT + 1;
-    g_rendererState.tile.windowRect.y = g_moduleState.windowRect.y;
-    g_rendererState.tile.windowRect.width = g_moduleState.windowRect.width + TILE_SIZE_HEIGHT + 1;
-    g_rendererState.tile.windowRect.height = g_moduleState.windowRect.height;
+    g_rendererState.tile.rect.x = g_moduleState.windowRect.x + TILE_SIZE_HEIGHT + 1;
+    g_rendererState.tile.rect.y = g_moduleState.windowRect.y;
+    g_rendererState.tile.rect.width = g_moduleState.windowRect.width + TILE_SIZE_HEIGHT + 1;
+    g_rendererState.tile.rect.height = g_moduleState.windowRect.height;
     g_rendererState.tile.displayedHalfs = 0;
 
-    if (tx > g_rendererState.tile.windowRect.width + 1
-        || tx < g_rendererState.tile.windowRect.x - TILE_SIZE_WIDTH - 1
-        || ty > g_rendererState.tile.windowRect.height + 1
-        || ty < g_rendererState.tile.windowRect.y - TILE_SIZE_HEIGHT)
+    if (tx > g_rendererState.tile.rect.width + 1
+        || tx < g_rendererState.tile.rect.x - TILE_SIZE_WIDTH - 1
+        || ty > g_rendererState.tile.rect.height + 1
+        || ty < g_rendererState.tile.rect.y - TILE_SIZE_HEIGHT)
         return;
 
     S32 tileStartDrawLength;
@@ -2563,7 +2563,7 @@ void shadeSurfaceRhomb(const S32 angle_0, const S32 angle_1, const S32 angle_2, 
         const S32 overage = g_moduleState.windowRect.y - ty;
         if (overage >= 0)
         {
-            ty = g_rendererState.tile.windowRect.y;
+            ty = g_rendererState.tile.rect.y;
             g_rendererState.tile.height -= overage;
 
             for (S32 y = 0; y < overage; ++y)
@@ -2630,9 +2630,9 @@ void shadeSurfaceRhomb(const S32 angle_0, const S32 angle_1, const S32 angle_2, 
 
                     S32 totalTxOffset = txDelta;
 
-                    const S32 delta = (g_rendererState.tile.windowRect.width + 1) - tx;
+                    const S32 delta = (g_rendererState.tile.rect.width + 1) - tx;
                     S32 delta2 = std::min(delta, tileStartDrawLength);
-                    const S32 delta3 = g_rendererState.tile.windowRect.x - tx;
+                    const S32 delta3 = g_rendererState.tile.rect.x - tx;
                     if (delta > 0 && delta2 > delta3)
                     {
                         Pixel* dstTemp = dst2;
@@ -2692,14 +2692,14 @@ void shadeSurfaceRhomb(const S32 angle_0, const S32 angle_1, const S32 angle_2, 
             }
         }
 
-        if (ty > g_rendererState.tile.windowRect.height + 1)
+        if (ty > g_rendererState.tile.rect.height + 1)
             return;
 
         tileStartDrawLength -= 6;                                   // Сдвигаем нюжнюю часть на 3 пикселя
         dst2 = (Pixel*)((Addr)dst + (Addr)(3 * sizeof(Pixel)));     // Офссет нижней части ромбика
         tx += 3;
 
-        g_rendererState.tile.height = std::min((g_rendererState.tile.windowRect.height + 1) - ty, 16);
+        g_rendererState.tile.height = std::min((g_rendererState.tile.rect.height + 1) - ty, 16);
         g_rendererState.tile.diff = (angle_3 - angle_0) << 4;
         txDelta = (angle_0 << 8) + g_rendererState.tile.diff;
     }
@@ -2735,9 +2735,9 @@ void shadeSurfaceRhomb(const S32 angle_0, const S32 angle_1, const S32 angle_2, 
 
                 S32 totalTxOffset = txDelta;
 
-                S32 delta = (g_rendererState.tile.windowRect.width + 1) - tx;
+                S32 delta = (g_rendererState.tile.rect.width + 1) - tx;
                 S32 delta2 = std::min(delta, tileStartDrawLength);
-                const S32 delta3 = g_rendererState.tile.windowRect.x - tx;
+                const S32 delta3 = g_rendererState.tile.rect.x - tx;
                 if (delta > 0 && delta2 > delta3)
                 {
                     Pixel* dstTemp = dst2;
@@ -2790,16 +2790,16 @@ void shadeSurfaceRhomb(const S32 angle_0, const S32 angle_1, const S32 angle_2, 
 void cleanSurfaceRhomb(const S32 angle_0, const S32 angle_1, const S32 angle_2, const S32 angle_3, S32 tx, S32 ty, const S32 stride, const ImagePaletteTile* const tile, Pixel* const output)
 {
     g_rendererState.tile.stencil = (Pixel*)((Addr)output + g_moduleState.surface.offset % (SCREEN_WIDTH * sizeof(Pixel)) + SCREEN_SIZE_IN_BYTES);
-    g_rendererState.tile.windowRect.x = g_moduleState.windowRect.x + TILE_SIZE_HEIGHT + 1;
-    g_rendererState.tile.windowRect.y = g_moduleState.windowRect.y;
-    g_rendererState.tile.windowRect.width = g_moduleState.windowRect.width + TILE_SIZE_HEIGHT + 1;
-    g_rendererState.tile.windowRect.height = g_moduleState.windowRect.height;
+    g_rendererState.tile.rect.x = g_moduleState.windowRect.x + TILE_SIZE_HEIGHT + 1;
+    g_rendererState.tile.rect.y = g_moduleState.windowRect.y;
+    g_rendererState.tile.rect.width = g_moduleState.windowRect.width + TILE_SIZE_HEIGHT + 1;
+    g_rendererState.tile.rect.height = g_moduleState.windowRect.height;
     g_rendererState.tile.displayedHalfs = 0;
 
-    if (tx > g_rendererState.tile.windowRect.width + 1
-        || tx < g_rendererState.tile.windowRect.x - TILE_SIZE_WIDTH - 1
-        || ty > g_rendererState.tile.windowRect.height + 1
-        || ty < g_rendererState.tile.windowRect.y - TILE_SIZE_HEIGHT)
+    if (tx > g_rendererState.tile.rect.width + 1
+        || tx < g_rendererState.tile.rect.x - TILE_SIZE_WIDTH - 1
+        || ty > g_rendererState.tile.rect.height + 1
+        || ty < g_rendererState.tile.rect.y - TILE_SIZE_HEIGHT)
         return;
 
     S32 tileStartDrawLength;
@@ -2822,7 +2822,7 @@ void cleanSurfaceRhomb(const S32 angle_0, const S32 angle_1, const S32 angle_2, 
         const S32 overage = g_moduleState.windowRect.y - ty;
         if (overage >= 0)
         {
-            ty = g_rendererState.tile.windowRect.y;
+            ty = g_rendererState.tile.rect.y;
             g_rendererState.tile.height -= overage;
 
             for (S32 y = 0; y < overage; ++y)
@@ -2882,9 +2882,9 @@ void cleanSurfaceRhomb(const S32 angle_0, const S32 angle_1, const S32 angle_2, 
                 {
                     g_rendererState.tile.tempHeight = overflow;
 
-                    const S32 delta = (g_rendererState.tile.windowRect.width + 1) - tx;
+                    const S32 delta = (g_rendererState.tile.rect.width + 1) - tx;
                     S32 delta2 = std::min(delta, tileStartDrawLength);
-                    const S32 delta3 = g_rendererState.tile.windowRect.x - tx;
+                    const S32 delta3 = g_rendererState.tile.rect.x - tx;
                     if (delta > 0 && delta2 > delta3)
                     {
                         const U8* srcTemp = srcInput;
@@ -2933,14 +2933,14 @@ void cleanSurfaceRhomb(const S32 angle_0, const S32 angle_1, const S32 angle_2, 
             }
         }
 
-        if (ty > g_rendererState.tile.windowRect.height + 1)
+        if (ty > g_rendererState.tile.rect.height + 1)
             return;
 
         tileStartDrawLength -= 6;
         dst2 = (Pixel*)((Addr)dst + (Addr)(3 * sizeof(Pixel)));
         tx += 3;
 
-        g_rendererState.tile.height = std::min((g_rendererState.tile.windowRect.height + 1) - ty, 16);
+        g_rendererState.tile.height = std::min((g_rendererState.tile.rect.height + 1) - ty, 16);
     }
 
     if (g_rendererState.tile.height > 0)
@@ -2971,9 +2971,9 @@ void cleanSurfaceRhomb(const S32 angle_0, const S32 angle_1, const S32 angle_2, 
             {
                 g_rendererState.tile.tempHeight = overflow;
 
-                S32 delta = (g_rendererState.tile.windowRect.width + 1) - tx;
+                S32 delta = (g_rendererState.tile.rect.width + 1) - tx;
                 S32 delta2 = std::min(delta, tileStartDrawLength);
-                const S32 delta3 = g_rendererState.tile.windowRect.x - tx;
+                const S32 delta3 = g_rendererState.tile.rect.x - tx;
                 if (delta > 0 && delta2 > delta3)
                 {
                     const U8* srcTemp = srcInput;
@@ -3017,23 +3017,23 @@ void cleanSurfaceRhomb(const S32 angle_0, const S32 angle_1, const S32 angle_2, 
 void drawSurfaceMaskRhomb(S32 x, S32 y, const S32 stride, const S32 mask, Pixel* const surface)
 {
     g_rendererState.tile.stencil = (Pixel*)((Addr)surface + g_moduleState.surface.offset % (SCREEN_WIDTH * sizeof(Pixel)) + SCREEN_SIZE_IN_BYTES);
-    g_rendererState.tile.windowRect.x = g_moduleState.windowRect.x + TILE_SIZE_HEIGHT + 1;
-    g_rendererState.tile.windowRect.y = g_moduleState.windowRect.y;
-    g_rendererState.tile.windowRect.width = g_moduleState.windowRect.width + TILE_SIZE_HEIGHT + 1;
-    g_rendererState.tile.windowRect.height = g_moduleState.windowRect.height;
+    g_rendererState.tile.rect.x = g_moduleState.windowRect.x + TILE_SIZE_HEIGHT + 1;
+    g_rendererState.tile.rect.y = g_moduleState.windowRect.y;
+    g_rendererState.tile.rect.width = g_moduleState.windowRect.width + TILE_SIZE_HEIGHT + 1;
+    g_rendererState.tile.rect.height = g_moduleState.windowRect.height;
     g_rendererState.tile.displayedHalfs = 0;
 
-    if (x > g_rendererState.tile.windowRect.width + 1
-        || x < g_rendererState.tile.windowRect.x - TILE_SIZE_WIDTH - 1
-        || y > g_rendererState.tile.windowRect.height + 1
-        || y < g_rendererState.tile.windowRect.y - TILE_SIZE_HEIGHT)
+    if (x > g_rendererState.tile.rect.width + 1
+        || x < g_rendererState.tile.rect.x - TILE_SIZE_WIDTH - 1
+        || y > g_rendererState.tile.rect.height + 1
+        || y < g_rendererState.tile.rect.y - TILE_SIZE_HEIGHT)
         return;
 
     S32 tileStartDrawLength;
     Pixel* dst = (Pixel*)((Addr)surface + x * sizeof(Pixel) + stride * y + g_moduleState.surface.offset - 2);
     Pixel* dst2;
 
-    if (g_rendererState.tile.windowRect.y - 16 > y)
+    if (g_rendererState.tile.rect.y - 16 > y)
     {
         dst2 = dst + 8 * stride - 29;
         x += TILE_SIZE_HEIGHT - 29;
@@ -3045,7 +3045,7 @@ void drawSurfaceMaskRhomb(S32 x, S32 y, const S32 stride, const S32 mask, Pixel*
         if (overage > 0)
         {
             g_rendererState.tile.height -= overage;
-            y = g_rendererState.tile.windowRect.y;
+            y = g_rendererState.tile.rect.y;
             do
             {
                 tileStartDrawLength -= 4;
@@ -3060,11 +3060,11 @@ void drawSurfaceMaskRhomb(S32 x, S32 y, const S32 stride, const S32 mask, Pixel*
         tileStartDrawLength = 3;
         g_rendererState.tile.height = std::min((g_moduleState.windowRect.height + 1) - y, 16);
 
-        S32 overage = g_rendererState.tile.windowRect.y - y;
+        S32 overage = g_rendererState.tile.rect.y - y;
         if (overage > 0)
         {
             g_rendererState.tile.height -= overage;
-            y = g_rendererState.tile.windowRect.y;
+            y = g_rendererState.tile.rect.y;
             do
             {
                 tileStartDrawLength += 4;
@@ -3100,9 +3100,9 @@ void drawSurfaceMaskRhomb(S32 x, S32 y, const S32 stride, const S32 mask, Pixel*
                 {
                     g_rendererState.tile.tempHeight = overflow;
 
-                    const S32 delta = (g_rendererState.tile.windowRect.width + 1) - x;
+                    const S32 delta = (g_rendererState.tile.rect.width + 1) - x;
                     S32 delta2 = std::min(delta, tileStartDrawLength);
-                    const S32 delta3 = g_rendererState.tile.windowRect.x - x;
+                    const S32 delta3 = g_rendererState.tile.rect.x - x;
                     if (delta > 0 && delta2 > delta3)
                     {
                         Pixel* dstTemp = dst2;
@@ -3146,14 +3146,14 @@ void drawSurfaceMaskRhomb(S32 x, S32 y, const S32 stride, const S32 mask, Pixel*
             }
         }
 
-        if (y > g_rendererState.tile.windowRect.height + 1)
+        if (y > g_rendererState.tile.rect.height + 1)
             return;
 
         tileStartDrawLength -= 3 * sizeof(Pixel);
         dst2 = dst + 3;
         x += 3;
 
-        g_rendererState.tile.height = std::min((g_rendererState.tile.windowRect.height + 1) - y, 16);
+        g_rendererState.tile.height = std::min((g_rendererState.tile.rect.height + 1) - y, 16);
     }
 
     if (g_rendererState.tile.height > 0)
@@ -3184,9 +3184,9 @@ void drawSurfaceMaskRhomb(S32 x, S32 y, const S32 stride, const S32 mask, Pixel*
             {
                 g_rendererState.tile.tempHeight = overflow;
 
-                S32 delta = (g_rendererState.tile.windowRect.width + 1) - x;
+                S32 delta = (g_rendererState.tile.rect.width + 1) - x;
                 S32 delta2 = std::min(delta, tileStartDrawLength);
-                const S32 delta3 = g_rendererState.tile.windowRect.x - x;
+                const S32 delta3 = g_rendererState.tile.rect.x - x;
                 if (delta > 0 && delta2 > delta3)
                 {
                     Pixel* dstTemp = dst2;
@@ -6937,10 +6937,10 @@ void drawUiSprite(S32 x, S32 y, const ImagePaletteSprite* const sprite, const vo
 
     g_rendererState.gameUI.offset = uiSprite->offset;
     g_rendererState.gameUI.stride = uiSprite->stride * 2;
-    g_rendererState.gameUI.windowRect.x = uiSprite->x;
-    g_rendererState.gameUI.windowRect.y = uiSprite->y;
-    g_rendererState.gameUI.windowRect.width = uiSprite->width;
-    g_rendererState.gameUI.windowRect.height = uiSprite->height;
+    g_rendererState.gameUI.rect.x = uiSprite->x;
+    g_rendererState.gameUI.rect.y = uiSprite->y;
+    g_rendererState.gameUI.rect.width = uiSprite->width;
+    g_rendererState.gameUI.rect.height = uiSprite->height;
 
     const void* content = &sprite->pixels;
     void* next = (void*)((Addr)content + (Addr)sprite->next);
@@ -6951,24 +6951,24 @@ void drawUiSprite(S32 x, S32 y, const ImagePaletteSprite* const sprite, const vo
     g_rendererState.sprite.height = sprite->height;
     //g_rendererState.sprite.width = sprite->width + 1;
 
-    if (y < g_rendererState.gameUI.windowRect.y)
+    if (y < g_rendererState.gameUI.rect.y)
     {
-        g_rendererState.sprite.height -= (g_rendererState.gameUI.windowRect.y - y);
+        g_rendererState.sprite.height -= (g_rendererState.gameUI.rect.y - y);
         if (g_rendererState.sprite.height <= 0)
         {
             return;
         }
 
-        for (S32 i = 0; i < g_rendererState.gameUI.windowRect.y - y; ++i)
+        for (S32 i = 0; i < g_rendererState.gameUI.rect.y - y; ++i)
         {
             content = (void*)((Addr)next + sizeof(U16));
             next = (void*)((Addr)next + ((U16*)next)[0] + sizeof(U16));
         }
 
-        y = g_rendererState.gameUI.windowRect.y;
+        y = g_rendererState.gameUI.rect.y;
     }
 
-    const S32 overflow = y + g_rendererState.sprite.height - (g_rendererState.gameUI.windowRect.height + 1);
+    const S32 overflow = y + g_rendererState.sprite.height - (g_rendererState.gameUI.rect.height + 1);
     bool draw = overflow <= 0;
 
     if (!draw)
@@ -6983,8 +6983,8 @@ void drawUiSprite(S32 x, S32 y, const ImagePaletteSprite* const sprite, const vo
         const Addr linesStride = g_rendererState.gameUI.stride * y;
 
         g_rendererState.sprite.x = (Pixel*)(offset + linesStride + x * sizeof(Pixel));
-        g_rendererState.sprite.minX = (Pixel*)(offset + linesStride + g_rendererState.gameUI.windowRect.x * sizeof(Pixel));
-        g_rendererState.sprite.maxX = (Pixel*)(offset + linesStride + (g_rendererState.gameUI.windowRect.width + 1) * sizeof(Pixel));
+        g_rendererState.sprite.minX = (Pixel*)(offset + linesStride + g_rendererState.gameUI.rect.x * sizeof(Pixel));
+        g_rendererState.sprite.maxX = (Pixel*)(offset + linesStride + (g_rendererState.gameUI.rect.width + 1) * sizeof(Pixel));
 
         const S32 overage = y + g_rendererState.sprite.height < SCREEN_HEIGHT ? 0 : y + g_rendererState.sprite.height - SCREEN_HEIGHT;
 
@@ -7450,10 +7450,10 @@ void markUiWithButtonType(S32 x, S32 y, const ImagePaletteSprite* const sprite, 
 {
     g_rendererState.gameUI.offset = (Addr)offset;
     g_rendererState.gameUI.stride = uiSprite->stride;
-    g_rendererState.gameUI.windowRect.x = uiSprite->x;
-    g_rendererState.gameUI.windowRect.y = uiSprite->y;
-    g_rendererState.gameUI.windowRect.width = uiSprite->width;
-    g_rendererState.gameUI.windowRect.height = uiSprite->height;
+    g_rendererState.gameUI.rect.x = uiSprite->x;
+    g_rendererState.gameUI.rect.y = uiSprite->y;
+    g_rendererState.gameUI.rect.width = uiSprite->width;
+    g_rendererState.gameUI.rect.height = uiSprite->height;
 
     g_rendererState.sprite.height = sprite->height;
     //g_rendererState.sprite.width = sprite->width + 1;
@@ -7466,24 +7466,24 @@ void markUiWithButtonType(S32 x, S32 y, const ImagePaletteSprite* const sprite, 
 
     // Skip the necessary number of rows from the top of the image
     // in case the sprite starts above the allowed drawing rectangle.
-    if (y < g_rendererState.gameUI.windowRect.y)
+    if (y < g_rendererState.gameUI.rect.y)
     {
-        g_rendererState.sprite.height -= (g_rendererState.gameUI.windowRect.y - y);
+        g_rendererState.sprite.height -= (g_rendererState.gameUI.rect.y - y);
         if (g_rendererState.sprite.height <= 0)
         {
             return;
         }
 
-        for (S32 i = 0; i < g_rendererState.gameUI.windowRect.y - y; ++i)
+        for (S32 i = 0; i < g_rendererState.gameUI.rect.y - y; ++i)
         {
             content = (void*)((Addr)next + sizeof(U16));
             next = (void*)((Addr)next + ((U16*)next)[0] + sizeof(U16));
         }
 
-        y = g_rendererState.gameUI.windowRect.y;
+        y = g_rendererState.gameUI.rect.y;
     }
 
-    const S32 overflow = y + g_rendererState.sprite.height - (g_rendererState.gameUI.windowRect.height + 1);
+    const S32 overflow = y + g_rendererState.sprite.height - (g_rendererState.gameUI.rect.height + 1);
     bool draw = overflow <= 0;
 
     if (!draw)
@@ -7497,8 +7497,8 @@ void markUiWithButtonType(S32 x, S32 y, const ImagePaletteSprite* const sprite, 
         const Addr linesStride = (Addr)(g_rendererState.gameUI.stride * y);
 
         g_rendererState.sprite.x = (Pixel*)(g_rendererState.gameUI.offset + linesStride + x);
-        g_rendererState.sprite.minX = (Pixel*)(g_rendererState.gameUI.offset + linesStride + g_rendererState.gameUI.windowRect.x);
-        g_rendererState.sprite.maxX = (Pixel*)(g_rendererState.gameUI.offset + linesStride + g_rendererState.gameUI.windowRect.width + 1);
+        g_rendererState.sprite.minX = (Pixel*)(g_rendererState.gameUI.offset + linesStride + g_rendererState.gameUI.rect.x);
+        g_rendererState.sprite.maxX = (Pixel*)(g_rendererState.gameUI.offset + linesStride + g_rendererState.gameUI.rect.width + 1);
 
 
         const S32 overage = y + g_rendererState.sprite.height < SCREEN_HEIGHT
@@ -7609,10 +7609,10 @@ void drawVanishingUiSprite(S32 x, S32 y, const S32 vanishLevel, const Pixel* pal
 
     g_rendererState.gameUI.offset = uiSprite->offset;
     g_rendererState.gameUI.stride = uiSprite->stride * sizeof(Pixel);
-    g_rendererState.gameUI.windowRect.x = uiSprite->x;
-    g_rendererState.gameUI.windowRect.y = uiSprite->y;
-    g_rendererState.gameUI.windowRect.width = uiSprite->width;
-    g_rendererState.gameUI.windowRect.height = uiSprite->height;
+    g_rendererState.gameUI.rect.x = uiSprite->x;
+    g_rendererState.gameUI.rect.y = uiSprite->y;
+    g_rendererState.gameUI.rect.width = uiSprite->width;
+    g_rendererState.gameUI.rect.height = uiSprite->height;
 
     g_rendererState.sprite.height = sprite->height;
     //g_rendererState.sprite.width = sprite->width + 1;
@@ -7625,24 +7625,24 @@ void drawVanishingUiSprite(S32 x, S32 y, const S32 vanishLevel, const Pixel* pal
 
     // Skip the necessary number of rows from the top of the image
     // in case the sprite starts above the allowed drawing rectangle.
-    if (y < g_rendererState.gameUI.windowRect.y)
+    if (y < g_rendererState.gameUI.rect.y)
     {
-        g_rendererState.sprite.height -= (g_rendererState.gameUI.windowRect.y - y);
+        g_rendererState.sprite.height -= (g_rendererState.gameUI.rect.y - y);
         if (g_rendererState.sprite.height <= 0)
         {
             return;
         }
 
-        for (S32 i = 0; i < g_rendererState.gameUI.windowRect.y - y; ++i)
+        for (S32 i = 0; i < g_rendererState.gameUI.rect.y - y; ++i)
         {
             content = (void*)((Addr)next + sizeof(U16));
             next = (void*)((Addr)next + ((U16*)next)[0] + sizeof(U16));
         }
 
-        y = g_rendererState.gameUI.windowRect.y;
+        y = g_rendererState.gameUI.rect.y;
     }
 
-    const S32 overflow = y + g_rendererState.sprite.height - (g_rendererState.gameUI.windowRect.height + 1);
+    const S32 overflow = y + g_rendererState.sprite.height - (g_rendererState.gameUI.rect.height + 1);
     bool draw = overflow <= 0;
 
     if (!draw)
@@ -7656,8 +7656,8 @@ void drawVanishingUiSprite(S32 x, S32 y, const S32 vanishLevel, const Pixel* pal
         const Addr linesStride = (Addr)(g_rendererState.gameUI.stride * y);
 
         g_rendererState.sprite.x = (Pixel*)(g_rendererState.gameUI.offset + linesStride + x * sizeof(Pixel));
-        g_rendererState.sprite.minX = (Pixel*)(g_rendererState.gameUI.offset + linesStride + g_rendererState.gameUI.windowRect.x * sizeof(Pixel));
-        g_rendererState.sprite.maxX = (Pixel*)(g_rendererState.gameUI.offset + linesStride + (g_rendererState.gameUI.windowRect.width + 1) * sizeof(Pixel));
+        g_rendererState.sprite.minX = (Pixel*)(g_rendererState.gameUI.offset + linesStride + g_rendererState.gameUI.rect.x * sizeof(Pixel));
+        g_rendererState.sprite.maxX = (Pixel*)(g_rendererState.gameUI.offset + linesStride + (g_rendererState.gameUI.rect.width + 1) * sizeof(Pixel));
 
 
         const S32 overage = y + g_rendererState.sprite.height < SCREEN_HEIGHT
