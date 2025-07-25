@@ -361,10 +361,10 @@ void drawMainSurfaceHorLine(const S32 x, const S32 y, const S32 length, const Pi
         if (new_x <= max_x)
         {
             Pixel* pixels = (Pixel*)((Addr)g_rendererState.surfaces.main
-                + g_moduleState.surface.offset + (Addr)(y * SCREEN_WIDTH + new_x) * sizeof(Pixel));
+                + g_moduleState.surface.offset + (y * SCREEN_WIDTH + new_x) * sizeof(Pixel));
 
             if (g_moduleState.surface.y <= y)
-                pixels = (Pixel*)((Addr)pixels - (Addr)(SCREEN_SIZE_IN_PIXELS * sizeof(Pixel)));
+                pixels = (Pixel*)((Addr)pixels - SCREEN_SIZE_IN_BYTES);
 
             std::fill(pixels, pixels + (max_x - new_x + 1), pixel);
         }
@@ -416,7 +416,7 @@ void drawMainSurfaceVertLine(const S32 x, const S32 y, const S32 height, const P
                 pixels = (Pixel*)((Addr)pixels + (Addr)(SCREEN_WIDTH * sizeof(Pixel)));
             }
 
-            pixels = (Pixel*)((Addr)pixels - (Addr)(SCREEN_SIZE_IN_PIXELS * sizeof(Pixel)));
+            pixels = (Pixel*)((Addr)pixels - SCREEN_SIZE_IN_BYTES);
 
             for (S32 xx = 0; xx < delta; ++xx)
             {
@@ -428,7 +428,7 @@ void drawMainSurfaceVertLine(const S32 x, const S32 y, const S32 height, const P
     }
     else
     {
-        pixels = (Pixel*)((Addr)pixels - (Addr)(SCREEN_SIZE_IN_PIXELS * sizeof(Pixel)));
+        pixels = (Pixel*)((Addr)pixels - SCREEN_SIZE_IN_BYTES);
 
         for (S32 xx = 0; xx < max_y; ++xx)
         {
@@ -496,7 +496,7 @@ void drawMainSurfaceFilledColorRect(S32 x, S32 y, S32 width, S32 height, const P
                 pixels = (Pixel*)((Addr)pixels + (Addr)(SCREEN_WIDTH * sizeof(Pixel)));
             }
 
-            pixels = (Pixel*)((Addr)pixels - (Addr)(SCREEN_SIZE_IN_PIXELS * sizeof(Pixel)));
+            pixels = (Pixel*)((Addr)pixels - SCREEN_SIZE_IN_BYTES);
 
             for (S32 yy = 0; yy < delta; ++yy)
             {
@@ -508,7 +508,7 @@ void drawMainSurfaceFilledColorRect(S32 x, S32 y, S32 width, S32 height, const P
     }
     else
     {
-        pixels = (Pixel*)((Addr)pixels - (Addr)(SCREEN_SIZE_IN_PIXELS * sizeof(Pixel)));
+        pixels = (Pixel*)((Addr)pixels - SCREEN_SIZE_IN_BYTES);
 
         for (S32 yy = 0; yy < height; ++yy)
         {
@@ -581,7 +581,7 @@ void drawMainSurfaceShadeColorRect(S32 x, S32 y, S32 width, S32 height, const Pi
                 pixels = (Pixel*)((Addr)pixels + (Addr)(SCREEN_WIDTH * sizeof(Pixel)));
             }
 
-            pixels = (Pixel*)((Addr)pixels - (Addr)(SCREEN_SIZE_IN_PIXELS * sizeof(Pixel)));
+            pixels = (Pixel*)((Addr)pixels - SCREEN_SIZE_IN_BYTES);
 
             for (S32 yy = 0; yy < delta; ++yy)
             {
@@ -596,7 +596,7 @@ void drawMainSurfaceShadeColorRect(S32 x, S32 y, S32 width, S32 height, const Pi
     }
     else
     {
-        pixels = (Pixel*)((Addr)pixels - (Addr)(SCREEN_SIZE_IN_PIXELS * sizeof(Pixel)));
+        pixels = (Pixel*)((Addr)pixels - SCREEN_SIZE_IN_BYTES);
 
         for (S32 yy = 0; yy < height; ++yy)
         {
@@ -648,8 +648,8 @@ void drawBackSurfaceColorPoint(const S32 x, const S32 y, const Pixel pixel)
 // 0x100018a0
 void readMainSurfaceRect(const S32 sx, const S32 sy, const S32 width, const S32 height, const S32 dx, const S32 dy, const S32 stride, Pixel* surface)
 {
-    Pixel* src = (Pixel*)((Addr)g_rendererState.surfaces.main + g_moduleState.surface.offset + (Addr)(sy * SCREEN_WIDTH + sx) * sizeof(Pixel));
-    Pixel* dst = (Pixel*)((Addr)surface + (Addr)((stride * dy + dx) * sizeof(Pixel)));
+    Pixel* src = (Pixel*)((Addr)g_rendererState.surfaces.main + g_moduleState.surface.offset + (sy * SCREEN_WIDTH + sx) * sizeof(Pixel));
+    Pixel* dst = (Pixel*)((Addr)surface + (stride * dy + dx) * sizeof(Pixel));
 
     if (sy < g_moduleState.surface.y)
     {
@@ -673,7 +673,7 @@ void readMainSurfaceRect(const S32 sx, const S32 sy, const S32 width, const S32 
                 dst = (Pixel*)((Addr)dst + (Addr)(stride * sizeof(Pixel)));
             }
 
-            src = (Pixel*)((Addr)src - (Addr)(SCREEN_SIZE_IN_PIXELS * sizeof(Pixel)));
+            src = (Pixel*)((Addr)src - SCREEN_SIZE_IN_BYTES);
 
             for (S32 yy = 0; yy < delta; ++yy)
             {
@@ -685,7 +685,7 @@ void readMainSurfaceRect(const S32 sx, const S32 sy, const S32 width, const S32 
     }
     else
     {
-        src = (Pixel*)((Addr)src - (Addr)(SCREEN_SIZE_IN_PIXELS * sizeof(Pixel)));
+        src = (Pixel*)((Addr)src - SCREEN_SIZE_IN_BYTES);
 
         for (S32 yy = 0; yy < height; ++yy)
         {
@@ -866,15 +866,15 @@ void copyBackToMainSurfaceRect(const S32 x, const S32 y, const U32 width, const 
         else
         {
             copyBlock(src, dst, height - delta);
-            src = (Pixel*)((Addr)src - (Addr)(SCREEN_SIZE_IN_PIXELS * sizeof(Pixel)));
-            dst = (Pixel*)((Addr)dst - (Addr)(SCREEN_SIZE_IN_PIXELS * sizeof(Pixel)));
+            src = (Pixel*)((Addr)src - SCREEN_SIZE_IN_BYTES);
+            dst = (Pixel*)((Addr)dst - SCREEN_SIZE_IN_BYTES);
             copyBlock(src, dst, delta);
         }
     }
     else
     {
-        src = (Pixel*)((Addr)src - (Addr)(SCREEN_SIZE_IN_PIXELS * sizeof(Pixel)));
-        dst = (Pixel*)((Addr)dst - (Addr)(SCREEN_SIZE_IN_PIXELS * sizeof(Pixel)));
+        src = (Pixel*)((Addr)src - SCREEN_SIZE_IN_BYTES);
+        dst = (Pixel*)((Addr)dst - SCREEN_SIZE_IN_BYTES);
         copyBlock(src, dst, height);
     }
 }
@@ -1185,7 +1185,7 @@ void drawMainSurfaceColorOutline(S32 x, S32 y, S32 width, S32 height, const Pixe
 
         if (src <= dst)
         {
-            pixels = (Pixel*)((Addr)dst - (Addr)(SCREEN_SIZE_IN_PIXELS * sizeof(Pixel)));
+            pixels = (Pixel*)((Addr)dst - SCREEN_SIZE_IN_BYTES);
         }
 
         for (S32 xx = 0; xx < width; ++xx)
@@ -1210,7 +1210,7 @@ void drawMainSurfaceColorOutline(S32 x, S32 y, S32 width, S32 height, const Pixe
         {
             if (src <= pixels)
             {
-                pixels = (Pixel*)((Addr)pixels - (Addr)(SCREEN_SIZE_IN_PIXELS * sizeof(Pixel)));
+                pixels = (Pixel*)((Addr)pixels - SCREEN_SIZE_IN_BYTES);
             }
 
             pixels[0] = pixel;
@@ -1225,7 +1225,7 @@ void drawMainSurfaceColorOutline(S32 x, S32 y, S32 width, S32 height, const Pixe
         {
             if (src <= dst)
             {
-                dst = (Pixel*)((Addr)dst - (Addr)(SCREEN_SIZE_IN_PIXELS * sizeof(Pixel)));
+                dst = (Pixel*)((Addr)dst - SCREEN_SIZE_IN_BYTES);
             }
 
             dst[0] = pixel;
@@ -1242,7 +1242,7 @@ void drawMainSurfaceColorOutline(S32 x, S32 y, S32 width, S32 height, const Pixe
     {
         if (src <= dst)
         {
-            dst = (Pixel*)((Addr)dst - (Addr)(SCREEN_SIZE_IN_PIXELS * sizeof(Pixel)));
+            dst = (Pixel*)((Addr)dst - SCREEN_SIZE_IN_BYTES);
         }
 
         for (S32 xx = 0; xx < width; ++xx)
@@ -1271,9 +1271,9 @@ void resetStencilSurface()
                 for (S32 j = 0; j < width; ++j)
                     pixels[j] = pixel;
 
-                pixel = pixel + STENCIL_PIXEL_COLOR_VALUE;
+                pixel += STENCIL_PIXEL_COLOR_VALUE;
 
-                pixels = (Pixel*)((Addr)pixels + (Addr)(width * sizeof(Pixel) + stride));
+                pixels = (Pixel*)((Addr)pixels + width * sizeof(Pixel) + stride);
             }
         };
 
@@ -1283,58 +1283,22 @@ void resetStencilSurface()
 
         if ((g_moduleState.windowRect.y + height) < g_moduleState.surface.y || delta == 0)
         {
-            //processRows(height);          // todo: replace for loops with this lambda function
-
-            for (S32 yy = 0; yy < height; ++yy)
-            {
-                for (S32 xx = 0; xx < width; ++xx)
-                {
-                    pixels[xx] = pixel;
-                }
-
-                pixel = pixel + STENCIL_PIXEL_COLOR_VALUE;
-
-                pixels = (Pixel*)((Addr)pixels + (Addr)(width * sizeof(Pixel) + stride));
-            }
+            processRows(height);
         }
         else
         {
-            //processRows(height - delta);
-            for (S32 yy = 0; yy < height - delta; ++yy)
-            {
-                for (S32 xx = 0; xx < width; ++xx) { pixels[xx] = pixel; }
+            processRows(height - delta);
 
-                pixel = pixel + STENCIL_PIXEL_COLOR_VALUE;
+            pixels = (Pixel*)((Addr)pixels - SCREEN_SIZE_IN_BYTES);
 
-                pixels = (Pixel*)((Addr)pixels + (Addr)(width * sizeof(Pixel) + stride));
-            }
-
-            pixels = (Pixel*)((Addr)pixels - (Addr)(SCREEN_SIZE_IN_PIXELS * sizeof(Pixel)));
-
-            //processRows(delta);
-            for (S32 yy = 0; yy < delta; ++yy)
-            {
-                for (S32 xx = 0; xx < width; ++xx) { pixels[xx] = pixel; }
-
-                pixel = pixel + STENCIL_PIXEL_COLOR_VALUE;
-
-                pixels = (Pixel*)((Addr)pixels + (Addr)(width * sizeof(Pixel) + stride));
-            }
+            processRows(delta);
         }
     }
     else
     {
-        pixels = (Pixel*)((Addr)pixels - (Addr)(SCREEN_SIZE_IN_PIXELS * sizeof(Pixel)));
+        pixels = (Pixel*)((Addr)pixels - SCREEN_SIZE_IN_BYTES);
 
-        //processRows(height);
-        for (S32 yy = 0; yy < height; ++yy)
-        {
-            for (S32 xx = 0; xx < width; ++xx) { pixels[xx] = pixel; }
-
-            pixel = pixel + STENCIL_PIXEL_COLOR_VALUE;
-
-            pixels = (Pixel*)((Addr)pixels + (Addr)(width * sizeof(Pixel) + stride));
-        }
+        processRows(height);
     }
 }
 
@@ -1354,7 +1318,7 @@ void maskStencilSurfaceRect(S32 x, S32 y, S32 width, S32 height)
                 for (S32 j = 0; j < width; ++j)
                     pixels[j] = pixels[j] & pixel;
 
-                pixels = (Pixel*)((Addr)pixels + (Addr)(width * sizeof(Pixel) + stride));
+                pixels = (Pixel*)((Addr)pixels + width * sizeof(Pixel) + stride);
             }
         };
 
@@ -1364,198 +1328,77 @@ void maskStencilSurfaceRect(S32 x, S32 y, S32 width, S32 height)
 
         if ((y + height) < g_moduleState.surface.y || delta == 0)
         {
-            // processRows(height);         // todo: replace for loops with this lambda function
-            for (S32 yy = 0; yy < height; ++yy)
-            {
-                for (S32 xx = 0; xx < width; ++xx)
-                {
-                    pixels[xx] = pixels[xx] & pixel;
-                }
-
-                pixels = (Pixel*)((Addr)pixels + (Addr)(width * sizeof(Pixel) + stride));
-            }
+            processRows(height);
         }
         else
         {
-            // processRows(height - delta);
-            for (S32 yy = 0; yy < height - delta; ++yy)
-            {
-                for (S32 xx = 0; xx < width; ++xx) { pixels[xx] = pixels[xx] & pixel; }
+            processRows(height - delta);
 
-                pixels = (Pixel*)((Addr)pixels + (Addr)(width * sizeof(Pixel) + stride));
-            }
+            pixels = (Pixel*)((Addr)pixels - SCREEN_SIZE_IN_BYTES);
 
-            pixels = (Pixel*)((Addr)pixels - (Addr)(SCREEN_SIZE_IN_PIXELS * sizeof(Pixel)));
-
-            // processRows(delta);
-            for (S32 yy = 0; yy < delta; ++yy)
-            {
-                for (S32 xx = 0; xx < width; ++xx) { pixels[xx] = pixels[xx] & pixel; }
-
-                pixels = (Pixel*)((Addr)pixels + (Addr)(width * sizeof(Pixel) + stride));
-            }
+            processRows(delta);
         }
     }
     else
     {
-        pixels = (Pixel*)((Addr)pixels - (Addr)(SCREEN_SIZE_IN_PIXELS * sizeof(Pixel)));
+        pixels = (Pixel*)((Addr)pixels - SCREEN_SIZE_IN_BYTES);
 
-        // processRows(height);
-        for (S32 yy = 0; yy < height; ++yy)
-        {
-            for (S32 xx = 0; xx < width; ++xx) { pixels[xx] = pixels[xx] & pixel; }
-
-            pixels = (Pixel*)((Addr)pixels + (Addr)(width * sizeof(Pixel) + stride));
-        }
+        processRows(height);
     }
 }
 
 // 0x10002810
 void moveStencilSurface(const S32 x, const S32 y, const S32 width, const S32 height, const S32 offset)
 {
-    DoublePixel* pixels = (DoublePixel*)((Addr)g_rendererState.surfaces.stencil + g_moduleState.surface.offset + (Addr)((SCREEN_WIDTH * y + x) * sizeof(Pixel)));
+    DoublePixel* pixels = (DoublePixel*)((Addr)g_rendererState.surfaces.stencil + g_moduleState.surface.offset + (SCREEN_WIDTH * y + x) * sizeof(Pixel));
     const S32 stride = sizeof(Pixel) * (SCREEN_WIDTH - width);
 
-    //const bool addOp = offset >= 0;
-    //const Pixel pixel = (Pixel)((addOp ? offset : -offset) << STENCIL_PIXEL_COLOR_SHIFT);
+    const bool addOp = offset >= 0;
+    const Pixel pixel = (Pixel)((addOp ? offset : -offset) << STENCIL_PIXEL_COLOR_SHIFT);
 
-    //DoublePixel pixelValue = ((DoublePixel)(pixel) << GRAPHICS_BITS_PER_PIXEL_16) | (DoublePixel)pixel;
-    //if (addOp == false)
-    //    pixelValue = (DoublePixel)(-(S32)pixelValue);
+    DoublePixel pix = ((DoublePixel)(pixel) << GRAPHICS_BITS_PER_PIXEL_16) | (DoublePixel)pixel;
 
-    //auto processRows = [&](S32 rows)
-    //    {
-    //        for (S32 i = 0; i < rows; ++i)
-    //        {
-    //            for (S32 j = 0; j < (width >> 1); ++j)
-    //                *pixels++ += pixelValue;
-    //            pixels = (DoublePixel*)((Addr)pixels + (Addr)stride);
-    //        }
-    //    };
+    // Imitate "pixels[i] - pix"
+    if (addOp == false)
+        pix = (DoublePixel)(-(S32)pix);
 
-    //if (y < g_moduleState.surface.y)
-    //{
-    //    if (height + y <= g_moduleState.surface.y)
-    //    {
-    //        // Entire region is before the surface.y
-    //        processRows(height);
-    //    }
-    //    else
-    //    {
-    //        S32 beforeY = g_moduleState.surface.y - y;
-    //        S32 afterY = (height + y) - g_moduleState.surface.y;
-
-    //        // First process rows before the surface.y
-    //        processRows(beforeY);
-
-    //        // Update remaining height and pixels pointer
-    //        pixels = (DoublePixel*)((Addr)pixels - (Addr)SCREEN_SIZE_IN_BYTES);
-    //        processRows(afterY);
-    //    }
-    //}
-    //else
-    //{
-    //    // Entire region is after the surface.y, so moving to the array beginning
-    //    pixels = (DoublePixel*)((Addr)pixels - (Addr)SCREEN_SIZE_IN_BYTES);
-    //    processRows(height);
-    //}
-    if (-1 < offset)
-    {
-        const Pixel pixel = (Pixel)(offset << STENCIL_PIXEL_COLOR_SHIFT);
-        const DoublePixel pix = ((DoublePixel)(pixel) << GRAPHICS_BITS_PER_PIXEL_16) | (DoublePixel)pixel;
-
-        if (y < g_moduleState.surface.y)
+    auto processRows = [&](S32 rows)
         {
-            const S32 delta = y + height - g_moduleState.surface.y;
-
-            if ((y + height) < g_moduleState.surface.y || delta == 0)
+            for (S32 i = 0; i < rows; ++i)
             {
-                for (S32 yy = 0; yy < height; yy++)
-                {
-                    for (S32 xx = 0; xx < width / 2; xx++) { pixels[xx] = pixels[xx] + pix; }
+                for (S32 j = 0; j < (width >> 1); ++j)
+                    *pixels++ += pix;
 
-                    pixels = (DoublePixel*)((Addr)pixels + (Addr)(width * sizeof(Pixel) + stride));
-                }
+                if (width & 1)
+                    *(Pixel*)pixels += (Pixel)pix;
+
+                pixels = (DoublePixel*)((Addr)pixels + stride);
             }
-            else
-            {
-                for (S32 yy = 0; yy < height - delta; yy++)
-                {
-                    for (S32 xx = 0; xx < width / 2; xx++) { pixels[xx] = pixels[xx] + pix; }
+        };
 
-                    pixels = (DoublePixel*)((Addr)pixels + (Addr)(width * sizeof(Pixel) + stride));
-                }
-
-                pixels = (DoublePixel*)((Addr)pixels - (Addr)SCREEN_SIZE_IN_BYTES);
-
-                for (S32 yy = 0; yy < delta; yy++)
-                {
-                    for (S32 xx = 0; xx < width / 2; xx++) { pixels[xx] = pixels[xx] + pix; }
-
-                    pixels = (DoublePixel*)((Addr)pixels + (Addr)(width * sizeof(Pixel) + stride));
-                }
-            }
+    if (y < g_moduleState.surface.y)
+    {
+        const S32 delta = y + height - g_moduleState.surface.y;
+        if (delta <= 0)
+        {
+            // Entire region is before the surface.y
+            processRows(height);
         }
         else
         {
+            // First process rows before the surface.y
+            processRows(height - delta);
+
+            // Update remaining height and pixels pointer
             pixels = (DoublePixel*)((Addr)pixels - (Addr)SCREEN_SIZE_IN_BYTES);
-
-            for (S32 yy = 0; yy < height; yy++)
-            {
-                for (S32 xx = 0; xx < width / 2; xx++) { pixels[xx] = pixels[xx] + pix; }
-
-                pixels = (DoublePixel*)((Addr)pixels + (Addr)(width * sizeof(Pixel) + stride));
-            }
+            processRows(delta);
         }
     }
     else
     {
-        const Pixel pixel = (Pixel)(-offset << STENCIL_PIXEL_COLOR_SHIFT);
-        const DoublePixel pix = ((DoublePixel)(pixel) << GRAPHICS_BITS_PER_PIXEL_16) | (DoublePixel)pixel;
-
-        if (y < g_moduleState.surface.y)
-        {
-            const S32 delta = y + height - g_moduleState.surface.y;
-
-            if ((y + height) < g_moduleState.surface.y || delta == 0)
-            {
-                for (S32 yy = 0; yy < height; yy++)
-                {
-                    for (S32 xx = 0; xx < width / 2; xx++) { pixels[xx] = pixels[xx] - pix; }
-
-                    pixels = (DoublePixel*)((Addr)pixels + (Addr)(width * sizeof(Pixel) + stride));
-                }
-            }
-            else
-            {
-                for (S32 yy = 0; yy < height - delta; yy++)
-                {
-                    for (S32 xx = 0; xx < width / 2; xx++) { pixels[xx] = pixels[xx] - pix; }
-
-                    pixels = (DoublePixel*)((Addr)pixels + (Addr)(width * sizeof(Pixel) + stride));
-                }
-
-                pixels = (DoublePixel*)((Addr)pixels - (Addr)SCREEN_SIZE_IN_BYTES);
-
-                for (S32 yy = 0; yy < delta; yy++)
-                {
-                    for (S32 xx = 0; xx < width / 2; xx++) { pixels[xx] = pixels[xx] - pix; }
-
-                    pixels = (DoublePixel*)((Addr)pixels + (Addr)(width * sizeof(Pixel) + stride));
-                }
-            }
-        }
-        else
-        {
-            pixels = (DoublePixel*)((Addr)pixels - (Addr)SCREEN_SIZE_IN_BYTES);
-
-            for (S32 yy = 0; yy < height; yy++)
-            {
-                for (S32 xx = 0; xx < width / 2; xx++) { pixels[xx] = pixels[xx] - pix; }
-
-                pixels = (DoublePixel*)((Addr)pixels + (Addr)(width * sizeof(Pixel) + stride));
-            }
-        }
+        // Entire region is after the surface.y, so moving to the array beginning
+        pixels = (DoublePixel*)((Addr)pixels - (Addr)SCREEN_SIZE_IN_BYTES);
+        processRows(height);
     }
 }
 
@@ -1629,14 +1472,14 @@ bool copyToRendererSurfaceRect(S32 sx, S32 sy, S32 width, S32 height, S32 dx, S3
         locked = true;
     }
 
-    Pixel* src = (Pixel*)((Addr)pixels + (Addr)((stride * sy + sx) * sizeof(Pixel)));
-    Pixel* dst = (Pixel*)((Addr)g_moduleState.surface.renderer + (Addr)(g_moduleState.pitch * dy + dx * sizeof(Pixel)));
+    Pixel* src = (Pixel*)((Addr)pixels + (stride * sy + sx) * sizeof(Pixel));
+    Pixel* dst = (Pixel*)((Addr)g_moduleState.surface.renderer + g_moduleState.pitch * dy + dx * sizeof(Pixel));
 
     for (S32 yy = 0; yy < height; ++yy)
     {
         std::memcpy(dst, src, width * sizeof(Pixel));
-        src = (Pixel*)((Addr)src + (Addr)(stride * sizeof(Pixel)));
-        dst = (Pixel*)((Addr)dst + (Addr)g_moduleState.pitch);
+        src = (Pixel*)((Addr)src + stride * sizeof(Pixel));
+        dst = (Pixel*)((Addr)dst + g_moduleState.pitch);
     }
 
     if (locked)
@@ -1648,14 +1491,14 @@ bool copyToRendererSurfaceRect(S32 sx, S32 sy, S32 width, S32 height, S32 dx, S3
 // 0x10002a30
 void copyPixelRectFromTo(S32 sx, S32 sy, S32 sstr, const Pixel* const input, S32 dx, S32 dy, S32 dstr, Pixel* const output, S32 width, S32 height)
 {
-    Pixel* src = (Pixel*)((Addr)input + (Addr)((sstr * sy + sx) * sizeof(Pixel)));
-    Pixel* dst = (Pixel*)((Addr)output + (Addr)((dstr * dy + dx) * sizeof(Pixel)));
+    Pixel* src = (Pixel*)((Addr)input + (sstr * sy + sx) * sizeof(Pixel));
+    Pixel* dst = (Pixel*)((Addr)output + (dstr * dy + dx) * sizeof(Pixel));
 
     for (S32 yy = 0; yy < height; ++yy)
     {
         std::memcpy(dst, src, width * sizeof(Pixel));
-        src = (Pixel*)((Addr)src + (Addr)(sstr * sizeof(Pixel)));
-        dst = (Pixel*)((Addr)dst + (Addr)(dstr * sizeof(Pixel)));
+        src = (Pixel*)((Addr)src + sstr * sizeof(Pixel));
+        dst = (Pixel*)((Addr)dst + dstr * sizeof(Pixel));
     }
 }
 
@@ -1674,7 +1517,7 @@ bool copyMainSurfaceToRenderer(S32 x, S32 y, S32 width, S32 height)
         locked = true;
     }
     Pixel* src = (Pixel*)((Addr)g_rendererState.surfaces.main + g_moduleState.surface.offset + (y * SCREEN_WIDTH + x) * sizeof(Pixel));
-    void* dst = (void*)((Addr)g_moduleState.surface.renderer + (Addr)(g_moduleState.pitch * y + x * sizeof(Pixel)));
+    void* dst = (void*)((Addr)g_moduleState.surface.renderer + g_moduleState.pitch * y + x * sizeof(Pixel));
 
     if (y < g_moduleState.surface.y)
     {
@@ -1684,8 +1527,8 @@ bool copyMainSurfaceToRenderer(S32 x, S32 y, S32 width, S32 height)
             for (S32 vertical = 0; vertical < height; vertical++)
             {
                 std::memcpy(dst, src, width * sizeof(Pixel));
-                src = (Pixel*)((Addr)src + (Addr)(SCREEN_WIDTH * sizeof(Pixel)));
-                dst = (void*)((Addr)dst + (Addr)g_moduleState.pitch);
+                src = (Pixel*)((Addr)src + SCREEN_WIDTH * sizeof(Pixel));
+                dst = (void*)((Addr)dst + g_moduleState.pitch);
             }
         }
         else
@@ -1693,23 +1536,23 @@ bool copyMainSurfaceToRenderer(S32 x, S32 y, S32 width, S32 height)
             for (S32 vertical = 0; vertical < height - delta; vertical++)
             {
                 std::memcpy(dst, src, width * sizeof(Pixel));
-                src = (Pixel*)((Addr)src + (Addr)(SCREEN_WIDTH * sizeof(Pixel)));
-                dst = (void*)((Addr)dst + (Addr)g_moduleState.pitch);
+                src = (Pixel*)((Addr)src + SCREEN_WIDTH * sizeof(Pixel));
+                dst = (void*)((Addr)dst + g_moduleState.pitch);
             }
 
-            src = (Pixel*)((Addr)src - (Addr)(SCREEN_SIZE_IN_PIXELS * sizeof(Pixel)));
+            src = (Pixel*)((Addr)src - SCREEN_SIZE_IN_BYTES);
 
             for (S32 vertical = 0; vertical < delta; vertical++)
             {
                 std::memcpy(dst, src, width * sizeof(Pixel));
-                src = (Pixel*)((Addr)src + (Addr)(SCREEN_WIDTH * sizeof(Pixel)));
-                dst = (void*)((Addr)dst + (Addr)g_moduleState.pitch);
+                src = (Pixel*)((Addr)src + SCREEN_WIDTH * sizeof(Pixel));
+                dst = (void*)((Addr)dst + g_moduleState.pitch);
             }
         }
     }
     else
     {
-        src = (Pixel*)((Addr)src - (Addr)(SCREEN_SIZE_IN_PIXELS * sizeof(Pixel)));
+        src = (Pixel*)((Addr)src - SCREEN_SIZE_IN_BYTES);
 
         for (S32 yy = 0; yy < height; ++yy)
         {
@@ -3353,10 +3196,7 @@ void drawBackSurfaceRhombsPaletteSprite(S32 x, S32 y, const ImagePaletteSprite* 
                         const U8 indx = pixels->pixels[0];
                         const Pixel pixel = g_moduleState.rhombsPalette.palette[indx + 0x4100];
 
-                        for (ptrdiff_t i = 0; i < availCount; ++i)
-                        {
-                            sx[i] = pixel;
-                        }
+                        std::fill(sx, sx + availCount, pixel);
 
                         pixels = (ImagePaletteSpritePixel*)((Addr)pixels + sizeof(ImagePaletteSpritePixel));
                     }
@@ -3546,10 +3386,7 @@ void drawBackSurfaceRhombsPaletteSprite2(S32 x, S32 y, const ImagePaletteSprite*
                         const U8 indx = pixels->pixels[0];
                         const Pixel pixel = g_moduleState.rhombsPalette.palette[indx + 0x4200];
 
-                        for (ptrdiff_t i = 0; i < availCount; ++i)
-                        {
-                            sx[i] = pixel;
-                        }
+                        std::fill(sx, sx + availCount, pixel);
 
                         pixels = (ImagePaletteSpritePixel*)((Addr)pixels + sizeof(ImagePaletteSpritePixel));
                     }
@@ -4120,10 +3957,7 @@ void drawMainSurfacePaletteSpriteCompact(S32 x, S32 y, const Pixel* palette, con
                         {
                             const Pixel pixel = palette[indx];
 
-                            for (ptrdiff_t i = 0; i < availCount; ++i)
-                            {
-                                sx[i] = pixel;
-                            }
+                            std::fill(sx, sx + availCount, pixel);
                         }
 
                         pixels = (ImagePaletteSpritePixel*)((Addr)pixels + sizeof(ImagePaletteSpritePixel));
@@ -4486,10 +4320,7 @@ void drawBackSurfacePalletteSprite(S32 x, S32 y, const Pixel* const palette, con
                         {
                             const Pixel pixel = palette[indx];
 
-                            for (ptrdiff_t i = 0; i < availCount; ++i)
-                            {
-                                sx[i] = pixel;
-                            }
+                            std::fill(sx, sx + availCount, pixel);
                         }
 
                         pixels = (ImagePaletteSpritePixel*)((Addr)pixels + sizeof(ImagePaletteSpritePixel));
@@ -4501,11 +4332,8 @@ void drawBackSurfacePalletteSprite(S32 x, S32 y, const Pixel* const palette, con
                         {
                             const U8 indx = pixels->pixels[skip + i];
 
-                            if (indx != 0)
-                            {
-                                const Pixel pixel = palette[indx];
-                                sx[i] = (sx[i] + pixel - (g_moduleState.actualColorBits & (sx[i] ^ pixel))) >> 1;
-                            }
+                            const Pixel pixel = palette[indx];
+                            sx[i] = (sx[i] + pixel - (g_moduleState.actualColorBits & (sx[i] ^ pixel))) >> 1;
                         }
 
                         pixels = (ImagePaletteSpritePixel*)((Addr)pixels + sizeof(ImagePaletteSpritePixel) + (count - 1) * sizeof(U8));
@@ -4517,11 +4345,8 @@ void drawBackSurfacePalletteSprite(S32 x, S32 y, const Pixel* const palette, con
                         {
                             const U8 indx = pixels->pixels[skip + i];
 
-                            if (indx != 0)
-                            {
-                                const Pixel pixel = palette[indx];
-                                sx[i] = pixel;
-                            }
+                            const Pixel pixel = palette[indx];
+                            sx[i] = pixel;
                         }
 
                         pixels = (ImagePaletteSpritePixel*)((Addr)pixels + sizeof(ImagePaletteSpritePixel) + (count - 1) * sizeof(U8));
@@ -4688,11 +4513,8 @@ void drawBackSurfacePaletteSpriteAndStencil(S32 x, S32 y, U16 level, const Pixel
                         const U8 indx = pixels->pixels[0];
                         const Pixel pixel = palette[indx];
 
-                        for (ptrdiff_t i = 0; i < availCount; ++i)
-                        {
-                            sx[i] = pixel;
-                            stencil[i] = level;
-                        }
+                        std::fill(sx, sx + availCount, pixel);
+                        std::fill(stencil, stencil + availCount, level);
 
                         pixels = (ImagePaletteSpritePixel*)((Addr)pixels + sizeof(ImagePaletteSpritePixel));
                     }
@@ -4705,8 +4527,9 @@ void drawBackSurfacePaletteSpriteAndStencil(S32 x, S32 y, U16 level, const Pixel
                             const Pixel pixel = palette[indx];
 
                             sx[i] = (sx[i] + pixel - (g_moduleState.actualColorBits & (sx[i] ^ pixel))) >> 1;
-                            stencil[i] = level;
                         }
+
+                        std::fill(stencil, stencil + availCount, level);
 
                         pixels = (ImagePaletteSpritePixel*)((Addr)pixels + sizeof(ImagePaletteSpritePixel) + (count - 1) * sizeof(U8));
                     }
@@ -4719,8 +4542,9 @@ void drawBackSurfacePaletteSpriteAndStencil(S32 x, S32 y, U16 level, const Pixel
                             const Pixel pixel = palette[indx];
 
                             sx[i] = pixel;
-                            stencil[i] = level;
                         }
+
+                        std::fill(stencil, stencil + availCount, level);
 
                         pixels = (ImagePaletteSpritePixel*)((Addr)pixels + sizeof(ImagePaletteSpritePixel) + (count - 1) * sizeof(U8));
                     }
@@ -5072,10 +4896,7 @@ void drawMainSurfacePaletteSprite(S32 x, S32 y, const Pixel* const palette, cons
                         const U8 indx = pixels->pixels[0];
                         const Pixel pixel = palette[indx];
 
-                        for (ptrdiff_t i = 0; i < availCount; ++i)
-                        {
-                            sx[i] = pixel;
-                        }
+                        std::fill(sx, sx + availCount, pixel);
 
                         pixels = (ImagePaletteSpritePixel*)((Addr)pixels + sizeof(ImagePaletteSpritePixel));
                     }
@@ -5245,10 +5066,7 @@ void drawMainSurfaceSprite(S32 x, S32 y, const ImageSprite* const sprite)
 
                         if (pixel != PixelColor::MAGENTA)
                         {
-                            for (ptrdiff_t i = 0; i < availCount; ++i)
-                            {
-                                sx[i] = pixel;
-                            }
+                            std::fill(sx, sx + availCount, pixel);
                         }
 
                         pixels = (ImageSpritePixel*)((Addr)pixels + sizeof(ImageSpritePixel));
@@ -6956,10 +6774,7 @@ void drawUiSprite(S32 x, S32 y, const ImagePaletteSprite* const sprite, const vo
                             {
                                 const Pixel pixel = palette[indx];
 
-                                for (ptrdiff_t i = 0; i < availCount; ++i)
-                                {
-                                    sx[i] = pixel;
-                                }
+                                std::fill(sx, sx + availCount, pixel);
                             }
 
                             pixels = (ImagePaletteSpritePixel*)((Addr)pixels + sizeof(ImagePaletteSpritePixel));
@@ -7063,10 +6878,7 @@ void drawUiSprite(S32 x, S32 y, const ImagePaletteSprite* const sprite, const vo
                             const U8 indx = pixels->pixels[0];
                             const Pixel pixel = palette[indx];
 
-                            for (ptrdiff_t i = 0; i < availCount; ++i)
-                            {
-                                sx[i] = pixel;
-                            }
+                            std::fill(sx, sx + availCount, pixel);
 
                             pixels = (ImagePaletteSpritePixel*)((Addr)pixels + sizeof(ImagePaletteSpritePixel));
                         }
