@@ -16,7 +16,7 @@ constexpr S32 STENCIL_PIXEL_MASK_VALUE = 0xFFFB;
 #define CHECK_ASSERTS
 #endif
 
-RendererStateContainer g_rendererState;
+RendererState g_rendererState;
 
 
 
@@ -1746,10 +1746,10 @@ void copyMainSurfaceToRendererWithWarFog(const S32 x, const S32 y, const S32 end
     constexpr U32 blocksNumber = 8;
 
     S32 delta = (endY + 1) - y;
-    g_rendererState.rendererStruct02.unk04 = 0;
-    g_moduleState.moduleStruct01.actualRgbMask = g_moduleState.initialRgbMask;
-    g_moduleState.moduleStruct01.dstRowStride = -8 * g_moduleState.pitch + blockSize;
-    g_moduleState.moduleStruct01.lineStep = -(S32)SCREEN_WIDTH * 16 + blockSize;
+    g_rendererState.fogBlockParams2.unk04 = 0;
+    g_rendererState.fogRenderParams.actualRgbMask = g_moduleState.initialRgbMask;
+    g_rendererState.fogRenderParams.dstRowStride = -8 * g_moduleState.pitch + blockSize;
+    g_rendererState.fogRenderParams.lineStep = -(S32)SCREEN_WIDTH * 16 + blockSize;
 
     U8* fogSrc = &g_moduleState.fogSprites[(y >> 3) + 8].unk[(x >> 4) + 8];
     DoublePixel* src = (DoublePixel*)((Addr)g_rendererState.surfaces.main + g_moduleState.surface.offset + (SCREEN_WIDTH * y + x) * sizeof(Pixel));
@@ -1760,29 +1760,29 @@ void copyMainSurfaceToRendererWithWarFog(const S32 x, const S32 y, const S32 end
 
     if (y >= g_moduleState.surface.y || y + delta <= g_moduleState.surface.y)
     {
-        g_rendererState.rendererStruct01.validRowsBlockCount = delta >> 3;
-        g_rendererState.rendererStruct01.tempBlocksCount = 0;
-        g_rendererState.rendererStruct02.excessRowsBlockCount = 0;
+        g_rendererState.fogBlockParams.validRowsBlockCount = delta >> 3;
+        g_rendererState.fogBlockParams.tempBlocksCount = 0;
+        g_rendererState.fogBlockParams2.excessRowsBlockCount = 0;
 
-        g_moduleState.moduleStruct01.blocksCount = blocksNumber;
+        g_rendererState.fogRenderParams.blocksCount = blocksNumber;
     }
     else
     {
-        g_rendererState.rendererStruct01.validRowsBlockCount = (g_moduleState.surface.y - y) >> 3;
-        g_rendererState.rendererStruct02.excessRowsBlockCount = (delta + y - g_moduleState.surface.y) >> 3;
+        g_rendererState.fogBlockParams.validRowsBlockCount = (g_moduleState.surface.y - y) >> 3;
+        g_rendererState.fogBlockParams2.excessRowsBlockCount = (delta + y - g_moduleState.surface.y) >> 3;
         U32 v7 = ((U8)g_moduleState.surface.y - (U8)y) & 7;
         v7 = v7 | ((8 - v7) << 8);      // v7 now is 0000 ' 0000 ' 8 - v7 ' v7, so the summ of all its bytes is always 8    
-        g_rendererState.rendererStruct01.tempBlocksCount = v7;
+        g_rendererState.fogBlockParams.tempBlocksCount = v7;
 
-        if (g_rendererState.rendererStruct01.validRowsBlockCount == 0)
+        if (g_rendererState.fogBlockParams.validRowsBlockCount == 0)
         {
-            g_moduleState.moduleStruct01.lineStep += SCREEN_SIZE_IN_BYTES;
-            g_moduleState.moduleStruct01.blocksCount = v7;
-            g_rendererState.rendererStruct01.validRowsBlockCount = 1;
-            g_rendererState.rendererStruct01.tempBlocksCount = 0;
+            g_rendererState.fogRenderParams.lineStep += SCREEN_SIZE_IN_BYTES;
+            g_rendererState.fogRenderParams.blocksCount = v7;
+            g_rendererState.fogBlockParams.validRowsBlockCount = 1;
+            g_rendererState.fogBlockParams.tempBlocksCount = 0;
         }
         else
-            g_moduleState.moduleStruct01.blocksCount = blocksNumber;
+            g_rendererState.fogRenderParams.blocksCount = blocksNumber;
     }
 
     S32 remainingExcessRows;
@@ -1799,19 +1799,19 @@ void copyMainSurfaceToRendererWithWarFog(const S32 x, const S32 y, const S32 end
                 U8* someFog = fogSrc;
                 fogSrc = someFog + sizeof(Fog);
 
-                g_moduleState.moduleStruct01.fogPtr = someFog;
-                g_rendererState.rendererStruct01.unk04 = ((endX + 1) - x) >> 4;
+                g_rendererState.fogRenderParams.fogPtr = someFog;
+                g_rendererState.fogBlockParams.unk04 = ((endX + 1) - x) >> 4;
 
                 do {
-                    DoublePixel fogPixel = *(DoublePixel*)((Addr)g_moduleState.moduleStruct01.fogPtr - 2);
-                    fogPixel = (fogPixel & 0xFFFF'0000) | (*(Pixel*)((Addr)g_moduleState.moduleStruct01.fogPtr + sizeof(Fog)));
+                    DoublePixel fogPixel = *(DoublePixel*)((Addr)g_rendererState.fogRenderParams.fogPtr - 2);
+                    fogPixel = (fogPixel & 0xFFFF'0000) | (*(Pixel*)((Addr)g_rendererState.fogRenderParams.fogPtr + sizeof(Fog)));
 
                     if (fogPixel)
                     {
                         if (fogPixel == 0x80808080)
                         {
-                            U32 j = g_moduleState.moduleStruct01.blocksCount;
-                            ++g_moduleState.moduleStruct01.fogPtr;
+                            U32 j = g_rendererState.fogRenderParams.blocksCount;
+                            ++g_rendererState.fogRenderParams.fogPtr;
                             while (true)
                             {
                                 do
@@ -1858,13 +1858,13 @@ void copyMainSurfaceToRendererWithWarFog(const S32 x, const S32 y, const S32 end
                             // Final v27 computation
                             S32 v27 = carry + (-(S32)borrow1) - (S32)borrow2;
                             v27 = (v27 & 0xFFFF'FF00) | fogValueMidByte;
-                            g_rendererState.rendererStruct01.unk01 = v27 >> 2;
+                            g_rendererState.fogBlockParams.unk01 = v27 >> 2;
 
                             // Compute v28 (difference between fogPixelTopByte and fogPixelHighByte)
                             S32 v28 = -(S32)(fogPixelTopByte < fogPixelHighByte);
                             fogPixelTopByte -= fogPixelHighByte;
                             v28 = (v28 & 0xFFFF'FF00) | fogPixelTopByte;
-                            g_rendererState.rendererStruct02.unk01 = 2 * v28;
+                            g_rendererState.fogBlockParams2.unk01 = 2 * v28;
 
                             // Compute v30 (difference between fogPixelLowByte and fogPixelLow)
                             S32 v30 = -(S32)(fogPixelLowByte < fogPixelHighByte);
@@ -1872,17 +1872,17 @@ void copyMainSurfaceToRendererWithWarFog(const S32 x, const S32 y, const S32 end
                             v30 = (v30 & 0xFFFF'FF00) | fogPixelLowByte;
 
                             S32 v31 = 4 * v30;
-                            g_rendererState.rendererStruct02.unk02 = v31;
+                            g_rendererState.fogBlockParams2.unk02 = v31;
 
                             U32 fogOffset = ((S32)fogPixelHighByte + 0x7F) << 5;
 
-                            const U32 mask = g_moduleState.moduleStruct01.actualRgbMask;
-                            U32 j = g_moduleState.moduleStruct01.blocksCount;
-                            ++g_moduleState.moduleStruct01.fogPtr;
+                            const U32 mask = g_rendererState.fogRenderParams.actualRgbMask;
+                            U32 j = g_rendererState.fogRenderParams.blocksCount;
+                            ++g_rendererState.fogRenderParams.fogPtr;
 
                             while (true)
                             {
-                                g_rendererState.rendererStruct02.unk04 = 0;
+                                g_rendererState.fogBlockParams2.unk04 = 0;
                                 do {
                                     U8 k = 0x10;
                                     S32 v39 = fogOffset;
@@ -1890,11 +1890,11 @@ void copyMainSurfaceToRendererWithWarFog(const S32 x, const S32 y, const S32 end
                                         while ((U8)(fogOffset >> 8) != 0x20)
                                         {
                                             const U32 srcPixel = (*src & 0xFFFF) | (*src << 16);
-                                            const U32 v35 = g_rendererState.rendererStruct02.unk04 + (mask & srcPixel) * (U8)(fogOffset >> 8);
-                                            fogOffset += g_rendererState.rendererStruct02.unk01;
+                                            const U32 v35 = g_rendererState.fogBlockParams2.unk04 + (mask & srcPixel) * (U8)(fogOffset >> 8);
+                                            fogOffset += g_rendererState.fogBlockParams2.unk01;
 
                                             const U32 v37 = mask & (v35 >> 5);
-                                            g_rendererState.rendererStruct02.unk04 = mask & v35;
+                                            g_rendererState.fogBlockParams2.unk04 = mask & v35;
 
                                             v31 = v37 >> 16;
                                             *(Pixel*)dst = (Pixel)(v31 | v37);
@@ -1908,7 +1908,7 @@ void copyMainSurfaceToRendererWithWarFog(const S32 x, const S32 y, const S32 end
                                         if (k == 0)
                                             break;
 
-                                        fogOffset += g_rendererState.rendererStruct02.unk01;
+                                        fogOffset += g_rendererState.fogBlockParams2.unk01;
                                         *(Pixel*)dst = (Pixel)v31;
 
                                         dst = (DoublePixel*)((Addr)dst + sizeof(Pixel));
@@ -1916,10 +1916,10 @@ void copyMainSurfaceToRendererWithWarFog(const S32 x, const S32 y, const S32 end
                                         --k;
                                     } while (k);
 
-                                    fogOffset = g_rendererState.rendererStruct02.unk02 + v39;
+                                    fogOffset = g_rendererState.fogBlockParams2.unk02 + v39;
                                     src = (DoublePixel*)((Addr)src + SCREEN_WIDTH * sizeof(Pixel) - blockSize);
                                     dst = (DoublePixel*)((Addr)dst + g_moduleState.pitch - blockSize);
-                                    g_rendererState.rendererStruct02.unk01 += g_rendererState.rendererStruct01.unk01;
+                                    g_rendererState.fogBlockParams2.unk01 += g_rendererState.fogBlockParams.unk01;
 
                                     --j;
                                 } while (j & 0xFF);
@@ -1932,8 +1932,8 @@ void copyMainSurfaceToRendererWithWarFog(const S32 x, const S32 y, const S32 end
                     }
                     else
                     {
-                        U32 j = g_moduleState.moduleStruct01.blocksCount;
-                        ++g_moduleState.moduleStruct01.fogPtr;
+                        U32 j = g_rendererState.fogRenderParams.blocksCount;
+                        ++g_rendererState.fogRenderParams.fogPtr;
                         const DoublePixel mask = *(DoublePixel*)&g_moduleState.invActualColorBits;
                         while (true)
                         {
@@ -1959,30 +1959,30 @@ void copyMainSurfaceToRendererWithWarFog(const S32 x, const S32 y, const S32 end
                         }
                     }
 
-                    src = (DoublePixel*)((Addr)src + (Addr)g_moduleState.moduleStruct01.lineStep);
-                    dst = (DoublePixel*)((Addr)dst + (Addr)g_moduleState.moduleStruct01.dstRowStride);
-                    --g_rendererState.rendererStruct01.unk04;
-                } while (g_rendererState.rendererStruct01.unk04);
+                    src = (DoublePixel*)((Addr)src + (Addr)g_rendererState.fogRenderParams.lineStep);
+                    dst = (DoublePixel*)((Addr)dst + (Addr)g_rendererState.fogRenderParams.dstRowStride);
+                    --g_rendererState.fogBlockParams.unk04;
+                } while (g_rendererState.fogBlockParams.unk04);
 
                 src = (DoublePixel*)((Addr)srcTemp + (Addr)SCREEN_WIDTH * sizeof(Pixel) * 8);
                 dst = (DoublePixel*)((Addr)dstTemp + (Addr)g_moduleState.pitch * 8);
-                --g_rendererState.rendererStruct01.validRowsBlockCount;
-            } while (g_rendererState.rendererStruct01.validRowsBlockCount);
+                --g_rendererState.fogBlockParams.validRowsBlockCount;
+            } while (g_rendererState.fogBlockParams.validRowsBlockCount);
 
-            if ((g_rendererState.rendererStruct01.tempBlocksCount & 0xFF) == 0)
+            if ((g_rendererState.fogBlockParams.tempBlocksCount & 0xFF) == 0)
                 break;
 
-            g_moduleState.moduleStruct01.blocksCount = g_rendererState.rendererStruct01.tempBlocksCount;
-            g_moduleState.moduleStruct01.lineStep = SCREEN_SIZE_IN_BYTES - SCREEN_WIDTH * sizeof(Pixel) * 8 + blockSize;
-            g_rendererState.rendererStruct01.validRowsBlockCount = 1;
-            g_rendererState.rendererStruct01.tempBlocksCount = 0;
+            g_rendererState.fogRenderParams.blocksCount = g_rendererState.fogBlockParams.tempBlocksCount;
+            g_rendererState.fogRenderParams.lineStep = SCREEN_SIZE_IN_BYTES - SCREEN_WIDTH * sizeof(Pixel) * 8 + blockSize;
+            g_rendererState.fogBlockParams.validRowsBlockCount = 1;
+            g_rendererState.fogBlockParams.tempBlocksCount = 0;
         }
 
-        g_moduleState.moduleStruct01.lineStep = -(S32)SCREEN_WIDTH * 16 + blockSize;
-        remainingExcessRows = g_rendererState.rendererStruct02.excessRowsBlockCount;
-        g_rendererState.rendererStruct01.validRowsBlockCount = remainingExcessRows;
-        g_rendererState.rendererStruct02.excessRowsBlockCount = 0;
-        g_moduleState.moduleStruct01.blocksCount = blocksNumber;
+        g_rendererState.fogRenderParams.lineStep = -(S32)SCREEN_WIDTH * 16 + blockSize;
+        remainingExcessRows = g_rendererState.fogBlockParams2.excessRowsBlockCount;
+        g_rendererState.fogBlockParams.validRowsBlockCount = remainingExcessRows;
+        g_rendererState.fogBlockParams2.excessRowsBlockCount = 0;
+        g_rendererState.fogRenderParams.blocksCount = blocksNumber;
         src = (DoublePixel*)((Addr)src - (Addr)SCREEN_SIZE_IN_BYTES);
     } while (remainingExcessRows);
 
@@ -1999,10 +1999,10 @@ void blendMainSurfaceWithWarFog(const S32 x, const S32 y, const S32 endX, const 
     constexpr U32 blocksNumber = 8;
 
     S32 delta = (endY + 1) - y;
-    g_rendererState.rendererStruct02.unk04 = 0;
-    g_moduleState.moduleStruct01.actualRgbMask = g_moduleState.initialRgbMask;
-    g_moduleState.moduleStruct01.dstRowStride = -8 * g_moduleState.pitch + blockSize;
-    g_moduleState.moduleStruct01.lineStep = -(S32)SCREEN_WIDTH * 16 + blockSize;
+    g_rendererState.fogBlockParams2.unk04 = 0;
+    g_rendererState.fogRenderParams.actualRgbMask = g_moduleState.initialRgbMask;
+    g_rendererState.fogRenderParams.dstRowStride = -8 * g_moduleState.pitch + blockSize;
+    g_rendererState.fogRenderParams.lineStep = -(S32)SCREEN_WIDTH * 16 + blockSize;
 
     U8* fogSrc = &g_moduleState.fogSprites[(y >> 3) + 8].unk[(x >> 4) + 8];
     DoublePixel* src = (DoublePixel*)((Addr)g_rendererState.surfaces.main + g_moduleState.surface.offset + (SCREEN_WIDTH * y + x) * sizeof(Pixel));
@@ -2012,29 +2012,29 @@ void blendMainSurfaceWithWarFog(const S32 x, const S32 y, const S32 endX, const 
 
     if (y >= g_moduleState.surface.y || y + delta <= g_moduleState.surface.y)
     {
-        g_rendererState.rendererStruct01.validRowsBlockCount = delta >> 3;
-        g_rendererState.rendererStruct01.tempBlocksCount = 0;
-        g_rendererState.rendererStruct02.excessRowsBlockCount = 0;
+        g_rendererState.fogBlockParams.validRowsBlockCount = delta >> 3;
+        g_rendererState.fogBlockParams.tempBlocksCount = 0;
+        g_rendererState.fogBlockParams2.excessRowsBlockCount = 0;
 
-        g_moduleState.moduleStruct01.blocksCount = blocksNumber;
+        g_rendererState.fogRenderParams.blocksCount = blocksNumber;
     }
     else
     {
-        g_rendererState.rendererStruct01.validRowsBlockCount = (g_moduleState.surface.y - y) >> 3;
-        g_rendererState.rendererStruct02.excessRowsBlockCount = (delta + y - g_moduleState.surface.y) >> 3;
+        g_rendererState.fogBlockParams.validRowsBlockCount = (g_moduleState.surface.y - y) >> 3;
+        g_rendererState.fogBlockParams2.excessRowsBlockCount = (delta + y - g_moduleState.surface.y) >> 3;
         U32 v7 = ((U8)g_moduleState.surface.y - (U8)y) & 7;
         v7 = v7 | ((8 - v7) << 8);      // v7 now is 0000 ' 0000 ' 8 - v7 ' v7, so the summ of all its bytes is always 8    
-        g_rendererState.rendererStruct01.tempBlocksCount = v7;
+        g_rendererState.fogBlockParams.tempBlocksCount = v7;
 
-        if (g_rendererState.rendererStruct01.validRowsBlockCount == 0)
+        if (g_rendererState.fogBlockParams.validRowsBlockCount == 0)
         {
-            g_moduleState.moduleStruct01.lineStep += SCREEN_SIZE_IN_BYTES;
-            g_moduleState.moduleStruct01.blocksCount = v7;
-            g_rendererState.rendererStruct01.validRowsBlockCount = 1;
-            g_rendererState.rendererStruct01.tempBlocksCount = 0;
+            g_rendererState.fogRenderParams.lineStep += SCREEN_SIZE_IN_BYTES;
+            g_rendererState.fogRenderParams.blocksCount = v7;
+            g_rendererState.fogBlockParams.validRowsBlockCount = 1;
+            g_rendererState.fogBlockParams.tempBlocksCount = 0;
         }
         else
-            g_moduleState.moduleStruct01.blocksCount = blocksNumber;
+            g_rendererState.fogRenderParams.blocksCount = blocksNumber;
     }
 
     S32 remainingExcessRows;
@@ -2049,18 +2049,18 @@ void blendMainSurfaceWithWarFog(const S32 x, const S32 y, const S32 endX, const 
                 U8* someFog = fogSrc;
                 fogSrc = someFog + sizeof(Fog);
 
-                g_moduleState.moduleStruct01.fogPtr = someFog;
-                g_rendererState.rendererStruct01.unk04 = ((endX + 1) - x) >> 4;
+                g_rendererState.fogRenderParams.fogPtr = someFog;
+                g_rendererState.fogBlockParams.unk04 = ((endX + 1) - x) >> 4;
 
                 do {
-                    DoublePixel fogPixel = *(DoublePixel*)((Addr)g_moduleState.moduleStruct01.fogPtr - 2);
-                    fogPixel = (fogPixel & 0xFFFF'0000) | (*(Pixel*)((Addr)g_moduleState.moduleStruct01.fogPtr + sizeof(Fog)));
+                    DoublePixel fogPixel = *(DoublePixel*)((Addr)g_rendererState.fogRenderParams.fogPtr - 2);
+                    fogPixel = (fogPixel & 0xFFFF'0000) | (*(Pixel*)((Addr)g_rendererState.fogRenderParams.fogPtr + sizeof(Fog)));
 
                     if (fogPixel)
                     {
                         if (fogPixel == 0x80808080)
                         {
-                            ++g_moduleState.moduleStruct01.fogPtr;
+                            ++g_rendererState.fogRenderParams.fogPtr;
                             src = (DoublePixel*)((Addr)src + blockSize);
                         }
                         else
@@ -2086,13 +2086,13 @@ void blendMainSurfaceWithWarFog(const S32 x, const S32 y, const S32 endX, const 
                             // Final v27 computation
                             S32 v27 = carry + (-(S32)borrow1) - (S32)borrow2;
                             v27 = (v27 & 0xFFFF'FF00) | fogValueMidByte;
-                            g_rendererState.rendererStruct01.unk01 = v27 >> 2;
+                            g_rendererState.fogBlockParams.unk01 = v27 >> 2;
 
                             // Compute v28 (difference between fogPixelTopByte and fogPixelHighByte)
                             S32 v28 = -(S32)(fogPixelTopByte < fogPixelHighByte);
                             fogPixelTopByte -= fogPixelHighByte;
                             v28 = (v28 & 0xFFFF'FF00) | fogPixelTopByte;
-                            g_rendererState.rendererStruct02.unk01 = 2 * v28;
+                            g_rendererState.fogBlockParams2.unk01 = 2 * v28;
 
                             // Compute v30 (difference between fogPixelLowByte and fogPixelLow)
                             S32 v30 = -(S32)(fogPixelLowByte < fogPixelHighByte);
@@ -2100,17 +2100,17 @@ void blendMainSurfaceWithWarFog(const S32 x, const S32 y, const S32 endX, const 
                             v30 = (v30 & 0xFFFF'FF00) | fogPixelLowByte;
 
                             const S32 v31 = 4 * v30;
-                            g_rendererState.rendererStruct02.unk02 = v31;
+                            g_rendererState.fogBlockParams2.unk02 = v31;
 
                             U32 fogOffset = ((S32)fogPixelHighByte + 0x7F) << 5;
 
-                            const U32 mask = g_moduleState.moduleStruct01.actualRgbMask;
-                            U32 j = g_moduleState.moduleStruct01.blocksCount;
-                            ++g_moduleState.moduleStruct01.fogPtr;
+                            const U32 mask = g_rendererState.fogRenderParams.actualRgbMask;
+                            U32 j = g_rendererState.fogRenderParams.blocksCount;
+                            ++g_rendererState.fogRenderParams.fogPtr;
 
                             while (true)
                             {
-                                g_rendererState.rendererStruct02.unk04 = 0;
+                                g_rendererState.fogBlockParams2.unk04 = 0;
                                 do {
                                     U8 k = 0x10;
                                     S32 v39 = fogOffset;
@@ -2118,11 +2118,11 @@ void blendMainSurfaceWithWarFog(const S32 x, const S32 y, const S32 endX, const 
                                         while ((U8)(fogOffset >> 8) != 0x20)
                                         {
                                             const U32 srcPixel = (*src & 0xFFFF) | (*src << 16);
-                                            const U32 v35 = g_rendererState.rendererStruct02.unk04 + (mask & srcPixel) * (U8)(fogOffset >> 8);
-                                            fogOffset += g_rendererState.rendererStruct02.unk01;
+                                            const U32 v35 = g_rendererState.fogBlockParams2.unk04 + (mask & srcPixel) * (U8)(fogOffset >> 8);
+                                            fogOffset += g_rendererState.fogBlockParams2.unk01;
 
                                             const U32 v37 = mask & (v35 >> 5);
-                                            g_rendererState.rendererStruct02.unk04 = mask & v35;
+                                            g_rendererState.fogBlockParams2.unk04 = mask & v35;
 
                                             *(Pixel*)src = (Pixel)((v37 >> 16) | v37);
 
@@ -2134,15 +2134,15 @@ void blendMainSurfaceWithWarFog(const S32 x, const S32 y, const S32 endX, const 
                                         if (k == 0)
                                             break;
 
-                                        fogOffset += g_rendererState.rendererStruct02.unk01;
+                                        fogOffset += g_rendererState.fogBlockParams2.unk01;
 
                                         src = (DoublePixel*)((Addr)src + sizeof(Pixel));
                                         --k;
                                     } while (k);
 
-                                    fogOffset = g_rendererState.rendererStruct02.unk02 + v39;
+                                    fogOffset = g_rendererState.fogBlockParams2.unk02 + v39;
                                     src = (DoublePixel*)((Addr)src + SCREEN_WIDTH * sizeof(Pixel) - blockSize);
-                                    g_rendererState.rendererStruct02.unk01 += g_rendererState.rendererStruct01.unk01;
+                                    g_rendererState.fogBlockParams2.unk01 += g_rendererState.fogBlockParams.unk01;
 
                                     --j;
                                 } while (j & 0xFF);
@@ -2151,13 +2151,13 @@ void blendMainSurfaceWithWarFog(const S32 x, const S32 y, const S32 endX, const 
                                     break;
                                 src = (DoublePixel*)((Addr)src - (Addr)SCREEN_SIZE_IN_BYTES);
                             }
-                            src = (DoublePixel*)((Addr)src + (Addr)g_moduleState.moduleStruct01.lineStep);
+                            src = (DoublePixel*)((Addr)src + (Addr)g_rendererState.fogRenderParams.lineStep);
                         }
                     }
                     else
                     {
-                        U32 j = g_moduleState.moduleStruct01.blocksCount;
-                        ++g_moduleState.moduleStruct01.fogPtr;
+                        U32 j = g_rendererState.fogRenderParams.blocksCount;
+                        ++g_rendererState.fogRenderParams.fogPtr;
                         const DoublePixel mask = (*(DoublePixel*)&g_moduleState.invActualColorBits) & 0x7FFF7FFF;
                         while (true)
                         {
@@ -2180,30 +2180,30 @@ void blendMainSurfaceWithWarFog(const S32 x, const S32 y, const S32 endX, const 
                                 break;
                             src = (DoublePixel*)((Addr)src - (Addr)SCREEN_SIZE_IN_BYTES);
                         }
-                        src = (DoublePixel*)((Addr)src + (Addr)g_moduleState.moduleStruct01.lineStep);
+                        src = (DoublePixel*)((Addr)src + (Addr)g_rendererState.fogRenderParams.lineStep);
                     }
 
-                    --g_rendererState.rendererStruct01.unk04;
-                } while (g_rendererState.rendererStruct01.unk04);
+                    --g_rendererState.fogBlockParams.unk04;
+                } while (g_rendererState.fogBlockParams.unk04);
 
                 src = (DoublePixel*)((Addr)srcTemp + (Addr)SCREEN_WIDTH * sizeof(Pixel) * 8);
-                --g_rendererState.rendererStruct01.validRowsBlockCount;
-            } while (g_rendererState.rendererStruct01.validRowsBlockCount);
+                --g_rendererState.fogBlockParams.validRowsBlockCount;
+            } while (g_rendererState.fogBlockParams.validRowsBlockCount);
 
-            if ((g_rendererState.rendererStruct01.tempBlocksCount & 0xFF) == 0)
+            if ((g_rendererState.fogBlockParams.tempBlocksCount & 0xFF) == 0)
                 break;
 
-            g_moduleState.moduleStruct01.blocksCount = g_rendererState.rendererStruct01.tempBlocksCount;
-            g_moduleState.moduleStruct01.lineStep = SCREEN_SIZE_IN_BYTES - SCREEN_WIDTH * sizeof(Pixel) * 8 + blockSize;
-            g_rendererState.rendererStruct01.validRowsBlockCount = 1;
-            g_rendererState.rendererStruct01.tempBlocksCount = 0;
+            g_rendererState.fogRenderParams.blocksCount = g_rendererState.fogBlockParams.tempBlocksCount;
+            g_rendererState.fogRenderParams.lineStep = SCREEN_SIZE_IN_BYTES - SCREEN_WIDTH * sizeof(Pixel) * 8 + blockSize;
+            g_rendererState.fogBlockParams.validRowsBlockCount = 1;
+            g_rendererState.fogBlockParams.tempBlocksCount = 0;
         }
 
-        g_moduleState.moduleStruct01.lineStep = -(S32)SCREEN_WIDTH * 16 + blockSize;
-        remainingExcessRows = g_rendererState.rendererStruct02.excessRowsBlockCount;
-        g_rendererState.rendererStruct01.validRowsBlockCount = remainingExcessRows;
-        g_rendererState.rendererStruct02.excessRowsBlockCount = 0;
-        g_moduleState.moduleStruct01.blocksCount = blocksNumber;
+        g_rendererState.fogRenderParams.lineStep = -(S32)SCREEN_WIDTH * 16 + blockSize;
+        remainingExcessRows = g_rendererState.fogBlockParams2.excessRowsBlockCount;
+        g_rendererState.fogBlockParams.validRowsBlockCount = remainingExcessRows;
+        g_rendererState.fogBlockParams2.excessRowsBlockCount = 0;
+        g_rendererState.fogRenderParams.blocksCount = blocksNumber;
         src = (DoublePixel*)((Addr)src - (Addr)SCREEN_SIZE_IN_BYTES);
     } while (remainingExcessRows);
 }

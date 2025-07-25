@@ -185,7 +185,7 @@ struct RendererSurface
     void*   renderer;   //10012b20      // DirectDraw surface
 };
 
-struct ModuleStructTest01
+struct FogRenderParams
 {
     U8* fogPtr;                 //10012ad8      // Pointer to current fog tile. The previous and next fog tiles are used for calculations
     U32 blocksCount;            //10012adc      // Number of blocks to be copied
@@ -204,47 +204,43 @@ struct RhombsPalette
     Pixel palette[GRAPHICS_SIZE_PALETTE * 67];
 };
 
-struct Renderer
+struct ModuleState
 {
-    Rect                   windowRect;
-    RendererSurface        surface;
+    Rect                windowRect;
+    RendererSurface     surface;
 
-    U16                    actualRedMask;                   //10012b24
-    U16                    initialRedMask;                  //10012b26
-    U16                    actualGreenMask;                 //10012b28
-    U16                    initialGreenMask;                //10012b2a
-    U16                    actualBlueMask;                  //10012b2ñ
-    U16                    initialBlueMask;                 //10012b2e
+    U16                 actualRedMask;                   //10012b24
+    U16                 initialRedMask;                  //10012b26
+    U16                 actualGreenMask;                 //10012b28
+    U16                 initialGreenMask;                //10012b2a
+    U16                 actualBlueMask;                  //10012b2ñ
+    U16                 initialBlueMask;                 //10012b2e
 
-    U16                    redOffset;                       //10012b30
-    U16                    greenOffset;                     //10012b32
-    U16                    blueOffset;                      //10012b34
+    U16                 redOffset;                       //10012b30
+    U16                 greenOffset;                     //10012b32
+    U16                 blueOffset;                      //10012b34
 
-    U16                    pad_1;                           //10012b38              // Not used
-    U16                    actualColorBits;                 //10012b3a
-    U16                    actualColorBits2;                //10012b3c              // Just for actualColorBits mask of size of DoublePixel
-    U16                    actualColorMask;                 //10012b3e
-    U16                    initialColorMask;                //10012b40
-    U16                    shadeColorMask;                  //10012b42
-    U16                    shadeColorMask2;                 //10012b44              // Just for shadeColorMask mask of size of DoublePixel
-    U16                    invActualColorBits;              //10012b46
-    U16                    invActualColorBits2;             //10012b48              // Just for invActualColorBits mask of size of DoublePixel
-    U32                    initialRgbMask;                  //10012b4c
-    U32                    pad_2;                                                   // Used for padding. Without it game_dll won't work correctly
-    U32                    actualRgbMask;                   //10012b50
-    U32                    pitch;                           //10012b54              // Size in bytes of pixel line in DX renderer. Usually is: width * 2
-    DoublePixel            backSurfaceShadePixel;           //10012b58
-    Fog                    fogSprites[112];                 //10012b5a-10014e5b     // Describes fog of war
-    RhombsPalette          rhombsPalette;                   //10014e5c              // Landscape palette array (rhomb.pl)
+    U16                 pad_1;                           //10012b38              // Not used
+    U16                 actualColorBits;                 //10012b3a
+    U16                 actualColorBits2;                //10012b3c              // Just for actualColorBits mask of size of DoublePixel
+    U16                 actualColorMask;                 //10012b3e
+    U16                 initialColorMask;                //10012b40
+    U16                 shadeColorMask;                  //10012b42
+    U16                 shadeColorMask2;                 //10012b44              // Just for shadeColorMask mask of size of DoublePixel
+    U16                 invActualColorBits;              //10012b46
+    U16                 invActualColorBits2;             //10012b48              // Just for invActualColorBits mask of size of DoublePixel
+    U32                 initialRgbMask;                  //10012b4c
+    U32                 pad_2;                                                   // Used for padding. Without it game_dll won't work correctly
+    U32                 actualRgbMask;                   //10012b50
+    U32                 pitch;                           //10012b54              // Size in bytes of pixel line in DX renderer. Usually is: width * 2
+    DoublePixel         backSurfaceShadePixel;           //10012b58
+    Fog                 fogSprites[112];                 //10012b5a-10014e5b     // Describes fog of war
+    RhombsPalette       rhombsPalette;                   //10014e5c              // Landscape palette array (rhomb.pl)
 
-    HWND                   hwnd;
-    bool                   isFullScreen;                    //1001d478
-    DirectX                directX;
-    RendererActions        actions;
-
-    U32 dword_10018EA4;
-
-    ModuleStructTest01 moduleStruct01;
+    HWND                hwnd;
+    bool                isFullScreen;                    //1001d478
+    DirectX             directX;
+    RendererActions     actions;
 };
 
-extern Renderer g_moduleState;
+extern ModuleState g_moduleState;

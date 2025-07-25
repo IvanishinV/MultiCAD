@@ -86,7 +86,7 @@ struct GameUI
     ImagePaletteSprite* imageSprite;    // 0x100100d2
 };
 
-struct RendererStructTest01
+struct FogBlockParams
 {
     S32 unk01;                  // 1049edd0
     U32 tempBlocksCount;        // 1049edd4
@@ -94,27 +94,27 @@ struct RendererStructTest01
     U32 unk04;                  // 1049eddc
 };
 
-struct RendererStructTest02
+struct FogBlockParams2
 {
     S32 unk01;                  // 1001d574
     S32 unk02;                  // 1001d578
     S32 excessRowsBlockCount;   // 1001d57c     // Number of extra row blocks (8 rows each)
     S32 unk04;                  // 1001d580
-    S32 unk05;                  // 1001d584
 };
 
-struct RendererStateContainer
+struct RendererState
 {
-    Surfaces        surfaces;       // 1001'd5d0
-    Outline         outline;        // 1001'd55c
+    FogRenderParams fogRenderParams;    // 1001'2ad8
+    Surfaces        surfaces;           // 1001'd5d0
+    Outline         outline;            // 1001'd55c
     Sprite          sprite;
     Tile            tile;
     GameUI          gameUI;
-    RendererStructTest01 rendererStruct01;
-    RendererStructTest02 rendererStruct02;
+    FogBlockParams  fogBlockParams;
+    FogBlockParams2 fogBlockParams2;
 };
 
-extern RendererStateContainer g_rendererState;
+extern RendererState g_rendererState;
 
 
 

@@ -2,9 +2,9 @@
 #include "cad.h"
 #include "renderer.h"
 
-Renderer g_moduleState;
+ModuleState g_moduleState;
 
-Renderer* InitializeModule()
+ModuleState* InitializeModule()
 {
     g_moduleState.surface.main      = g_rendererState.surfaces.main;
     g_moduleState.surface.back      = g_rendererState.surfaces.back;
