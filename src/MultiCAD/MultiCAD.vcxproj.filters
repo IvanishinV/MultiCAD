@@ -36,6 +36,12 @@
     <ClInclude Include="assets.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ResolutionVerifier.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ResolutionDialog.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -48,6 +54,15 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="renderer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ResolutionVerifier.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="util.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ResolutionDialog.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

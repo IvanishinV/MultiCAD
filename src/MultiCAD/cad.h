@@ -3,9 +3,6 @@
 #include "assets.h"
 #include "util.h"
 
-constexpr U32 DIRECTDRAW_VERSION = 0x0700;
-#include <ddraw.h>
-
 template<typename T>
 inline void dxRelease(T*& p)
 {

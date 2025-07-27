@@ -1,6 +1,7 @@
 ﻿#include "pch.h"
 #include "cad.h"
 #include "renderer.h"
+#include "ResolutionVerifier.h"
 
 constexpr S32 DEFAULT_FONT_ASSET_SPACING = 2;
 
@@ -50,6 +51,8 @@ bool initDxInstance(const HWND hwnd, const bool fullscreen)
     {
         return false;
     }
+
+    ResolutionVerifier::GetInstance().Initialize(g_moduleState.directX.instance, GRAPHICS_BITS_PER_PIXEL_16);
 
     g_moduleState.isFullScreen = fullscreen;
     g_moduleState.hwnd = hwnd;
@@ -259,8 +262,13 @@ bool initWindowDxSurface(S32 width, S32 height)
 
     if (g_moduleState.isFullScreen)
     {
+        ResolutionVerifier::GetInstance().IsSupported(width, height, GRAPHICS_BITS_PER_PIXEL_16, true);
+
         if (FAILED(g_moduleState.directX.instance->SetDisplayMode(width, height, GRAPHICS_BITS_PER_PIXEL_16)))
         {
+            char buf[100];
+            std::snprintf(buf, sizeof(buf), "Display mode %dx%dx%d is not supported by system. Terminating.", width, height, GRAPHICS_BITS_PER_PIXEL_16);
+            ShowErrorMessage(buf);
             return false;
         }
 

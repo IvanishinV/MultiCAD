@@ -1,6 +1,10 @@
 #pragma once
 
 #include "types.h"
+#include <string>
+
+constexpr U32 DIRECTDRAW_VERSION = 0x0700;
+#include <ddraw.h>
 
 constexpr size_t  GRAPHICS_BITS_PER_PIXEL_8		= 8;
 constexpr size_t  GRAPHICS_BITS_PER_PIXEL_16	= 16;
@@ -30,3 +34,5 @@ const U8 IMAGE_SPRITE_ITEM_COMPACT_MASK         = 0x80;
 const U8 IMAGE_SPRITE_ITEM_EXTENDED_MASK        = 0xC0;
 
 #define SHADEPIXEL(pixel, mask) (((pixel) & (mask)) >> 1)
+
+void ShowErrorMessage(const std::string_view& message, bool isCritical = false);

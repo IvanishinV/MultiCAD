@@ -80,6 +80,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="assets.h" />
+    <ClInclude Include="ResolutionDialog.h" />
+    <ClInclude Include="ResolutionVerifier.h" />
     <ClInclude Include="types.h" />
     <ClInclude Include="cad.h" />
     <ClInclude Include="renderer.h" />
@@ -94,6 +96,9 @@
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="renderer.cpp" />
+    <ClCompile Include="ResolutionDialog.cpp" />
+    <ClCompile Include="ResolutionVerifier.cpp" />
+    <ClCompile Include="util.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="MultiCAD.rc" />
