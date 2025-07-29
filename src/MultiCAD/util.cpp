@@ -3,7 +3,7 @@
 
 void ShowErrorMessage(const std::string_view& message, bool isCritical)
 {
-    MessageBoxA(NULL, message.data(), "Error", MB_OK | MB_ICONERROR);
+    MessageBoxA(NULL, message.data(), "MultiCAD error", MB_OK | MB_ICONERROR);
     if (isCritical)
         ExitProcess(EXIT_FAILURE);
 }

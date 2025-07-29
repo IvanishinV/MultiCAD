@@ -80,6 +80,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="assets.h" />
+    <ClInclude Include="GameDllVersionDetector.h" />
     <ClInclude Include="ResolutionDialog.h" />
     <ClInclude Include="ResolutionVerifier.h" />
     <ClInclude Include="types.h" />
@@ -90,6 +91,7 @@
     <ClInclude Include="util.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="GameDllVersionDetector.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="cad.cpp" />
     <ClCompile Include="pch.cpp">

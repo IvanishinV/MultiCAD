@@ -2,6 +2,7 @@
 #include "cad.h"
 #include "renderer.h"
 #include "ResolutionVerifier.h"
+#include "GameDllVersionDetector.h"
 
 constexpr S32 DEFAULT_FONT_ASSET_SPACING = 2;
 
@@ -259,6 +260,15 @@ void setPixelColorMasks(const U32 r, const U32 g, const U32 b)
 bool initWindowDxSurface(S32 width, S32 height)
 {
     releaseDxSurface();
+
+    // This place is the best to handle game_dll loading, because game_dll is loaded only after starting mission.
+    // New surface is also created after mission loading start.
+    GameDllVersionDetector detector;
+    detector.DetectGameDll();
+    if (detector.GetDetectionStatus() == DetectionStatus::UnsupportedHash)
+    {
+        ShowErrorMessage("MultiCAD couldn't identify and doesn't fully support this version of Sudden Strike. The mod may not work correctly. \nTo add support, contact the author of the mod.");
+    }
 
     if (g_moduleState.isFullScreen)
     {
