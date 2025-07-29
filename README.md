@@ -13,10 +13,11 @@ This DLL supports arbitrary screen resolutions for the following games:
 
 ## Usage
 
-1. Build or download the `MultiCAD.dll` file.
-2. Place it into the game folder (same directory as the game executable).
-3. Open `sudtest.ini` and set the name of the DLL to `MultiCAD.dll`.
-4. The game will launch using your current desktop screen resolution by default.
+1. Build or download the `cadMulti.dll` file.
+2. Place the file in the game folder (same directory as the game executable).
+3. Open `sudtest.ini` and set the value of any *SSDraw* variable to `cadMulti.dll`.
+4. Select the appropriate resolution option from the main menu.
+5. By default, the game will launch using your current desktop screen resolution.
 
 > ⚠️ If you want to override the resolution, support for custom settings will be added in future updates.
 
