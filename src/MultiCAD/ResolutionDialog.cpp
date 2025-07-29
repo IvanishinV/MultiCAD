@@ -22,8 +22,8 @@ HWND CreateSimpleDialog(HINSTANCE hInst, HWND hwndParent)
     HWND hwndDlg = CreateWindowExW(
         WS_EX_DLGMODALFRAME,
         L"#32770",
-        L"Выбор разрешения",
-        WS_OVERLAPPEDWINDOW,
+        L"Select a resolution",
+        WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU,
         CW_USEDEFAULT, CW_USEDEFAULT,
         width, height,
         hwndParent,
@@ -55,14 +55,14 @@ HWND CreateSimpleDialog(HINSTANCE hInst, HWND hwndParent)
 
     HWND hwndButtonOK = CreateWindowExW(0, L"BUTTON", L"Ok",
         WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON,
-        60, 240, 80, 25,
+        60, 235, 80, 25,
         hwndDlg, (HMENU)IDOK, hInst, nullptr);
 
     SendMessage(hwndButtonOK, WM_SETFONT, (WPARAM)hFont, TRUE);
 
     HWND hwndButtonCancel = CreateWindowExW(0, L"BUTTON", L"Cancel",
         WS_CHILD | WS_VISIBLE,
-        180, 240, 80, 25,
+        180, 235, 80, 25,
         hwndDlg, (HMENU)IDCANCEL, hInst, nullptr);
 
     SendMessage(hwndButtonCancel, WM_SETFONT, (WPARAM)hFont, TRUE);

@@ -8,14 +8,10 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fwdReason, LPVOID lpvReserved)
     {
     case DLL_PROCESS_ATTACH:
     {
-        ResolutionVerifier::CreateInstance();
-
         break;
     }
     case DLL_PROCESS_DETACH:
     {
-        ResolutionVerifier::DestroyInstance();
-
         break;
     }
     };

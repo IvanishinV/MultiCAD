@@ -6,9 +6,7 @@
 class ResolutionVerifier
 {
 public:
-    static void CreateInstance();
     static ResolutionVerifier& GetInstance();
-    static void DestroyInstance();
 
     void Initialize(LPDIRECTDRAW ddraw, int bits);
 

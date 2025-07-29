@@ -2,25 +2,11 @@
 #include "ResolutionVerifier.h"
 #include "ResolutionDialog.h"
 
-ResolutionVerifier* ResolutionVerifier::instance_ = nullptr;
-
-void ResolutionVerifier::CreateInstance()
-{
-    if (!instance_)
-    {
-        instance_ = new ResolutionVerifier();
-    }
-}
 
 ResolutionVerifier& ResolutionVerifier::GetInstance()
 {
-    return *instance_;
-}
-
-void ResolutionVerifier::DestroyInstance()
-{
-    delete instance_;
-    instance_ = nullptr;
+    static ResolutionVerifier instance;
+    return instance;
 }
 
 ResolutionVerifier::ResolutionVerifier()
@@ -37,6 +23,7 @@ void ResolutionVerifier::Initialize(LPDIRECTDRAW ddraw, int bits)
         InitSupportedResolutions(bits);
     }
 }
+
 
 void ResolutionVerifier::InitSupportedResolutions(int bitsFilter)
 {
