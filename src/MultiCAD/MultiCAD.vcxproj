@@ -94,7 +94,7 @@
     <ClInclude Include="MemoryRelocator.h" />
     <ClInclude Include="ResolutionDialog.h" />
     <ClInclude Include="ResolutionVerifier.h" />
-    <ClInclude Include="ScreenGlobals.h" />
+    <ClInclude Include="ScreenConfig.h" />
     <ClInclude Include="types.h" />
     <ClInclude Include="cad.h" />
     <ClInclude Include="renderer.h" />
@@ -114,6 +114,7 @@
     <ClCompile Include="renderer.cpp" />
     <ClCompile Include="ResolutionDialog.cpp" />
     <ClCompile Include="ResolutionVerifier.cpp" />
+    <ClCompile Include="ScreenConfig.cpp" />
     <ClCompile Include="util.cpp" />
   </ItemGroup>
   <ItemGroup>

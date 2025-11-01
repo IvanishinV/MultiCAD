@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "ResolutionVerifier.h"
 #include "ResolutionDialog.h"
-#include "ScreenGlobals.h"
+#include "ScreenConfig.h"
 
 
 ResolutionVerifier& ResolutionVerifier::GetInstance()
@@ -48,7 +48,7 @@ HRESULT WINAPI ResolutionVerifier::EnumModesCallback(LPDDSURFACEDESC lpDDSurface
         return DDENUMRET_OK;
     }
 
-    if (lpDDSurfaceDesc->dwWidth > MAX_POSSIBLE_SCREEN_WIDTH || lpDDSurfaceDesc->dwHeight > MAX_POSSIBLE_SCREEN_HEIGHT)
+    if (lpDDSurfaceDesc->dwWidth > Graphics::kMaxWidth || lpDDSurfaceDesc->dwHeight > Graphics::kMaxHeight)
     {
         return DDENUMRET_OK;
     }
@@ -72,7 +72,7 @@ HRESULT WINAPI ResolutionVerifier::EnumModesCallback(LPDDSURFACEDESC lpDDSurface
     return DDENUMRET_OK;
 }
 
-bool ResolutionVerifier::IsSupported(int& width, int& height, int bits, bool allowChoose) const
+bool ResolutionVerifier::IsSupported(int width, int height, int bits) const
 {
     for (const auto& res : supportedResolutions_)
     {
@@ -82,9 +82,11 @@ bool ResolutionVerifier::IsSupported(int& width, int& height, int bits, bool all
         }
     }
 
-    if (!allowChoose)
-        return false;
+    return false;
+}
 
+bool ResolutionVerifier::ChooseResolution(int& width, int& height) const
+{
     HINSTANCE hInstance = GetModuleHandle(NULL);
 
     auto ctx = std::make_shared<ResolutionDialogContext>();

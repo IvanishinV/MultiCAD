@@ -18,20 +18,19 @@
 
 RendererState g_rendererState;
 
-
 // 0x10001000
 void initValues()
 {
     g_moduleState.surface.offset = 0;
-    g_moduleState.surface.y = SCREEN_HEIGHT;
-    g_moduleState.surface.width = SCREEN_WIDTH;
-    g_moduleState.surface.height = SCREEN_HEIGHT;
-    g_moduleState.surface.stride = SCREEN_WIDTH * sizeof(Pixel);
+    g_moduleState.surface.y = Screen::height_;
+    g_moduleState.surface.width = Screen::width_;
+    g_moduleState.surface.height = Screen::height_;
+    g_moduleState.surface.stride = Screen::widthInBytes_;
 
     g_moduleState.windowRect.x = 0;
     g_moduleState.windowRect.y = 0;
-    g_moduleState.windowRect.width = SCREEN_WIDTH - 1;
-    g_moduleState.windowRect.height = SCREEN_HEIGHT - 1;
+    g_moduleState.windowRect.width = Screen::width_ - 1;
+    g_moduleState.windowRect.height = Screen::height_ - 1;
 }
 
 // 0x10001050
@@ -50,7 +49,7 @@ bool initDxInstance(const HWND hwnd, const bool fullscreen)
         return false;
     }
 
-    ResolutionVerifier::GetInstance().Initialize(g_moduleState.directX.instance, GRAPHICS_BITS_PER_PIXEL_16);
+    ResolutionVerifier::GetInstance().Initialize(g_moduleState.directX.instance, Graphics::kBitsPerPixel16);
 
     g_moduleState.isFullScreen = fullscreen;
     g_moduleState.hwnd = hwnd;
@@ -105,7 +104,7 @@ void setPixelColorMasks(const U32 r, const U32 g, const U32 b)
         size_t x = 0;
         U32 mask = PIXEL_COLOR_BIT_MASK;
 
-        for (; x < GRAPHICS_BITS_PER_PIXEL_16; ++x)
+        for (; x < Graphics::kBitsPerPixel16; ++x)
         {
             if (mask & rm)
             {
@@ -124,7 +123,7 @@ void setPixelColorMasks(const U32 r, const U32 g, const U32 b)
         size_t x = 0;
         U32 mask = PIXEL_COLOR_BIT_MASK;
 
-        for (; x < GRAPHICS_BITS_PER_PIXEL_16; ++x)
+        for (; x < Graphics::kBitsPerPixel16; ++x)
         {
             if (mask & gm)
             {
@@ -143,7 +142,7 @@ void setPixelColorMasks(const U32 r, const U32 g, const U32 b)
         size_t x = 0;
         U32 mask = PIXEL_COLOR_BIT_MASK;
 
-        for (; x < GRAPHICS_BITS_PER_PIXEL_16; ++x)
+        for (; x < Graphics::kBitsPerPixel16; ++x)
         {
             if (mask & bm)
             {
@@ -162,7 +161,7 @@ void setPixelColorMasks(const U32 r, const U32 g, const U32 b)
     {
         U32 mask = 1;
 
-        for (size_t x = 0; x < GRAPHICS_BITS_PER_PIXEL_16; ++x)
+        for (size_t x = 0; x < Graphics::kBitsPerPixel16; ++x)
         {
             if (mask & rm)
             {
@@ -178,7 +177,7 @@ void setPixelColorMasks(const U32 r, const U32 g, const U32 b)
     {
         U32 mask = 1;
 
-        for (size_t x = 0; x < GRAPHICS_BITS_PER_PIXEL_16; ++x)
+        for (size_t x = 0; x < Graphics::kBitsPerPixel16; ++x)
         {
             if (mask & gm)
             {
@@ -194,7 +193,7 @@ void setPixelColorMasks(const U32 r, const U32 g, const U32 b)
     {
         U32 mask = 1;
 
-        for (size_t x = 0; x < GRAPHICS_BITS_PER_PIXEL_16; ++x)
+        for (size_t x = 0; x < Graphics::kBitsPerPixel16; ++x)
         {
             if (mask & bm)
             {
@@ -260,16 +259,19 @@ bool initWindowDxSurface(S32 width, S32 height)
 
     if (g_moduleState.isFullScreen)
     {
-        ResolutionVerifier::GetInstance().IsSupported(width, height, GRAPHICS_BITS_PER_PIXEL_16, true);
+        const bool isSupported = ResolutionVerifier::GetInstance().IsSupported(width, height, Graphics::kBitsPerPixel16);
+        if (!isSupported)
+            if (ResolutionVerifier::GetInstance().ChooseResolution(width, height))
+                Screen::UpdateSize(width, height);
 
-        if (FAILED(g_moduleState.directX.instance->SetDisplayMode(width, height, GRAPHICS_BITS_PER_PIXEL_16)))
+        if (FAILED(g_moduleState.directX.instance->SetDisplayMode(width, height, Graphics::kBitsPerPixel16)))
         {
             char buf[100];
-            std::snprintf(buf, sizeof(buf), "Display mode %dx%dx%d is not supported by system. Terminating.", width, height, GRAPHICS_BITS_PER_PIXEL_16);
+            std::snprintf(buf, sizeof(buf), "Display mode %dx%dx%d is not supported by system. Terminating.", width, height, Graphics::kBitsPerPixel16);
             ShowErrorNow(buf);
             return false;
         }
-
+        
         SetWindowPos(g_moduleState.hwnd, NULL, 0, 0, width, height, SWP_NOZORDER | SWP_NOMOVE);
     }
     else
@@ -367,10 +369,10 @@ void drawMainSurfaceHorLine(const S32 x, const S32 y, const S32 length, const Pi
         if (new_x <= max_x)
         {
             Pixel* pixels = (Pixel*)((Addr)g_rendererState.surfaces.main
-                + g_moduleState.surface.offset + (y * SCREEN_WIDTH + new_x) * sizeof(Pixel));
+                + g_moduleState.surface.offset + (y * Screen::width_ + new_x) * sizeof(Pixel));
 
             if (g_moduleState.surface.y <= y)
-                pixels = (Pixel*)((Addr)pixels - SCREEN_SIZE_IN_BYTES);
+                pixels = (Pixel*)((Addr)pixels - Screen::sizeInBytes_);
 
             std::fill(pixels, pixels + (max_x - new_x + 1), pixel);
         }
@@ -398,7 +400,8 @@ void drawMainSurfaceVertLine(const S32 x, const S32 y, const S32 height, const P
         return;
 
     Pixel* pixels = (Pixel*)((Addr)g_rendererState.surfaces.main
-        + g_moduleState.surface.offset + (Addr)(new_y * SCREEN_WIDTH + x) * sizeof(Pixel));
+        + g_moduleState.surface.offset + (Addr)(new_y * Screen::width_ + x) * sizeof(Pixel));
+    const Addr screenWidthInBytes = Screen::widthInBytes_;
 
     if (y < g_moduleState.surface.y)
     {
@@ -410,7 +413,7 @@ void drawMainSurfaceVertLine(const S32 x, const S32 y, const S32 height, const P
             {
                 pixels[0] = pixel;
 
-                pixels = (Pixel*)((Addr)pixels + (Addr)(SCREEN_WIDTH * sizeof(Pixel)));
+                pixels = (Pixel*)((Addr)pixels + screenWidthInBytes);
             }
         }
         else
@@ -419,28 +422,28 @@ void drawMainSurfaceVertLine(const S32 x, const S32 y, const S32 height, const P
             {
                 pixels[0] = pixel;
 
-                pixels = (Pixel*)((Addr)pixels + (Addr)(SCREEN_WIDTH * sizeof(Pixel)));
+                pixels = (Pixel*)((Addr)pixels + screenWidthInBytes);
             }
 
-            pixels = (Pixel*)((Addr)pixels - SCREEN_SIZE_IN_BYTES);
+            pixels = (Pixel*)((Addr)pixels - Screen::sizeInBytes_);
 
             for (S32 xx = 0; xx < delta; ++xx)
             {
                 pixels[0] = pixel;
 
-                pixels = (Pixel*)((Addr)pixels + (Addr)(SCREEN_WIDTH * sizeof(Pixel)));
+                pixels = (Pixel*)((Addr)pixels + screenWidthInBytes);
             }
         }
     }
     else
     {
-        pixels = (Pixel*)((Addr)pixels - SCREEN_SIZE_IN_BYTES);
+        pixels = (Pixel*)((Addr)pixels - Screen::sizeInBytes_);
 
         for (S32 xx = 0; xx < max_y; ++xx)
         {
             pixels[0] = pixel;
 
-            pixels = (Pixel*)((Addr)pixels + (Addr)(SCREEN_WIDTH * sizeof(Pixel)));
+            pixels = (Pixel*)((Addr)pixels + screenWidthInBytes);
         }
     }
 }
@@ -478,7 +481,8 @@ void drawMainSurfaceFilledColorRect(S32 x, S32 y, S32 width, S32 height, const P
     if (width < 1 || height < 1)
         return;
 
-    Pixel* pixels = (Pixel*)((Addr)g_rendererState.surfaces.main + g_moduleState.surface.offset + (Addr)(y * SCREEN_WIDTH + x) * sizeof(Pixel));
+    Pixel* pixels = (Pixel*)((Addr)g_rendererState.surfaces.main + g_moduleState.surface.offset + (Addr)(y * Screen::width_ + x) * sizeof(Pixel));
+    const Addr widthInBytes = Screen::widthInBytes_;
 
     if (y < g_moduleState.surface.y)
     {
@@ -490,7 +494,7 @@ void drawMainSurfaceFilledColorRect(S32 x, S32 y, S32 width, S32 height, const P
             {
                 std::fill(pixels, pixels + width, pixel);
 
-                pixels = (Pixel*)((Addr)pixels + (Addr)(SCREEN_WIDTH * sizeof(Pixel)));
+                pixels = (Pixel*)((Addr)pixels + widthInBytes);
             }
         }
         else
@@ -499,28 +503,28 @@ void drawMainSurfaceFilledColorRect(S32 x, S32 y, S32 width, S32 height, const P
             {
                 std::fill(pixels, pixels + width, pixel);
 
-                pixels = (Pixel*)((Addr)pixels + (Addr)(SCREEN_WIDTH * sizeof(Pixel)));
+                pixels = (Pixel*)((Addr)pixels + widthInBytes);
             }
 
-            pixels = (Pixel*)((Addr)pixels - SCREEN_SIZE_IN_BYTES);
+            pixels = (Pixel*)((Addr)pixels - Screen::sizeInBytes_);
 
             for (S32 yy = 0; yy < delta; ++yy)
             {
                 std::fill(pixels, pixels + width, pixel);
 
-                pixels = (Pixel*)((Addr)pixels + (Addr)(SCREEN_WIDTH * sizeof(Pixel)));
+                pixels = (Pixel*)((Addr)pixels + widthInBytes);
             }
         }
     }
     else
     {
-        pixels = (Pixel*)((Addr)pixels - SCREEN_SIZE_IN_BYTES);
+        pixels = (Pixel*)((Addr)pixels - Screen::sizeInBytes_);
 
         for (S32 yy = 0; yy < height; ++yy)
         {
             std::fill(pixels, pixels + width, pixel);
 
-            pixels = (Pixel*)((Addr)pixels + (Addr)(SCREEN_WIDTH * sizeof(Pixel)));
+            pixels = (Pixel*)((Addr)pixels + widthInBytes);
         }
     }
 }
@@ -555,7 +559,8 @@ void drawMainSurfaceShadeColorRect(S32 x, S32 y, S32 width, S32 height, const Pi
     if (width < 1 || height < 1)
         return;
 
-    Pixel* pixels = (Pixel*)((Addr)g_rendererState.surfaces.main + g_moduleState.surface.offset + (Addr)(y * SCREEN_WIDTH + x) * sizeof(Pixel));
+    Pixel* pixels = (Pixel*)((Addr)g_rendererState.surfaces.main + g_moduleState.surface.offset + (Addr)(y * Screen::width_ + x) * sizeof(Pixel));
+    const Addr widthInBytes = Screen::widthInBytes_;
 
     const Pixel color = SHADEPIXEL(pixel, g_moduleState.shadeColorMask);
 
@@ -572,7 +577,7 @@ void drawMainSurfaceShadeColorRect(S32 x, S32 y, S32 width, S32 height, const Pi
                     pixels[xx] = SHADEPIXEL(pixels[xx], g_moduleState.shadeColorMask) + color;
                 }
 
-                pixels = (Pixel*)((Addr)pixels + (Addr)(SCREEN_WIDTH * sizeof(Pixel)));
+                pixels = (Pixel*)((Addr)pixels + widthInBytes);
             }
         }
         else
@@ -584,10 +589,10 @@ void drawMainSurfaceShadeColorRect(S32 x, S32 y, S32 width, S32 height, const Pi
                     pixels[xx] = SHADEPIXEL(pixels[xx], g_moduleState.shadeColorMask) + color;
                 }
 
-                pixels = (Pixel*)((Addr)pixels + (Addr)(SCREEN_WIDTH * sizeof(Pixel)));
+                pixels = (Pixel*)((Addr)pixels + widthInBytes);
             }
 
-            pixels = (Pixel*)((Addr)pixels - SCREEN_SIZE_IN_BYTES);
+            pixels = (Pixel*)((Addr)pixels - Screen::sizeInBytes_);
 
             for (S32 yy = 0; yy < delta; ++yy)
             {
@@ -596,13 +601,13 @@ void drawMainSurfaceShadeColorRect(S32 x, S32 y, S32 width, S32 height, const Pi
                     pixels[xx] = SHADEPIXEL(pixels[xx], g_moduleState.shadeColorMask) + color;
                 }
 
-                pixels = (Pixel*)((Addr)pixels + (Addr)(SCREEN_WIDTH * sizeof(Pixel)));
+                pixels = (Pixel*)((Addr)pixels + widthInBytes);
             }
         }
     }
     else
     {
-        pixels = (Pixel*)((Addr)pixels - SCREEN_SIZE_IN_BYTES);
+        pixels = (Pixel*)((Addr)pixels - Screen::sizeInBytes_);
 
         for (S32 yy = 0; yy < height; ++yy)
         {
@@ -611,7 +616,7 @@ void drawMainSurfaceShadeColorRect(S32 x, S32 y, S32 width, S32 height, const Pi
                 pixels[xx] = SHADEPIXEL(pixels[xx], g_moduleState.shadeColorMask) + color;
             }
 
-            pixels = (Pixel*)((Addr)pixels + (Addr)(SCREEN_WIDTH * sizeof(Pixel)));
+            pixels = (Pixel*)((Addr)pixels + widthInBytes);
         }
     }
 }
@@ -624,10 +629,10 @@ void drawMainSurfaceColorPoint(const S32 x, const S32 y, const Pixel pixel)
         && x <= g_moduleState.windowRect.width
         && y <= g_moduleState.windowRect.height)
     {
-        S32 offset = g_moduleState.surface.offset / sizeof(Pixel) + y * SCREEN_WIDTH + x;
+        S32 offset = g_moduleState.surface.offset / sizeof(Pixel) + y * Screen::width_ + x;
 
         if (g_moduleState.surface.y <= y)
-            offset -= SCREEN_SIZE_IN_PIXELS;
+            offset -= Screen::sizeInPixels_;
 
         g_rendererState.surfaces.main[offset] = pixel;
     }
@@ -641,10 +646,10 @@ void drawBackSurfaceColorPoint(const S32 x, const S32 y, const Pixel pixel)
         && x <= g_moduleState.windowRect.width
         && y <= g_moduleState.windowRect.height)
     {
-        S32 offset = g_moduleState.surface.offset / sizeof(Pixel) + y * SCREEN_WIDTH + x;
+        S32 offset = g_moduleState.surface.offset / sizeof(Pixel) + y * Screen::width_ + x;
 
         if (g_moduleState.surface.y <= y)
-            offset -= SCREEN_SIZE_IN_PIXELS;
+            offset -= Screen::sizeInPixels_;
 
         g_rendererState.surfaces.back[offset] = pixel;
     }
@@ -654,8 +659,9 @@ void drawBackSurfaceColorPoint(const S32 x, const S32 y, const Pixel pixel)
 // 0x100018a0
 void readMainSurfaceRect(const S32 sx, const S32 sy, const S32 width, const S32 height, const S32 dx, const S32 dy, const S32 stride, Pixel* surface)
 {
-    Pixel* src = (Pixel*)((Addr)g_rendererState.surfaces.main + g_moduleState.surface.offset + (sy * SCREEN_WIDTH + sx) * sizeof(Pixel));
+    Pixel* src = (Pixel*)((Addr)g_rendererState.surfaces.main + g_moduleState.surface.offset + (sy * Screen::width_ + sx) * sizeof(Pixel));
     Pixel* dst = (Pixel*)((Addr)surface + (stride * dy + dx) * sizeof(Pixel));
+    const Addr widthInBytes = Screen::widthInBytes_;
 
     if (sy < g_moduleState.surface.y)
     {
@@ -666,7 +672,7 @@ void readMainSurfaceRect(const S32 sx, const S32 sy, const S32 width, const S32 
             for (S32 yy = 0; yy < height; ++yy)
             {
                 std::memcpy(dst, src, width * sizeof(Pixel));
-                src = (Pixel*)((Addr)src + (Addr)(SCREEN_WIDTH * sizeof(Pixel)));
+                src = (Pixel*)((Addr)src + widthInBytes);
                 dst = (Pixel*)((Addr)dst + (Addr)(stride * sizeof(Pixel)));
             }
         }
@@ -675,28 +681,28 @@ void readMainSurfaceRect(const S32 sx, const S32 sy, const S32 width, const S32 
             for (S32 yy = 0; yy < height - delta; ++yy)
             {
                 std::memcpy(dst, src, width * sizeof(Pixel));
-                src = (Pixel*)((Addr)src + (Addr)(SCREEN_WIDTH * sizeof(Pixel)));
+                src = (Pixel*)((Addr)src + widthInBytes);
                 dst = (Pixel*)((Addr)dst + (Addr)(stride * sizeof(Pixel)));
             }
 
-            src = (Pixel*)((Addr)src - SCREEN_SIZE_IN_BYTES);
+            src = (Pixel*)((Addr)src - Screen::sizeInBytes_);
 
             for (S32 yy = 0; yy < delta; ++yy)
             {
                 std::memcpy(dst, src, width * sizeof(Pixel));
-                src = (Pixel*)((Addr)src + (Addr)(SCREEN_WIDTH * sizeof(Pixel)));
+                src = (Pixel*)((Addr)src + widthInBytes);
                 dst = (Pixel*)((Addr)dst + (Addr)(stride * sizeof(Pixel)));
             }
         }
     }
     else
     {
-        src = (Pixel*)((Addr)src - SCREEN_SIZE_IN_BYTES);
+        src = (Pixel*)((Addr)src - Screen::sizeInBytes_);
 
         for (S32 yy = 0; yy < height; ++yy)
         {
             std::memcpy(dst, src, width * sizeof(Pixel));
-            src = (Pixel*)((Addr)src + (Addr)(SCREEN_WIDTH * sizeof(Pixel)));
+            src = (Pixel*)((Addr)src + widthInBytes);
             dst = (Pixel*)((Addr)dst + (Addr)(stride * sizeof(Pixel)));
         }
     }
@@ -742,77 +748,80 @@ void convertAllColors(const Pixel* input, Pixel* output, const S32 count)
 // 0x10001d00
 void copyMainBackSurfaces(const S32 dx, const S32 dy)
 {
+    const S32 screenWidth = Screen::width_;
+    const S32 screenHeight = Screen::height_;
+    const S32 screenSizeInPixels = Screen::sizeInPixels_;
     Pixel* src;
     Pixel* dst;
 
-    S32 offset = g_moduleState.surface.offset / sizeof(Pixel) + dy * SCREEN_WIDTH + dx;
+    S32 offset = g_moduleState.surface.offset / sizeof(Pixel) + dy * screenWidth + dx;
     if (offset < 0)
     {
         do
         {
-            offset += SCREEN_SIZE_IN_PIXELS;
+            offset += screenSizeInPixels;
         } while (offset < 0);
     }
     else
     {
-        while (offset >= SCREEN_SIZE_IN_PIXELS)
-            offset -= SCREEN_SIZE_IN_PIXELS;
+        while (offset >= screenSizeInPixels)
+            offset -= screenSizeInPixels;
     }
 
-    S32 x_max = dx + (g_moduleState.surface.offset / sizeof(Pixel)) % SCREEN_WIDTH;
+    S32 x_max = dx + (g_moduleState.surface.offset / sizeof(Pixel)) % screenWidth;
     do
     {
         if (x_max >= 0)
         {
-            if (x_max < SCREEN_WIDTH)
+            if (x_max < screenWidth)
                 break;
 
-            src = g_moduleState.surface.back + SCREEN_SIZE_IN_PIXELS;
+            src = g_moduleState.surface.back + screenSizeInPixels;
             dst = g_moduleState.surface.back;
-            std::memcpy(dst, src, SCREEN_WIDTH * sizeof(Pixel));
+            std::memcpy(dst, src, screenWidth * sizeof(Pixel));
 
-            src = g_moduleState.surface.main + SCREEN_SIZE_IN_PIXELS;
+            src = g_moduleState.surface.main + screenSizeInPixels;
             dst = g_moduleState.surface.main;
-            std::memcpy(dst, src, SCREEN_WIDTH * sizeof(Pixel));
+            std::memcpy(dst, src, screenWidth * sizeof(Pixel));
 
-            src = g_moduleState.surface.stencil + SCREEN_SIZE_IN_PIXELS;
+            src = g_moduleState.surface.stencil + screenSizeInPixels;
             dst = g_moduleState.surface.stencil;
         }
         else
         {
             src = g_moduleState.surface.back;
-            dst = g_moduleState.surface.back + SCREEN_SIZE_IN_PIXELS;
-            std::memcpy(dst, src, SCREEN_WIDTH * sizeof(Pixel));
+            dst = g_moduleState.surface.back + screenSizeInPixels;
+            std::memcpy(dst, src, screenWidth * sizeof(Pixel));
 
             src = g_moduleState.surface.main;
-            dst = g_moduleState.surface.main + SCREEN_SIZE_IN_PIXELS;
-            std::memcpy(dst, src, SCREEN_WIDTH * sizeof(Pixel));
+            dst = g_moduleState.surface.main + screenSizeInPixels;
+            std::memcpy(dst, src, screenWidth * sizeof(Pixel));
 
             src = g_moduleState.surface.stencil;
-            dst = g_moduleState.surface.stencil + SCREEN_SIZE_IN_PIXELS;
+            dst = g_moduleState.surface.stencil + screenSizeInPixels;
         }
-        std::memcpy(dst, src, SCREEN_WIDTH * sizeof(Pixel));
+        std::memcpy(dst, src, screenWidth * sizeof(Pixel));
     } while (false);
 
     g_moduleState.surface.offset = offset * sizeof(Pixel);
-    g_moduleState.surface.y = SCREEN_HEIGHT - offset / SCREEN_WIDTH;
+    g_moduleState.surface.y = screenHeight - offset / screenWidth;
 
     if (dy <= 0)
     {
         if (dy < 0)
         {
             if (dx <= 0)
-                moveStencilSurface(-dx, -dy, dx + SCREEN_WIDTH, dy + SCREEN_HEIGHT, -dy);
+                moveStencilSurface(-dx, -dy, dx + screenWidth, dy + screenHeight, -dy);
             else
-                moveStencilSurface(0, -dy, SCREEN_WIDTH - dx, dy + SCREEN_HEIGHT, -dy);
+                moveStencilSurface(0, -dy, screenWidth - dx, dy + screenHeight, -dy);
         }
     }
     else
     {
         if (dx <= 0)
-            moveStencilSurface(-dx, 0, dx + SCREEN_WIDTH, SCREEN_HEIGHT - dy, -dy);
+            moveStencilSurface(-dx, 0, dx + screenWidth, screenHeight - dy, -dy);
         else
-            moveStencilSurface(0, 0, SCREEN_WIDTH - dx, SCREEN_HEIGHT - dy, -dy);
+            moveStencilSurface(0, 0, screenWidth - dx, screenHeight - dy, -dy);
     }
 }
 
@@ -848,17 +857,18 @@ void callCleanMainSurfaceRhomb(const S32 x, const S32 y, const S32 angle_0, cons
 // 0x10001f80
 void copyBackToMainSurfaceRect(const S32 x, const S32 y, const U32 width, const U32 height)
 {
-    const Addr offset = (Addr)(x + y * SCREEN_WIDTH);
+    const Addr offset = (Addr)(x + y * Screen::width_);
     Pixel* src = (Pixel*)((Addr)g_rendererState.surfaces.back + g_moduleState.surface.offset + offset * sizeof(Pixel));
     Pixel* dst = (Pixel*)((Addr)g_rendererState.surfaces.main + g_moduleState.surface.offset + offset * sizeof(Pixel));
+    const Addr widthInBytes = Screen::widthInBytes_;
 
     auto copyBlock = [&](Pixel*& s, Pixel*& d, int lines)
         {
             while (lines--)
             {
                 std::memcpy(d, s, width * sizeof(Pixel));
-                s = (Pixel*)((Addr)s + (Addr)(SCREEN_WIDTH * sizeof(Pixel)));
-                d = (Pixel*)((Addr)d + (Addr)(SCREEN_WIDTH * sizeof(Pixel)));
+                s = (Pixel*)((Addr)s + widthInBytes);
+                d = (Pixel*)((Addr)d + widthInBytes);
             }
         };
 
@@ -872,15 +882,15 @@ void copyBackToMainSurfaceRect(const S32 x, const S32 y, const U32 width, const 
         else
         {
             copyBlock(src, dst, height - delta);
-            src = (Pixel*)((Addr)src - SCREEN_SIZE_IN_BYTES);
-            dst = (Pixel*)((Addr)dst - SCREEN_SIZE_IN_BYTES);
+            src = (Pixel*)((Addr)src - Screen::sizeInBytes_);
+            dst = (Pixel*)((Addr)dst - Screen::sizeInBytes_);
             copyBlock(src, dst, delta);
         }
     }
     else
     {
-        src = (Pixel*)((Addr)src - SCREEN_SIZE_IN_BYTES);
-        dst = (Pixel*)((Addr)dst - SCREEN_SIZE_IN_BYTES);
+        src = (Pixel*)((Addr)src - Screen::sizeInBytes_);
+        dst = (Pixel*)((Addr)dst - Screen::sizeInBytes_);
         copyBlock(src, dst, height);
     }
 }
@@ -1069,10 +1079,10 @@ void drawMainSurfaceColorEllipse(const S32 x, const S32 y, S32 size, const Pixel
 // 0x100023e0
 void drawMainSurfaceColorOutline(S32 x, S32 y, S32 width, S32 height, const Pixel pixel)
 {
-    const S32 offset = (g_moduleState.surface.offset / sizeof(Pixel)) % SCREEN_WIDTH;
+    const S32 offset = (g_moduleState.surface.offset / sizeof(Pixel)) % Screen::width_;
 
     Pixel* src = (Pixel*)((Addr)g_rendererState.surfaces.main
-        + (Addr)((offset + SCREEN_SIZE_IN_PIXELS) * sizeof(Pixel)));
+        + (Addr)((offset + Screen::sizeInPixels_) * sizeof(Pixel)));
 
     g_rendererState.outline.width = g_moduleState.windowRect.width - g_moduleState.windowRect.x;
     g_rendererState.outline.height = g_moduleState.windowRect.height + 1 - g_moduleState.windowRect.y;
@@ -1191,7 +1201,7 @@ void drawMainSurfaceColorOutline(S32 x, S32 y, S32 width, S32 height, const Pixe
 
         if (src <= dst)
         {
-            pixels = (Pixel*)((Addr)dst - SCREEN_SIZE_IN_BYTES);
+            pixels = (Pixel*)((Addr)dst - Screen::sizeInBytes_);
         }
 
         for (S32 xx = 0; xx < width; ++xx)
@@ -1216,7 +1226,7 @@ void drawMainSurfaceColorOutline(S32 x, S32 y, S32 width, S32 height, const Pixe
         {
             if (src <= pixels)
             {
-                pixels = (Pixel*)((Addr)pixels - SCREEN_SIZE_IN_BYTES);
+                pixels = (Pixel*)((Addr)pixels - Screen::sizeInBytes_);
             }
 
             pixels[0] = pixel;
@@ -1231,7 +1241,7 @@ void drawMainSurfaceColorOutline(S32 x, S32 y, S32 width, S32 height, const Pixe
         {
             if (src <= dst)
             {
-                dst = (Pixel*)((Addr)dst - SCREEN_SIZE_IN_BYTES);
+                dst = (Pixel*)((Addr)dst - Screen::sizeInBytes_);
             }
 
             dst[0] = pixel;
@@ -1248,7 +1258,7 @@ void drawMainSurfaceColorOutline(S32 x, S32 y, S32 width, S32 height, const Pixe
     {
         if (src <= dst)
         {
-            dst = (Pixel*)((Addr)dst - SCREEN_SIZE_IN_BYTES);
+            dst = (Pixel*)((Addr)dst - Screen::sizeInBytes_);
         }
 
         for (S32 xx = 0; xx < width; ++xx)
@@ -1262,11 +1272,11 @@ void drawMainSurfaceColorOutline(S32 x, S32 y, S32 width, S32 height, const Pixe
 // 0x100026e0
 void resetStencilSurface()
 {
-    Pixel* pixels = (Pixel*)((Addr)g_rendererState.surfaces.stencil + g_moduleState.surface.offset + (g_moduleState.windowRect.y * SCREEN_WIDTH + g_moduleState.windowRect.x) * sizeof(Pixel));
+    Pixel* pixels = (Pixel*)((Addr)g_rendererState.surfaces.stencil + g_moduleState.surface.offset + (g_moduleState.windowRect.y * Screen::width_ + g_moduleState.windowRect.x) * sizeof(Pixel));
 
     const S32 height = g_moduleState.windowRect.height - g_moduleState.windowRect.y + 1;
     const S32 width = g_moduleState.windowRect.width - g_moduleState.windowRect.x + 1;
-    const S32 stride = (SCREEN_WIDTH - width) * sizeof(Pixel);
+    const S32 stride = (Screen::width_ - width) * sizeof(Pixel);
 
     Pixel pixel = (Pixel)(g_moduleState.windowRect.y << STENCIL_PIXEL_COLOR_SHIFT);
 
@@ -1295,14 +1305,14 @@ void resetStencilSurface()
         {
             processRows(height - delta);
 
-            pixels = (Pixel*)((Addr)pixels - SCREEN_SIZE_IN_BYTES);
+            pixels = (Pixel*)((Addr)pixels - Screen::sizeInBytes_);
 
             processRows(delta);
         }
     }
     else
     {
-        pixels = (Pixel*)((Addr)pixels - SCREEN_SIZE_IN_BYTES);
+        pixels = (Pixel*)((Addr)pixels - Screen::sizeInBytes_);
 
         processRows(height);
     }
@@ -1311,9 +1321,9 @@ void resetStencilSurface()
 // 0x10002780
 void maskStencilSurfaceRect(S32 x, S32 y, S32 width, S32 height)
 {
-    Pixel* pixels = (Pixel*)((Addr)g_rendererState.surfaces.stencil + g_moduleState.surface.offset + (y * SCREEN_WIDTH + x) * sizeof(Pixel));
+    Pixel* pixels = (Pixel*)((Addr)g_rendererState.surfaces.stencil + g_moduleState.surface.offset + (y * Screen::width_ + x) * sizeof(Pixel));
 
-    const S32 stride = (SCREEN_WIDTH - width) * sizeof(Pixel);
+    const S32 stride = (Screen::width_ - width) * sizeof(Pixel);
 
     const Pixel pixel = (Pixel)STENCIL_PIXEL_BIG_MASK;
 
@@ -1340,14 +1350,14 @@ void maskStencilSurfaceRect(S32 x, S32 y, S32 width, S32 height)
         {
             processRows(height - delta);
 
-            pixels = (Pixel*)((Addr)pixels - SCREEN_SIZE_IN_BYTES);
+            pixels = (Pixel*)((Addr)pixels - Screen::sizeInBytes_);
 
             processRows(delta);
         }
     }
     else
     {
-        pixels = (Pixel*)((Addr)pixels - SCREEN_SIZE_IN_BYTES);
+        pixels = (Pixel*)((Addr)pixels - Screen::sizeInBytes_);
 
         processRows(height);
     }
@@ -1356,13 +1366,13 @@ void maskStencilSurfaceRect(S32 x, S32 y, S32 width, S32 height)
 // 0x10002810
 void moveStencilSurface(const S32 x, const S32 y, const S32 width, const S32 height, const S32 offset)
 {
-    DoublePixel* pixels = (DoublePixel*)((Addr)g_rendererState.surfaces.stencil + g_moduleState.surface.offset + (SCREEN_WIDTH * y + x) * sizeof(Pixel));
-    const S32 stride = sizeof(Pixel) * (SCREEN_WIDTH - width);
+    DoublePixel* pixels = (DoublePixel*)((Addr)g_rendererState.surfaces.stencil + g_moduleState.surface.offset + (Screen::width_ * y + x) * sizeof(Pixel));
+    const S32 stride = sizeof(Pixel) * (Screen::width_ - width);
 
     const bool addOp = offset >= 0;
     const Pixel pixel = (Pixel)((addOp ? offset : -offset) << STENCIL_PIXEL_COLOR_SHIFT);
 
-    DoublePixel pix = ((DoublePixel)(pixel) << GRAPHICS_BITS_PER_PIXEL_16) | (DoublePixel)pixel;
+    DoublePixel pix = ((DoublePixel)(pixel) << Graphics::kBitsPerPixel16) | (DoublePixel)pixel;
 
     // Imitate "pixels[i] - pix"
     if (addOp == false)
@@ -1396,14 +1406,14 @@ void moveStencilSurface(const S32 x, const S32 y, const S32 width, const S32 hei
             processRows(height - delta);
 
             // Update remaining height and pixels pointer
-            pixels = (DoublePixel*)((Addr)pixels - (Addr)SCREEN_SIZE_IN_BYTES);
+            pixels = (DoublePixel*)((Addr)pixels - Screen::sizeInBytes_);
             processRows(delta);
         }
     }
     else
     {
         // Entire region is after the surface.y, so moving to the array beginning
-        pixels = (DoublePixel*)((Addr)pixels - (Addr)SCREEN_SIZE_IN_BYTES);
+        pixels = (DoublePixel*)((Addr)pixels - Screen::sizeInBytes_);
         processRows(height);
     }
 }
@@ -1522,8 +1532,9 @@ bool copyMainSurfaceToRenderer(S32 x, S32 y, S32 width, S32 height)
 
         locked = true;
     }
-    Pixel* src = (Pixel*)((Addr)g_rendererState.surfaces.main + g_moduleState.surface.offset + (y * SCREEN_WIDTH + x) * sizeof(Pixel));
+    Pixel* src = (Pixel*)((Addr)g_rendererState.surfaces.main + g_moduleState.surface.offset + (y * Screen::width_ + x) * sizeof(Pixel));
     void* dst = (void*)((Addr)g_moduleState.surface.renderer + g_moduleState.pitch * y + x * sizeof(Pixel));
+    const Addr widthInBytes = Screen::widthInBytes_;
 
     if (y < g_moduleState.surface.y)
     {
@@ -1533,7 +1544,7 @@ bool copyMainSurfaceToRenderer(S32 x, S32 y, S32 width, S32 height)
             for (S32 vertical = 0; vertical < height; vertical++)
             {
                 std::memcpy(dst, src, width * sizeof(Pixel));
-                src = (Pixel*)((Addr)src + SCREEN_WIDTH * sizeof(Pixel));
+                src = (Pixel*)((Addr)src + widthInBytes);
                 dst = (void*)((Addr)dst + g_moduleState.pitch);
             }
         }
@@ -1542,28 +1553,28 @@ bool copyMainSurfaceToRenderer(S32 x, S32 y, S32 width, S32 height)
             for (S32 vertical = 0; vertical < height - delta; vertical++)
             {
                 std::memcpy(dst, src, width * sizeof(Pixel));
-                src = (Pixel*)((Addr)src + SCREEN_WIDTH * sizeof(Pixel));
+                src = (Pixel*)((Addr)src + widthInBytes);
                 dst = (void*)((Addr)dst + g_moduleState.pitch);
             }
 
-            src = (Pixel*)((Addr)src - SCREEN_SIZE_IN_BYTES);
+            src = (Pixel*)((Addr)src - Screen::sizeInBytes_);
 
             for (S32 vertical = 0; vertical < delta; vertical++)
             {
                 std::memcpy(dst, src, width * sizeof(Pixel));
-                src = (Pixel*)((Addr)src + SCREEN_WIDTH * sizeof(Pixel));
+                src = (Pixel*)((Addr)src + widthInBytes);
                 dst = (void*)((Addr)dst + g_moduleState.pitch);
             }
         }
     }
     else
     {
-        src = (Pixel*)((Addr)src - SCREEN_SIZE_IN_BYTES);
+        src = (Pixel*)((Addr)src - Screen::sizeInBytes_);
 
         for (S32 yy = 0; yy < height; ++yy)
         {
             std::memcpy(dst, src, width * sizeof(Pixel));
-            src = (Pixel*)((Addr)src + (Addr)(SCREEN_WIDTH * sizeof(Pixel)));
+            src = (Pixel*)((Addr)src + widthInBytes);
             dst = (void*)((Addr)dst + (Addr)g_moduleState.pitch);
         }
     }
@@ -1598,14 +1609,16 @@ void copyMainSurfaceToRendererWithWarFog(const S32 x, const S32 y, const S32 end
     g_rendererState.fogBlockParams2.unk04 = 0;
     g_rendererState.fogRenderParams.actualRgbMask = g_moduleState.initialRgbMask;
     g_rendererState.fogRenderParams.dstRowStride = -8 * g_moduleState.pitch + blockSize;
-    g_rendererState.fogRenderParams.lineStep = -(S32)SCREEN_WIDTH * 16 + blockSize;
+    g_rendererState.fogRenderParams.lineStep = -(S32)Screen::width_ * 16 + blockSize;
 
     U8* fogSrc = &g_moduleState.fogSprites[(y >> 3) + 8].unk[(x >> 4) + 8];
-    DoublePixel* src = (DoublePixel*)((Addr)g_rendererState.surfaces.main + g_moduleState.surface.offset + (SCREEN_WIDTH * y + x) * sizeof(Pixel));
+    DoublePixel* src = (DoublePixel*)((Addr)g_rendererState.surfaces.main + g_moduleState.surface.offset + (Screen::width_ * y + x) * sizeof(Pixel));
     DoublePixel* dst = (DoublePixel*)((Addr)g_moduleState.surface.renderer + x * sizeof(Pixel) + y * g_moduleState.pitch);
+    const Addr screenSizeInBytes = Screen::sizeInBytes_;
+    const Addr screenWidthInBytes = Screen::widthInBytes_;
 
     if (y >= g_moduleState.surface.y)
-        src = (DoublePixel*)((Addr)src - SCREEN_SIZE_IN_BYTES);
+        src = (DoublePixel*)((Addr)src - screenSizeInBytes);
 
     if (y >= g_moduleState.surface.y || y + delta <= g_moduleState.surface.y)
     {
@@ -1625,7 +1638,7 @@ void copyMainSurfaceToRendererWithWarFog(const S32 x, const S32 y, const S32 end
 
         if (g_rendererState.fogBlockParams.validRowsBlockCount == 0)
         {
-            g_rendererState.fogRenderParams.lineStep += SCREEN_SIZE_IN_BYTES;
+            g_rendererState.fogRenderParams.lineStep += screenSizeInBytes;
             g_rendererState.fogRenderParams.blocksCount = v7;
             g_rendererState.fogBlockParams.validRowsBlockCount = 1;
             g_rendererState.fogBlockParams.tempBlocksCount = 0;
@@ -1673,7 +1686,7 @@ void copyMainSurfaceToRendererWithWarFog(const S32 x, const S32 y, const S32 end
                                     dst[5] = src[5];
                                     dst[6] = src[6];
                                     dst[7] = src[7];
-                                    src = (DoublePixel*)((Addr)src + (Addr)SCREEN_WIDTH * sizeof(Pixel));
+                                    src = (DoublePixel*)((Addr)src + screenWidthInBytes);
                                     dst = (DoublePixel*)((Addr)dst + (Addr)g_moduleState.pitch);
 
                                     --j;
@@ -1681,7 +1694,7 @@ void copyMainSurfaceToRendererWithWarFog(const S32 x, const S32 y, const S32 end
                                 j >>= 8;
                                 if (j == 0)
                                     break;
-                                src = (DoublePixel*)((Addr)src - (Addr)SCREEN_SIZE_IN_BYTES);
+                                src = (DoublePixel*)((Addr)src - screenSizeInBytes);
                             }
                         }
                         else
@@ -1766,7 +1779,7 @@ void copyMainSurfaceToRendererWithWarFog(const S32 x, const S32 y, const S32 end
                                     } while (k);
 
                                     fogOffset = g_rendererState.fogBlockParams2.unk02 + v39;
-                                    src = (DoublePixel*)((Addr)src + SCREEN_WIDTH * sizeof(Pixel) - blockSize);
+                                    src = (DoublePixel*)((Addr)src + screenWidthInBytes - blockSize);
                                     dst = (DoublePixel*)((Addr)dst + g_moduleState.pitch - blockSize);
                                     g_rendererState.fogBlockParams2.unk01 += g_rendererState.fogBlockParams.unk01;
 
@@ -1775,7 +1788,7 @@ void copyMainSurfaceToRendererWithWarFog(const S32 x, const S32 y, const S32 end
                                 j >>= 8;
                                 if (j == 0)
                                     break;
-                                src = (DoublePixel*)((Addr)src - (Addr)SCREEN_SIZE_IN_BYTES);
+                                src = (DoublePixel*)((Addr)src - screenSizeInBytes);
                             }
                         }
                     }
@@ -1796,7 +1809,7 @@ void copyMainSurfaceToRendererWithWarFog(const S32 x, const S32 y, const S32 end
                                 dst[5] = mask & (src[5] >> 1);
                                 dst[6] = mask & (src[6] >> 1);
                                 dst[7] = mask & (src[7] >> 1);
-                                src = (DoublePixel*)((Addr)src + (Addr)SCREEN_WIDTH * sizeof(Pixel));
+                                src = (DoublePixel*)((Addr)src + screenWidthInBytes);
                                 dst = (DoublePixel*)((Addr)dst + (Addr)g_moduleState.pitch);
 
                                 --j;
@@ -1804,7 +1817,7 @@ void copyMainSurfaceToRendererWithWarFog(const S32 x, const S32 y, const S32 end
                             j >>= 8;
                             if (j == 0)
                                 break;
-                            src = (DoublePixel*)((Addr)src - (Addr)SCREEN_SIZE_IN_BYTES);
+                            src = (DoublePixel*)((Addr)src - screenSizeInBytes);
                         }
                     }
 
@@ -1813,7 +1826,7 @@ void copyMainSurfaceToRendererWithWarFog(const S32 x, const S32 y, const S32 end
                     --g_rendererState.fogBlockParams.unk04;
                 } while (g_rendererState.fogBlockParams.unk04);
 
-                src = (DoublePixel*)((Addr)srcTemp + (Addr)SCREEN_WIDTH * sizeof(Pixel) * 8);
+                src = (DoublePixel*)((Addr)srcTemp + screenWidthInBytes * 8);
                 dst = (DoublePixel*)((Addr)dstTemp + (Addr)g_moduleState.pitch * 8);
                 --g_rendererState.fogBlockParams.validRowsBlockCount;
             } while (g_rendererState.fogBlockParams.validRowsBlockCount);
@@ -1822,17 +1835,17 @@ void copyMainSurfaceToRendererWithWarFog(const S32 x, const S32 y, const S32 end
                 break;
 
             g_rendererState.fogRenderParams.blocksCount = g_rendererState.fogBlockParams.tempBlocksCount;
-            g_rendererState.fogRenderParams.lineStep = SCREEN_SIZE_IN_BYTES - SCREEN_WIDTH * sizeof(Pixel) * 8 + blockSize;
+            g_rendererState.fogRenderParams.lineStep = screenSizeInBytes - screenWidthInBytes * 8 + blockSize;
             g_rendererState.fogBlockParams.validRowsBlockCount = 1;
             g_rendererState.fogBlockParams.tempBlocksCount = 0;
         }
 
-        g_rendererState.fogRenderParams.lineStep = -(S32)SCREEN_WIDTH * 16 + blockSize;
+        g_rendererState.fogRenderParams.lineStep = -(S32)screenWidthInBytes * 8 + blockSize;
         remainingExcessRows = g_rendererState.fogBlockParams2.excessRowsBlockCount;
         g_rendererState.fogBlockParams.validRowsBlockCount = remainingExcessRows;
         g_rendererState.fogBlockParams2.excessRowsBlockCount = 0;
         g_rendererState.fogRenderParams.blocksCount = blocksNumber;
-        src = (DoublePixel*)((Addr)src - (Addr)SCREEN_SIZE_IN_BYTES);
+        src = (DoublePixel*)((Addr)src - screenSizeInBytes);
     } while (remainingExcessRows);
 
     if (locked)
@@ -1844,6 +1857,9 @@ void copyMainSurfaceToRendererWithWarFog(const S32 x, const S32 y, const S32 end
 // 0x10002fb0
 void blendMainSurfaceWithWarFog(const S32 x, const S32 y, const S32 endX, const S32 endY)
 {
+    const Addr screenSizeInBytes = Screen::sizeInBytes_;
+    const Addr screenWidthInBytes = Screen::widthInBytes_;
+
     constexpr S32 blockSize = 8 * sizeof(DoublePixel);  // 32 bytes
     constexpr U32 blocksNumber = 8;
 
@@ -1851,13 +1867,13 @@ void blendMainSurfaceWithWarFog(const S32 x, const S32 y, const S32 endX, const 
     g_rendererState.fogBlockParams2.unk04 = 0;
     g_rendererState.fogRenderParams.actualRgbMask = g_moduleState.initialRgbMask;
     g_rendererState.fogRenderParams.dstRowStride = -8 * g_moduleState.pitch + blockSize;
-    g_rendererState.fogRenderParams.lineStep = -(S32)SCREEN_WIDTH * 16 + blockSize;
+    g_rendererState.fogRenderParams.lineStep = -(S32)Screen::width_ * 16 + blockSize;
 
     U8* fogSrc = &g_moduleState.fogSprites[(y >> 3) + 8].unk[(x >> 4) + 8];
-    DoublePixel* src = (DoublePixel*)((Addr)g_rendererState.surfaces.main + g_moduleState.surface.offset + (SCREEN_WIDTH * y + x) * sizeof(Pixel));
+    DoublePixel* src = (DoublePixel*)((Addr)g_rendererState.surfaces.main + g_moduleState.surface.offset + (Screen::width_ * y + x) * sizeof(Pixel));
 
     if (y >= g_moduleState.surface.y)
-        src = (DoublePixel*)((Addr)src - SCREEN_SIZE_IN_BYTES);
+        src = (DoublePixel*)((Addr)src - screenSizeInBytes);
 
     if (y >= g_moduleState.surface.y || y + delta <= g_moduleState.surface.y)
     {
@@ -1877,7 +1893,7 @@ void blendMainSurfaceWithWarFog(const S32 x, const S32 y, const S32 endX, const 
 
         if (g_rendererState.fogBlockParams.validRowsBlockCount == 0)
         {
-            g_rendererState.fogRenderParams.lineStep += SCREEN_SIZE_IN_BYTES;
+            g_rendererState.fogRenderParams.lineStep += screenSizeInBytes;
             g_rendererState.fogRenderParams.blocksCount = v7;
             g_rendererState.fogBlockParams.validRowsBlockCount = 1;
             g_rendererState.fogBlockParams.tempBlocksCount = 0;
@@ -1990,7 +2006,7 @@ void blendMainSurfaceWithWarFog(const S32 x, const S32 y, const S32 endX, const 
                                     } while (k);
 
                                     fogOffset = g_rendererState.fogBlockParams2.unk02 + v39;
-                                    src = (DoublePixel*)((Addr)src + SCREEN_WIDTH * sizeof(Pixel) - blockSize);
+                                    src = (DoublePixel*)((Addr)src + screenWidthInBytes - blockSize);
                                     g_rendererState.fogBlockParams2.unk01 += g_rendererState.fogBlockParams.unk01;
 
                                     --j;
@@ -1998,7 +2014,7 @@ void blendMainSurfaceWithWarFog(const S32 x, const S32 y, const S32 endX, const 
                                 j >>= 8;
                                 if (j == 0)
                                     break;
-                                src = (DoublePixel*)((Addr)src - (Addr)SCREEN_SIZE_IN_BYTES);
+                                src = (DoublePixel*)((Addr)src - screenSizeInBytes);
                             }
                             src = (DoublePixel*)((Addr)src + (Addr)g_rendererState.fogRenderParams.lineStep);
                         }
@@ -2020,14 +2036,14 @@ void blendMainSurfaceWithWarFog(const S32 x, const S32 y, const S32 endX, const 
                                 src[5] = mask & (src[5] >> 1);
                                 src[6] = mask & (src[6] >> 1);
                                 src[7] = mask & (src[7] >> 1);
-                                src = (DoublePixel*)((Addr)src + (Addr)SCREEN_WIDTH * sizeof(Pixel));
+                                src = (DoublePixel*)((Addr)src + screenWidthInBytes);
 
                                 --j;
                             } while (j & 0xFF);
                             j >>= 8;
                             if (j == 0)
                                 break;
-                            src = (DoublePixel*)((Addr)src - (Addr)SCREEN_SIZE_IN_BYTES);
+                            src = (DoublePixel*)((Addr)src - screenSizeInBytes);
                         }
                         src = (DoublePixel*)((Addr)src + (Addr)g_rendererState.fogRenderParams.lineStep);
                     }
@@ -2035,7 +2051,7 @@ void blendMainSurfaceWithWarFog(const S32 x, const S32 y, const S32 endX, const 
                     --g_rendererState.fogBlockParams.unk04;
                 } while (g_rendererState.fogBlockParams.unk04);
 
-                src = (DoublePixel*)((Addr)srcTemp + (Addr)SCREEN_WIDTH * sizeof(Pixel) * 8);
+                src = (DoublePixel*)((Addr)srcTemp + screenWidthInBytes * 8);
                 --g_rendererState.fogBlockParams.validRowsBlockCount;
             } while (g_rendererState.fogBlockParams.validRowsBlockCount);
 
@@ -2043,17 +2059,17 @@ void blendMainSurfaceWithWarFog(const S32 x, const S32 y, const S32 endX, const 
                 break;
 
             g_rendererState.fogRenderParams.blocksCount = g_rendererState.fogBlockParams.tempBlocksCount;
-            g_rendererState.fogRenderParams.lineStep = SCREEN_SIZE_IN_BYTES - SCREEN_WIDTH * sizeof(Pixel) * 8 + blockSize;
+            g_rendererState.fogRenderParams.lineStep = screenSizeInBytes - screenWidthInBytes * 8 + blockSize;
             g_rendererState.fogBlockParams.validRowsBlockCount = 1;
             g_rendererState.fogBlockParams.tempBlocksCount = 0;
         }
 
-        g_rendererState.fogRenderParams.lineStep = -(S32)SCREEN_WIDTH * 16 + blockSize;
+        g_rendererState.fogRenderParams.lineStep = -(S32)screenWidthInBytes * 8 + blockSize;
         remainingExcessRows = g_rendererState.fogBlockParams2.excessRowsBlockCount;
         g_rendererState.fogBlockParams.validRowsBlockCount = remainingExcessRows;
         g_rendererState.fogBlockParams2.excessRowsBlockCount = 0;
         g_rendererState.fogRenderParams.blocksCount = blocksNumber;
-        src = (DoublePixel*)((Addr)src - (Addr)SCREEN_SIZE_IN_BYTES);
+        src = (DoublePixel*)((Addr)src - screenSizeInBytes);
     } while (remainingExcessRows);
 }
 
@@ -2110,7 +2126,9 @@ void drawSurfacePaletteRhomb(const S32 angle_0, const S32 angle_1, const S32 ang
     // Tile height: 32
     // Tile width: 63
 
-    g_rendererState.tile.stencil = (Pixel*)((Addr)output + g_moduleState.surface.offset % (SCREEN_WIDTH * sizeof(Pixel)) + SCREEN_SIZE_IN_BYTES);
+    const Addr screenSizeInBytes = Screen::sizeInBytes_;
+
+    g_rendererState.tile.stencil = (Pixel*)((Addr)output + g_moduleState.surface.offset % Screen::widthInBytes_ + screenSizeInBytes);
     g_rendererState.tile.rect.x = g_moduleState.windowRect.x + TILE_SIZE_HEIGHT + 1;
     g_rendererState.tile.rect.y = g_moduleState.windowRect.y;
     g_rendererState.tile.rect.width = g_moduleState.windowRect.width + TILE_SIZE_HEIGHT + 1;
@@ -2211,7 +2229,7 @@ void drawSurfacePaletteRhomb(const S32 angle_0, const S32 angle_1, const S32 ang
 
                 overflow = 0;
 
-                dst2 = (Pixel*)((Addr)dst2 - (Addr)SCREEN_SIZE_IN_BYTES);
+                dst2 = (Pixel*)((Addr)dst2 - screenSizeInBytes);
             }
 
             while (g_rendererState.tile.height > 0)
@@ -2242,11 +2260,11 @@ void drawSurfacePaletteRhomb(const S32 angle_0, const S32 angle_1, const S32 ang
                         // Glitch
                         if (g_rendererState.tile.stencil <= dstTemp)
                         {
-                            dstTemp = (Pixel*)((Addr)dstTemp - (Addr)SCREEN_SIZE_IN_BYTES);
+                            dstTemp = (Pixel*)((Addr)dstTemp - screenSizeInBytes);
                         }
                         if (dstTemp < output)
                         {
-                            dstTemp = (Pixel*)((Addr)dstTemp + (Addr)SCREEN_SIZE_IN_BYTES);
+                            dstTemp = (Pixel*)((Addr)dstTemp + screenSizeInBytes);
                         }
 
                         U16 uVar5 = ((U16)((totalTxOffset >> 8) ^ g_rendererState.tile.unk08) << 8) | (totalTxOffset & 0xFF);
@@ -2276,7 +2294,7 @@ void drawSurfacePaletteRhomb(const S32 angle_0, const S32 angle_1, const S32 ang
 
                 overflow = 0;
 
-                dst2 = (Pixel*)((Addr)dst - (Addr)SCREEN_SIZE_IN_BYTES);
+                dst2 = (Pixel*)((Addr)dst - screenSizeInBytes);
             }
         }
 
@@ -2312,7 +2330,7 @@ void drawSurfacePaletteRhomb(const S32 angle_0, const S32 angle_1, const S32 ang
 
                 overflow = g_rendererState.tile.tempHeight;
 
-                dst2 = (Pixel*)((Addr)dst2 - (Addr)SCREEN_SIZE_IN_BYTES);
+                dst2 = (Pixel*)((Addr)dst2 - screenSizeInBytes);
             }
         }
 
@@ -2366,7 +2384,7 @@ void drawSurfacePaletteRhomb(const S32 angle_0, const S32 angle_1, const S32 ang
 
             overflow = g_rendererState.tile.tempHeight;
 
-            dst2 = (Pixel*)((Addr)dst2 - (Addr)SCREEN_SIZE_IN_BYTES);
+            dst2 = (Pixel*)((Addr)dst2 - screenSizeInBytes);
         };
     }
 }
@@ -2374,8 +2392,10 @@ void drawSurfacePaletteRhomb(const S32 angle_0, const S32 angle_1, const S32 ang
 // 0x1000381e
 void shadeSurfaceRhomb(const S32 angle_0, const S32 angle_1, const S32 angle_2, const S32 angle_3, S32 tx, S32 ty, const S32 stride, Pixel* const output)
 {
+    const Addr screenSizeInBytes = Screen::sizeInBytes_;
+
     const U32 colorMask = ((U32)g_moduleState.actualGreenMask << 16) | g_moduleState.actualBlueMask | g_moduleState.actualRedMask;
-    g_rendererState.tile.stencil = (Pixel*)((Addr)output + g_moduleState.surface.offset % (SCREEN_WIDTH * sizeof(Pixel)) + SCREEN_SIZE_IN_BYTES);
+    g_rendererState.tile.stencil = (Pixel*)((Addr)output + g_moduleState.surface.offset % Screen::widthInBytes_ + screenSizeInBytes);
     g_rendererState.tile.rect.x = g_moduleState.windowRect.x + TILE_SIZE_HEIGHT + 1;
     g_rendererState.tile.rect.y = g_moduleState.windowRect.y;
     g_rendererState.tile.rect.width = g_moduleState.windowRect.width + TILE_SIZE_HEIGHT + 1;
@@ -2468,7 +2488,7 @@ void shadeSurfaceRhomb(const S32 angle_0, const S32 angle_1, const S32 angle_2, 
 
                 overflow = 0;
 
-                dst2 = (Pixel*)((Addr)dst2 - (Addr)SCREEN_SIZE_IN_BYTES);
+                dst2 = (Pixel*)((Addr)dst2 - screenSizeInBytes);
             }
 
             while (g_rendererState.tile.height > 0)
@@ -2497,11 +2517,11 @@ void shadeSurfaceRhomb(const S32 angle_0, const S32 angle_1, const S32 angle_2, 
                         // Glitch
                         if (g_rendererState.tile.stencil <= dstTemp)
                         {
-                            dstTemp = (Pixel*)((Addr)dstTemp - (Addr)SCREEN_SIZE_IN_BYTES);
+                            dstTemp = (Pixel*)((Addr)dstTemp - screenSizeInBytes);
                         }
                         if (dstTemp < output)
                         {
-                            dstTemp = (Pixel*)((Addr)dstTemp + (Addr)SCREEN_SIZE_IN_BYTES);
+                            dstTemp = (Pixel*)((Addr)dstTemp + screenSizeInBytes);
                         }
 
                         for (S32 j = 0; j < delta2; ++j)
@@ -2537,7 +2557,7 @@ void shadeSurfaceRhomb(const S32 angle_0, const S32 angle_1, const S32 angle_2, 
 
                 overflow = 0;
 
-                dst2 = (Pixel*)((Addr)dst - (Addr)SCREEN_SIZE_IN_BYTES);
+                dst2 = (Pixel*)((Addr)dst - screenSizeInBytes);
             }
         }
 
@@ -2572,7 +2592,7 @@ void shadeSurfaceRhomb(const S32 angle_0, const S32 angle_1, const S32 angle_2, 
 
                 overflow = g_rendererState.tile.tempHeight;
 
-                dst2 = (Pixel*)((Addr)dst2 - (Addr)SCREEN_SIZE_IN_BYTES);
+                dst2 = (Pixel*)((Addr)dst2 - screenSizeInBytes);
             }
         }
 
@@ -2630,7 +2650,7 @@ void shadeSurfaceRhomb(const S32 angle_0, const S32 angle_1, const S32 angle_2, 
 
             overflow = g_rendererState.tile.tempHeight;
 
-            dst2 = (Pixel*)((Addr)dst2 - (Addr)SCREEN_SIZE_IN_BYTES);
+            dst2 = (Pixel*)((Addr)dst2 - screenSizeInBytes);
         };
     }
 }
@@ -2638,7 +2658,9 @@ void shadeSurfaceRhomb(const S32 angle_0, const S32 angle_1, const S32 angle_2, 
 // 0x10003C48
 void cleanSurfaceRhomb(const S32 angle_0, const S32 angle_1, const S32 angle_2, const S32 angle_3, S32 tx, S32 ty, const S32 stride, const ImagePaletteTile* const tile, Pixel* const output)
 {
-    g_rendererState.tile.stencil = (Pixel*)((Addr)output + g_moduleState.surface.offset % (SCREEN_WIDTH * sizeof(Pixel)) + SCREEN_SIZE_IN_BYTES);
+    const Addr screenSizeInBytes = Screen::sizeInBytes_;
+
+    g_rendererState.tile.stencil = (Pixel*)((Addr)output + g_moduleState.surface.offset % Screen::widthInBytes_ + screenSizeInBytes);
     g_rendererState.tile.rect.x = g_moduleState.windowRect.x + TILE_SIZE_HEIGHT + 1;
     g_rendererState.tile.rect.y = g_moduleState.windowRect.y;
     g_rendererState.tile.rect.width = g_moduleState.windowRect.width + TILE_SIZE_HEIGHT + 1;
@@ -2722,7 +2744,7 @@ void cleanSurfaceRhomb(const S32 angle_0, const S32 angle_1, const S32 angle_2, 
 
                 overflow = 0;
 
-                dst2 = (Pixel*)((Addr)dst2 - (Addr)SCREEN_SIZE_IN_BYTES);
+                dst2 = (Pixel*)((Addr)dst2 - screenSizeInBytes);
             }
 
             while (g_rendererState.tile.height > 0)
@@ -2749,11 +2771,11 @@ void cleanSurfaceRhomb(const S32 angle_0, const S32 angle_1, const S32 angle_2, 
 
                         if (g_rendererState.tile.stencil <= dstTemp)
                         {
-                            dstTemp = (Pixel*)((Addr)dstTemp - (Addr)SCREEN_SIZE_IN_BYTES);
+                            dstTemp = (Pixel*)((Addr)dstTemp - screenSizeInBytes);
                         }
                         if (dstTemp < output)
                         {
-                            dstTemp = (Pixel*)((Addr)dstTemp + (Addr)SCREEN_SIZE_IN_BYTES);
+                            dstTemp = (Pixel*)((Addr)dstTemp + screenSizeInBytes);
                         }
 
                         for (S32 y = 0; y < delta2; ++y)
@@ -2778,7 +2800,7 @@ void cleanSurfaceRhomb(const S32 angle_0, const S32 angle_1, const S32 angle_2, 
 
                 overflow = 0;
 
-                dst2 = (Pixel*)((Addr)dst - (Addr)SCREEN_SIZE_IN_BYTES);
+                dst2 = (Pixel*)((Addr)dst - screenSizeInBytes);
             }
         }
 
@@ -2810,7 +2832,7 @@ void cleanSurfaceRhomb(const S32 angle_0, const S32 angle_1, const S32 angle_2, 
 
                 overflow = g_rendererState.tile.tempHeight;
 
-                dst2 = (Pixel*)((Addr)dst2 - (Addr)SCREEN_SIZE_IN_BYTES);
+                dst2 = (Pixel*)((Addr)dst2 - screenSizeInBytes);
             }
         }
 
@@ -2857,7 +2879,7 @@ void cleanSurfaceRhomb(const S32 angle_0, const S32 angle_1, const S32 angle_2, 
 
             overflow = g_rendererState.tile.tempHeight;
 
-            dst2 = (Pixel*)((Addr)dst2 - (Addr)SCREEN_SIZE_IN_BYTES);
+            dst2 = (Pixel*)((Addr)dst2 - screenSizeInBytes);
         };
     }
 }
@@ -2865,7 +2887,9 @@ void cleanSurfaceRhomb(const S32 angle_0, const S32 angle_1, const S32 angle_2, 
 // 0x10004016
 void drawSurfaceMaskRhomb(S32 x, S32 y, const S32 stride, const S32 mask, Pixel* const surface)
 {
-    g_rendererState.tile.stencil = (Pixel*)((Addr)surface + g_moduleState.surface.offset % (SCREEN_WIDTH * sizeof(Pixel)) + SCREEN_SIZE_IN_BYTES);
+    const Addr screenSizeInBytes = Screen::sizeInBytes_;
+
+    g_rendererState.tile.stencil = (Pixel*)((Addr)surface + g_moduleState.surface.offset % Screen::widthInBytes_ + screenSizeInBytes);
     g_rendererState.tile.rect.x = g_moduleState.windowRect.x + TILE_SIZE_HEIGHT + 1;
     g_rendererState.tile.rect.y = g_moduleState.windowRect.y;
     g_rendererState.tile.rect.width = g_moduleState.windowRect.width + TILE_SIZE_HEIGHT + 1;
@@ -2940,7 +2964,7 @@ void drawSurfaceMaskRhomb(S32 x, S32 y, const S32 stride, const S32 mask, Pixel*
 
                 overflow = 0;
 
-                dst2 = (Pixel*)((Addr)dst2 - (Addr)SCREEN_SIZE_IN_BYTES);
+                dst2 = (Pixel*)((Addr)dst2 - screenSizeInBytes);
             }
 
             while (g_rendererState.tile.height > 0)
@@ -2964,11 +2988,11 @@ void drawSurfaceMaskRhomb(S32 x, S32 y, const S32 stride, const S32 mask, Pixel*
 
                         if (dstTemp >= g_rendererState.tile.stencil)
                         {
-                            dstTemp = (Pixel*)((Addr)dstTemp - (Addr)SCREEN_SIZE_IN_BYTES);
+                            dstTemp = (Pixel*)((Addr)dstTemp - screenSizeInBytes);
                         }
                         if (dstTemp < surface)
                         {
-                            dstTemp = (Pixel*)((Addr)dstTemp + (Addr)SCREEN_SIZE_IN_BYTES);
+                            dstTemp = (Pixel*)((Addr)dstTemp + screenSizeInBytes);
                         }
 
                         for (S32 j = 0; j < delta2; ++j)
@@ -2991,7 +3015,7 @@ void drawSurfaceMaskRhomb(S32 x, S32 y, const S32 stride, const S32 mask, Pixel*
 
                 overflow = 0;
 
-                dst2 = (Pixel*)((Addr)dst - (Addr)SCREEN_SIZE_IN_BYTES);
+                dst2 = (Pixel*)((Addr)dst - screenSizeInBytes);
             }
         }
 
@@ -3023,7 +3047,7 @@ void drawSurfaceMaskRhomb(S32 x, S32 y, const S32 stride, const S32 mask, Pixel*
 
                 overflow = g_rendererState.tile.tempHeight;
 
-                dst2 = (Pixel*)((Addr)dst2 - (Addr)SCREEN_SIZE_IN_BYTES);
+                dst2 = (Pixel*)((Addr)dst2 - screenSizeInBytes);
             }
         }
 
@@ -3065,7 +3089,7 @@ void drawSurfaceMaskRhomb(S32 x, S32 y, const S32 stride, const S32 mask, Pixel*
 
             overflow = g_rendererState.tile.tempHeight;
 
-            dst2 = (Pixel*)((Addr)dst2 - (Addr)SCREEN_SIZE_IN_BYTES);
+            dst2 = (Pixel*)((Addr)dst2 - screenSizeInBytes);
         };
     }
 }
@@ -3115,6 +3139,7 @@ void drawBackSurfaceRhombsPaletteSprite(S32 x, S32 y, const ImagePaletteSprite* 
     {
         const Addr linesStride = g_moduleState.surface.stride * y;
         const Pixel* surfaceOffset = g_rendererState.surfaces.back;
+        const Addr screenSizeInBytes = Screen::sizeInBytes_;
 
         g_rendererState.sprite.x    = (Pixel*)((Addr)surfaceOffset + g_moduleState.surface.offset + linesStride + sizeof(Pixel) * x);
         g_rendererState.sprite.minX = (Pixel*)((Addr)surfaceOffset + g_moduleState.surface.offset + linesStride + sizeof(Pixel) * g_moduleState.windowRect.x);
@@ -3132,9 +3157,9 @@ void drawBackSurfaceRhombsPaletteSprite(S32 x, S32 y, const ImagePaletteSprite* 
             g_rendererState.sprite.height = g_rendererState.sprite.overage;
             g_rendererState.sprite.overage = 0;
 
-            g_rendererState.sprite.x    = (Pixel*)((Addr)g_rendererState.sprite.x - (Addr)SCREEN_SIZE_IN_BYTES);
-            g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.sprite.minX - (Addr)SCREEN_SIZE_IN_BYTES);
-            g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.sprite.maxX - (Addr)SCREEN_SIZE_IN_BYTES);
+            g_rendererState.sprite.x    = (Pixel*)((Addr)g_rendererState.sprite.x - screenSizeInBytes);
+            g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.sprite.minX - screenSizeInBytes);
+            g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.sprite.maxX - screenSizeInBytes);
         }
         else
             g_rendererState.sprite.overage = overage;
@@ -3254,9 +3279,9 @@ void drawBackSurfaceRhombsPaletteSprite(S32 x, S32 y, const ImagePaletteSprite* 
             g_rendererState.sprite.height = g_rendererState.sprite.overage;
             g_rendererState.sprite.overage = 0;
 
-            g_rendererState.sprite.x    = (Pixel*)((Addr)g_rendererState.sprite.x - (Addr)SCREEN_SIZE_IN_BYTES);
-            g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.sprite.minX - (Addr)SCREEN_SIZE_IN_BYTES);
-            g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.sprite.maxX - (Addr)SCREEN_SIZE_IN_BYTES);
+            g_rendererState.sprite.x    = (Pixel*)((Addr)g_rendererState.sprite.x - screenSizeInBytes);
+            g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.sprite.minX - screenSizeInBytes);
+            g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.sprite.maxX - screenSizeInBytes);
         }
     }
 }
@@ -3305,6 +3330,7 @@ void drawBackSurfaceRhombsPaletteSprite2(S32 x, S32 y, const ImagePaletteSprite*
     {
         const Addr linesStride = g_moduleState.surface.stride * y;
         const Pixel* surfaceOffset = g_rendererState.surfaces.back;
+        const Addr screenSizeInBytes = Screen::sizeInBytes_;
 
         g_rendererState.sprite.x    = (Pixel*)((Addr)surfaceOffset + g_moduleState.surface.offset + linesStride + sizeof(Pixel) * x);
         g_rendererState.sprite.minX = (Pixel*)((Addr)surfaceOffset + g_moduleState.surface.offset + linesStride + sizeof(Pixel) * g_moduleState.windowRect.x);
@@ -3322,9 +3348,9 @@ void drawBackSurfaceRhombsPaletteSprite2(S32 x, S32 y, const ImagePaletteSprite*
             g_rendererState.sprite.height = g_rendererState.sprite.overage;
             g_rendererState.sprite.overage = 0;
 
-            g_rendererState.sprite.x    = (Pixel*)((Addr)g_rendererState.sprite.x - (Addr)SCREEN_SIZE_IN_BYTES);
-            g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.sprite.minX - (Addr)SCREEN_SIZE_IN_BYTES);
-            g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.sprite.maxX - (Addr)SCREEN_SIZE_IN_BYTES);
+            g_rendererState.sprite.x    = (Pixel*)((Addr)g_rendererState.sprite.x - screenSizeInBytes);
+            g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.sprite.minX - screenSizeInBytes);
+            g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.sprite.maxX - screenSizeInBytes);
         }
         else
             g_rendererState.sprite.overage = overage;
@@ -3444,9 +3470,9 @@ void drawBackSurfaceRhombsPaletteSprite2(S32 x, S32 y, const ImagePaletteSprite*
             g_rendererState.sprite.height = g_rendererState.sprite.overage;
             g_rendererState.sprite.overage = 0;
 
-            g_rendererState.sprite.x    = (Pixel*)((Addr)g_rendererState.sprite.x - (Addr)SCREEN_SIZE_IN_BYTES);
-            g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.sprite.minX - (Addr)SCREEN_SIZE_IN_BYTES);
-            g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.sprite.maxX - (Addr)SCREEN_SIZE_IN_BYTES);
+            g_rendererState.sprite.x    = (Pixel*)((Addr)g_rendererState.sprite.x - screenSizeInBytes);
+            g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.sprite.minX - screenSizeInBytes);
+            g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.sprite.maxX - screenSizeInBytes);
         }
     }
 }
@@ -3497,6 +3523,7 @@ void drawBackSurfaceRhombsPaletteShadedSprite(S32 x, S32 y, U16 level, const Ima
     {
         const Addr linesStride = g_moduleState.surface.stride * y;
         const Pixel* surfaceOffset = g_rendererState.surfaces.back;
+        const Addr screenSizeInBytes = Screen::sizeInBytes_;
 
         g_rendererState.sprite.x    = (Pixel*)((Addr)surfaceOffset + g_moduleState.surface.offset + linesStride + sizeof(Pixel) * x);
         g_rendererState.sprite.minX = (Pixel*)((Addr)surfaceOffset + g_moduleState.surface.offset + linesStride + sizeof(Pixel) * g_moduleState.windowRect.x);
@@ -3514,9 +3541,9 @@ void drawBackSurfaceRhombsPaletteShadedSprite(S32 x, S32 y, U16 level, const Ima
             g_rendererState.sprite.height = g_rendererState.sprite.overage;
             g_rendererState.sprite.overage = 0;
 
-            g_rendererState.sprite.x    = (Pixel*)((Addr)g_rendererState.sprite.x - (Addr)SCREEN_SIZE_IN_BYTES);
-            g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.sprite.minX - (Addr)SCREEN_SIZE_IN_BYTES);
-            g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.sprite.maxX - (Addr)SCREEN_SIZE_IN_BYTES);
+            g_rendererState.sprite.x    = (Pixel*)((Addr)g_rendererState.sprite.x - screenSizeInBytes);
+            g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.sprite.minX - screenSizeInBytes);
+            g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.sprite.maxX - screenSizeInBytes);
         }
         else
             g_rendererState.sprite.overage = overage;
@@ -3657,9 +3684,9 @@ void drawBackSurfaceRhombsPaletteShadedSprite(S32 x, S32 y, U16 level, const Ima
             g_rendererState.sprite.height = g_rendererState.sprite.overage;
             g_rendererState.sprite.overage = 0;
 
-            g_rendererState.sprite.x    = (Pixel*)((Addr)g_rendererState.sprite.x - (Addr)SCREEN_SIZE_IN_BYTES);
-            g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.sprite.minX - (Addr)SCREEN_SIZE_IN_BYTES);
-            g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.sprite.maxX - (Addr)SCREEN_SIZE_IN_BYTES);
+            g_rendererState.sprite.x    = (Pixel*)((Addr)g_rendererState.sprite.x - screenSizeInBytes);
+            g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.sprite.minX - screenSizeInBytes);
+            g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.sprite.maxX - screenSizeInBytes);
         }
     }
 }
@@ -3711,6 +3738,7 @@ void drawMainSurfacePaletteSpriteStencil(S32 x, S32 y, U16 level, const Pixel* c
     {
         const Addr linesStride = g_moduleState.surface.stride * y;
         const Pixel* surfaceOffset = g_rendererState.surfaces.main;
+        const Addr screenSizeInBytes = Screen::sizeInBytes_;
 
         g_rendererState.sprite.x    = (Pixel*)((Addr)surfaceOffset + g_moduleState.surface.offset + linesStride + sizeof(Pixel) * x);
         g_rendererState.sprite.minX = (Pixel*)((Addr)surfaceOffset + g_moduleState.surface.offset + linesStride + sizeof(Pixel) * g_moduleState.windowRect.x);
@@ -3728,9 +3756,9 @@ void drawMainSurfacePaletteSpriteStencil(S32 x, S32 y, U16 level, const Pixel* c
             g_rendererState.sprite.height = g_rendererState.sprite.overage;
             g_rendererState.sprite.overage = 0;
 
-            g_rendererState.sprite.x    = (Pixel*)((Addr)g_rendererState.sprite.x - (Addr)SCREEN_SIZE_IN_BYTES);
-            g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.sprite.minX - (Addr)SCREEN_SIZE_IN_BYTES);
-            g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.sprite.maxX - (Addr)SCREEN_SIZE_IN_BYTES);
+            g_rendererState.sprite.x    = (Pixel*)((Addr)g_rendererState.sprite.x - screenSizeInBytes);
+            g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.sprite.minX - screenSizeInBytes);
+            g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.sprite.maxX - screenSizeInBytes);
         }
         else
             g_rendererState.sprite.overage = overage;
@@ -3837,9 +3865,9 @@ void drawMainSurfacePaletteSpriteStencil(S32 x, S32 y, U16 level, const Pixel* c
             g_rendererState.sprite.height = g_rendererState.sprite.overage;
             g_rendererState.sprite.overage = 0;
 
-            g_rendererState.sprite.x    = (Pixel*)((Addr)g_rendererState.sprite.x - (Addr)SCREEN_SIZE_IN_BYTES);
-            g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.sprite.minX - (Addr)SCREEN_SIZE_IN_BYTES);
-            g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.sprite.maxX - (Addr)SCREEN_SIZE_IN_BYTES);
+            g_rendererState.sprite.x    = (Pixel*)((Addr)g_rendererState.sprite.x - screenSizeInBytes);
+            g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.sprite.minX - screenSizeInBytes);
+            g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.sprite.maxX - screenSizeInBytes);
         }
     }
 }
@@ -3887,6 +3915,7 @@ void drawMainSurfacePaletteSpriteCompact(S32 x, S32 y, const Pixel* palette, con
     {
         const Addr linesStride = g_moduleState.surface.stride * y;
         const Pixel* surfaceOffset = g_rendererState.surfaces.main;
+        const Addr screenSizeInBytes = Screen::sizeInBytes_;
 
         g_rendererState.sprite.x    = (Pixel*)((Addr)surfaceOffset + g_moduleState.surface.offset + linesStride + sizeof(Pixel) * x);
         g_rendererState.sprite.minX = (Pixel*)((Addr)surfaceOffset + g_moduleState.surface.offset + linesStride + sizeof(Pixel) * g_moduleState.windowRect.x);
@@ -3904,9 +3933,9 @@ void drawMainSurfacePaletteSpriteCompact(S32 x, S32 y, const Pixel* palette, con
             g_rendererState.sprite.height = g_rendererState.sprite.overage;
             g_rendererState.sprite.overage = 0;
 
-            g_rendererState.sprite.x    = (Pixel*)((Addr)g_rendererState.sprite.x - (Addr)SCREEN_SIZE_IN_BYTES);
-            g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.sprite.minX - (Addr)SCREEN_SIZE_IN_BYTES);
-            g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.sprite.maxX - (Addr)SCREEN_SIZE_IN_BYTES);
+            g_rendererState.sprite.x    = (Pixel*)((Addr)g_rendererState.sprite.x - screenSizeInBytes);
+            g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.sprite.minX - screenSizeInBytes);
+            g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.sprite.maxX - screenSizeInBytes);
         }
         else
             g_rendererState.sprite.overage = overage;
@@ -3998,9 +4027,9 @@ void drawMainSurfacePaletteSpriteCompact(S32 x, S32 y, const Pixel* palette, con
             g_rendererState.sprite.height = g_rendererState.sprite.overage;
             g_rendererState.sprite.overage = 0;
 
-            g_rendererState.sprite.x    = (Pixel*)((Addr)g_rendererState.sprite.x - (Addr)SCREEN_SIZE_IN_BYTES);
-            g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.sprite.minX - (Addr)SCREEN_SIZE_IN_BYTES);
-            g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.sprite.maxX - (Addr)SCREEN_SIZE_IN_BYTES);
+            g_rendererState.sprite.x    = (Pixel*)((Addr)g_rendererState.sprite.x - screenSizeInBytes);
+            g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.sprite.minX - screenSizeInBytes);
+            g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.sprite.maxX - screenSizeInBytes);
         }
     }
 }
@@ -4052,6 +4081,7 @@ void drawMainSurfaceVanishingPaletteSprite(S32 x, S32 y, const S32 vanishOffset,
     {
         const Addr linesStride = g_moduleState.surface.stride * y;
         const Pixel* surfaceOffset = g_rendererState.surfaces.main;
+        const Addr screenSizeInBytes = Screen::sizeInBytes_;
 
         g_rendererState.sprite.x    = (Pixel*)((Addr)surfaceOffset + g_moduleState.surface.offset + linesStride + sizeof(Pixel) * x);
         g_rendererState.sprite.minX = (Pixel*)((Addr)surfaceOffset + g_moduleState.surface.offset + linesStride + sizeof(Pixel) * g_moduleState.windowRect.x);
@@ -4069,9 +4099,9 @@ void drawMainSurfaceVanishingPaletteSprite(S32 x, S32 y, const S32 vanishOffset,
             g_rendererState.sprite.height = g_rendererState.sprite.overage;
             g_rendererState.sprite.overage = 0;
 
-            g_rendererState.sprite.x    = (Pixel*)((Addr)g_rendererState.sprite.x - (Addr)SCREEN_SIZE_IN_BYTES);
-            g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.sprite.minX - (Addr)SCREEN_SIZE_IN_BYTES);
-            g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.sprite.maxX - (Addr)SCREEN_SIZE_IN_BYTES);
+            g_rendererState.sprite.x    = (Pixel*)((Addr)g_rendererState.sprite.x - screenSizeInBytes);
+            g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.sprite.minX - screenSizeInBytes);
+            g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.sprite.maxX - screenSizeInBytes);
         }
         else
             g_rendererState.sprite.overage = overage;
@@ -4181,9 +4211,9 @@ void drawMainSurfaceVanishingPaletteSprite(S32 x, S32 y, const S32 vanishOffset,
             g_rendererState.sprite.height = g_rendererState.sprite.overage;
             g_rendererState.sprite.overage = 0;
 
-            g_rendererState.sprite.x = (Pixel*)((Addr)g_rendererState.sprite.x - (Addr)SCREEN_SIZE_IN_BYTES);
-            g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.sprite.minX - (Addr)SCREEN_SIZE_IN_BYTES);
-            g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.sprite.maxX - (Addr)SCREEN_SIZE_IN_BYTES);
+            g_rendererState.sprite.x = (Pixel*)((Addr)g_rendererState.sprite.x - screenSizeInBytes);
+            g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.sprite.minX - screenSizeInBytes);
+            g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.sprite.maxX - screenSizeInBytes);
         }
     }
 }
@@ -4236,6 +4266,7 @@ void drawBackSurfacePalletteSprite(S32 x, S32 y, const Pixel* const palette, con
     {
         const Addr linesStride = g_moduleState.surface.stride * y;
         const Pixel* surfaceOffset = g_rendererState.surfaces.back;
+        const Addr screenSizeInBytes = Screen::sizeInBytes_;
 
         g_rendererState.sprite.x    = (Pixel*)((Addr)surfaceOffset + g_moduleState.surface.offset + linesStride + sizeof(Pixel) * x);
         g_rendererState.sprite.minX = (Pixel*)((Addr)surfaceOffset + g_moduleState.surface.offset + linesStride + sizeof(Pixel) * g_moduleState.windowRect.x);
@@ -4253,9 +4284,9 @@ void drawBackSurfacePalletteSprite(S32 x, S32 y, const Pixel* const palette, con
             g_rendererState.sprite.height = g_rendererState.sprite.overage;
             g_rendererState.sprite.overage = 0;
 
-            g_rendererState.sprite.x = (Pixel*)((Addr)g_rendererState.sprite.x - (Addr)SCREEN_SIZE_IN_BYTES);
-            g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.sprite.minX - (Addr)SCREEN_SIZE_IN_BYTES);
-            g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.sprite.maxX - (Addr)SCREEN_SIZE_IN_BYTES);
+            g_rendererState.sprite.x = (Pixel*)((Addr)g_rendererState.sprite.x - screenSizeInBytes);
+            g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.sprite.minX - screenSizeInBytes);
+            g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.sprite.maxX - screenSizeInBytes);
         }
         else
             g_rendererState.sprite.overage = overage;
@@ -4378,9 +4409,9 @@ void drawBackSurfacePalletteSprite(S32 x, S32 y, const Pixel* const palette, con
             g_rendererState.sprite.height = g_rendererState.sprite.overage;
             g_rendererState.sprite.overage = 0;
 
-            g_rendererState.sprite.x = (Pixel*)((Addr)g_rendererState.sprite.x - SCREEN_SIZE_IN_BYTES);
-            g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.sprite.minX - SCREEN_SIZE_IN_BYTES);
-            g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.sprite.maxX - SCREEN_SIZE_IN_BYTES);
+            g_rendererState.sprite.x = (Pixel*)((Addr)g_rendererState.sprite.x - screenSizeInBytes);
+            g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.sprite.minX - screenSizeInBytes);
+            g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.sprite.maxX - screenSizeInBytes);
         }
     }
 }
@@ -4431,6 +4462,7 @@ void drawBackSurfacePaletteSpriteAndStencil(S32 x, S32 y, U16 level, const Pixel
     {
         const Addr linesStride = g_moduleState.surface.stride * y;
         const Pixel* surfaceOffset = g_rendererState.surfaces.back;
+        const Addr screenSizeInBytes = Screen::sizeInBytes_;
 
         g_rendererState.sprite.x = (Pixel*)((Addr)surfaceOffset + g_moduleState.surface.offset + linesStride + sizeof(Pixel) * x);
         g_rendererState.sprite.minX = (Pixel*)((Addr)surfaceOffset + g_moduleState.surface.offset + linesStride + sizeof(Pixel) * g_moduleState.windowRect.x);
@@ -4448,9 +4480,9 @@ void drawBackSurfacePaletteSpriteAndStencil(S32 x, S32 y, U16 level, const Pixel
             g_rendererState.sprite.height = g_rendererState.sprite.overage;
             g_rendererState.sprite.overage = 0;
 
-            g_rendererState.sprite.x = (Pixel*)((Addr)g_rendererState.sprite.x - (Addr)SCREEN_SIZE_IN_BYTES);
-            g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.sprite.minX - (Addr)SCREEN_SIZE_IN_BYTES);
-            g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.sprite.maxX - (Addr)SCREEN_SIZE_IN_BYTES);
+            g_rendererState.sprite.x = (Pixel*)((Addr)g_rendererState.sprite.x - screenSizeInBytes);
+            g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.sprite.minX - screenSizeInBytes);
+            g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.sprite.maxX - screenSizeInBytes);
         }
         else
             g_rendererState.sprite.overage = overage;
@@ -4575,9 +4607,9 @@ void drawBackSurfacePaletteSpriteAndStencil(S32 x, S32 y, U16 level, const Pixel
             g_rendererState.sprite.height = g_rendererState.sprite.overage;
             g_rendererState.sprite.overage = 0;
 
-            g_rendererState.sprite.x = (Pixel*)((Addr)g_rendererState.sprite.x - (Addr)SCREEN_SIZE_IN_BYTES);
-            g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.sprite.minX - (Addr)SCREEN_SIZE_IN_BYTES);
-            g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.sprite.maxX - (Addr)SCREEN_SIZE_IN_BYTES);
+            g_rendererState.sprite.x = (Pixel*)((Addr)g_rendererState.sprite.x - screenSizeInBytes);
+            g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.sprite.minX - screenSizeInBytes);
+            g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.sprite.maxX - screenSizeInBytes);
         }
     }
 }
@@ -4632,6 +4664,7 @@ void drawBackSurfacePaletteShadedSprite(S32 x, S32 y, U16 level, const Pixel* co
     {
         const Addr linesStride = g_moduleState.surface.stride * y;
         const Pixel* surfaceOffset = g_rendererState.surfaces.back;
+        const Addr screenSizeInBytes = Screen::sizeInBytes_;
 
         g_rendererState.sprite.x = (Pixel*)((Addr)surfaceOffset + g_moduleState.surface.offset + linesStride + sizeof(Pixel) * x);
         g_rendererState.sprite.minX = (Pixel*)((Addr)surfaceOffset + g_moduleState.surface.offset + linesStride + sizeof(Pixel) * g_moduleState.windowRect.x);
@@ -4649,9 +4682,9 @@ void drawBackSurfacePaletteShadedSprite(S32 x, S32 y, U16 level, const Pixel* co
             g_rendererState.sprite.height = g_rendererState.sprite.overage;
             g_rendererState.sprite.overage = 0;
 
-            g_rendererState.sprite.x = (Pixel*)((Addr)g_rendererState.sprite.x - (Addr)SCREEN_SIZE_IN_BYTES);
-            g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.sprite.minX - (Addr)SCREEN_SIZE_IN_BYTES);
-            g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.sprite.maxX - (Addr)SCREEN_SIZE_IN_BYTES);
+            g_rendererState.sprite.x = (Pixel*)((Addr)g_rendererState.sprite.x - screenSizeInBytes);
+            g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.sprite.minX - screenSizeInBytes);
+            g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.sprite.maxX - screenSizeInBytes);
         }
         else
             g_rendererState.sprite.overage = overage;
@@ -4764,9 +4797,9 @@ void drawBackSurfacePaletteShadedSprite(S32 x, S32 y, U16 level, const Pixel* co
             g_rendererState.sprite.height = g_rendererState.sprite.overage;
             g_rendererState.sprite.overage = 0;
 
-            g_rendererState.sprite.x = (Pixel*)((Addr)g_rendererState.sprite.x - (Addr)SCREEN_SIZE_IN_BYTES);
-            g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.sprite.minX - (Addr)SCREEN_SIZE_IN_BYTES);
-            g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.sprite.maxX - (Addr)SCREEN_SIZE_IN_BYTES);
+            g_rendererState.sprite.x = (Pixel*)((Addr)g_rendererState.sprite.x - screenSizeInBytes);
+            g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.sprite.minX - screenSizeInBytes);
+            g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.sprite.maxX - screenSizeInBytes);
         }
     }
 }
@@ -4816,6 +4849,7 @@ void drawMainSurfacePaletteSprite(S32 x, S32 y, const Pixel* const palette, cons
     {
         const Addr linesStride = g_moduleState.surface.stride * y;
         const Pixel* surfaceOffset = g_rendererState.surfaces.main;
+        const Addr screenSizeInBytes = Screen::sizeInBytes_;
 
         g_rendererState.sprite.x = (Pixel*)((Addr)surfaceOffset + g_moduleState.surface.offset + linesStride + sizeof(Pixel) * x);
         g_rendererState.sprite.minX = (Pixel*)((Addr)surfaceOffset + g_moduleState.surface.offset + linesStride + sizeof(Pixel) * g_moduleState.windowRect.x);
@@ -4833,9 +4867,9 @@ void drawMainSurfacePaletteSprite(S32 x, S32 y, const Pixel* const palette, cons
             g_rendererState.sprite.height = g_rendererState.sprite.overage;
             g_rendererState.sprite.overage = 0;
 
-            g_rendererState.sprite.x = (Pixel*)((Addr)g_rendererState.sprite.x - (Addr)SCREEN_SIZE_IN_BYTES);
-            g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.sprite.minX - (Addr)SCREEN_SIZE_IN_BYTES);
-            g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.sprite.maxX - (Addr)SCREEN_SIZE_IN_BYTES);
+            g_rendererState.sprite.x = (Pixel*)((Addr)g_rendererState.sprite.x - screenSizeInBytes);
+            g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.sprite.minX - screenSizeInBytes);
+            g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.sprite.maxX - screenSizeInBytes);
         }
         else
             g_rendererState.sprite.overage = overage;
@@ -4951,9 +4985,9 @@ void drawMainSurfacePaletteSprite(S32 x, S32 y, const Pixel* const palette, cons
             g_rendererState.sprite.height = g_rendererState.sprite.overage;
             g_rendererState.sprite.overage = 0;
 
-            g_rendererState.sprite.x = (Pixel*)((Addr)g_rendererState.sprite.x - (Addr)SCREEN_SIZE_IN_BYTES);
-            g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.sprite.minX - (Addr)SCREEN_SIZE_IN_BYTES);
-            g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.sprite.maxX - (Addr)SCREEN_SIZE_IN_BYTES);
+            g_rendererState.sprite.x = (Pixel*)((Addr)g_rendererState.sprite.x - screenSizeInBytes);
+            g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.sprite.minX - screenSizeInBytes);
+            g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.sprite.maxX - screenSizeInBytes);
         }
     }
 }
@@ -5000,6 +5034,7 @@ void drawMainSurfaceSprite(S32 x, S32 y, const ImageSprite* const sprite)
     {
         const Addr linesStride = g_moduleState.surface.stride * y;
         const Pixel* surfaceOffset = g_rendererState.surfaces.main;
+        const Addr screenSizeInBytes = Screen::sizeInBytes_;
 
         g_rendererState.sprite.x = (Pixel*)((Addr)surfaceOffset + g_moduleState.surface.offset + linesStride + sizeof(Pixel) * x);
         g_rendererState.sprite.minX = (Pixel*)((Addr)surfaceOffset + g_moduleState.surface.offset + linesStride + sizeof(Pixel) * g_moduleState.windowRect.x);
@@ -5017,9 +5052,9 @@ void drawMainSurfaceSprite(S32 x, S32 y, const ImageSprite* const sprite)
             g_rendererState.sprite.height = g_rendererState.sprite.overage;
             g_rendererState.sprite.overage = 0;
 
-            g_rendererState.sprite.x = (Pixel*)((Addr)g_rendererState.sprite.x - (Addr)SCREEN_SIZE_IN_BYTES);
-            g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.sprite.minX - (Addr)SCREEN_SIZE_IN_BYTES);
-            g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.sprite.maxX - (Addr)SCREEN_SIZE_IN_BYTES);
+            g_rendererState.sprite.x = (Pixel*)((Addr)g_rendererState.sprite.x - screenSizeInBytes);
+            g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.sprite.minX - screenSizeInBytes);
+            g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.sprite.maxX - screenSizeInBytes);
         }
         else
             g_rendererState.sprite.overage = overage;
@@ -5109,9 +5144,9 @@ void drawMainSurfaceSprite(S32 x, S32 y, const ImageSprite* const sprite)
             g_rendererState.sprite.height = g_rendererState.sprite.overage;
             g_rendererState.sprite.overage = 0;
 
-            g_rendererState.sprite.x = (Pixel*)((Addr)g_rendererState.sprite.x - (Addr)SCREEN_SIZE_IN_BYTES);
-            g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.sprite.minX - (Addr)SCREEN_SIZE_IN_BYTES);
-            g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.sprite.maxX - (Addr)SCREEN_SIZE_IN_BYTES);
+            g_rendererState.sprite.x = (Pixel*)((Addr)g_rendererState.sprite.x - screenSizeInBytes);
+            g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.sprite.minX - screenSizeInBytes);
+            g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.sprite.maxX - screenSizeInBytes);
         }
     }
 }
@@ -5164,6 +5199,7 @@ void drawMainSurfaceAnimationSprite(S32 x, S32 y, const AnimationPixel* palette,
     {
         const Addr linesStride = g_moduleState.surface.stride * y;
         const Pixel* surfaceOffset = g_rendererState.surfaces.main;
+        const Addr screenSizeInBytes = Screen::sizeInBytes_;
 
         g_rendererState.sprite.x = (Pixel*)((Addr)surfaceOffset + g_moduleState.surface.offset + linesStride + sizeof(Pixel) * x);
         g_rendererState.sprite.minX = (Pixel*)((Addr)surfaceOffset + g_moduleState.surface.offset + linesStride + sizeof(Pixel) * g_moduleState.windowRect.x);
@@ -5181,9 +5217,9 @@ void drawMainSurfaceAnimationSprite(S32 x, S32 y, const AnimationPixel* palette,
             g_rendererState.sprite.height = g_rendererState.sprite.overage;
             g_rendererState.sprite.overage = 0;
 
-            g_rendererState.sprite.x = (Pixel*)((Addr)g_rendererState.sprite.x - (Addr)SCREEN_SIZE_IN_BYTES);
-            g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.sprite.minX - (Addr)SCREEN_SIZE_IN_BYTES);
-            g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.sprite.maxX - (Addr)SCREEN_SIZE_IN_BYTES);
+            g_rendererState.sprite.x = (Pixel*)((Addr)g_rendererState.sprite.x - screenSizeInBytes);
+            g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.sprite.minX - screenSizeInBytes);
+            g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.sprite.maxX - screenSizeInBytes);
         }
         else
             g_rendererState.sprite.overage = overage;
@@ -5293,9 +5329,9 @@ void drawMainSurfaceAnimationSprite(S32 x, S32 y, const AnimationPixel* palette,
             g_rendererState.sprite.height = g_rendererState.sprite.overage;
             g_rendererState.sprite.overage = 0;
 
-            g_rendererState.sprite.x = (Pixel*)((Addr)g_rendererState.sprite.x - (Addr)SCREEN_SIZE_IN_BYTES);
-            g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.sprite.minX - (Addr)SCREEN_SIZE_IN_BYTES);
-            g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.sprite.maxX - (Addr)SCREEN_SIZE_IN_BYTES);
+            g_rendererState.sprite.x = (Pixel*)((Addr)g_rendererState.sprite.x - screenSizeInBytes);
+            g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.sprite.minX - screenSizeInBytes);
+            g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.sprite.maxX - screenSizeInBytes);
         }
     }
 }
@@ -5351,6 +5387,7 @@ void drawMainSurfaceAnimationSpriteStencil(S32 x, S32 y, U16 level, const Animat
     {
         const Addr linesStride = g_moduleState.surface.stride * y;
         const Pixel* surfaceOffset = g_rendererState.surfaces.main;
+        const Addr screenSizeInBytes = Screen::sizeInBytes_;
 
         g_rendererState.sprite.x = (Pixel*)((Addr)surfaceOffset + g_moduleState.surface.offset + linesStride + sizeof(Pixel) * x);
         g_rendererState.sprite.minX = (Pixel*)((Addr)surfaceOffset + g_moduleState.surface.offset + linesStride + sizeof(Pixel) * g_moduleState.windowRect.x);
@@ -5368,9 +5405,9 @@ void drawMainSurfaceAnimationSpriteStencil(S32 x, S32 y, U16 level, const Animat
             g_rendererState.sprite.height = g_rendererState.sprite.overage;
             g_rendererState.sprite.overage = 0;
 
-            g_rendererState.sprite.x = (Pixel*)((Addr)g_rendererState.sprite.x - (Addr)SCREEN_SIZE_IN_BYTES);
-            g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.sprite.minX - (Addr)SCREEN_SIZE_IN_BYTES);
-            g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.sprite.maxX - (Addr)SCREEN_SIZE_IN_BYTES);
+            g_rendererState.sprite.x = (Pixel*)((Addr)g_rendererState.sprite.x - screenSizeInBytes);
+            g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.sprite.minX - screenSizeInBytes);
+            g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.sprite.maxX - screenSizeInBytes);
         }
         else
             g_rendererState.sprite.overage = overage;
@@ -5491,9 +5528,9 @@ void drawMainSurfaceAnimationSpriteStencil(S32 x, S32 y, U16 level, const Animat
             g_rendererState.sprite.height = g_rendererState.sprite.overage;
             g_rendererState.sprite.overage = 0;
 
-            g_rendererState.sprite.x = (Pixel*)((Addr)g_rendererState.sprite.x - (Addr)SCREEN_SIZE_IN_BYTES);
-            g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.sprite.minX - (Addr)SCREEN_SIZE_IN_BYTES);
-            g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.sprite.maxX - (Addr)SCREEN_SIZE_IN_BYTES);
+            g_rendererState.sprite.x = (Pixel*)((Addr)g_rendererState.sprite.x - screenSizeInBytes);
+            g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.sprite.minX - screenSizeInBytes);
+            g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.sprite.maxX - screenSizeInBytes);
         }
     }
 }
@@ -5549,6 +5586,7 @@ void drawMainSurfacePaletteSpriteFrontStencil(S32 x, S32 y, U16 level, const Pix
     {
         const Addr linesStride = g_moduleState.surface.stride * y;
         const Pixel* surfaceOffset = g_rendererState.surfaces.main;
+        const Addr screenSizeInBytes = Screen::sizeInBytes_;
 
         g_rendererState.sprite.x = (Pixel*)((Addr)surfaceOffset + g_moduleState.surface.offset + linesStride + sizeof(Pixel) * x);
         g_rendererState.sprite.minX = (Pixel*)((Addr)surfaceOffset + g_moduleState.surface.offset + linesStride + sizeof(Pixel) * g_moduleState.windowRect.x);
@@ -5566,9 +5604,9 @@ void drawMainSurfacePaletteSpriteFrontStencil(S32 x, S32 y, U16 level, const Pix
             g_rendererState.sprite.height = g_rendererState.sprite.overage;
             g_rendererState.sprite.overage = 0;
 
-            g_rendererState.sprite.x = (Pixel*)((Addr)g_rendererState.sprite.x - (Addr)SCREEN_SIZE_IN_BYTES);
-            g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.sprite.minX - (Addr)SCREEN_SIZE_IN_BYTES);
-            g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.sprite.maxX - (Addr)SCREEN_SIZE_IN_BYTES);
+            g_rendererState.sprite.x = (Pixel*)((Addr)g_rendererState.sprite.x - screenSizeInBytes);
+            g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.sprite.minX - screenSizeInBytes);
+            g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.sprite.maxX - screenSizeInBytes);
         }
         else
             g_rendererState.sprite.overage = overage;
@@ -5700,9 +5738,9 @@ void drawMainSurfacePaletteSpriteFrontStencil(S32 x, S32 y, U16 level, const Pix
             g_rendererState.sprite.height = g_rendererState.sprite.overage;
             g_rendererState.sprite.overage = 0;
 
-            g_rendererState.sprite.x = (Pixel*)((Addr)g_rendererState.sprite.x - (Addr)SCREEN_SIZE_IN_BYTES);
-            g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.sprite.minX - (Addr)SCREEN_SIZE_IN_BYTES);
-            g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.sprite.maxX - (Addr)SCREEN_SIZE_IN_BYTES);
+            g_rendererState.sprite.x = (Pixel*)((Addr)g_rendererState.sprite.x - screenSizeInBytes);
+            g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.sprite.minX - screenSizeInBytes);
+            g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.sprite.maxX - screenSizeInBytes);
         }
     }
 }
@@ -5759,6 +5797,7 @@ void drawMainSurfacePaletteSpriteBackStencil(S32 x, S32 y, U16 level, const Pixe
     if (draw)
     {
         const Addr linesStride = (Addr)(g_moduleState.surface.stride * y);
+        const Addr screenSizeInBytes = Screen::sizeInBytes_;
 
         g_rendererState.sprite.x = (Pixel*)((Addr)g_rendererState.surfaces.main
             + g_moduleState.surface.offset + linesStride + (Addr)(x * sizeof(Pixel)));
@@ -5779,9 +5818,9 @@ void drawMainSurfacePaletteSpriteBackStencil(S32 x, S32 y, U16 level, const Pixe
             g_rendererState.sprite.height = g_rendererState.sprite.overage;
             g_rendererState.sprite.overage = 0;
 
-            g_rendererState.sprite.x = (Pixel*)((Addr)g_rendererState.sprite.x - (Addr)SCREEN_SIZE_IN_BYTES);
-            g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.sprite.minX - (Addr)SCREEN_SIZE_IN_BYTES);
-            g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.sprite.maxX - (Addr)SCREEN_SIZE_IN_BYTES);
+            g_rendererState.sprite.x = (Pixel*)((Addr)g_rendererState.sprite.x - screenSizeInBytes);
+            g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.sprite.minX - screenSizeInBytes);
+            g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.sprite.maxX - screenSizeInBytes);
         }
         else
             g_rendererState.sprite.overage = overage;
@@ -5916,9 +5955,9 @@ void drawMainSurfacePaletteSpriteBackStencil(S32 x, S32 y, U16 level, const Pixe
             g_rendererState.sprite.height = g_rendererState.sprite.overage;
             g_rendererState.sprite.overage = 0;
 
-            g_rendererState.sprite.x = (Pixel*)((Addr)g_rendererState.sprite.x - (Addr)SCREEN_SIZE_IN_BYTES);
-            g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.sprite.minX - (Addr)SCREEN_SIZE_IN_BYTES);
-            g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.sprite.maxX - (Addr)SCREEN_SIZE_IN_BYTES);
+            g_rendererState.sprite.x = (Pixel*)((Addr)g_rendererState.sprite.x - screenSizeInBytes);
+            g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.sprite.minX - screenSizeInBytes);
+            g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.sprite.maxX - screenSizeInBytes);
         }
     }
 }
@@ -5972,6 +6011,7 @@ void drawMainSurfaceShadowSprite(S32 x, S32 y, const DoublePixel shadePixel, con
     {
         const Addr linesStride = g_moduleState.surface.stride * y;
         const Pixel* surfaceOffset = g_rendererState.surfaces.main;
+        const Addr screenSizeInBytes = Screen::sizeInBytes_;
 
         g_rendererState.sprite.x = (Pixel*)((Addr)surfaceOffset + g_moduleState.surface.offset + linesStride + sizeof(Pixel) * x);
         g_rendererState.sprite.minX = (Pixel*)((Addr)surfaceOffset + g_moduleState.surface.offset + linesStride + sizeof(Pixel) * g_moduleState.windowRect.x);
@@ -5989,9 +6029,9 @@ void drawMainSurfaceShadowSprite(S32 x, S32 y, const DoublePixel shadePixel, con
             g_rendererState.sprite.height = g_rendererState.sprite.overage;
             g_rendererState.sprite.overage = 0;
 
-            g_rendererState.sprite.x = (Pixel*)((Addr)g_rendererState.sprite.x - (Addr)SCREEN_SIZE_IN_BYTES);
-            g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.sprite.minX - (Addr)SCREEN_SIZE_IN_BYTES);
-            g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.sprite.maxX - (Addr)SCREEN_SIZE_IN_BYTES);
+            g_rendererState.sprite.x = (Pixel*)((Addr)g_rendererState.sprite.x - screenSizeInBytes);
+            g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.sprite.minX - screenSizeInBytes);
+            g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.sprite.maxX - screenSizeInBytes);
         }
         else
             g_rendererState.sprite.overage = overage;
@@ -6071,9 +6111,9 @@ void drawMainSurfaceShadowSprite(S32 x, S32 y, const DoublePixel shadePixel, con
             g_rendererState.sprite.height = g_rendererState.sprite.overage;
             g_rendererState.sprite.overage = 0;
 
-            g_rendererState.sprite.x = (Pixel*)((Addr)g_rendererState.sprite.x - SCREEN_SIZE_IN_BYTES);
-            g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.sprite.minX - SCREEN_SIZE_IN_BYTES);
-            g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.sprite.maxX - SCREEN_SIZE_IN_BYTES);
+            g_rendererState.sprite.x = (Pixel*)((Addr)g_rendererState.sprite.x - screenSizeInBytes);
+            g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.sprite.minX - screenSizeInBytes);
+            g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.sprite.maxX - screenSizeInBytes);
         }
     }
 }
@@ -6126,6 +6166,7 @@ void drawBackSurfaceShadowSprite(S32 x, S32 y, const DoublePixel shadePixel, con
     {
         const Addr linesStride = g_moduleState.surface.stride * y;
         const Pixel* surfaceOffset = g_rendererState.surfaces.back;
+        const Addr screenSizeInBytes = Screen::sizeInBytes_;
 
         g_rendererState.sprite.x = (Pixel*)((Addr)surfaceOffset + g_moduleState.surface.offset + linesStride + sizeof(Pixel) * x);
         g_rendererState.sprite.minX = (Pixel*)((Addr)surfaceOffset + g_moduleState.surface.offset + linesStride + sizeof(Pixel) * g_moduleState.windowRect.x);
@@ -6143,9 +6184,9 @@ void drawBackSurfaceShadowSprite(S32 x, S32 y, const DoublePixel shadePixel, con
             g_rendererState.sprite.height = g_rendererState.sprite.overage;
             g_rendererState.sprite.overage = 0;
 
-            g_rendererState.sprite.x = (Pixel*)((Addr)g_rendererState.sprite.x - (Addr)SCREEN_SIZE_IN_BYTES);
-            g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.sprite.minX - (Addr)SCREEN_SIZE_IN_BYTES);
-            g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.sprite.maxX - (Addr)SCREEN_SIZE_IN_BYTES);
+            g_rendererState.sprite.x = (Pixel*)((Addr)g_rendererState.sprite.x - screenSizeInBytes);
+            g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.sprite.minX - screenSizeInBytes);
+            g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.sprite.maxX - screenSizeInBytes);
         }
         else
             g_rendererState.sprite.overage = overage;
@@ -6225,9 +6266,9 @@ void drawBackSurfaceShadowSprite(S32 x, S32 y, const DoublePixel shadePixel, con
             g_rendererState.sprite.height = g_rendererState.sprite.overage;
             g_rendererState.sprite.overage = 0;
 
-            g_rendererState.sprite.x = (Pixel*)((Addr)g_rendererState.sprite.x - SCREEN_SIZE_IN_BYTES);
-            g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.sprite.minX - SCREEN_SIZE_IN_BYTES);
-            g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.sprite.maxX - SCREEN_SIZE_IN_BYTES);
+            g_rendererState.sprite.x = (Pixel*)((Addr)g_rendererState.sprite.x - screenSizeInBytes);
+            g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.sprite.minX - screenSizeInBytes);
+            g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.sprite.maxX - screenSizeInBytes);
         }
     }
 }
@@ -6283,6 +6324,7 @@ void drawMainSurfaceAdjustedSprite(S32 x, S32 y, U16 level, const ImagePaletteSp
     {
         const Addr linesStride = g_moduleState.surface.stride * y;
         const Pixel* surfaceOffset = g_rendererState.surfaces.main;
+        const Addr screenSizeInBytes = Screen::sizeInBytes_;
 
         g_rendererState.sprite.x = (Pixel*)((Addr)surfaceOffset + g_moduleState.surface.offset + linesStride + sizeof(Pixel) * x);
         g_rendererState.sprite.minX = (Pixel*)((Addr)surfaceOffset + g_moduleState.surface.offset + linesStride + sizeof(Pixel) * g_moduleState.windowRect.x);
@@ -6300,9 +6342,9 @@ void drawMainSurfaceAdjustedSprite(S32 x, S32 y, U16 level, const ImagePaletteSp
             g_rendererState.sprite.height = g_rendererState.sprite.overage;
             g_rendererState.sprite.overage = 0;
 
-            g_rendererState.sprite.x = (Pixel*)((Addr)g_rendererState.sprite.x - (Addr)SCREEN_SIZE_IN_BYTES);
-            g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.sprite.minX - (Addr)SCREEN_SIZE_IN_BYTES);
-            g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.sprite.maxX - (Addr)SCREEN_SIZE_IN_BYTES);
+            g_rendererState.sprite.x = (Pixel*)((Addr)g_rendererState.sprite.x - screenSizeInBytes);
+            g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.sprite.minX - screenSizeInBytes);
+            g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.sprite.maxX - screenSizeInBytes);
         }
         else
             g_rendererState.sprite.overage = overage;
@@ -6421,9 +6463,9 @@ void drawMainSurfaceAdjustedSprite(S32 x, S32 y, U16 level, const ImagePaletteSp
             g_rendererState.sprite.height = g_rendererState.sprite.overage;
             g_rendererState.sprite.overage = 0;
 
-            g_rendererState.sprite.x = (Pixel*)((Addr)g_rendererState.sprite.x - (Addr)SCREEN_SIZE_IN_BYTES);
-            g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.sprite.minX - (Addr)SCREEN_SIZE_IN_BYTES);
-            g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.sprite.maxX - (Addr)SCREEN_SIZE_IN_BYTES);
+            g_rendererState.sprite.x = (Pixel*)((Addr)g_rendererState.sprite.x - screenSizeInBytes);
+            g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.sprite.minX - screenSizeInBytes);
+            g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.sprite.maxX - screenSizeInBytes);
         }
     }
 }
@@ -6479,6 +6521,7 @@ void drawMainSurfaceActualSprite(S32 x, S32 y, U16 level, const Pixel* const pal
     {
         const Addr linesStride = g_moduleState.surface.stride * y;
         const Pixel* surfaceOffset = g_rendererState.surfaces.main;
+        const Addr screenSizeInBytes = Screen::sizeInBytes_;
 
         g_rendererState.sprite.x = (Pixel*)((Addr)surfaceOffset + g_moduleState.surface.offset + linesStride + sizeof(Pixel) * x);
         g_rendererState.sprite.minX = (Pixel*)((Addr)surfaceOffset + g_moduleState.surface.offset + linesStride + sizeof(Pixel) * g_moduleState.windowRect.x);
@@ -6496,9 +6539,9 @@ void drawMainSurfaceActualSprite(S32 x, S32 y, U16 level, const Pixel* const pal
             g_rendererState.sprite.height = g_rendererState.sprite.overage;
             g_rendererState.sprite.overage = 0;
 
-            g_rendererState.sprite.x = (Pixel*)((Addr)g_rendererState.sprite.x - (Addr)SCREEN_SIZE_IN_BYTES);
-            g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.sprite.minX - (Addr)SCREEN_SIZE_IN_BYTES);
-            g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.sprite.maxX - (Addr)SCREEN_SIZE_IN_BYTES);
+            g_rendererState.sprite.x = (Pixel*)((Addr)g_rendererState.sprite.x - screenSizeInBytes);
+            g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.sprite.minX - screenSizeInBytes);
+            g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.sprite.maxX - screenSizeInBytes);
         }
         else
             g_rendererState.sprite.overage = overage;
@@ -6630,9 +6673,9 @@ void drawMainSurfaceActualSprite(S32 x, S32 y, U16 level, const Pixel* const pal
             g_rendererState.sprite.height = g_rendererState.sprite.overage;
             g_rendererState.sprite.overage = 0;
 
-            g_rendererState.sprite.x = (Pixel*)((Addr)g_rendererState.sprite.x - (Addr)SCREEN_SIZE_IN_BYTES);
-            g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.sprite.minX - (Addr)SCREEN_SIZE_IN_BYTES);
-            g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.sprite.maxX - (Addr)SCREEN_SIZE_IN_BYTES);
+            g_rendererState.sprite.x = (Pixel*)((Addr)g_rendererState.sprite.x - screenSizeInBytes);
+            g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.sprite.minX - screenSizeInBytes);
+            g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.sprite.maxX - screenSizeInBytes);
         }
     }
 }
@@ -6699,12 +6742,13 @@ void drawUiSprite(S32 x, S32 y, const ImagePaletteSprite* const sprite, const vo
     {
         Addr offset = g_rendererState.gameUI.offset;
         const Addr linesStride = g_rendererState.gameUI.stride * y;
+        const Addr screenSizeInBytes = Screen::sizeInBytes_;
 
         g_rendererState.sprite.x = (Pixel*)(offset + linesStride + x * sizeof(Pixel));
         g_rendererState.sprite.minX = (Pixel*)(offset + linesStride + g_rendererState.gameUI.rect.x * sizeof(Pixel));
         g_rendererState.sprite.maxX = (Pixel*)(offset + linesStride + (g_rendererState.gameUI.rect.width + 1) * sizeof(Pixel));
 
-        const S32 overage = y + g_rendererState.sprite.height < SCREEN_HEIGHT ? 0 : y + g_rendererState.sprite.height - SCREEN_HEIGHT;
+        const S32 overage = y + g_rendererState.sprite.height < Screen::height_ ? 0 : y + g_rendererState.sprite.height - Screen::height_;
 
         g_rendererState.sprite.overage = g_rendererState.sprite.height;
         g_rendererState.sprite.height -= overage;
@@ -6714,9 +6758,9 @@ void drawUiSprite(S32 x, S32 y, const ImagePaletteSprite* const sprite, const vo
             g_rendererState.sprite.height = g_rendererState.sprite.overage;
             g_rendererState.sprite.overage = 0;
 
-            g_rendererState.sprite.x = (Pixel*)((Addr)g_rendererState.sprite.x - (Addr)SCREEN_SIZE_IN_BYTES);
-            g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.sprite.minX - (Addr)SCREEN_SIZE_IN_BYTES);
-            g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.sprite.maxX - (Addr)SCREEN_SIZE_IN_BYTES);
+            g_rendererState.sprite.x = (Pixel*)((Addr)g_rendererState.sprite.x - screenSizeInBytes);
+            g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.sprite.minX - screenSizeInBytes);
+            g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.sprite.maxX - screenSizeInBytes);
         }
         else
             g_rendererState.sprite.overage = overage;
@@ -6818,9 +6862,9 @@ void drawUiSprite(S32 x, S32 y, const ImagePaletteSprite* const sprite, const vo
                 g_rendererState.sprite.height = g_rendererState.sprite.overage;
                 g_rendererState.sprite.overage = 0;
 
-                g_rendererState.sprite.x = (Pixel*)((Addr)g_rendererState.sprite.x - (Addr)SCREEN_SIZE_IN_BYTES);
-                g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.sprite.minX - (Addr)SCREEN_SIZE_IN_BYTES);
-                g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.sprite.maxX - (Addr)SCREEN_SIZE_IN_BYTES);
+                g_rendererState.sprite.x = (Pixel*)((Addr)g_rendererState.sprite.x - screenSizeInBytes);
+                g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.sprite.minX - screenSizeInBytes);
+                g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.sprite.maxX - screenSizeInBytes);
             }
 
             break;
@@ -6935,9 +6979,9 @@ void drawUiSprite(S32 x, S32 y, const ImagePaletteSprite* const sprite, const vo
                 g_rendererState.sprite.height = g_rendererState.sprite.overage;
                 g_rendererState.sprite.overage = 0;
 
-                g_rendererState.sprite.x = (Pixel*)((Addr)g_rendererState.sprite.x - (Addr)SCREEN_SIZE_IN_BYTES);
-                g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.sprite.minX - (Addr)SCREEN_SIZE_IN_BYTES);
-                g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.sprite.maxX - (Addr)SCREEN_SIZE_IN_BYTES);
+                g_rendererState.sprite.x = (Pixel*)((Addr)g_rendererState.sprite.x - screenSizeInBytes);
+                g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.sprite.minX - screenSizeInBytes);
+                g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.sprite.maxX - screenSizeInBytes);
             }
 
             break;
@@ -7021,9 +7065,9 @@ void drawUiSprite(S32 x, S32 y, const ImagePaletteSprite* const sprite, const vo
                 g_rendererState.sprite.height = g_rendererState.sprite.overage;
                 g_rendererState.sprite.overage = 0;
 
-                g_rendererState.sprite.x = (Pixel*)((Addr)g_rendererState.sprite.x - (Addr)SCREEN_SIZE_IN_BYTES);
-                g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.sprite.minX - (Addr)SCREEN_SIZE_IN_BYTES);
-                g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.sprite.maxX - (Addr)SCREEN_SIZE_IN_BYTES);
+                g_rendererState.sprite.x = (Pixel*)((Addr)g_rendererState.sprite.x - screenSizeInBytes);
+                g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.sprite.minX - screenSizeInBytes);
+                g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.sprite.maxX - screenSizeInBytes);
             }
 
             break;
@@ -7146,9 +7190,9 @@ void drawUiSprite(S32 x, S32 y, const ImagePaletteSprite* const sprite, const vo
                 g_rendererState.sprite.height = g_rendererState.sprite.overage;
                 g_rendererState.sprite.overage = 0;
 
-                g_rendererState.sprite.x = (Pixel*)((Addr)g_rendererState.sprite.x - (Addr)SCREEN_SIZE_IN_BYTES);
-                g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.sprite.minX - (Addr)SCREEN_SIZE_IN_BYTES);
-                g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.sprite.maxX - (Addr)SCREEN_SIZE_IN_BYTES);
+                g_rendererState.sprite.x = (Pixel*)((Addr)g_rendererState.sprite.x - screenSizeInBytes);
+                g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.sprite.minX - screenSizeInBytes);
+                g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.sprite.maxX - screenSizeInBytes);
             }
 
             break;
@@ -7206,14 +7250,15 @@ void markUiWithButtonType(S32 x, S32 y, const ImagePaletteSprite* const sprite, 
     if (draw)
     {
         const Addr linesStride = (Addr)(g_rendererState.gameUI.stride * y);
+        const Addr screenSizeInBytes = Screen::sizeInBytes_;
 
         g_rendererState.sprite.x = (Pixel*)(offset + linesStride + x);
         g_rendererState.sprite.minX = (Pixel*)(offset + linesStride + g_rendererState.gameUI.rect.x);
         g_rendererState.sprite.maxX = (Pixel*)(offset + linesStride + g_rendererState.gameUI.rect.width + 1);
 
 
-        const S32 overage = y + g_rendererState.sprite.height < SCREEN_HEIGHT
-            ? 0 : y + g_rendererState.sprite.height - SCREEN_HEIGHT;
+        const S32 overage = y + g_rendererState.sprite.height < Screen::height_
+            ? 0 : y + g_rendererState.sprite.height - Screen::height_;
 
         g_rendererState.sprite.overage = g_rendererState.sprite.height;
         g_rendererState.sprite.height -= overage;
@@ -7223,9 +7268,9 @@ void markUiWithButtonType(S32 x, S32 y, const ImagePaletteSprite* const sprite, 
             g_rendererState.sprite.height = g_rendererState.sprite.overage;
             g_rendererState.sprite.overage = 0;
 
-            g_rendererState.sprite.x = (Pixel*)((Addr)g_rendererState.sprite.x - (Addr)SCREEN_SIZE_IN_BYTES);
-            g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.sprite.minX - (Addr)SCREEN_SIZE_IN_PIXELS);
-            g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.sprite.maxX - (Addr)SCREEN_SIZE_IN_PIXELS);
+            g_rendererState.sprite.x = (Pixel*)((Addr)g_rendererState.sprite.x - screenSizeInBytes);
+            g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.sprite.minX - (Addr)Screen::sizeInPixels_);
+            g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.sprite.maxX - (Addr)Screen::sizeInPixels_);
         }
         else
             g_rendererState.sprite.overage = overage;
@@ -7304,9 +7349,9 @@ void markUiWithButtonType(S32 x, S32 y, const ImagePaletteSprite* const sprite, 
             g_rendererState.sprite.height = g_rendererState.sprite.overage;
             g_rendererState.sprite.overage = 0;
 
-            g_rendererState.sprite.x = (Pixel*)((Addr)g_rendererState.sprite.x - (Addr)SCREEN_SIZE_IN_BYTES);
-            g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.sprite.minX - (Addr)SCREEN_SIZE_IN_PIXELS);
-            g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.sprite.maxX - (Addr)SCREEN_SIZE_IN_PIXELS);
+            g_rendererState.sprite.x = (Pixel*)((Addr)g_rendererState.sprite.x - screenSizeInBytes);
+            g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.sprite.minX - (Addr)Screen::sizeInPixels_);
+            g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.sprite.maxX - (Addr)Screen::sizeInPixels_);
         }
     }
 }
@@ -7366,14 +7411,15 @@ void drawVanishingUiSprite(S32 x, S32 y, const S32 vanishLevel, const Pixel* pal
     {
         Addr offset = g_rendererState.gameUI.offset;
         const Addr linesStride = (Addr)(g_rendererState.gameUI.stride * y);
+        const Addr screenSizeInBytes = Screen::sizeInBytes_;
 
         g_rendererState.sprite.x = (Pixel*)(offset + linesStride + sizeof(Pixel) * x);
         g_rendererState.sprite.minX = (Pixel*)(offset + linesStride + sizeof(Pixel) * g_rendererState.gameUI.rect.x);
         g_rendererState.sprite.maxX = (Pixel*)(offset + linesStride + sizeof(Pixel) * (g_rendererState.gameUI.rect.width + 1));
 
 
-        const S32 overage = y + g_rendererState.sprite.height < SCREEN_HEIGHT
-            ? 0 : y + g_rendererState.sprite.height - SCREEN_HEIGHT;
+        const S32 overage = y + g_rendererState.sprite.height < Screen::height_
+            ? 0 : y + g_rendererState.sprite.height - Screen::height_;
 
         g_rendererState.sprite.overage = g_rendererState.sprite.height;
         g_rendererState.sprite.height -= overage;
@@ -7383,9 +7429,9 @@ void drawVanishingUiSprite(S32 x, S32 y, const S32 vanishLevel, const Pixel* pal
             g_rendererState.sprite.height = g_rendererState.sprite.overage;
             g_rendererState.sprite.overage = 0;
 
-            g_rendererState.sprite.x = (Pixel*)((Addr)g_rendererState.sprite.x - (Addr)SCREEN_SIZE_IN_BYTES);
-            g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.sprite.minX - (Addr)SCREEN_SIZE_IN_BYTES);
-            g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.sprite.maxX - (Addr)SCREEN_SIZE_IN_BYTES);
+            g_rendererState.sprite.x = (Pixel*)((Addr)g_rendererState.sprite.x - screenSizeInBytes);
+            g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.sprite.minX - screenSizeInBytes);
+            g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.sprite.maxX - screenSizeInBytes);
         }
         else
             g_rendererState.sprite.overage = overage;
@@ -7492,9 +7538,9 @@ void drawVanishingUiSprite(S32 x, S32 y, const S32 vanishLevel, const Pixel* pal
             g_rendererState.sprite.height = g_rendererState.sprite.overage;
             g_rendererState.sprite.overage = 0;
 
-            g_rendererState.sprite.x = (Pixel*)((Addr)g_rendererState.sprite.x - (Addr)SCREEN_SIZE_IN_BYTES);
-            g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.sprite.minX - (Addr)SCREEN_SIZE_IN_BYTES);
-            g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.sprite.maxX - (Addr)SCREEN_SIZE_IN_BYTES);
+            g_rendererState.sprite.x = (Pixel*)((Addr)g_rendererState.sprite.x - screenSizeInBytes);
+            g_rendererState.sprite.minX = (Pixel*)((Addr)g_rendererState.sprite.minX - screenSizeInBytes);
+            g_rendererState.sprite.maxX = (Pixel*)((Addr)g_rendererState.sprite.maxX - screenSizeInBytes);
         }
     }
 }

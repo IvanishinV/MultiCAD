@@ -2,7 +2,7 @@
 
 #include "assets.h"
 #include "util.h"
-#include "ScreenGlobals.h"
+#include "ScreenConfig.h"
 
 
 constexpr S32 DEFAULT_FONT_ASSET_SPACING = 2;
@@ -230,12 +230,12 @@ struct FogRenderParams
 
 struct alignas(16) Fog
 {
-    U8    unk[(MAX_POSSIBLE_SCREEN_WIDTH >> 4) + 8];        // One fog line for screen. Originally it was 0x50. Adding 8 due to chessboard layout
+    U8    unk[(Graphics::kMaxWidth >> 4) + 8];        // One fog line for screen. Originally it was 0x50. Adding 8 due to chessboard layout
 };
 
 struct RhombsPalette
 {
-    Pixel palette[GRAPHICS_SIZE_PALETTE * 67];
+    Pixel palette[Graphics::kPaletteSize * 67];
 };
 
 struct ModuleState
@@ -277,7 +277,7 @@ struct ModuleState
     RendererActions     actions;
 
     // Important! We need to increase fog array, so move it to another part of the struct
-    Fog                 fogSprites[(MAX_POSSIBLE_SCREEN_HEIGHT >> 3) + 0x10];      //10012b5a-10014e5b     // For array for screen. Originally it was 112 elements. Adding 0x10 for borderline cases
+    Fog                 fogSprites[(Graphics::kMaxHeight >> 3) + 0x10];      //10012b5a-10014e5b     // For array for screen. Originally it was 112 elements. Adding 0x10 for borderline cases
 };
 
 #pragma warning(pop)

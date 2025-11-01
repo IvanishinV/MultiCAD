@@ -2,6 +2,7 @@
 #include "types.h"
 #include "ResolutionVerifier.h"
 #include "DllMonitor.h"
+#include "ScreenConfig.h"
 
 static std::unique_ptr<DllMonitor> g_dllMonitor;
 
@@ -18,6 +19,8 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fwdReason, LPVOID lpvReserved)
     case DLL_PROCESS_ATTACH:
     {
         monitor.Init();
+
+        Screen::UpdateResolutionFromIni();
 
         break;
     }

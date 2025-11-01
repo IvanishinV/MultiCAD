@@ -2,11 +2,11 @@
 
 #include "ProfileBase.h"
 #include "GameDllHooks.h"
-#include "ScreenGlobals.h"
 #include "cad.h"
+#include "ScreenConfig.h"
 
-constexpr uint16_t SCREEN_HEIGHT_TO_SHOW_UNITS = MAX_POSSIBLE_SCREEN_HEIGHT;   // to show top part of units below the screen
-constexpr uint32_t ARRAY_37B588_DWORD_SIZE = MAX_POSSIBLE_SCREEN_WIDTH;
+constexpr uint16_t SCREEN_HEIGHT_TO_SHOW_UNITS = Graphics::kMaxHeight;   // to show top part of units below the screen
+constexpr uint32_t ARRAY_37B588_DWORD_SIZE = Graphics::kMaxWidth;
 constexpr uint32_t ARRAY_37B588_BYTE_SIZE = ARRAY_37B588_DWORD_SIZE * sizeof(uint32_t);
 
 constexpr std::array relocs_ss_gold_en
@@ -18,14 +18,14 @@ constexpr std::array relocs_ss_gold_en
     * 1080 * 1920: 21C0h = 4 * ROW_STRIDE_DWORD_SIZE * ((438h + 7) >> 3)
     * 2560 * 1440: 2D00h = 4 * ROW_STRIDE_DWORD_SIZE * ((5A0h + 7) >> 3)
     */
-    RelocateGapSpec{ 0x0034FF20, 0x00351728, 8 + sizeof(uint32_t) * ROW_STRIDE_DWORD_SIZE * ((MAX_POSSIBLE_SCREEN_HEIGHT + 7) >> 3) },
+    RelocateGapSpec{ 0x0034FF20, 0x00351728, 8 + sizeof(uint32_t) * ROW_STRIDE_DWORD_SIZE * ((Graphics::kMaxHeight + 7) >> 3) },
     /*
     * (width + 7) / 16, (height + 7) / 8 and array 0x351728 with size:
     * 1024 * 768:  1800h = 4 * ROW_STRIDE_OLD_DWORD_SIZE * ((300h + 7) >> 3)
     * 1080 * 1920: 21C0h = 4 * ROW_STRIDE_DWORD_SIZE * ((438h + 7) >> 3)
     * 2560 * 1440: 2D00h = 4 * ROW_STRIDE_DWORD_SIZE * ((5A0h + 7) >> 3)
     */
-    RelocateGapSpec{ 0x00351728, 0x00352F2A, 8 + sizeof(uint32_t) * ROW_STRIDE_DWORD_SIZE * ((MAX_POSSIBLE_SCREEN_HEIGHT + 7) >> 3) },
+    RelocateGapSpec{ 0x00351728, 0x00352F2A, 8 + sizeof(uint32_t) * ROW_STRIDE_DWORD_SIZE * ((Graphics::kMaxHeight + 7) >> 3) },
     /*
     * Helper array with size:
     * 1024: 1000h = 400h * 4 = 1024 * 4
@@ -89,7 +89,7 @@ const std::array patches_ss_gold_en
     // Fixes due to changed array sizes
     PatchSpec{0x6E42C, PatchSpec::to_bytes(ARRAY_37B588_DWORD_SIZE)},
     PatchSpec{0x6E472, PatchSpec::to_bytes(ARRAY_37B588_DWORD_SIZE)},
-    PatchSpec{0x713CE, PatchSpec::to_bytes(MAX_POSSIBLE_SCREEN_HEIGHT)},
+    PatchSpec{0x713CE, PatchSpec::to_bytes(Graphics::kMaxHeight)},
     PatchSpec{0x71E24, {0x37}},             // jg 71E5C
     PatchSpec{0x71E29, {ROW_STRIDE_SHIFT}}, // shl esi, 6
     PatchSpec{0x71E53, PatchSpec::concat(

@@ -29,9 +29,9 @@ enum SpriteType
 
 struct Surfaces
 {
-    Pixel main[MAX_POSSIBLE_SCREEN_WIDTH * (MAX_POSSIBLE_SCREEN_HEIGHT + 1)];     // 0x1001d588   // Main buffer. Contains the final image. Used for dynamic objects like units, explosions
-    Pixel back[MAX_POSSIBLE_SCREEN_WIDTH * (MAX_POSSIBLE_SCREEN_HEIGHT + 1)];     // 0x1019ddac   // Secondary buffer. Used mainly for static objects like ground, trees, buildings, roads
-    Pixel stencil[MAX_POSSIBLE_SCREEN_WIDTH * (MAX_POSSIBLE_SCREEN_HEIGHT + 1)];  // 0x1031e5d0   // Stencil buffer. Used for calculating frame depth for units, buildings, trees, poles
+    Pixel main[Graphics::kMaxWidth * (Graphics::kMaxHeight + 1)];     // 0x1001d588   // Main buffer. Contains the final image. Used for dynamic objects like units, explosions
+    Pixel back[Graphics::kMaxWidth * (Graphics::kMaxHeight + 1)];     // 0x1019ddac   // Secondary buffer. Used mainly for static objects like ground, trees, buildings, roads
+    Pixel stencil[Graphics::kMaxWidth * (Graphics::kMaxHeight + 1)];  // 0x1031e5d0   // Stencil buffer. Used for calculating frame depth for units, buildings, trees, poles
 };
 
 struct Outline

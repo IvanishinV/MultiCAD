@@ -14,7 +14,8 @@ public:
     ResolutionVerifier& operator=(const ResolutionVerifier&) = delete;
     ~ResolutionVerifier() = default;
 
-    bool IsSupported(int& width, int& height, int bits, bool allowChoose) const;
+    bool IsSupported(int width, int height, int bits) const;
+    bool ChooseResolution(int& width, int& height) const;
 
     struct Resolution
     {
