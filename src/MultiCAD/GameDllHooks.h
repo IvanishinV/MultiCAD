@@ -7,13 +7,13 @@
 #include <vector>
 
 // Replace and increase arrays
-// 1034FF20-10351724
-// 10351728-10352F28
+// 1034FF20-10351728
+// 10351728-10352F2A
+// 1037B588-1037C588
+// 1037C588-1037C596        // Only move
 // 1037C596-1037E894
-// 1037B588
-// 1037C588-1037C594        // Only move
 
-// Full inject for CAD
+// Full inject for CAD due to array increases
 // 55A20    done
 // 55DC0    done
 // 55E00    done
@@ -30,9 +30,9 @@
 // 6D940    done
 // 6F120    done
 
-// Only replace/move values
-// 6E460    done
+// Only replace/move values due to array increases
 // 6E3D0    done
+// 6E460    done
 // 71310    done
 // 71CD0    done
 
@@ -46,15 +46,15 @@
 // 1FE00    done    // bug with supply trucks and enemy buildings
 // 3E7B0    done    // no nullptr check (dump sent by Alee)
 
-constexpr uint32_t ROW_STRIDE_OLD_DWORD_SIZE = 0x10;
-constexpr uint32_t ROW_STRIDE_OLD_SHIFT = 6;
+constexpr uint32_t kRowStrideOldDwordSize = 0x10;
+constexpr uint32_t kRowStrideOldShift = 6;
 
-constexpr uint32_t ROW_STRIDE_DWORD_SIZE = ROW_STRIDE_OLD_DWORD_SIZE * 4;   // increase by 4 to handle bigger resolution
-constexpr uint32_t ROW_STRIDE_BYTE_SIZE = ROW_STRIDE_DWORD_SIZE * sizeof(uint32_t);
-constexpr uint8_t  ROW_STRIDE_SHIFT = ROW_STRIDE_OLD_SHIFT + 2;     // + sqrt(4)
+constexpr uint32_t kRowStrideDwordSize = kRowStrideOldDwordSize * 4;   // increase by 4 to handle bigger resolution
+constexpr uint32_t kRowStrideByteSize = kRowStrideDwordSize * sizeof(uint32_t);
+constexpr uint8_t  kRowStrideShift = kRowStrideOldShift + 2;     // + sqrt(4)
 
-constexpr uint32_t FOG_LINE_BYTE_SIZE = sizeof(Fog);
-constexpr uint32_t FOG_DOUBLE_LINE_BYTE_SIZE = FOG_LINE_BYTE_SIZE * 2;
+constexpr uint32_t kFogLineByteSize = sizeof(Fog);
+constexpr uint32_t kFogDoubleLineByteSize = kFogLineByteSize * 2;
 
 class GameDllHooks
 {

@@ -102,7 +102,7 @@ void setPixelColorMasks(const U32 r, const U32 g, const U32 b)
     // R
     {
         size_t x = 0;
-        U32 mask = PIXEL_COLOR_BIT_MASK;
+        U32 mask = kPixelColorBitMask;
 
         for (; x < Graphics::kBitsPerPixel16; ++x)
         {
@@ -121,7 +121,7 @@ void setPixelColorMasks(const U32 r, const U32 g, const U32 b)
     // G
     {
         size_t x = 0;
-        U32 mask = PIXEL_COLOR_BIT_MASK;
+        U32 mask = kPixelColorBitMask;
 
         for (; x < Graphics::kBitsPerPixel16; ++x)
         {
@@ -140,7 +140,7 @@ void setPixelColorMasks(const U32 r, const U32 g, const U32 b)
     // B
     {
         size_t x = 0;
-        U32 mask = PIXEL_COLOR_BIT_MASK;
+        U32 mask = kPixelColorBitMask;
 
         for (; x < Graphics::kBitsPerPixel16; ++x)
         {
@@ -1278,7 +1278,7 @@ void resetStencilSurface()
     const S32 width = g_moduleState.windowRect.width - g_moduleState.windowRect.x + 1;
     const S32 stride = (Screen::width_ - width) * sizeof(Pixel);
 
-    Pixel pixel = (Pixel)(g_moduleState.windowRect.y << STENCIL_PIXEL_COLOR_SHIFT);
+    Pixel pixel = (Pixel)(g_moduleState.windowRect.y << kStencilPixelColorShift);
 
     auto processRows = [&](S32 rows)
         {
@@ -1286,7 +1286,7 @@ void resetStencilSurface()
             {
                 std::fill_n(pixels, width, pixel);
 
-                pixel += STENCIL_PIXEL_COLOR_VALUE;
+                pixel += kStencilPixelColorValue;
 
                 pixels = (Pixel*)((Addr)pixels + width * sizeof(Pixel) + stride);
             }
@@ -1324,7 +1324,7 @@ void maskStencilSurfaceRect(S32 x, S32 y, S32 width, S32 height)
 
     const S32 stride = (Screen::width_ - width) * sizeof(Pixel);
 
-    const Pixel pixel = (Pixel)STENCIL_PIXEL_BIG_MASK;
+    const Pixel pixel = (Pixel)kStencilPixelBigMask;
 
     auto processRows = [&](S32 rows)
         {
@@ -1369,7 +1369,7 @@ void moveStencilSurface(const S32 x, const S32 y, const S32 width, const S32 hei
     const S32 stride = sizeof(Pixel) * (Screen::width_ - width);
 
     const bool addOp = offset >= 0;
-    const Pixel pixel = (Pixel)((addOp ? offset : -offset) << STENCIL_PIXEL_COLOR_SHIFT);
+    const Pixel pixel = (Pixel)((addOp ? offset : -offset) << kStencilPixelColorShift);
 
     DoublePixel pix = ((DoublePixel)(pixel) << Graphics::kBitsPerPixel16) | (DoublePixel)pixel;
 
@@ -3177,16 +3177,16 @@ void drawBackSurfaceRhombsPaletteSprite(S32 x, S32 y, const ImagePaletteSprite* 
                 while (sx < g_rendererState.sprite.minX && (std::uintptr_t)pixels < (std::uintptr_t)next)
                 {
                     const ptrdiff_t need = g_rendererState.sprite.minX - sx;
-                    const ptrdiff_t count = pixels->count & IMAGE_SPRITE_ITEM_SHORT_COUNT_MASK;
+                    const ptrdiff_t count = pixels->count & kImageSpriteItemShortCountMask;
 
                     if (count <= need)
                     {
-                        if ((pixels->count & IMAGE_SPRITE_ITEM_EXTENDED_MASK) == IMAGE_SPRITE_ITEM_EXTENDED_MASK)
+                        if ((pixels->count & kImageSpriteItemExtendedMask) == kImageSpriteItemExtendedMask)
                         {
                             // Mask 0xC0 -> only count
                             pixels = (ImagePaletteSpritePixel*)((Addr)pixels + sizeof(U8));
                         }
-                        else if ((pixels->count & IMAGE_SPRITE_ITEM_EXTENDED_MASK) == IMAGE_SPRITE_ITEM_COMPACT_MASK)
+                        else if ((pixels->count & kImageSpriteItemExtendedMask) == kImageSpriteItemCompactMask)
                         {
                             // Mask 0x80 -> count and one pixel
                             pixels = (ImagePaletteSpritePixel*)((Addr)pixels + sizeof(ImagePaletteSpritePixel));
@@ -3204,7 +3204,7 @@ void drawBackSurfaceRhombsPaletteSprite(S32 x, S32 y, const ImagePaletteSprite* 
 
                 while (sx < g_rendererState.sprite.maxX && (std::uintptr_t)pixels < (std::uintptr_t)next)
                 {
-                    const ptrdiff_t count = (pixels->count & IMAGE_SPRITE_ITEM_SHORT_COUNT_MASK);
+                    const ptrdiff_t count = (pixels->count & kImageSpriteItemShortCountMask);
 
                     if (count == 0)
                     {
@@ -3215,12 +3215,12 @@ void drawBackSurfaceRhombsPaletteSprite(S32 x, S32 y, const ImagePaletteSprite* 
 
                     const ptrdiff_t availCount = std::min(count - skip, g_rendererState.sprite.maxX - sx);
 
-                    if ((pixels->count & IMAGE_SPRITE_ITEM_EXTENDED_MASK) == IMAGE_SPRITE_ITEM_EXTENDED_MASK)
+                    if ((pixels->count & kImageSpriteItemExtendedMask) == kImageSpriteItemExtendedMask)
                     {
                         // Mask 0xC0 -> skip pixels
                         pixels = (ImagePaletteSpritePixel*)((Addr)pixels + sizeof(U8));
                     }
-                    else if ((pixels->count & IMAGE_SPRITE_ITEM_EXTENDED_MASK) == IMAGE_SPRITE_ITEM_COMPACT_MASK)
+                    else if ((pixels->count & kImageSpriteItemExtendedMask) == kImageSpriteItemCompactMask)
                     {
                         // Mask 0x80 -> repeat one pixel
                         const U8 indx = pixels->pixels[0];
@@ -3230,7 +3230,7 @@ void drawBackSurfaceRhombsPaletteSprite(S32 x, S32 y, const ImagePaletteSprite* 
 
                         pixels = (ImagePaletteSpritePixel*)((Addr)pixels + sizeof(ImagePaletteSpritePixel));
                     }
-                    else if ((pixels->count & IMAGE_SPRITE_ITEM_SHORT_COMPACT_MASK) == IMAGE_SPRITE_ITEM_SHORT_COMPACT_MASK)
+                    else if ((pixels->count & kImageSpriteItemShortCompactMask) == kImageSpriteItemShortCompactMask)
                     {
                         // Mask 0x40 -> repeat and blend pixels
                         for (ptrdiff_t i = 0; i < availCount; ++i)
@@ -3244,7 +3244,7 @@ void drawBackSurfaceRhombsPaletteSprite(S32 x, S32 y, const ImagePaletteSprite* 
 
                         pixels = (ImagePaletteSpritePixel*)((Addr)pixels + sizeof(ImagePaletteSpritePixel) + (count - 1) * sizeof(U8));
                     }
-                    else if ((pixels->count & IMAGE_SPRITE_ITEM_EXTENDED_MASK) == 0)
+                    else if ((pixels->count & kImageSpriteItemExtendedMask) == 0)
                     {
                         // Mask 0x00 -> draw pixels
                         for (ptrdiff_t i = 0; i < availCount; ++i)
@@ -3368,16 +3368,16 @@ void drawBackSurfaceRhombsPaletteSprite2(S32 x, S32 y, const ImagePaletteSprite*
                 while (sx < g_rendererState.sprite.minX && (std::uintptr_t)pixels < (std::uintptr_t)next)
                 {
                     const ptrdiff_t need = g_rendererState.sprite.minX - sx;
-                    const ptrdiff_t count = pixels->count & IMAGE_SPRITE_ITEM_SHORT_COUNT_MASK;
+                    const ptrdiff_t count = pixels->count & kImageSpriteItemShortCountMask;
 
                     if (count <= need)
                     {
-                        if ((pixels->count & IMAGE_SPRITE_ITEM_EXTENDED_MASK) == IMAGE_SPRITE_ITEM_EXTENDED_MASK)
+                        if ((pixels->count & kImageSpriteItemExtendedMask) == kImageSpriteItemExtendedMask)
                         {
                             // Mask 0xC0 -> only count
                             pixels = (ImagePaletteSpritePixel*)((Addr)pixels + sizeof(U8));
                         }
-                        else if ((pixels->count & IMAGE_SPRITE_ITEM_EXTENDED_MASK) == IMAGE_SPRITE_ITEM_COMPACT_MASK)
+                        else if ((pixels->count & kImageSpriteItemExtendedMask) == kImageSpriteItemCompactMask)
                         {
                             // Mask 0x80 -> count and one pixel
                             pixels = (ImagePaletteSpritePixel*)((Addr)pixels + sizeof(ImagePaletteSpritePixel));
@@ -3395,7 +3395,7 @@ void drawBackSurfaceRhombsPaletteSprite2(S32 x, S32 y, const ImagePaletteSprite*
 
                 while (sx < g_rendererState.sprite.maxX && (std::uintptr_t)pixels < (std::uintptr_t)next)
                 {
-                    const ptrdiff_t count = (pixels->count & IMAGE_SPRITE_ITEM_SHORT_COUNT_MASK);
+                    const ptrdiff_t count = (pixels->count & kImageSpriteItemShortCountMask);
 
                     if (count == 0)
                     {
@@ -3406,12 +3406,12 @@ void drawBackSurfaceRhombsPaletteSprite2(S32 x, S32 y, const ImagePaletteSprite*
 
                     const ptrdiff_t availCount = std::min(count - skip, g_rendererState.sprite.maxX - sx);
 
-                    if ((pixels->count & IMAGE_SPRITE_ITEM_EXTENDED_MASK) == IMAGE_SPRITE_ITEM_EXTENDED_MASK)
+                    if ((pixels->count & kImageSpriteItemExtendedMask) == kImageSpriteItemExtendedMask)
                     {
                         // Mask 0xC0 -> skip pixels
                         pixels = (ImagePaletteSpritePixel*)((Addr)pixels + sizeof(U8));
                     }
-                    else if ((pixels->count & IMAGE_SPRITE_ITEM_EXTENDED_MASK) == IMAGE_SPRITE_ITEM_COMPACT_MASK)
+                    else if ((pixels->count & kImageSpriteItemExtendedMask) == kImageSpriteItemCompactMask)
                     {
                         // Mask 0x80 -> repeat one pixel
                         const U8 indx = pixels->pixels[0];
@@ -3421,7 +3421,7 @@ void drawBackSurfaceRhombsPaletteSprite2(S32 x, S32 y, const ImagePaletteSprite*
 
                         pixels = (ImagePaletteSpritePixel*)((Addr)pixels + sizeof(ImagePaletteSpritePixel));
                     }
-                    else if ((pixels->count & IMAGE_SPRITE_ITEM_SHORT_COMPACT_MASK) == IMAGE_SPRITE_ITEM_SHORT_COMPACT_MASK)
+                    else if ((pixels->count & kImageSpriteItemShortCompactMask) == kImageSpriteItemShortCompactMask)
                     {
                         // Mask 0x40 -> repeat and blend pixels
                         for (ptrdiff_t i = 0; i < availCount; ++i)
@@ -3435,7 +3435,7 @@ void drawBackSurfaceRhombsPaletteSprite2(S32 x, S32 y, const ImagePaletteSprite*
 
                         pixels = (ImagePaletteSpritePixel*)((Addr)pixels + sizeof(ImagePaletteSpritePixel) + (count - 1) * sizeof(U8));
                     }
-                    else if ((pixels->count & IMAGE_SPRITE_ITEM_EXTENDED_MASK) == 0)
+                    else if ((pixels->count & kImageSpriteItemExtendedMask) == 0)
                     {
                         // Mask 0x00 -> draw pixels
                         for (ptrdiff_t i = 0; i < availCount; ++i)
@@ -3482,7 +3482,7 @@ void drawBackSurfaceRhombsPaletteShadedSprite(S32 x, S32 y, U16 level, const Ima
     g_rendererState.sprite.height = sprite->height;
     //g_rendererState.sprite.width = sprite->width + 1;
 
-    level = (level + STENCIL_PIXEL_OFFSET) << STENCIL_PIXEL_COLOR_SHIFT;
+    level = (level + kStencilPixelOffset) << kStencilPixelColorShift;
 
     const void* content = &sprite->pixels;
     void* next = (void*)((Addr)content + (Addr)sprite->next);
@@ -3561,16 +3561,16 @@ void drawBackSurfaceRhombsPaletteShadedSprite(S32 x, S32 y, U16 level, const Ima
                 while (sx < g_rendererState.sprite.minX && (std::uintptr_t)pixels < (std::uintptr_t)next)
                 {
                     const ptrdiff_t need = g_rendererState.sprite.minX - sx;
-                    const ptrdiff_t count = pixels->count & IMAGE_SPRITE_ITEM_SHORT_COUNT_MASK;
+                    const ptrdiff_t count = pixels->count & kImageSpriteItemShortCountMask;
 
                     if (count <= need)
                     {
-                        if ((pixels->count & IMAGE_SPRITE_ITEM_EXTENDED_MASK) == IMAGE_SPRITE_ITEM_EXTENDED_MASK)
+                        if ((pixels->count & kImageSpriteItemExtendedMask) == kImageSpriteItemExtendedMask)
                         {
                             // Mask 0xC0 -> only count
                             pixels = (ImagePaletteSpritePixel*)((Addr)pixels + sizeof(U8));
                         }
-                        else if ((pixels->count & IMAGE_SPRITE_ITEM_EXTENDED_MASK) == IMAGE_SPRITE_ITEM_COMPACT_MASK)
+                        else if ((pixels->count & kImageSpriteItemExtendedMask) == kImageSpriteItemCompactMask)
                         {
                             // Mask 0x80 -> count and one pixel
                             pixels = (ImagePaletteSpritePixel*)((Addr)pixels + sizeof(ImagePaletteSpritePixel));
@@ -3588,7 +3588,7 @@ void drawBackSurfaceRhombsPaletteShadedSprite(S32 x, S32 y, U16 level, const Ima
 
                 while (sx < g_rendererState.sprite.maxX && (std::uintptr_t)pixels < (std::uintptr_t)next)
                 {
-                    const ptrdiff_t count = (pixels->count & IMAGE_SPRITE_ITEM_SHORT_COUNT_MASK);
+                    const ptrdiff_t count = (pixels->count & kImageSpriteItemShortCountMask);
 
                     if (count == 0)
                     {
@@ -3602,12 +3602,12 @@ void drawBackSurfaceRhombsPaletteShadedSprite(S32 x, S32 y, U16 level, const Ima
                     const ptrdiff_t offset = sx - surfaceOffset;
                     Pixel* const stencil = g_rendererState.surfaces.stencil + offset;
 
-                    if ((pixels->count & IMAGE_SPRITE_ITEM_EXTENDED_MASK) == IMAGE_SPRITE_ITEM_EXTENDED_MASK)
+                    if ((pixels->count & kImageSpriteItemExtendedMask) == kImageSpriteItemExtendedMask)
                     {
                         // Mask 0xC0 -> skip pixels
                         pixels = (ImagePaletteSpritePixel*)((Addr)pixels + sizeof(U8));
                     }
-                    else if ((pixels->count & IMAGE_SPRITE_ITEM_EXTENDED_MASK) == IMAGE_SPRITE_ITEM_COMPACT_MASK)
+                    else if ((pixels->count & kImageSpriteItemExtendedMask) == kImageSpriteItemCompactMask)
                     {
                         // Mask 0x80 -> repeat one pixel
                         const U8 indx = pixels->pixels[0];
@@ -3625,7 +3625,7 @@ void drawBackSurfaceRhombsPaletteShadedSprite(S32 x, S32 y, U16 level, const Ima
 
                         pixels = (ImagePaletteSpritePixel*)((Addr)pixels + sizeof(ImagePaletteSpritePixel));
                     }
-                    else if ((pixels->count & IMAGE_SPRITE_ITEM_SHORT_COMPACT_MASK) == IMAGE_SPRITE_ITEM_SHORT_COMPACT_MASK)
+                    else if ((pixels->count & kImageSpriteItemShortCompactMask) == kImageSpriteItemShortCompactMask)
                     {
                         // Mask 0x40 -> repeat and blend pixels
                         for (ptrdiff_t i = 0; i < availCount; ++i)
@@ -3644,7 +3644,7 @@ void drawBackSurfaceRhombsPaletteShadedSprite(S32 x, S32 y, U16 level, const Ima
 
                         pixels = (ImagePaletteSpritePixel*)((Addr)pixels + sizeof(ImagePaletteSpritePixel) + (count - 1) * sizeof(U8));
                     }
-                    else if ((pixels->count & IMAGE_SPRITE_ITEM_EXTENDED_MASK) == 0)
+                    else if ((pixels->count & kImageSpriteItemExtendedMask) == 0)
                     {
                         // Mask 0x00 -> draw pixels
                         for (ptrdiff_t i = 0; i < availCount; ++i)
@@ -3696,7 +3696,7 @@ void drawMainSurfacePaletteSpriteStencil(S32 x, S32 y, U16 level, const Pixel* c
     g_rendererState.sprite.height = sprite->height;
     //g_rendererState.sprite.width = sprite->width + 1;
 
-    level = (level + STENCIL_PIXEL_OFFSET) << STENCIL_PIXEL_COLOR_SHIFT;
+    level = (level + kStencilPixelOffset) << kStencilPixelColorShift;
     const U32 stencilLevel = (level << 16) | level;
 
     const void* content = &sprite->pixels;
@@ -3776,11 +3776,11 @@ void drawMainSurfacePaletteSpriteStencil(S32 x, S32 y, U16 level, const Pixel* c
                 while (sx < g_rendererState.sprite.minX && (std::uintptr_t)pixels < (std::uintptr_t)next)
                 {
                     const ptrdiff_t need = g_rendererState.sprite.minX - sx;
-                    const ptrdiff_t count = pixels->count & IMAGE_SPRITE_ITEM_COUNT_MASK;
+                    const ptrdiff_t count = pixels->count & kImageSpriteItemCountMask;
 
                     if (count <= need)
                     {
-                        if (pixels->count & IMAGE_SPRITE_ITEM_COMPACT_MASK)
+                        if (pixels->count & kImageSpriteItemCompactMask)
                         {
                             // Mask 0x80 -> count and one pixel
                             pixels = (ImagePaletteSpritePixel*)((Addr)pixels + sizeof(ImagePaletteSpritePixel));
@@ -3798,7 +3798,7 @@ void drawMainSurfacePaletteSpriteStencil(S32 x, S32 y, U16 level, const Pixel* c
 
                 while (sx < g_rendererState.sprite.maxX && (std::uintptr_t)pixels < (std::uintptr_t)next)
                 {
-                    const ptrdiff_t count = (pixels->count & IMAGE_SPRITE_ITEM_COMPACT_MASK);
+                    const ptrdiff_t count = (pixels->count & kImageSpriteItemCompactMask);
 
                     if (count == 0)
                     {
@@ -3812,7 +3812,7 @@ void drawMainSurfacePaletteSpriteStencil(S32 x, S32 y, U16 level, const Pixel* c
                     const ptrdiff_t offset = sx - surfaceOffset;
                     Pixel* const stencil = g_rendererState.surfaces.stencil + offset;
 
-                    if (pixels->count & IMAGE_SPRITE_ITEM_COMPACT_MASK)
+                    if (pixels->count & kImageSpriteItemCompactMask)
                     {
                         // Mask 0x80 -> repeat one pixel
                         const U8 indx = pixels->pixels[0];
@@ -3950,11 +3950,11 @@ void drawMainSurfacePaletteSpriteCompact(S32 x, S32 y, const Pixel* palette, con
                 while (sx < g_rendererState.sprite.minX && (std::uintptr_t)pixels < (std::uintptr_t)next)
                 {
                     const ptrdiff_t need = g_rendererState.sprite.minX - sx;
-                    const ptrdiff_t count = pixels->count & IMAGE_SPRITE_ITEM_COUNT_MASK;
+                    const ptrdiff_t count = pixels->count & kImageSpriteItemCountMask;
 
                     if (count <= need)
                     {
-                        if (pixels->count & IMAGE_SPRITE_ITEM_COMPACT_MASK)
+                        if (pixels->count & kImageSpriteItemCompactMask)
                         {
                             // Mask 0x80 -> count and one pixel
                             pixels = (ImagePaletteSpritePixel*)((Addr)pixels + sizeof(ImagePaletteSpritePixel));
@@ -3971,7 +3971,7 @@ void drawMainSurfacePaletteSpriteCompact(S32 x, S32 y, const Pixel* palette, con
 
                 while (sx < g_rendererState.sprite.maxX && (std::uintptr_t)pixels < (std::uintptr_t)next)
                 {
-                    const ptrdiff_t count = (pixels->count & IMAGE_SPRITE_ITEM_COUNT_MASK);
+                    const ptrdiff_t count = (pixels->count & kImageSpriteItemCountMask);
 
                     if (count == 0)
                     {
@@ -3982,7 +3982,7 @@ void drawMainSurfacePaletteSpriteCompact(S32 x, S32 y, const Pixel* palette, con
 
                     const ptrdiff_t availCount = std::min(count - skip, g_rendererState.sprite.maxX - sx);
 
-                    if (pixels->count & IMAGE_SPRITE_ITEM_COMPACT_MASK)
+                    if (pixels->count & kImageSpriteItemCompactMask)
                     {
                         // Mask 0x80 -> repeat one pixel
                         const U8 indx = pixels->pixels[0];
@@ -4116,11 +4116,11 @@ void drawMainSurfaceVanishingPaletteSprite(S32 x, S32 y, const S32 vanishOffset,
                 while (sx < g_rendererState.sprite.minX && (std::uintptr_t)pixels < (std::uintptr_t)next)
                 {
                     const ptrdiff_t need = g_rendererState.sprite.minX - sx;
-                    const ptrdiff_t count = pixels->count & IMAGE_SPRITE_ITEM_COUNT_MASK;
+                    const ptrdiff_t count = pixels->count & kImageSpriteItemCountMask;
 
                     if (count <= need)
                     {
-                        if (pixels->count & IMAGE_SPRITE_ITEM_COMPACT_MASK)
+                        if (pixels->count & kImageSpriteItemCompactMask)
                         {
                             // Mask 0x80 -> count and one pixel
                             pixels = (ImagePaletteSpritePixel*)((Addr)pixels + sizeof(ImagePaletteSpritePixel));
@@ -4137,7 +4137,7 @@ void drawMainSurfaceVanishingPaletteSprite(S32 x, S32 y, const S32 vanishOffset,
 
                 while (sx < g_rendererState.sprite.maxX && (std::uintptr_t)pixels < (std::uintptr_t)next)
                 {
-                    const ptrdiff_t count = (pixels->count & IMAGE_SPRITE_ITEM_COUNT_MASK);
+                    const ptrdiff_t count = (pixels->count & kImageSpriteItemCountMask);
 
                     if (count == 0)
                     {
@@ -4148,7 +4148,7 @@ void drawMainSurfaceVanishingPaletteSprite(S32 x, S32 y, const S32 vanishOffset,
 
                     const ptrdiff_t availCount = std::min(count - skip, g_rendererState.sprite.maxX - sx);
 
-                    if (pixels->count & IMAGE_SPRITE_ITEM_COMPACT_MASK)
+                    if (pixels->count & kImageSpriteItemCompactMask)
                     {
                         const U8 indx = pixels->pixels[0];
 
@@ -4304,16 +4304,16 @@ void drawBackSurfacePalletteSprite(S32 x, S32 y, const Pixel* const palette, con
                 while (sx < g_rendererState.sprite.minX && (std::uintptr_t)pixels < (std::uintptr_t)next)
                 {
                     const ptrdiff_t need = g_rendererState.sprite.minX - sx;
-                    const ptrdiff_t count = pixels->count & IMAGE_SPRITE_ITEM_SHORT_COUNT_MASK;
+                    const ptrdiff_t count = pixels->count & kImageSpriteItemShortCountMask;
 
                     if (count <= need)
                     {
-                        if ((pixels->count & IMAGE_SPRITE_ITEM_EXTENDED_MASK) == IMAGE_SPRITE_ITEM_EXTENDED_MASK)
+                        if ((pixels->count & kImageSpriteItemExtendedMask) == kImageSpriteItemExtendedMask)
                         {
                             // Mask 0xC0 -> only count
                             pixels = (ImagePaletteSpritePixel*)((Addr)pixels + sizeof(U8));
                         }
-                        else if ((pixels->count & IMAGE_SPRITE_ITEM_EXTENDED_MASK) == IMAGE_SPRITE_ITEM_COMPACT_MASK)
+                        else if ((pixels->count & kImageSpriteItemExtendedMask) == kImageSpriteItemCompactMask)
                         {
                             // Mask 0x80 -> count and one pixel
                             pixels = (ImagePaletteSpritePixel*)((Addr)pixels + sizeof(ImagePaletteSpritePixel));
@@ -4331,7 +4331,7 @@ void drawBackSurfacePalletteSprite(S32 x, S32 y, const Pixel* const palette, con
 
                 while (sx < g_rendererState.sprite.maxX && (std::uintptr_t)pixels < (std::uintptr_t)next)
                 {
-                    const ptrdiff_t count = (pixels->count & IMAGE_SPRITE_ITEM_SHORT_COUNT_MASK);
+                    const ptrdiff_t count = (pixels->count & kImageSpriteItemShortCountMask);
 
                     if (count == 0)
                     {
@@ -4342,12 +4342,12 @@ void drawBackSurfacePalletteSprite(S32 x, S32 y, const Pixel* const palette, con
 
                     const ptrdiff_t availCount = std::min(count - skip, g_rendererState.sprite.maxX - sx);
 
-                    if ((pixels->count & IMAGE_SPRITE_ITEM_EXTENDED_MASK) == IMAGE_SPRITE_ITEM_EXTENDED_MASK)
+                    if ((pixels->count & kImageSpriteItemExtendedMask) == kImageSpriteItemExtendedMask)
                     {
                         // Mask 0xC0 -> skip pixels
                         pixels = (ImagePaletteSpritePixel*)((Addr)pixels + sizeof(U8));
                     }
-                    else if ((pixels->count & IMAGE_SPRITE_ITEM_EXTENDED_MASK) == IMAGE_SPRITE_ITEM_COMPACT_MASK)
+                    else if ((pixels->count & kImageSpriteItemExtendedMask) == kImageSpriteItemCompactMask)
                     {
                         // Mask 0x80 -> repeat one pixel
                         const U8 indx = pixels->pixels[0];
@@ -4361,7 +4361,7 @@ void drawBackSurfacePalletteSprite(S32 x, S32 y, const Pixel* const palette, con
 
                         pixels = (ImagePaletteSpritePixel*)((Addr)pixels + sizeof(ImagePaletteSpritePixel));
                     }
-                    else if ((pixels->count & IMAGE_SPRITE_ITEM_SHORT_COMPACT_MASK) == IMAGE_SPRITE_ITEM_SHORT_COMPACT_MASK)
+                    else if ((pixels->count & kImageSpriteItemShortCompactMask) == kImageSpriteItemShortCompactMask)
                     {
                         // Mask 0x40 -> repeat and blend pixels
                         for (ptrdiff_t i = 0; i < availCount; ++i)
@@ -4374,7 +4374,7 @@ void drawBackSurfacePalletteSprite(S32 x, S32 y, const Pixel* const palette, con
 
                         pixels = (ImagePaletteSpritePixel*)((Addr)pixels + sizeof(ImagePaletteSpritePixel) + (count - 1) * sizeof(U8));
                     }
-                    else if ((pixels->count & IMAGE_SPRITE_ITEM_EXTENDED_MASK) == 0)
+                    else if ((pixels->count & kImageSpriteItemExtendedMask) == 0)
                     {
                         // Mask 0x00 -> draw pixels
                         for (ptrdiff_t i = 0; i < availCount; ++i)
@@ -4421,7 +4421,7 @@ void drawBackSurfacePaletteSpriteAndStencil(S32 x, S32 y, U16 level, const Pixel
     g_rendererState.sprite.height = sprite->height;
     //g_rendererState.sprite.width = sprite->width + 1;
 
-    level = (level + STENCIL_PIXEL_OFFSET) << STENCIL_PIXEL_COLOR_SHIFT;
+    level = (level + kStencilPixelOffset) << kStencilPixelColorShift;
 
     const void* content = &sprite->pixels;
     void* next = (void*)((Addr)content + (Addr)sprite->next);
@@ -4500,16 +4500,16 @@ void drawBackSurfacePaletteSpriteAndStencil(S32 x, S32 y, U16 level, const Pixel
                 while (sx < g_rendererState.sprite.minX && (std::uintptr_t)pixels < (std::uintptr_t)next)
                 {
                     const ptrdiff_t need = g_rendererState.sprite.minX - sx;
-                    const ptrdiff_t count = pixels->count & IMAGE_SPRITE_ITEM_SHORT_COUNT_MASK;
+                    const ptrdiff_t count = pixels->count & kImageSpriteItemShortCountMask;
 
                     if (count <= need)
                     {
-                        if ((pixels->count & IMAGE_SPRITE_ITEM_EXTENDED_MASK) == IMAGE_SPRITE_ITEM_EXTENDED_MASK)
+                        if ((pixels->count & kImageSpriteItemExtendedMask) == kImageSpriteItemExtendedMask)
                         {
                             // Mask 0xC0 -> only count
                             pixels = (ImagePaletteSpritePixel*)((Addr)pixels + sizeof(U8));
                         }
-                        else if ((pixels->count & IMAGE_SPRITE_ITEM_EXTENDED_MASK) == IMAGE_SPRITE_ITEM_COMPACT_MASK)
+                        else if ((pixels->count & kImageSpriteItemExtendedMask) == kImageSpriteItemCompactMask)
                         {
                             // Mask 0x80 -> count and one pixel
                             pixels = (ImagePaletteSpritePixel*)((Addr)pixels + sizeof(ImagePaletteSpritePixel));
@@ -4527,7 +4527,7 @@ void drawBackSurfacePaletteSpriteAndStencil(S32 x, S32 y, U16 level, const Pixel
 
                 while (sx < g_rendererState.sprite.maxX && (std::uintptr_t)pixels < (std::uintptr_t)next)
                 {
-                    const ptrdiff_t count = (pixels->count & IMAGE_SPRITE_ITEM_SHORT_COUNT_MASK);
+                    const ptrdiff_t count = (pixels->count & kImageSpriteItemShortCountMask);
 
                     if (count == 0)
                     {
@@ -4539,12 +4539,12 @@ void drawBackSurfacePaletteSpriteAndStencil(S32 x, S32 y, U16 level, const Pixel
                     const ptrdiff_t availCount = std::min(count - skip, g_rendererState.sprite.maxX - sx);
                     Pixel* const stencil = g_rendererState.surfaces.stencil + (sx - g_rendererState.surfaces.back);
 
-                    if ((pixels->count & IMAGE_SPRITE_ITEM_EXTENDED_MASK) == IMAGE_SPRITE_ITEM_EXTENDED_MASK)
+                    if ((pixels->count & kImageSpriteItemExtendedMask) == kImageSpriteItemExtendedMask)
                     {
                         // Mask 0xC0 -> skip pixels
                         pixels = (ImagePaletteSpritePixel*)((Addr)pixels + sizeof(U8));
                     }
-                    else if ((pixels->count & IMAGE_SPRITE_ITEM_EXTENDED_MASK) == IMAGE_SPRITE_ITEM_COMPACT_MASK)
+                    else if ((pixels->count & kImageSpriteItemExtendedMask) == kImageSpriteItemCompactMask)
                     {
                         // Mask 0x80 -> repeat one pixel
                         const U8 indx = pixels->pixels[0];
@@ -4555,7 +4555,7 @@ void drawBackSurfacePaletteSpriteAndStencil(S32 x, S32 y, U16 level, const Pixel
 
                         pixels = (ImagePaletteSpritePixel*)((Addr)pixels + sizeof(ImagePaletteSpritePixel));
                     }
-                    else if ((pixels->count & IMAGE_SPRITE_ITEM_SHORT_COMPACT_MASK) == IMAGE_SPRITE_ITEM_SHORT_COMPACT_MASK)
+                    else if ((pixels->count & kImageSpriteItemShortCompactMask) == kImageSpriteItemShortCompactMask)
                     {
                         // Mask 0x40 -> repeat and blend pixels
                         for (ptrdiff_t i = 0; i < availCount; ++i)
@@ -4570,7 +4570,7 @@ void drawBackSurfacePaletteSpriteAndStencil(S32 x, S32 y, U16 level, const Pixel
 
                         pixels = (ImagePaletteSpritePixel*)((Addr)pixels + sizeof(ImagePaletteSpritePixel) + (count - 1) * sizeof(U8));
                     }
-                    else if ((pixels->count & IMAGE_SPRITE_ITEM_EXTENDED_MASK) == 0)
+                    else if ((pixels->count & kImageSpriteItemExtendedMask) == 0)
                     {
                         // Mask 0x00 -> draw pixels
                         for (ptrdiff_t i = 0; i < availCount; ++i)
@@ -4620,7 +4620,7 @@ void drawBackSurfacePaletteShadedSprite(S32 x, S32 y, U16 level, const Pixel* co
     g_rendererState.sprite.colorMask = colorMask;
     g_rendererState.sprite.adjustedColorMask = colorMask | (colorMask << 1);
 
-    level = (level + STENCIL_PIXEL_OFFSET) << STENCIL_PIXEL_COLOR_SHIFT;
+    level = (level + kStencilPixelOffset) << kStencilPixelColorShift;
 
     g_rendererState.sprite.height = sprite->height;
     //g_rendererState.sprite.width = sprite->width + 1;
@@ -4702,11 +4702,11 @@ void drawBackSurfacePaletteShadedSprite(S32 x, S32 y, U16 level, const Pixel* co
                 while (sx < g_rendererState.sprite.minX && (std::uintptr_t)pixels < (std::uintptr_t)next)
                 {
                     const ptrdiff_t need = g_rendererState.sprite.minX - sx;
-                    const ptrdiff_t count = pixels->count & IMAGE_SPRITE_ITEM_COUNT_MASK;
+                    const ptrdiff_t count = pixels->count & kImageSpriteItemCountMask;
 
                     if (count <= need)
                     {
-                        if (pixels->count & IMAGE_SPRITE_ITEM_COMPACT_MASK)
+                        if (pixels->count & kImageSpriteItemCompactMask)
                         {
                             pixels = (ImagePaletteSpritePixel*)((Addr)pixels + sizeof(ImagePaletteSpritePixel));
                         }
@@ -4722,7 +4722,7 @@ void drawBackSurfacePaletteShadedSprite(S32 x, S32 y, U16 level, const Pixel* co
 
                 while (sx < g_rendererState.sprite.maxX && (std::uintptr_t)pixels < (std::uintptr_t)next)
                 {
-                    const ptrdiff_t count = (pixels->count & IMAGE_SPRITE_ITEM_COUNT_MASK);
+                    const ptrdiff_t count = (pixels->count & kImageSpriteItemCountMask);
 
                     if (count == 0)
                     {
@@ -4734,7 +4734,7 @@ void drawBackSurfacePaletteShadedSprite(S32 x, S32 y, U16 level, const Pixel* co
                     const ptrdiff_t availCount = std::min(count - skip, g_rendererState.sprite.maxX - sx);
                     Pixel* const stencil = g_rendererState.surfaces.stencil + (sx - g_rendererState.surfaces.back);
 
-                    if (pixels->count & IMAGE_SPRITE_ITEM_COMPACT_MASK)
+                    if (pixels->count & kImageSpriteItemCompactMask)
                     {
                         // Mask 0x80 -> count and one pixel
                         const U8 indx = pixels->pixels[0];
@@ -4887,16 +4887,16 @@ void drawMainSurfacePaletteSprite(S32 x, S32 y, const Pixel* const palette, cons
                 while (sx < g_rendererState.sprite.minX && (std::uintptr_t)pixels < (std::uintptr_t)next)
                 {
                     const ptrdiff_t need = g_rendererState.sprite.minX - sx;
-                    const ptrdiff_t count = pixels->count & IMAGE_SPRITE_ITEM_SHORT_COUNT_MASK;
+                    const ptrdiff_t count = pixels->count & kImageSpriteItemShortCountMask;
 
                     if (count <= need)
                     {
-                        if ((pixels->count & IMAGE_SPRITE_ITEM_EXTENDED_MASK) == IMAGE_SPRITE_ITEM_EXTENDED_MASK)
+                        if ((pixels->count & kImageSpriteItemExtendedMask) == kImageSpriteItemExtendedMask)
                         {
                             // Mask 0xC0 -> only count
                             pixels = (ImagePaletteSpritePixel*)((Addr)pixels + sizeof(U8));
                         }
-                        else if ((pixels->count & IMAGE_SPRITE_ITEM_EXTENDED_MASK) == IMAGE_SPRITE_ITEM_COMPACT_MASK)
+                        else if ((pixels->count & kImageSpriteItemExtendedMask) == kImageSpriteItemCompactMask)
                         {
                             // Mask 0x80 -> count and one pixel
                             pixels = (ImagePaletteSpritePixel*)((Addr)pixels + sizeof(ImagePaletteSpritePixel));
@@ -4914,7 +4914,7 @@ void drawMainSurfacePaletteSprite(S32 x, S32 y, const Pixel* const palette, cons
 
                 while (sx < g_rendererState.sprite.maxX && (std::uintptr_t)pixels < (std::uintptr_t)next)
                 {
-                    const ptrdiff_t count = (pixels->count & IMAGE_SPRITE_ITEM_SHORT_COUNT_MASK);
+                    const ptrdiff_t count = (pixels->count & kImageSpriteItemShortCountMask);
 
                     if (count == 0)
                     {
@@ -4924,12 +4924,12 @@ void drawMainSurfacePaletteSprite(S32 x, S32 y, const Pixel* const palette, cons
 
                     const ptrdiff_t availCount = std::min(count - skip, g_rendererState.sprite.maxX - sx);
 
-                    if ((pixels->count & IMAGE_SPRITE_ITEM_EXTENDED_MASK) == IMAGE_SPRITE_ITEM_EXTENDED_MASK)
+                    if ((pixels->count & kImageSpriteItemExtendedMask) == kImageSpriteItemExtendedMask)
                     {
                         // Mask 0xC0 -> skip pixels
                         pixels = (ImagePaletteSpritePixel*)((Addr)pixels + sizeof(U8));
                     }
-                    else if ((pixels->count & IMAGE_SPRITE_ITEM_EXTENDED_MASK) == IMAGE_SPRITE_ITEM_COMPACT_MASK)
+                    else if ((pixels->count & kImageSpriteItemExtendedMask) == kImageSpriteItemCompactMask)
                     {
                         // Mask 0x80 -> repeat one pixel
                         const U8 indx = pixels->pixels[0];
@@ -4939,7 +4939,7 @@ void drawMainSurfacePaletteSprite(S32 x, S32 y, const Pixel* const palette, cons
 
                         pixels = (ImagePaletteSpritePixel*)((Addr)pixels + sizeof(ImagePaletteSpritePixel));
                     }
-                    else if ((pixels->count & IMAGE_SPRITE_ITEM_SHORT_COMPACT_MASK) == IMAGE_SPRITE_ITEM_SHORT_COMPACT_MASK)
+                    else if ((pixels->count & kImageSpriteItemShortCompactMask) == kImageSpriteItemShortCompactMask)
                     {
                         // Mask 0x40 -> repeat and blend pixels
                         for (ptrdiff_t i = 0; i < availCount; ++i)
@@ -4951,7 +4951,7 @@ void drawMainSurfacePaletteSprite(S32 x, S32 y, const Pixel* const palette, cons
 
                         pixels = (ImagePaletteSpritePixel*)((Addr)pixels + sizeof(ImagePaletteSpritePixel) + (count - 1) * sizeof(U8));
                     }
-                    else if ((pixels->count & IMAGE_SPRITE_ITEM_EXTENDED_MASK) == 0)
+                    else if ((pixels->count & kImageSpriteItemExtendedMask) == 0)
                     {
                         // Mask 0x00 -> draw pixels
                         for (ptrdiff_t i = 0; i < availCount; ++i)
@@ -5069,11 +5069,11 @@ void drawMainSurfaceSprite(S32 x, S32 y, const ImageSprite* const sprite)
                 while (sx < g_rendererState.sprite.minX && (std::uintptr_t)pixels < (std::uintptr_t)next)
                 {
                     const ptrdiff_t need = g_rendererState.sprite.minX - sx;
-                    const ptrdiff_t count = pixels->count & IMAGE_SPRITE_ITEM_COUNT_MASK;
+                    const ptrdiff_t count = pixels->count & kImageSpriteItemCountMask;
 
                     if (count <= need)
                     {
-                        if (pixels->count & IMAGE_SPRITE_ITEM_COMPACT_MASK)
+                        if (pixels->count & kImageSpriteItemCompactMask)
                         {
                             pixels = (ImageSpritePixel*)((Addr)pixels + sizeof(ImageSpritePixel));
                         }
@@ -5089,7 +5089,7 @@ void drawMainSurfaceSprite(S32 x, S32 y, const ImageSprite* const sprite)
 
                 while (sx < g_rendererState.sprite.maxX && (std::uintptr_t)pixels < (std::uintptr_t)next)
                 {
-                    const ptrdiff_t count = pixels->count & IMAGE_SPRITE_ITEM_COUNT_MASK;
+                    const ptrdiff_t count = pixels->count & kImageSpriteItemCountMask;
 
                     if (count == 0)
                     {
@@ -5100,7 +5100,7 @@ void drawMainSurfaceSprite(S32 x, S32 y, const ImageSprite* const sprite)
 
                     const ptrdiff_t availCount = std::min(count - skip, g_rendererState.sprite.maxX - sx);
 
-                    if (pixels->count & IMAGE_SPRITE_ITEM_COMPACT_MASK)
+                    if (pixels->count & kImageSpriteItemCompactMask)
                     {
                         const Pixel pixel = pixels->pixels[0];
 
@@ -5237,11 +5237,11 @@ void drawMainSurfaceAnimationSprite(S32 x, S32 y, const AnimationPixel* palette,
                 while (sx < g_rendererState.sprite.minX && (std::uintptr_t)pixels < (std::uintptr_t)next)
                 {
                     const ptrdiff_t need = g_rendererState.sprite.minX - sx;
-                    const ptrdiff_t count = pixels->count & IMAGE_SPRITE_ITEM_COUNT_MASK;
+                    const ptrdiff_t count = pixels->count & kImageSpriteItemCountMask;
 
                     if (count <= need)
                     {
-                        if (pixels->count & IMAGE_SPRITE_ITEM_COMPACT_MASK)
+                        if (pixels->count & kImageSpriteItemCompactMask)
                         {
                             // Mask 0x80 -> count and one pixel
                             pixels = (ImagePaletteSpritePixel*)((Addr)pixels + sizeof(ImagePaletteSpritePixel));
@@ -5259,7 +5259,7 @@ void drawMainSurfaceAnimationSprite(S32 x, S32 y, const AnimationPixel* palette,
 
                 while (sx < g_rendererState.sprite.maxX && (std::uintptr_t)pixels < (std::uintptr_t)next)
                 {
-                    const ptrdiff_t count = (pixels->count & IMAGE_SPRITE_ITEM_COUNT_MASK);
+                    const ptrdiff_t count = (pixels->count & kImageSpriteItemCountMask);
 
                     if (count == 0)
                     {
@@ -5269,7 +5269,7 @@ void drawMainSurfaceAnimationSprite(S32 x, S32 y, const AnimationPixel* palette,
 
                     const ptrdiff_t availCount = std::min(count - skip, g_rendererState.sprite.maxX - sx);
 
-                    if (pixels->count & IMAGE_SPRITE_ITEM_COMPACT_MASK)
+                    if (pixels->count & kImageSpriteItemCompactMask)
                     {
                         const U8 indx = pixels->pixels[0];
                         const AnimationPixel pixel = palette[indx];
@@ -5342,7 +5342,7 @@ void drawMainSurfaceAnimationSpriteStencil(S32 x, S32 y, U16 level, const Animat
     g_rendererState.sprite.colorMask = colorMask;
     g_rendererState.sprite.adjustedColorMask = colorMask | (colorMask << 1);
 
-    level = (level + STENCIL_PIXEL_OFFSET) << STENCIL_PIXEL_COLOR_SHIFT;
+    level = (level + kStencilPixelOffset) << kStencilPixelColorShift;
     const DoublePixel stencilLevel = (level << 16) | level;
 
     g_rendererState.sprite.height = sprite->height;
@@ -5428,11 +5428,11 @@ void drawMainSurfaceAnimationSpriteStencil(S32 x, S32 y, U16 level, const Animat
                 while (sx < g_rendererState.sprite.minX && (std::uintptr_t)pixels < (std::uintptr_t)next)
                 {
                     const ptrdiff_t need = g_rendererState.sprite.minX - sx;
-                    const ptrdiff_t count = pixels->count & IMAGE_SPRITE_ITEM_COUNT_MASK;
+                    const ptrdiff_t count = pixels->count & kImageSpriteItemCountMask;
 
                     if (count <= need)
                     {
-                        if (pixels->count & IMAGE_SPRITE_ITEM_COMPACT_MASK)
+                        if (pixels->count & kImageSpriteItemCompactMask)
                         {
                             pixels = (ImagePaletteSpritePixel*)((Addr)pixels + sizeof(ImagePaletteSpritePixel));
                         }
@@ -5448,7 +5448,7 @@ void drawMainSurfaceAnimationSpriteStencil(S32 x, S32 y, U16 level, const Animat
 
                 while (sx < g_rendererState.sprite.maxX && (std::uintptr_t)pixels < (std::uintptr_t)next)
                 {
-                    const ptrdiff_t count = (pixels->count & IMAGE_SPRITE_ITEM_COUNT_MASK);
+                    const ptrdiff_t count = (pixels->count & kImageSpriteItemCountMask);
 
                     if (count == 0)
                     {
@@ -5460,7 +5460,7 @@ void drawMainSurfaceAnimationSpriteStencil(S32 x, S32 y, U16 level, const Animat
                     const ptrdiff_t availCount = std::min(count - skip, g_rendererState.sprite.maxX - sx);
                     Pixel* const stencil = g_rendererState.surfaces.stencil + (sx - g_rendererState.surfaces.main);
 
-                    if (pixels->count & IMAGE_SPRITE_ITEM_COMPACT_MASK)
+                    if (pixels->count & kImageSpriteItemCompactMask)
                     {
                         const U8 indx = pixels->pixels[0];
                         const AnimationPixel pixel = palette[indx];
@@ -5541,7 +5541,7 @@ void drawMainSurfacePaletteSpriteFrontStencil(S32 x, S32 y, U16 level, const Pix
     g_rendererState.sprite.colorMask = colorMask;
     g_rendererState.sprite.adjustedColorMask = colorMask | (colorMask << 1);
 
-    level = (level + STENCIL_PIXEL_OFFSET) << STENCIL_PIXEL_COLOR_SHIFT;
+    level = (level + kStencilPixelOffset) << kStencilPixelColorShift;
     const DoublePixel stencilLevel = (level << 16) | level;
 
     g_rendererState.sprite.height = sprite->height;
@@ -5624,16 +5624,16 @@ void drawMainSurfacePaletteSpriteFrontStencil(S32 x, S32 y, U16 level, const Pix
                 while (sx < g_rendererState.sprite.minX && (std::uintptr_t)pixels < (std::uintptr_t)next)
                 {
                     const ptrdiff_t need = g_rendererState.sprite.minX - sx;
-                    const ptrdiff_t count = pixels->count & IMAGE_SPRITE_ITEM_SHORT_COUNT_MASK;
+                    const ptrdiff_t count = pixels->count & kImageSpriteItemShortCountMask;
 
                     if (count <= need)
                     {
-                        if ((pixels->count & IMAGE_SPRITE_ITEM_EXTENDED_MASK) == IMAGE_SPRITE_ITEM_EXTENDED_MASK)
+                        if ((pixels->count & kImageSpriteItemExtendedMask) == kImageSpriteItemExtendedMask)
                         {
                             // Mask 0xC0 -> only count
                             pixels = (ImagePaletteSpritePixel*)((Addr)pixels + sizeof(U8));
                         }
-                        else if ((pixels->count & IMAGE_SPRITE_ITEM_EXTENDED_MASK) == IMAGE_SPRITE_ITEM_COMPACT_MASK)
+                        else if ((pixels->count & kImageSpriteItemExtendedMask) == kImageSpriteItemCompactMask)
                         {
                             // Mask 0x80 -> count and one pixel
                             pixels = (ImagePaletteSpritePixel*)((Addr)pixels + sizeof(ImagePaletteSpritePixel));
@@ -5651,7 +5651,7 @@ void drawMainSurfacePaletteSpriteFrontStencil(S32 x, S32 y, U16 level, const Pix
 
                 while (sx < g_rendererState.sprite.maxX && (std::uintptr_t)pixels < (std::uintptr_t)next)
                 {
-                    const ptrdiff_t count = (pixels->count & IMAGE_SPRITE_ITEM_SHORT_COUNT_MASK);
+                    const ptrdiff_t count = (pixels->count & kImageSpriteItemShortCountMask);
 
                     if (count == 0)
                     {
@@ -5663,12 +5663,12 @@ void drawMainSurfacePaletteSpriteFrontStencil(S32 x, S32 y, U16 level, const Pix
                     const ptrdiff_t availCount = std::min(count - skip, g_rendererState.sprite.maxX - sx);
                     Pixel* const stencil = g_rendererState.surfaces.stencil + (sx - g_rendererState.surfaces.main);
 
-                    if ((pixels->count & IMAGE_SPRITE_ITEM_EXTENDED_MASK) == IMAGE_SPRITE_ITEM_EXTENDED_MASK)
+                    if ((pixels->count & kImageSpriteItemExtendedMask) == kImageSpriteItemExtendedMask)
                     {
                         // Mask 0xC0 -> skip pixels
                         pixels = (ImagePaletteSpritePixel*)((Addr)pixels + sizeof(U8));
                     }
-                    else if ((pixels->count & IMAGE_SPRITE_ITEM_EXTENDED_MASK) == IMAGE_SPRITE_ITEM_COMPACT_MASK)
+                    else if ((pixels->count & kImageSpriteItemExtendedMask) == kImageSpriteItemCompactMask)
                     {
                         // Mask 0x80 -> repeat one pixel
                         const U8 indx = pixels->pixels[0];
@@ -5684,7 +5684,7 @@ void drawMainSurfacePaletteSpriteFrontStencil(S32 x, S32 y, U16 level, const Pix
 
                         pixels = (ImagePaletteSpritePixel*)((Addr)pixels + sizeof(ImagePaletteSpritePixel));
                     }
-                    else if ((pixels->count & IMAGE_SPRITE_ITEM_SHORT_COMPACT_MASK) == IMAGE_SPRITE_ITEM_SHORT_COMPACT_MASK)
+                    else if ((pixels->count & kImageSpriteItemShortCompactMask) == kImageSpriteItemShortCompactMask)
                     {
                         // Mask 0x40 -> repeat and blend pixels
                         for (ptrdiff_t i = 0; i < availCount; ++i)
@@ -5700,7 +5700,7 @@ void drawMainSurfacePaletteSpriteFrontStencil(S32 x, S32 y, U16 level, const Pix
 
                         pixels = (ImagePaletteSpritePixel*)((Addr)pixels + sizeof(ImagePaletteSpritePixel) + (count - 1) * sizeof(U8));
                     }
-                    else if ((pixels->count & IMAGE_SPRITE_ITEM_EXTENDED_MASK) == 0)
+                    else if ((pixels->count & kImageSpriteItemExtendedMask) == 0)
                     {
                         // Mask 0x00 -> draw pixels
                         for (ptrdiff_t i = 0; i < availCount; ++i)
@@ -5751,7 +5751,7 @@ void drawMainSurfacePaletteSpriteBackStencil(S32 x, S32 y, U16 level, const Pixe
     g_rendererState.sprite.colorMask = colorMask;
     g_rendererState.sprite.adjustedColorMask = colorMask | (colorMask << 1);
 
-    level = (level + STENCIL_PIXEL_OFFSET) << STENCIL_PIXEL_COLOR_SHIFT;
+    level = (level + kStencilPixelOffset) << kStencilPixelColorShift;
     const DoublePixel stencilLevel = (level << 16) | level;
 
     g_rendererState.sprite.height = sprite->height;
@@ -5839,16 +5839,16 @@ void drawMainSurfacePaletteSpriteBackStencil(S32 x, S32 y, U16 level, const Pixe
                 while (sx < g_rendererState.sprite.minX && (std::uintptr_t)pixels < (std::uintptr_t)next)
                 {
                     const ptrdiff_t need = g_rendererState.sprite.minX - sx;
-                    const ptrdiff_t count = pixels->count & IMAGE_SPRITE_ITEM_SHORT_COUNT_MASK;
+                    const ptrdiff_t count = pixels->count & kImageSpriteItemShortCountMask;
 
                     if (count <= need)
                     {
-                        if ((pixels->count & IMAGE_SPRITE_ITEM_EXTENDED_MASK) == IMAGE_SPRITE_ITEM_EXTENDED_MASK)
+                        if ((pixels->count & kImageSpriteItemExtendedMask) == kImageSpriteItemExtendedMask)
                         {
                             // Mask 0xC0 -> only count
                             pixels = (ImagePaletteSpritePixel*)((Addr)pixels + sizeof(U8));
                         }
-                        else if ((pixels->count & IMAGE_SPRITE_ITEM_EXTENDED_MASK) == IMAGE_SPRITE_ITEM_COMPACT_MASK)
+                        else if ((pixels->count & kImageSpriteItemExtendedMask) == kImageSpriteItemCompactMask)
                         {
                             // Mask 0x80 -> count and one pixel
                             pixels = (ImagePaletteSpritePixel*)((Addr)pixels + sizeof(ImagePaletteSpritePixel));
@@ -5866,7 +5866,7 @@ void drawMainSurfacePaletteSpriteBackStencil(S32 x, S32 y, U16 level, const Pixe
 
                 while (sx < g_rendererState.sprite.maxX && (std::uintptr_t)pixels < (std::uintptr_t)next)
                 {
-                    const ptrdiff_t count = (pixels->count & IMAGE_SPRITE_ITEM_SHORT_COUNT_MASK);
+                    const ptrdiff_t count = (pixels->count & kImageSpriteItemShortCountMask);
 
                     if (count == 0)
                     {
@@ -5878,12 +5878,12 @@ void drawMainSurfacePaletteSpriteBackStencil(S32 x, S32 y, U16 level, const Pixe
                     const ptrdiff_t availCount = std::min(count - skip, g_rendererState.sprite.maxX - sx);
                     Pixel* const stencil = g_rendererState.surfaces.stencil + (sx - g_rendererState.surfaces.main);
 
-                    if ((pixels->count & IMAGE_SPRITE_ITEM_EXTENDED_MASK) == IMAGE_SPRITE_ITEM_EXTENDED_MASK)
+                    if ((pixels->count & kImageSpriteItemExtendedMask) == kImageSpriteItemExtendedMask)
                     {
                         // Mask 0xC0 -> skip pixels
                         pixels = (ImagePaletteSpritePixel*)((Addr)pixels + sizeof(U8));
                     }
-                    else if ((pixels->count & IMAGE_SPRITE_ITEM_EXTENDED_MASK) == IMAGE_SPRITE_ITEM_COMPACT_MASK)
+                    else if ((pixels->count & kImageSpriteItemExtendedMask) == kImageSpriteItemCompactMask)
                     {
                         // Mask 0x80 -> repeat one pixel
                         const U8 indx = pixels->pixels[0];
@@ -5900,7 +5900,7 @@ void drawMainSurfacePaletteSpriteBackStencil(S32 x, S32 y, U16 level, const Pixe
 
                         pixels = (ImagePaletteSpritePixel*)((Addr)pixels + sizeof(ImagePaletteSpritePixel));
                     }
-                    else if ((pixels->count & IMAGE_SPRITE_ITEM_SHORT_COMPACT_MASK) == IMAGE_SPRITE_ITEM_SHORT_COMPACT_MASK)
+                    else if ((pixels->count & kImageSpriteItemShortCompactMask) == kImageSpriteItemShortCompactMask)
                     {
                         // Mask 0x40 -> repeat and blend pixels
                         for (ptrdiff_t i = 0; i < availCount; ++i)
@@ -5917,7 +5917,7 @@ void drawMainSurfacePaletteSpriteBackStencil(S32 x, S32 y, U16 level, const Pixe
 
                         pixels = (ImagePaletteSpritePixel*)((Addr)pixels + sizeof(ImagePaletteSpritePixel) + (count - 1) * sizeof(U8));
                     }
-                    else if ((pixels->count & IMAGE_SPRITE_ITEM_EXTENDED_MASK) == 0)
+                    else if ((pixels->count & kImageSpriteItemExtendedMask) == 0)
                     {
                         // Mask 0x00 -> draw pixels
                         for (ptrdiff_t i = 0; i < availCount; ++i)
@@ -6050,7 +6050,7 @@ void drawMainSurfaceShadowSprite(S32 x, S32 y, const DoublePixel shadePixel, con
                 while (sx < g_rendererState.sprite.minX && (std::uintptr_t)pixels < (std::uintptr_t)next)
                 {
                     const ptrdiff_t need = g_rendererState.sprite.minX - sx;
-                    const ptrdiff_t count = pixels->count & IMAGE_SPRITE_ITEM_COUNT_MASK;
+                    const ptrdiff_t count = pixels->count & kImageSpriteItemCountMask;
 
                     if (count <= need)
                     {
@@ -6063,7 +6063,7 @@ void drawMainSurfaceShadowSprite(S32 x, S32 y, const DoublePixel shadePixel, con
 
                 while (sx < g_rendererState.sprite.maxX && (std::uintptr_t)pixels < (std::uintptr_t)next)
                 {
-                    ptrdiff_t count = (pixels->count & IMAGE_SPRITE_ITEM_COUNT_MASK);
+                    ptrdiff_t count = (pixels->count & kImageSpriteItemCountMask);
 
                     if (count == 0)
                     {
@@ -6074,12 +6074,12 @@ void drawMainSurfaceShadowSprite(S32 x, S32 y, const DoublePixel shadePixel, con
                     const ptrdiff_t availCount = std::min(count - skip, g_rendererState.sprite.maxX - sx);
                     Pixel* const stencil = g_rendererState.surfaces.stencil + (sx - g_rendererState.surfaces.main);
 
-                    if ((pixels->count & IMAGE_SPRITE_ITEM_COMPACT_MASK) == 0)
+                    if ((pixels->count & kImageSpriteItemCompactMask) == 0)
                     {
                         for (ptrdiff_t i = 0; i < availCount; ++i)
                         {
                             const DoublePixel sten = *(DoublePixel*)(stencil + i);
-                                if ((sten & STENCIL_PIXEL_SHADOW_MASK) == 0)
+                                if ((sten & kStencilPixelShadowMask) == 0)
                                 {
                                     *(DoublePixel*)(stencil + i) = shadePixel | sten;
 
@@ -6205,7 +6205,7 @@ void drawBackSurfaceShadowSprite(S32 x, S32 y, const DoublePixel shadePixel, con
                 while (sx < g_rendererState.sprite.minX && (std::uintptr_t)pixels < (std::uintptr_t)next)
                 {
                     const ptrdiff_t need = g_rendererState.sprite.minX - sx;
-                    const ptrdiff_t count = pixels->count & IMAGE_SPRITE_ITEM_COUNT_MASK;
+                    const ptrdiff_t count = pixels->count & kImageSpriteItemCountMask;
 
                     if (count <= need)
                     {
@@ -6218,7 +6218,7 @@ void drawBackSurfaceShadowSprite(S32 x, S32 y, const DoublePixel shadePixel, con
 
                 while (sx < g_rendererState.sprite.maxX && (std::uintptr_t)pixels < (std::uintptr_t)next)
                 {
-                    ptrdiff_t count = (pixels->count & IMAGE_SPRITE_ITEM_COUNT_MASK);
+                    ptrdiff_t count = (pixels->count & kImageSpriteItemCountMask);
 
                     if (count == 0)
                     {
@@ -6229,12 +6229,12 @@ void drawBackSurfaceShadowSprite(S32 x, S32 y, const DoublePixel shadePixel, con
                     const ptrdiff_t availCount = std::min(count - skip, g_rendererState.sprite.maxX - sx);
                     Pixel* const stencil = g_rendererState.surfaces.stencil + (sx - g_rendererState.surfaces.back);
 
-                    if ((pixels->count & IMAGE_SPRITE_ITEM_COMPACT_MASK) == 0)
+                    if ((pixels->count & kImageSpriteItemCompactMask) == 0)
                     {
                         for (ptrdiff_t i = 0; i < availCount; ++i)
                         {
                             const DoublePixel sten = *(DoublePixel*)(stencil + i);
-                            if ((sten & STENCIL_PIXEL_SHADOW_MASK) == 0)
+                            if ((sten & kStencilPixelShadowMask) == 0)
                             {
                                 *(DoublePixel*)(stencil + i) = shadePixel | sten;
 
@@ -6279,7 +6279,7 @@ void drawMainSurfaceAdjustedSprite(S32 x, S32 y, U16 level, const ImagePaletteSp
     g_rendererState.sprite.colorMask = colorMask;
     g_rendererState.sprite.adjustedColorMask = colorMask | (colorMask << 1);
 
-    level = (level + STENCIL_PIXEL_OFFSET) << STENCIL_PIXEL_COLOR_SHIFT;
+    level = (level + kStencilPixelOffset) << kStencilPixelColorShift;
     const DoublePixel stencilLevel = (level << 16) | level;
 
     g_rendererState.sprite.height = sprite->height;
@@ -6362,16 +6362,16 @@ void drawMainSurfaceAdjustedSprite(S32 x, S32 y, U16 level, const ImagePaletteSp
                 while (sx < g_rendererState.sprite.minX && (std::uintptr_t)pixels < (std::uintptr_t)next)
                 {
                     const ptrdiff_t need = g_rendererState.sprite.minX - sx;
-                    const ptrdiff_t count = pixels->count & IMAGE_SPRITE_ITEM_COUNT_MASK;
+                    const ptrdiff_t count = pixels->count & kImageSpriteItemCountMask;
 
                     if (count <= need)
                     {
-                        if ((pixels->count & IMAGE_SPRITE_ITEM_EXTENDED_MASK) == IMAGE_SPRITE_ITEM_EXTENDED_MASK)
+                        if ((pixels->count & kImageSpriteItemExtendedMask) == kImageSpriteItemExtendedMask)
                         {
                             // Mask 0xC0 -> only count
                             pixels = (ImagePaletteSpritePixel*)((Addr)pixels + sizeof(U8));
                         }
-                        else if ((pixels->count & IMAGE_SPRITE_ITEM_EXTENDED_MASK) == IMAGE_SPRITE_ITEM_COMPACT_MASK)
+                        else if ((pixels->count & kImageSpriteItemExtendedMask) == kImageSpriteItemCompactMask)
                         {
                             // Mask 0x80 -> count and one pixel
                             pixels = (ImagePaletteSpritePixel*)((Addr)pixels + sizeof(ImagePaletteSpritePixel));
@@ -6389,7 +6389,7 @@ void drawMainSurfaceAdjustedSprite(S32 x, S32 y, U16 level, const ImagePaletteSp
 
                 while (sx < g_rendererState.sprite.maxX && (std::uintptr_t)pixels < (std::uintptr_t)next)
                 {
-                    ptrdiff_t count = (pixels->count & IMAGE_SPRITE_ITEM_COUNT_MASK);
+                    ptrdiff_t count = (pixels->count & kImageSpriteItemCountMask);
 
                     if (count == 0)
                     {
@@ -6401,12 +6401,12 @@ void drawMainSurfaceAdjustedSprite(S32 x, S32 y, U16 level, const ImagePaletteSp
                     const ptrdiff_t availCount = std::min(count - skip, g_rendererState.sprite.maxX - sx);
                     Pixel* const stencil = g_rendererState.surfaces.stencil + (sx - g_rendererState.surfaces.main);
 
-                    if ((pixels->count & IMAGE_SPRITE_ITEM_EXTENDED_MASK) == IMAGE_SPRITE_ITEM_EXTENDED_MASK)
+                    if ((pixels->count & kImageSpriteItemExtendedMask) == kImageSpriteItemExtendedMask)
                     {
                         // Mask 0xC0 -> skip pixels
                         pixels = (ImagePaletteSpritePixel*)((Addr)pixels + sizeof(U8));
                     }
-                    else if ((pixels->count & IMAGE_SPRITE_ITEM_COMPACT_MASK) == IMAGE_SPRITE_ITEM_COMPACT_MASK)
+                    else if ((pixels->count & kImageSpriteItemCompactMask) == kImageSpriteItemCompactMask)
                     {
                         // Mask 0x80 -> repeat one pixel
                         for (ptrdiff_t i = 0; i < availCount; ++i)
@@ -6414,7 +6414,7 @@ void drawMainSurfaceAdjustedSprite(S32 x, S32 y, U16 level, const ImagePaletteSp
                             if (*(DoublePixel*)(stencil + i - 1) < stencilLevel)
                             {
                                 DoublePixel pixel = g_rendererState.sprite.colorMask & (sx[i] | ((DoublePixel)sx[i] << 16));
-                                pixel = g_rendererState.sprite.adjustedColorMask & ((pixel * (pixels->pixels[0] & IMAGE_SPRITE_ITEM_SMALL_PIXEL_MASK)) >> 4);
+                                pixel = g_rendererState.sprite.adjustedColorMask & ((pixel * (pixels->pixels[0] & kImageSpriteItemSmallPixelMask)) >> 4);
                                 pixel = g_rendererState.sprite.colorMask &
                                     (((g_rendererState.sprite.colorMask - pixel) >> 5) | pixel);
 
@@ -6431,7 +6431,7 @@ void drawMainSurfaceAdjustedSprite(S32 x, S32 y, U16 level, const ImagePaletteSp
                             if (*(DoublePixel*)(stencil + i - 1) < stencilLevel)
                             {
                                 DoublePixel pixel = g_rendererState.sprite.colorMask & (sx[i] | ((DoublePixel)sx[i] << 16));
-                                pixel = g_rendererState.sprite.adjustedColorMask & ((pixel * (pixels->pixels[skip + i] & IMAGE_SPRITE_ITEM_SMALL_PIXEL_MASK)) >> 4);
+                                pixel = g_rendererState.sprite.adjustedColorMask & ((pixel * (pixels->pixels[skip + i] & kImageSpriteItemSmallPixelMask)) >> 4);
                                 pixel = g_rendererState.sprite.colorMask &
                                     (((g_rendererState.sprite.colorMask - pixel) >> 5) | pixel);
 
@@ -6476,7 +6476,7 @@ void drawMainSurfaceActualSprite(S32 x, S32 y, U16 level, const Pixel* const pal
     g_rendererState.sprite.colorMask = colorMask;
     g_rendererState.sprite.adjustedColorMask = colorMask | (colorMask << 1);
 
-    level = (level + STENCIL_PIXEL_OFFSET) << STENCIL_PIXEL_COLOR_SHIFT;
+    level = (level + kStencilPixelOffset) << kStencilPixelColorShift;
     const DoublePixel stencilLevel = (level << 16) | level;
 
     g_rendererState.sprite.height = sprite->height;
@@ -6559,16 +6559,16 @@ void drawMainSurfaceActualSprite(S32 x, S32 y, U16 level, const Pixel* const pal
                 while (sx < g_rendererState.sprite.minX && (std::uintptr_t)pixels < (std::uintptr_t)next)
                 {
                     const ptrdiff_t need = g_rendererState.sprite.minX - sx;
-                    const ptrdiff_t count = pixels->count & IMAGE_SPRITE_ITEM_COUNT_MASK;
+                    const ptrdiff_t count = pixels->count & kImageSpriteItemCountMask;
 
                     if (count <= need)
                     {
-                        if ((pixels->count & IMAGE_SPRITE_ITEM_EXTENDED_MASK) == IMAGE_SPRITE_ITEM_EXTENDED_MASK)
+                        if ((pixels->count & kImageSpriteItemExtendedMask) == kImageSpriteItemExtendedMask)
                         {
                             // Mask 0xC0 -> only count
                             pixels = (ImagePaletteSpritePixel*)((Addr)pixels + sizeof(U8));
                         }
-                        else if ((pixels->count & IMAGE_SPRITE_ITEM_EXTENDED_MASK) == IMAGE_SPRITE_ITEM_COMPACT_MASK)
+                        else if ((pixels->count & kImageSpriteItemExtendedMask) == kImageSpriteItemCompactMask)
                         {
                             // Mask 0x80 -> count and one pixel
                             pixels = (ImagePaletteSpritePixel*)((Addr)pixels + sizeof(ImagePaletteSpritePixel));
@@ -6586,7 +6586,7 @@ void drawMainSurfaceActualSprite(S32 x, S32 y, U16 level, const Pixel* const pal
 
                 while (sx < g_rendererState.sprite.maxX && (std::uintptr_t)pixels < (std::uintptr_t)next)
                 {
-                    ptrdiff_t count = (pixels->count & IMAGE_SPRITE_ITEM_COUNT_MASK);
+                    ptrdiff_t count = (pixels->count & kImageSpriteItemCountMask);
 
                     if (count == 0)
                     {
@@ -6597,12 +6597,12 @@ void drawMainSurfaceActualSprite(S32 x, S32 y, U16 level, const Pixel* const pal
                     const ptrdiff_t availCount = std::min(count - skip, g_rendererState.sprite.maxX - sx);
                     Pixel* const stencil = g_rendererState.surfaces.stencil + (sx - g_rendererState.surfaces.main);
 
-                    if ((pixels->count & IMAGE_SPRITE_ITEM_EXTENDED_MASK) == IMAGE_SPRITE_ITEM_EXTENDED_MASK)
+                    if ((pixels->count & kImageSpriteItemExtendedMask) == kImageSpriteItemExtendedMask)
                     {
                         // Mask 0xC0 -> skip pixels
                         pixels = (ImagePaletteSpritePixel*)((Addr)pixels + sizeof(U8));
                     }
-                    else if ((pixels->count & IMAGE_SPRITE_ITEM_COMPACT_MASK) == IMAGE_SPRITE_ITEM_COMPACT_MASK)
+                    else if ((pixels->count & kImageSpriteItemCompactMask) == kImageSpriteItemCompactMask)
                     {
                         // Mask 0x80 -> repeat one pixel
                         const U8 indx = pixels->pixels[0];
@@ -6781,11 +6781,11 @@ void drawUiSprite(S32 x, S32 y, const ImagePaletteSprite* const sprite, const vo
                     while (sx < g_rendererState.sprite.minX && (std::uintptr_t)pixels < (std::uintptr_t)next)
                     {
                         const ptrdiff_t need = g_rendererState.sprite.minX - sx;
-                        const ptrdiff_t count = pixels->count & IMAGE_SPRITE_ITEM_COUNT_MASK;
+                        const ptrdiff_t count = pixels->count & kImageSpriteItemCountMask;
 
                         if (count <= need)
                         {
-                            if (pixels->count & IMAGE_SPRITE_ITEM_COMPACT_MASK)
+                            if (pixels->count & kImageSpriteItemCompactMask)
                             {
                                 // Mask 0x80 -> count and one pixel
                                 pixels = (ImagePaletteSpritePixel*)((Addr)pixels + sizeof(ImagePaletteSpritePixel));
@@ -6803,7 +6803,7 @@ void drawUiSprite(S32 x, S32 y, const ImagePaletteSprite* const sprite, const vo
 
                     while (sx < g_rendererState.sprite.maxX && (std::uintptr_t)pixels < (std::uintptr_t)next)
                     {
-                        const ptrdiff_t count = (pixels->count & IMAGE_SPRITE_ITEM_COUNT_MASK);
+                        const ptrdiff_t count = (pixels->count & kImageSpriteItemCountMask);
 
                         if (count == 0)
                         {
@@ -6814,7 +6814,7 @@ void drawUiSprite(S32 x, S32 y, const ImagePaletteSprite* const sprite, const vo
 
                         const ptrdiff_t availCount = std::min(count - skip, g_rendererState.sprite.maxX - sx);
 
-                        if (pixels->count & IMAGE_SPRITE_ITEM_COMPACT_MASK)
+                        if (pixels->count & kImageSpriteItemCompactMask)
                         {
                             // Mask 0x80 -> repeat one pixel
                             const U8 indx = pixels->pixels[0];
@@ -6883,11 +6883,11 @@ void drawUiSprite(S32 x, S32 y, const ImagePaletteSprite* const sprite, const vo
                     while (sx < g_rendererState.sprite.minX && (std::uintptr_t)pixels < (std::uintptr_t)next)
                     {
                         const ptrdiff_t need = g_rendererState.sprite.minX - sx;
-                        const ptrdiff_t count = pixels->count & IMAGE_SPRITE_ITEM_SHORT_COUNT_MASK;
+                        const ptrdiff_t count = pixels->count & kImageSpriteItemShortCountMask;
 
                         if (count <= need)
                         {
-                            if ((pixels->count & IMAGE_SPRITE_ITEM_EXTENDED_MASK) == IMAGE_SPRITE_ITEM_COMPACT_MASK)
+                            if ((pixels->count & kImageSpriteItemExtendedMask) == kImageSpriteItemCompactMask)
                             {
                                 // Mask 0x80 -> count and one pixel
                                 pixels = (ImagePaletteSpritePixel*)((Addr)pixels + sizeof(ImagePaletteSpritePixel));
@@ -6905,7 +6905,7 @@ void drawUiSprite(S32 x, S32 y, const ImagePaletteSprite* const sprite, const vo
 
                     while (sx < g_rendererState.sprite.maxX && (std::uintptr_t)pixels < (std::uintptr_t)next)
                     {
-                        const ptrdiff_t count = (pixels->count & IMAGE_SPRITE_ITEM_SHORT_COUNT_MASK);
+                        const ptrdiff_t count = (pixels->count & kImageSpriteItemShortCountMask);
 
                         if (count == 0)
                         {
@@ -6916,12 +6916,12 @@ void drawUiSprite(S32 x, S32 y, const ImagePaletteSprite* const sprite, const vo
 
                         const ptrdiff_t availCount = std::min(count - skip, g_rendererState.sprite.maxX - sx);
 
-                        if ((pixels->count & IMAGE_SPRITE_ITEM_EXTENDED_MASK) == IMAGE_SPRITE_ITEM_EXTENDED_MASK)
+                        if ((pixels->count & kImageSpriteItemExtendedMask) == kImageSpriteItemExtendedMask)
                         {
                             // Mask 0xC0 -> skip pixels
                             pixels = (ImagePaletteSpritePixel*)((Addr)pixels + sizeof(U8));
                         }
-                        else if ((pixels->count & IMAGE_SPRITE_ITEM_EXTENDED_MASK) == IMAGE_SPRITE_ITEM_COMPACT_MASK)
+                        else if ((pixels->count & kImageSpriteItemExtendedMask) == kImageSpriteItemCompactMask)
                         {
                             // Mask 0x80 -> repeat one pixel
                             const U8 indx = pixels->pixels[0];
@@ -6931,7 +6931,7 @@ void drawUiSprite(S32 x, S32 y, const ImagePaletteSprite* const sprite, const vo
 
                             pixels = (ImagePaletteSpritePixel*)((Addr)pixels + sizeof(ImagePaletteSpritePixel));
                         }
-                        else if ((pixels->count & IMAGE_SPRITE_ITEM_SHORT_COMPACT_MASK) == IMAGE_SPRITE_ITEM_SHORT_COMPACT_MASK)
+                        else if ((pixels->count & kImageSpriteItemShortCompactMask) == kImageSpriteItemShortCompactMask)
                         {
                             // Mask 0x40 -> repeat and blend pixels
                             for (ptrdiff_t i = 0; i < availCount; ++i)
@@ -6944,7 +6944,7 @@ void drawUiSprite(S32 x, S32 y, const ImagePaletteSprite* const sprite, const vo
 
                             pixels = (ImagePaletteSpritePixel*)((Addr)pixels + sizeof(ImagePaletteSpritePixel) + (count - 1) * sizeof(pixels->pixels));
                         }
-                        else if ((pixels->count & IMAGE_SPRITE_ITEM_EXTENDED_MASK) == 0)
+                        else if ((pixels->count & kImageSpriteItemExtendedMask) == 0)
                         {
                             // Mask 0x00 -> draw pixels
                             for (ptrdiff_t i = 0; i < availCount; ++i)
@@ -6998,11 +6998,11 @@ void drawUiSprite(S32 x, S32 y, const ImagePaletteSprite* const sprite, const vo
                     while (sx < g_rendererState.sprite.minX && (std::uintptr_t)pixels < (std::uintptr_t)next)
                     {
                         const ptrdiff_t need = g_rendererState.sprite.minX - sx;
-                        const ptrdiff_t count = pixels->count & IMAGE_SPRITE_ITEM_COUNT_MASK;
+                        const ptrdiff_t count = pixels->count & kImageSpriteItemCountMask;
 
                         if (count <= need)
                         {
-                            if (pixels->count & IMAGE_SPRITE_ITEM_COMPACT_MASK)
+                            if (pixels->count & kImageSpriteItemCompactMask)
                             {
                                 // Mask 0x80 -> count and one pixel
                                 pixels = (ImagePaletteSpritePixel*)((Addr)pixels + sizeof(ImagePaletteSpritePixel));
@@ -7020,7 +7020,7 @@ void drawUiSprite(S32 x, S32 y, const ImagePaletteSprite* const sprite, const vo
 
                     while (sx < g_rendererState.sprite.maxX && (std::uintptr_t)pixels < (std::uintptr_t)next)
                     {
-                        ptrdiff_t count = (pixels->count & IMAGE_SPRITE_ITEM_COUNT_MASK);
+                        ptrdiff_t count = (pixels->count & kImageSpriteItemCountMask);
 
                         if (count == 0)
                         {
@@ -7031,11 +7031,11 @@ void drawUiSprite(S32 x, S32 y, const ImagePaletteSprite* const sprite, const vo
 
                         const ptrdiff_t availCount = std::min(count - skip, g_rendererState.sprite.maxX - sx);
 
-                        if ((pixels->count & IMAGE_SPRITE_ITEM_COMPACT_MASK) == 0)
+                        if ((pixels->count & kImageSpriteItemCompactMask) == 0)
                         {
                             for (ptrdiff_t i = 0; i < availCount; ++i)
                             {
-                                if ((sx[i] & STENCIL_PIXEL_SHADOW_MASK) == 0)
+                                if ((sx[i] & kStencilPixelShadowMask) == 0)
                                 {
                                     const Pixel pixel = (Pixel)(g_moduleState.backSurfaceShadePixel + SHADEPIXEL(*(DoublePixel*)(sx + i), *(DoublePixel*)&g_moduleState.shadeColorMask));
 
@@ -7093,16 +7093,16 @@ void drawUiSprite(S32 x, S32 y, const ImagePaletteSprite* const sprite, const vo
                     while (sx < g_rendererState.sprite.minX && (std::uintptr_t)pixels < (std::uintptr_t)next)
                     {
                         const ptrdiff_t need = g_rendererState.sprite.minX - sx;
-                        const ptrdiff_t count = pixels->count & IMAGE_SPRITE_ITEM_SHORT_COUNT_MASK;
+                        const ptrdiff_t count = pixels->count & kImageSpriteItemShortCountMask;
 
                         if (count <= need)
                         {
-                            if ((pixels->count & IMAGE_SPRITE_ITEM_EXTENDED_MASK) == IMAGE_SPRITE_ITEM_EXTENDED_MASK)
+                            if ((pixels->count & kImageSpriteItemExtendedMask) == kImageSpriteItemExtendedMask)
                             {
                                 // Mask 0xC0 -> only count
                                 pixels = (ImagePaletteSpritePixel*)((Addr)pixels + sizeof(U8));
                             }
-                            else if ((pixels->count & IMAGE_SPRITE_ITEM_EXTENDED_MASK) == IMAGE_SPRITE_ITEM_COMPACT_MASK)
+                            else if ((pixels->count & kImageSpriteItemExtendedMask) == kImageSpriteItemCompactMask)
                             {
                                 // Mask 0x80 -> count and one pixel
                                 pixels = (ImagePaletteSpritePixel*)((Addr)pixels + sizeof(ImagePaletteSpritePixel));
@@ -7120,7 +7120,7 @@ void drawUiSprite(S32 x, S32 y, const ImagePaletteSprite* const sprite, const vo
 
                     while (sx < g_rendererState.sprite.maxX && (std::uintptr_t)pixels < (std::uintptr_t)next)
                     {
-                        const ptrdiff_t count = (pixels->count & IMAGE_SPRITE_ITEM_COUNT_MASK);
+                        const ptrdiff_t count = (pixels->count & kImageSpriteItemCountMask);
 
                         if (count == 0)
                         {
@@ -7130,7 +7130,7 @@ void drawUiSprite(S32 x, S32 y, const ImagePaletteSprite* const sprite, const vo
 
                         const ptrdiff_t availCount = std::min(count - skip, g_rendererState.sprite.maxX - sx);
 
-                        if (pixels->count & IMAGE_SPRITE_ITEM_COMPACT_MASK)
+                        if (pixels->count & kImageSpriteItemCompactMask)
                         {
                             // Mask 0x80 -> repeat one pixel
                             const U8 indx = pixels->pixels[0];
@@ -7288,11 +7288,11 @@ void markUiWithButtonType(S32 x, S32 y, const ImagePaletteSprite* const sprite, 
                 while (sx < (ButtonType*)g_rendererState.sprite.minX && (std::uintptr_t)pixels < (std::uintptr_t)next)
                 {
                     const ptrdiff_t need = (ButtonType*)g_rendererState.sprite.minX - sx;
-                    const ptrdiff_t count = pixels->count & IMAGE_SPRITE_ITEM_COUNT_MASK;
+                    const ptrdiff_t count = pixels->count & kImageSpriteItemCountMask;
 
                     if (count <= need)
                     {
-                        if (pixels->count & IMAGE_SPRITE_ITEM_COMPACT_MASK)
+                        if (pixels->count & kImageSpriteItemCompactMask)
                         {
                             pixels = (ImagePaletteSpritePixel*)((Addr)pixels + sizeof(ImagePaletteSpritePixel));
                         }
@@ -7308,7 +7308,7 @@ void markUiWithButtonType(S32 x, S32 y, const ImagePaletteSprite* const sprite, 
 
                 while (sx < (ButtonType*)g_rendererState.sprite.maxX && (std::uintptr_t)pixels < (std::uintptr_t)next)
                 {
-                    const ptrdiff_t count = (pixels->count & IMAGE_SPRITE_ITEM_COUNT_MASK);
+                    const ptrdiff_t count = (pixels->count & kImageSpriteItemCountMask);
 
                     if (count == 0)
                     {
@@ -7319,7 +7319,7 @@ void markUiWithButtonType(S32 x, S32 y, const ImagePaletteSprite* const sprite, 
                     const ptrdiff_t availCount = std::min(count - skip, (ButtonType*)g_rendererState.sprite.maxX - sx);
 
                     std::memset(sx, type, availCount * sizeof(*sx));
-                    if (pixels->count & IMAGE_SPRITE_ITEM_COMPACT_MASK)
+                    if (pixels->count & kImageSpriteItemCompactMask)
                     {
                         pixels = (ImagePaletteSpritePixel*)((Addr)pixels + sizeof(ImagePaletteSpritePixel));
                     }
@@ -7449,11 +7449,11 @@ void drawVanishingUiSprite(S32 x, S32 y, const S32 vanishLevel, const Pixel* pal
                 while (sx < g_rendererState.sprite.minX && (std::uintptr_t)pixels < (std::uintptr_t)next)
                 {
                     const ptrdiff_t need = g_rendererState.sprite.minX - sx;
-                    const ptrdiff_t count = pixels->count & IMAGE_SPRITE_ITEM_COUNT_MASK;
+                    const ptrdiff_t count = pixels->count & kImageSpriteItemCountMask;
 
                     if (count <= need)
                     {
-                        if (pixels->count & IMAGE_SPRITE_ITEM_COMPACT_MASK)
+                        if (pixels->count & kImageSpriteItemCompactMask)
                         {
                             pixels = (ImagePaletteSpritePixel*)((Addr)pixels + sizeof(ImagePaletteSpritePixel));
                         }
@@ -7469,7 +7469,7 @@ void drawVanishingUiSprite(S32 x, S32 y, const S32 vanishLevel, const Pixel* pal
 
                 while (sx < g_rendererState.sprite.maxX && (std::uintptr_t)pixels < (std::uintptr_t)next)
                 {
-                    const ptrdiff_t count = (pixels->count & IMAGE_SPRITE_ITEM_COUNT_MASK);
+                    const ptrdiff_t count = (pixels->count & kImageSpriteItemCountMask);
 
                     if (count == 0)
                     {
@@ -7479,7 +7479,7 @@ void drawVanishingUiSprite(S32 x, S32 y, const S32 vanishLevel, const Pixel* pal
 
                     const ptrdiff_t availCount = std::min(count - skip, g_rendererState.sprite.maxX - sx);
 
-                    if (pixels->count & IMAGE_SPRITE_ITEM_COMPACT_MASK)
+                    if (pixels->count & kImageSpriteItemCompactMask)
                     {
                         const U8 indx = pixels->pixels[0];
                         const Pixel pixel = palette[indx];

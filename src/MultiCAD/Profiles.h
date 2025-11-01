@@ -14,18 +14,18 @@ constexpr std::array relocs_ss_gold_en
     RelocateGapSpec{0x0, 0x0, 0x0},
     /*
     * (width + 7) >> 4, (height + 7) >> 3 and array 0x34FF20 with size:
-    * 1024 * 768:  1800h = 4 * ROW_STRIDE_OLD_DWORD_SIZE * ((300h + 7) >> 3)
-    * 1080 * 1920: 21C0h = 4 * ROW_STRIDE_DWORD_SIZE * ((438h + 7) >> 3)
-    * 2560 * 1440: 2D00h = 4 * ROW_STRIDE_DWORD_SIZE * ((5A0h + 7) >> 3)
+    * 1024 * 768:  1800h = 4 * kRowStrideOldDwordSize * ((300h + 7) >> 3)
+    * 1080 * 1920: 21C0h = 4 * kRowStrideDwordSize * ((438h + 7) >> 3)
+    * 2560 * 1440: 2D00h = 4 * kRowStrideDwordSize * ((5A0h + 7) >> 3)
     */
-    RelocateGapSpec{ 0x0034FF20, 0x00351728, 8 + sizeof(uint32_t) * ROW_STRIDE_DWORD_SIZE * ((Graphics::kMaxHeight + 7) >> 3) },
+    RelocateGapSpec{ 0x0034FF20, 0x00351728, 8 + sizeof(uint32_t) * kRowStrideDwordSize * ((Graphics::kMaxHeight + 7) >> 3) },
     /*
     * (width + 7) / 16, (height + 7) / 8 and array 0x351728 with size:
-    * 1024 * 768:  1800h = 4 * ROW_STRIDE_OLD_DWORD_SIZE * ((300h + 7) >> 3)
-    * 1080 * 1920: 21C0h = 4 * ROW_STRIDE_DWORD_SIZE * ((438h + 7) >> 3)
-    * 2560 * 1440: 2D00h = 4 * ROW_STRIDE_DWORD_SIZE * ((5A0h + 7) >> 3)
+    * 1024 * 768:  1800h = 4 * kRowStrideOldDwordSize * ((300h + 7) >> 3)
+    * 1080 * 1920: 21C0h = 4 * kRowStrideDwordSize * ((438h + 7) >> 3)
+    * 2560 * 1440: 2D00h = 4 * kRowStrideDwordSize * ((5A0h + 7) >> 3)
     */
-    RelocateGapSpec{ 0x00351728, 0x00352F2A, 8 + sizeof(uint32_t) * ROW_STRIDE_DWORD_SIZE * ((Graphics::kMaxHeight + 7) >> 3) },
+    RelocateGapSpec{ 0x00351728, 0x00352F2A, 8 + sizeof(uint32_t) * kRowStrideDwordSize * ((Graphics::kMaxHeight + 7) >> 3) },
     /*
     * Helper array with size:
     * 1024: 1000h = 400h * 4 = 1024 * 4
@@ -76,13 +76,13 @@ const std::array patches_ss_gold_en
     PatchSpec{0x6D147, PatchSpec::to_bytes(SCREEN_HEIGHT_TO_SHOW_UNITS)},
 
     // Fixes building selection to account changes in CAD
-    PatchSpec{0x6E008, {STENCIL_PIXEL_COLOR_SHIFT}},
+    PatchSpec{0x6E008, {kStencilPixelColorShift}},
     PatchSpec{0x6E009, PatchSpec::concat(
-        {0x81, 0xEE}, STENCIL_PIXEL_OFFSET      // sub esi, 440h
+        {0x81, 0xEE}, kStencilPixelOffset       // sub esi, 440h
     )},
     PatchSpec{0x6E00F, {0xEB, 0x81}},           // jmp 6E00F -> 6DF92
     PatchSpec{0x6DF92, PatchSpec::concat(
-        {0x81, 0xE6}, STENCIL_PIXEL_SMALL_MASK, // and esi, 7FFh
+        {0x81, 0xE6}, kStencilPixelSmallMask,   // and esi, 7FFh
         std::array<uint8_t, 2>{0xEB, 0x78}      // jmp 6DF98 -> 6E012
     )},
 
@@ -91,9 +91,9 @@ const std::array patches_ss_gold_en
     PatchSpec{0x6E472, PatchSpec::to_bytes(ARRAY_37B588_DWORD_SIZE)},
     PatchSpec{0x713CE, PatchSpec::to_bytes(Graphics::kMaxHeight)},
     PatchSpec{0x71E24, {0x37}},             // jg 71E5C
-    PatchSpec{0x71E29, {ROW_STRIDE_SHIFT}}, // shl esi, 6
+    PatchSpec{0x71E29, {kRowStrideShift}}, // shl esi, 6
     PatchSpec{0x71E53, PatchSpec::concat(
-        {0x81, 0xC6}, ROW_STRIDE_BYTE_SIZE, // add esi, 40h
+        {0x81, 0xC6}, kRowStrideByteSize, // add esi, 40h
         std::array<uint8_t, 11>
         {
             0x4A,                   // dec edx

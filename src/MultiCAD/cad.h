@@ -11,14 +11,14 @@ constexpr S32 DEFAULT_FONT_ASSET_SPACING = 2;
 * Stencil array is used to mask pixels according to shown sprites or shadows.
 * E.g. tree marks pixel and almost any other object or shadow cannot be shown on this pixel.
 *
-* Each row increases by STENCIL_PIXEL_COLOR_VALUE, but when I increased screen height,
+* Each row increases by kStencilPixelColorValue, but when I increased screen height,
 * the used method turned out to be broken. The original game increased every row by 0x20,
 * and the value of the last row was placed in a pixel (16 bit, 0xFFFF).
 * We perform shift to has some data in lower bits. Most likely 0x440 was used so that first row
 * would have a mask of 0x8800, in that case last row has mask 0xE800 (0x8800-0xE800). So, mask
 * 0x8007 works fine.
 *
-* However, for greater screen height 0xFFFF is not enough, so I reduced STENCIL_PIXEL_COLOR_VALUE
+* However, for greater screen height 0xFFFF is not enough, so I reduced kStencilPixelColorValue
 * to 0x10, which is 1 << 4, and changed STENCIL_PIXEL_OFFET to 0x800. In that case I still have
 * 4 significant lower bits and all rows are in the range 0x8000-0xC380. It should work fine.
 *
@@ -28,13 +28,13 @@ constexpr S32 DEFAULT_FONT_ASSET_SPACING = 2;
 * (y >= 0xC0 && sten < 0x4400) || (y < 0xC0 && sten < 0x3890)
 * Again, I don't remember correctly why I chose exactly 4 and 0x370 values.
 */
-constexpr U32 PIXEL_COLOR_BIT_MASK = 0x8000;
-constexpr S32 STENCIL_PIXEL_COLOR_SHIFT = 4;
-constexpr S32 STENCIL_PIXEL_COLOR_VALUE = 1 << STENCIL_PIXEL_COLOR_SHIFT;
-constexpr S32 STENCIL_PIXEL_OFFSET = 0x800;
-constexpr S32 STENCIL_PIXEL_SHADOW_MASK = PIXEL_COLOR_BIT_MASK | 0x7;
-constexpr S32 STENCIL_PIXEL_SMALL_MASK = 0x7FF;
-constexpr S32 STENCIL_PIXEL_BIG_MASK = 0xFFFB;
+constexpr U32 kPixelColorBitMask      = 0x8000;
+constexpr S32 kStencilPixelColorShift = 4;
+constexpr S32 kStencilPixelColorValue = 1 << kStencilPixelColorShift;
+constexpr S32 kStencilPixelOffset     = 0x800;
+constexpr S32 kStencilPixelShadowMask = kPixelColorBitMask | 0x7;
+constexpr S32 kStencilPixelSmallMask  = 0x7FF;
+constexpr S32 kStencilPixelBigMask    = 0xFFFB;
 
 
 template<typename T>

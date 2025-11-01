@@ -69,7 +69,7 @@ void __declspec(noinline) __fastcall GameDllHooks::sub_10055A20(uint32_t* buffer
         // Zero out the useful part of each line
         for (int r = 0; r < height; ++r)
         {
-            uint8_t* dest = reinterpret_cast<uint8_t*>(buffer) + BUFFER_OFFSET + r * ROW_STRIDE_BYTE_SIZE;
+            uint8_t* dest = reinterpret_cast<uint8_t*>(buffer) + BUFFER_OFFSET + r * kRowStrideByteSize;
             std::memset(dest, 0, (size_t)rowBytes);
         }
         return;
@@ -84,7 +84,7 @@ void __declspec(noinline) __fastcall GameDllHooks::sub_10055A20(uint32_t* buffer
     {
         for (int r = 0; r < height; ++r)
         {
-            uint8_t* dest = reinterpret_cast<uint8_t*>(buffer) + BUFFER_OFFSET + r * ROW_STRIDE_BYTE_SIZE;
+            uint8_t* dest = reinterpret_cast<uint8_t*>(buffer) + BUFFER_OFFSET + r * kRowStrideByteSize;
             std::memset(dest, 0, (size_t)rowBytes);
         }
         return;
@@ -100,7 +100,7 @@ void __declspec(noinline) __fastcall GameDllHooks::sub_10055A20(uint32_t* buffer
         {
             int srcR = destR - rowShift;
 
-            uint8_t* dest = reinterpret_cast<uint8_t*>(buffer) + BUFFER_OFFSET + destR * ROW_STRIDE_BYTE_SIZE;
+            uint8_t* dest = reinterpret_cast<uint8_t*>(buffer) + BUFFER_OFFSET + destR * kRowStrideByteSize;
 
             if (srcR < 0 || srcR >= height)
             {
@@ -109,7 +109,7 @@ void __declspec(noinline) __fastcall GameDllHooks::sub_10055A20(uint32_t* buffer
                 continue;
             }
 
-            uint8_t* src = reinterpret_cast<uint8_t*>(buffer) + BUFFER_OFFSET + srcR * ROW_STRIDE_BYTE_SIZE;
+            uint8_t* src = reinterpret_cast<uint8_t*>(buffer) + BUFFER_OFFSET + srcR * kRowStrideByteSize;
 
             if (colShift >= 0)
             {
@@ -136,7 +136,7 @@ void __declspec(noinline) __fastcall GameDllHooks::sub_10055A20(uint32_t* buffer
         {
             int srcR = destR - rowShift; // Since rowShift < 0, srcR > destR
 
-            uint8_t* dest = reinterpret_cast<uint8_t*>(buffer) + BUFFER_OFFSET + destR * ROW_STRIDE_BYTE_SIZE;
+            uint8_t* dest = reinterpret_cast<uint8_t*>(buffer) + BUFFER_OFFSET + destR * kRowStrideByteSize;
 
             if (srcR < 0 || srcR >= height)
             {
@@ -144,7 +144,7 @@ void __declspec(noinline) __fastcall GameDllHooks::sub_10055A20(uint32_t* buffer
                 continue;
             }
 
-            uint8_t* src = reinterpret_cast<uint8_t*>(buffer) + BUFFER_OFFSET + srcR * ROW_STRIDE_BYTE_SIZE;
+            uint8_t* src = reinterpret_cast<uint8_t*>(buffer) + BUFFER_OFFSET + srcR * kRowStrideByteSize;
 
             if (colShift >= 0)
             {
@@ -163,8 +163,8 @@ void __declspec(noinline) __fastcall GameDllHooks::sub_10055A20(uint32_t* buffer
         // rowShift == 0: no line shifting - just copy in any direction
         for (int destR = 0; destR < height; ++destR)
         {
-            uint8_t* dest = reinterpret_cast<uint8_t*>(buffer) + BUFFER_OFFSET + destR * ROW_STRIDE_BYTE_SIZE;
-            uint8_t* src = reinterpret_cast<uint8_t*>(buffer) + BUFFER_OFFSET + destR * ROW_STRIDE_BYTE_SIZE;
+            uint8_t* dest = reinterpret_cast<uint8_t*>(buffer) + BUFFER_OFFSET + destR * kRowStrideByteSize;
+            uint8_t* src = reinterpret_cast<uint8_t*>(buffer) + BUFFER_OFFSET + destR * kRowStrideByteSize;
 
             if (colShift >= 0)
             {
@@ -188,7 +188,7 @@ void __declspec(noinline) __fastcall GameDllHooks::sub_10055DC0(uint32_t* input)
     for (U32 i = 0, *v2 = &input[2]; i < input[1]; ++i)
     {
         memset(v2, 0, input[0]);
-        v2 += ROW_STRIDE_DWORD_SIZE;
+        v2 += kRowStrideDwordSize;
     }
 }
 
@@ -222,7 +222,7 @@ void __declspec(noinline) __fastcall GameDllHooks::sub_10055E00(int* input, void
     int v11 = v7 - v9 + 1;
     if (v11)
     {
-        char* v12 = (char*)&input[ROW_STRIDE_DWORD_SIZE * v9 + 2] + v6;
+        char* v12 = (char*)&input[kRowStrideDwordSize * v9 + 2] + v6;
         const int v13 = v8 - v6 + 1;
         do
         {
@@ -235,7 +235,7 @@ void __declspec(noinline) __fastcall GameDllHooks::sub_10055E00(int* input, void
                     --v15;
                 } while (v15);
             }
-            v12 += ROW_STRIDE_BYTE_SIZE - v13;
+            v12 += kRowStrideByteSize - v13;
             --v11;
         } while (v11);
     }
@@ -273,7 +273,7 @@ void __declspec(noinline) __fastcall GameDllHooks::sub_10055E90(int* input, void
     else if (v10 >= v13) v10 = v13 - 1;
 
     int v14 = v10 - v12 + 1;
-    char* v15 = (char*)&input[ROW_STRIDE_DWORD_SIZE * v12 + 2] + v9;
+    char* v15 = (char*)&input[kRowStrideDwordSize * v12 + 2] + v9;
     int v16 = v11 - v9 + 1;
 
     if (v14)
@@ -290,7 +290,7 @@ void __declspec(noinline) __fastcall GameDllHooks::sub_10055E90(int* input, void
                     --v18;
                 } while (v18);
             }
-            v15 += ROW_STRIDE_BYTE_SIZE - v16;
+            v15 += kRowStrideByteSize - v16;
             --v17;
         } while (v17);
     }
@@ -324,7 +324,7 @@ void __declspec(noinline) __fastcall GameDllHooks::sub_10055F40(int* input, void
     else if (v7 >= v10)
         v7 = v10 - 1;
 
-    char* v11 = (char*)&input[ROW_STRIDE_DWORD_SIZE * v9 + 2] + v6;
+    char* v11 = (char*)&input[kRowStrideDwordSize * v9 + 2] + v6;
     int v12 = v8 - v6 + 1;
     int v13 = v7 - v9 + 1;
 
@@ -342,7 +342,7 @@ void __declspec(noinline) __fastcall GameDllHooks::sub_10055F40(int* input, void
                     --v15;
                 } while (v15);
             }
-            v11 += ROW_STRIDE_BYTE_SIZE - v12;
+            v11 += kRowStrideByteSize - v12;
             --v14;
         } while (v14);
     }
@@ -369,7 +369,7 @@ void __declspec(noinline) __fastcall GameDllHooks::sub_10055FE0(int* input, void
                 } while (v5 < *input);
             }
             ++v2;
-            v4 += ROW_STRIDE_DWORD_SIZE;
+            v4 += kRowStrideDwordSize;
         } while (v2 < input[1]);
     }
 }
@@ -384,7 +384,7 @@ int  __declspec(noinline) __fastcall GameDllHooks::sub_10056030(uint8_t* input, 
     if (y >= maxY)
         return 0;
 
-    uint8_t* line = &input[ROW_STRIDE_BYTE_SIZE * y + 8];
+    uint8_t* line = &input[kRowStrideByteSize * y + 8];
 
     while (x >= maxX)
     {
@@ -394,7 +394,7 @@ int  __declspec(noinline) __fastcall GameDllHooks::sub_10056030(uint8_t* input, 
             return 0;
 
         x = gd->x;
-        line += ROW_STRIDE_BYTE_SIZE;
+        line += kRowStrideByteSize;
     }
     while ((mask & line[x]) == 0)
     {
@@ -423,8 +423,8 @@ int  __declspec(noinline) __fastcall GameDllHooks::sub_10056030(uint8_t* input, 
 
     if (v15 < maxY)
     {
-        uint8_t* nextLine = line + ROW_STRIDE_BYTE_SIZE;
-        uint8_t* ptrMask = &input[ROW_STRIDE_BYTE_SIZE * v15 + 9 + v14];
+        uint8_t* nextLine = line + kRowStrideByteSize;
+        uint8_t* ptrMask = &input[kRowStrideByteSize * v15 + 9 + v14];
 
         while (v15 < maxY)
         {
@@ -444,8 +444,8 @@ int  __declspec(noinline) __fastcall GameDllHooks::sub_10056030(uint8_t* input, 
                 for (int j = x; j <= v14; ++j)
                     nextLine[j] &= maskValue;
 
-                ptrMask += ROW_STRIDE_BYTE_SIZE;
-                nextLine += ROW_STRIDE_BYTE_SIZE;
+                ptrMask += kRowStrideByteSize;
+                nextLine += kRowStrideByteSize;
 
                 ++v15;
                 if (v15 < maxY)
@@ -475,7 +475,7 @@ int  __declspec(noinline) __fastcall GameDllHooks::sub_10056170(uint8_t* input, 
     if (y >= maxY)
         return 0;
 
-    uint8_t* line = &input[ROW_STRIDE_BYTE_SIZE * y + 8];
+    uint8_t* line = &input[kRowStrideByteSize * y + 8];
 
     while (x >= maxX)
     {
@@ -485,7 +485,7 @@ int  __declspec(noinline) __fastcall GameDllHooks::sub_10056170(uint8_t* input, 
             return 0;
 
         x = gd->x;
-        line += ROW_STRIDE_BYTE_SIZE;
+        line += kRowStrideByteSize;
     }
     while ((mask & line[x]) != mask)
     {
@@ -513,7 +513,7 @@ int  __declspec(noinline) __fastcall GameDllHooks::sub_10056170(uint8_t* input, 
 
     if (v12 < maxY)
     {
-        uint8_t* nextLine = line + ROW_STRIDE_BYTE_SIZE;
+        uint8_t* nextLine = line + kRowStrideByteSize;
         uint8_t* ptrMask = nextLine + 1 + v13;
 
         while (v12 < maxY)
@@ -534,8 +534,8 @@ int  __declspec(noinline) __fastcall GameDllHooks::sub_10056170(uint8_t* input, 
                 for (int i = x; i <= v13; ++i)
                     nextLine[i] &= maskValue;
 
-                ptrMask += ROW_STRIDE_BYTE_SIZE;
-                nextLine += ROW_STRIDE_BYTE_SIZE;
+                ptrMask += kRowStrideByteSize;
+                nextLine += kRowStrideByteSize;
 
                 ++v12;
                 continue;
@@ -566,7 +566,7 @@ int  __declspec(noinline) __fastcall GameDllHooks::sub_100563B0(uint8_t* input, 
     if (y >= maxY)
         return 0;
 
-    uint8_t* line = &input[ROW_STRIDE_BYTE_SIZE * y + 8];
+    uint8_t* line = &input[kRowStrideByteSize * y + 8];
 
     while (x >= maxX)
     {
@@ -574,7 +574,7 @@ int  __declspec(noinline) __fastcall GameDllHooks::sub_100563B0(uint8_t* input, 
         if (y >= maxY)
             return 0;
 
-        line += ROW_STRIDE_BYTE_SIZE;
+        line += kRowStrideByteSize;
         x = gd->x;
     }
 
@@ -586,7 +586,7 @@ int  __declspec(noinline) __fastcall GameDllHooks::sub_100563B0(uint8_t* input, 
             if (y >= maxY)
                 return 0;
 
-            line += ROW_STRIDE_BYTE_SIZE;
+            line += kRowStrideByteSize;
             x = gd->x;
         }
     }
@@ -611,7 +611,7 @@ int  __declspec(noinline) __fastcall GameDllHooks::sub_100563B0(uint8_t* input, 
 
     if (vNextY < maxY)
     {
-        line += ROW_STRIDE_BYTE_SIZE;
+        line += kRowStrideByteSize;
         while (vNextY < maxY)
         {
             for (int idx = x; idx <= vEndX; ++idx)
@@ -626,7 +626,7 @@ int  __declspec(noinline) __fastcall GameDllHooks::sub_100563B0(uint8_t* input, 
                 line[idx] &= -1 - combinedMask;
 
             ++vNextY;
-            line += ROW_STRIDE_BYTE_SIZE;
+            line += kRowStrideByteSize;
         }
     }
 
@@ -706,7 +706,7 @@ void __declspec(noinline) __stdcall  GameDllHooks::sub_1006AD20()
 
     for (int row = y0; row <= y1; ++row)
     {
-        uint8_t* line = reinterpret_cast<uint8_t*>(div16Ptr + 2) + ROW_STRIDE_BYTE_SIZE * row; // 0x351730
+        uint8_t* line = reinterpret_cast<uint8_t*>(div16Ptr + 2) + kRowStrideByteSize * row; // 0x351730
         for (int j = x0; j <= x1; ++j)
         {
             uint8_t val = line[j];
@@ -794,7 +794,7 @@ void __declspec(noinline) __stdcall  GameDllHooks::sub_1006AEA0()
 
     for (int row = y0; row <= y1; ++row)
     {
-        uint8_t* line = reinterpret_cast<uint8_t*>(div16Ptr + 2) + ROW_STRIDE_BYTE_SIZE * row; // 0x351730
+        uint8_t* line = reinterpret_cast<uint8_t*>(div16Ptr + 2) + kRowStrideByteSize * row; // 0x351730
         for (int j = x0; j <= x1; ++j)
         {
             uint8_t val = line[j];
@@ -840,7 +840,7 @@ void __declspec(noinline) __cdecl    GameDllHooks::sub_1006B1C0(char mask, int* 
 
     for (int row = y0; row <= y1; ++row)
     {
-        uint8_t* line = reinterpret_cast<uint8_t*>(div16Ptr + 2) + ROW_STRIDE_BYTE_SIZE * row; // 0x351730
+        uint8_t* line = reinterpret_cast<uint8_t*>(div16Ptr + 2) + kRowStrideByteSize * row; // 0x351730
         for (int j = x0; j <= x1; ++j)
         {
             uint8_t val = line[j];
@@ -887,7 +887,7 @@ char __declspec(noinline) __cdecl    GameDllHooks::sub_1006B2C0(char mask, int* 
     uint8_t val = static_cast<uint8_t>(y1);
     for (int row = y0; row <= y1; ++row)
     {
-        uint8_t* line = reinterpret_cast<uint8_t*>(div16Ptr + 2) + ROW_STRIDE_BYTE_SIZE * row; // 0x34FF28
+        uint8_t* line = reinterpret_cast<uint8_t*>(div16Ptr + 2) + kRowStrideByteSize * row; // 0x34FF28
         for (int j = x0; j <= x1; ++j)
         {
             val = line[j];
@@ -953,7 +953,7 @@ void __declspec(noinline) __stdcall  GameDllHooks::sub_1006D940()
 
     for (int row = y0; row <= y1; ++row)
     {
-        uint8_t* line = reinterpret_cast<uint8_t*>(div16Ptr + 2) + ROW_STRIDE_BYTE_SIZE * row; // 0x351730
+        uint8_t* line = reinterpret_cast<uint8_t*>(div16Ptr + 2) + kRowStrideByteSize * row; // 0x351730
         for (int j = x0; j <= x1; ++j)
         {
             uint8_t val = line[j];
@@ -1060,7 +1060,7 @@ void __declspec(noinline) __stdcall  GameDllHooks::sub_1006F120()
     // 1. Initialize buffer byte_1037C598
     if (v7 <= v5)
     {
-        uint8_t* v9 = &byte_1037C598[FOG_LINE_BYTE_SIZE * v7];
+        uint8_t* v9 = &byte_1037C598[kFogLineByteSize * v7];
         unsigned int big_counta = ((v5 - v7) >> 1) + 1;
         int v47 = v1 + 5;
         do
@@ -1129,7 +1129,7 @@ void __declspec(noinline) __stdcall  GameDllHooks::sub_1006F120()
                 ++v51;
             }
             v52 ^= 2;
-            v9 += FOG_DOUBLE_LINE_BYTE_SIZE;
+            v9 += kFogDoubleLineByteSize;
             --big_counta;
         } while (big_counta != 0);
     }
@@ -1151,7 +1151,7 @@ void __declspec(noinline) __stdcall  GameDllHooks::sub_1006F120()
     {
         int v16 = v1 + 5;
         const int v19 = v0 + 7;
-        uint8_t* v20 = &byte_1037C598[FOG_LINE_BYTE_SIZE * v19 - 2];
+        uint8_t* v20 = &byte_1037C598[kFogLineByteSize * v19 - 2];
         int v21 = ((v18 - v19 - 1) >> 1) + 1;
         do
         {
@@ -1160,15 +1160,15 @@ void __declspec(noinline) __stdcall  GameDllHooks::sub_1006F120()
                 int v22 = v16;
                 do
                 {
-                    uint8_t a = v20[v22 - (FOG_DOUBLE_LINE_BYTE_SIZE - 2)];
+                    uint8_t a = v20[v22 - (kFogDoubleLineByteSize - 2)];
                     uint8_t b = v20[v22 + 4];
                     v22 += 4;
-                    v20[v22 - 2] = (v20[v22 + (FOG_DOUBLE_LINE_BYTE_SIZE - 2)] + v20[v22 - 4] + b + a) >> 2;
+                    v20[v22 - 2] = (v20[v22 + (kFogDoubleLineByteSize - 2)] + v20[v22 - 4] + b + a) >> 2;
                 } while (v22 < v17);
             }
             v16 += v15;
             v15 = -v15;
-            v20 += FOG_DOUBLE_LINE_BYTE_SIZE;
+            v20 += kFogDoubleLineByteSize;
         } while (--v21);
     }
 
@@ -1178,7 +1178,7 @@ void __declspec(noinline) __stdcall  GameDllHooks::sub_1006F120()
     const int v27 = v17 - 2;
     if (v26 <= v25)
     {
-        uint8_t* lp_array_1 = &byte_1037C598[FOG_LINE_BYTE_SIZE * v26 + 1];
+        uint8_t* lp_array_1 = &byte_1037C598[kFogLineByteSize * v26 + 1];
         int v29 = ((v25 - v26) >> 1) + 1;
         do
         {
@@ -1189,7 +1189,7 @@ void __declspec(noinline) __stdcall  GameDllHooks::sub_1006F120()
                 uint8_t v32 = lp_array_1[i];
                 lp_array_1[i - 1] = (v32 + v31) >> 1;
             }
-            lp_array_1 += FOG_DOUBLE_LINE_BYTE_SIZE;
+            lp_array_1 += kFogDoubleLineByteSize;
         } while (--v29);
     }
 
@@ -1197,15 +1197,15 @@ void __declspec(noinline) __stdcall  GameDllHooks::sub_1006F120()
     const int v33 = ((v54 - 1) & 1) + 8;
     if (v33 <= v25)
     {
-        uint8_t* v34 = &byte_1037C598[FOG_LINE_BYTE_SIZE + FOG_LINE_BYTE_SIZE * v33];
+        uint8_t* v34 = &byte_1037C598[kFogLineByteSize + kFogLineByteSize * v33];
         int v35 = ((v25 - v33) >> 1) + 1;
         do
         {
             for (int j = 8; j <= v27; ++j)
             {
-                v34[j - FOG_LINE_BYTE_SIZE] = (v34[j] + v34[j - FOG_DOUBLE_LINE_BYTE_SIZE]) >> 1;
+                v34[j - kFogLineByteSize] = (v34[j] + v34[j - kFogDoubleLineByteSize]) >> 1;
             }
-            v34 += FOG_DOUBLE_LINE_BYTE_SIZE;
+            v34 += kFogDoubleLineByteSize;
         } while (--v35);
     }
 
@@ -1225,7 +1225,7 @@ void __declspec(noinline) __stdcall  GameDllHooks::sub_1006F120()
                 do
                 {
                     uint8_t* v42 = &cadPtr->fogSprites[v38].unk[v40];
-                    uint8_t v43 = byte_1037C598[v40 + v38 * FOG_LINE_BYTE_SIZE];
+                    uint8_t v43 = byte_1037C598[v40 + v38 * kFogLineByteSize];
                     if (v43 != *v42)
                     {
                         *v42 = v43;
