@@ -13,6 +13,12 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Header Files\Patcher">
+      <UniqueIdentifier>{37348c54-ca2d-4a05-b073-7db03dbf70a2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Patcher">
+      <UniqueIdentifier>{8f7d7824-09d2-445c-bdc2-9e955c9f41a4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -43,6 +49,42 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="GameDllVersionDetector.h">
+      <Filter>Header Files\Patcher</Filter>
+    </ClInclude>
+    <ClInclude Include="GameDllHooks.h">
+      <Filter>Header Files\Patcher</Filter>
+    </ClInclude>
+    <ClInclude Include="PatchTypes.h">
+      <Filter>Header Files\Patcher</Filter>
+    </ClInclude>
+    <ClInclude Include="ProfileFactory.h">
+      <Filter>Header Files\Patcher</Filter>
+    </ClInclude>
+    <ClInclude Include="MemoryRelocator.h">
+      <Filter>Header Files\Patcher</Filter>
+    </ClInclude>
+    <ClInclude Include="CodePatcher.h">
+      <Filter>Header Files\Patcher</Filter>
+    </ClInclude>
+    <ClInclude Include="PatchEngine.h">
+      <Filter>Header Files\Patcher</Filter>
+    </ClInclude>
+    <ClInclude Include="Profiles.h">
+      <Filter>Header Files\Patcher</Filter>
+    </ClInclude>
+    <ClInclude Include="ProfileBase.h">
+      <Filter>Header Files\Patcher</Filter>
+    </ClInclude>
+    <ClInclude Include="LdrNotification.h">
+      <Filter>Header Files\Patcher</Filter>
+    </ClInclude>
+    <ClInclude Include="DllMonitor.h">
+      <Filter>Header Files\Patcher</Filter>
+    </ClInclude>
+    <ClInclude Include="GameGlobals.h">
+      <Filter>Header Files\Patcher</Filter>
+    </ClInclude>
+    <ClInclude Include="ScreenGlobals.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -69,7 +111,13 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="GameDllVersionDetector.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\Patcher</Filter>
+    </ClCompile>
+    <ClCompile Include="GameDllHooks.cpp">
+      <Filter>Source Files\Patcher</Filter>
+    </ClCompile>
+    <ClCompile Include="DllMonitor.cpp">
+      <Filter>Source Files\Patcher</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

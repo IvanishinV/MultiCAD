@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -80,9 +80,21 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="assets.h" />
+    <ClInclude Include="DllMonitor.h" />
+    <ClInclude Include="GameDllHooks.h" />
     <ClInclude Include="GameDllVersionDetector.h" />
+    <ClInclude Include="CodePatcher.h" />
+    <ClInclude Include="GameGlobals.h" />
+    <ClInclude Include="LdrNotification.h" />
+    <ClInclude Include="ProfileBase.h" />
+    <ClInclude Include="PatchEngine.h" />
+    <ClInclude Include="PatchTypes.h" />
+    <ClInclude Include="ProfileFactory.h" />
+    <ClInclude Include="Profiles.h" />
+    <ClInclude Include="MemoryRelocator.h" />
     <ClInclude Include="ResolutionDialog.h" />
     <ClInclude Include="ResolutionVerifier.h" />
+    <ClInclude Include="ScreenGlobals.h" />
     <ClInclude Include="types.h" />
     <ClInclude Include="cad.h" />
     <ClInclude Include="renderer.h" />
@@ -91,6 +103,8 @@
     <ClInclude Include="util.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="DllMonitor.cpp" />
+    <ClCompile Include="GameDllHooks.cpp" />
     <ClCompile Include="GameDllVersionDetector.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="cad.cpp" />

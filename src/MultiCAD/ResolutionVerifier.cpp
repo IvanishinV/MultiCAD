@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "ResolutionVerifier.h"
 #include "ResolutionDialog.h"
+#include "ScreenGlobals.h"
 
 
 ResolutionVerifier& ResolutionVerifier::GetInstance()
@@ -43,6 +44,11 @@ HRESULT WINAPI ResolutionVerifier::EnumModesCallback(LPDDSURFACEDESC lpDDSurface
     const int bits = lpDDSurfaceDesc->ddpfPixelFormat.dwRGBBitCount;
 
     if (verifier->bitsFilter_ != 0 && bits != verifier->bitsFilter_)
+    {
+        return DDENUMRET_OK;
+    }
+
+    if (lpDDSurfaceDesc->dwWidth > MAX_POSSIBLE_SCREEN_WIDTH || lpDDSurfaceDesc->dwHeight > MAX_POSSIBLE_SCREEN_HEIGHT)
     {
         return DDENUMRET_OK;
     }

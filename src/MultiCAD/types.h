@@ -10,7 +10,7 @@ using S32               = int;
 
 using F32               = float;
 
-using Addr              = std::uintptr_t;
+using Addr              = uintptr_t;
 
 using ButtonType        = U8;
 using Pixel             = U16;
@@ -79,7 +79,7 @@ enum class GameVersion
 
     RWG_1,              // Real War Game (FMRM 3.0)
     RWG_2,              // ? Real War Game 2.99 (2011)
-    RWG_3,              // Real War Game 3 by Inductor (2013-2014)
+    RWG_3_5,            // Real War Game 3 by Inductor (2013-2014)
     RWG_ToW_0_9_b,      // Real War Game Truth of War by Zarathustra (2013-2014)
 
     SS_MW_1,            // Sudden Strike Modern Warfare 1

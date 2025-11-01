@@ -2,15 +2,12 @@
 #include "cad.h"
 #include "renderer.h"
 #include "ResolutionVerifier.h"
+
 #include "GameDllVersionDetector.h"
-
-constexpr S32 DEFAULT_FONT_ASSET_SPACING = 2;
-
-constexpr U32 PIXEL_COLOR_BIT_MASK = 0x8000;
-constexpr S32 STENCIL_PIXEL_COLOR_SHIFT = 5;
-constexpr S32 STENCIL_PIXEL_COLOR_VALUE = 32;
-constexpr S32 STENCIL_PIXEL_OFFSET = 0x440;
-constexpr S32 STENCIL_PIXEL_MASK_VALUE = 0xFFFB;
+#include "PatchEngine.h"
+#include "ProfileFactory.h"
+#include "MemoryRelocator.h"
+#include "CodePatcher.h"
 
 #ifdef _DEBUG
 #include <format>
@@ -261,15 +258,6 @@ bool initWindowDxSurface(S32 width, S32 height)
 {
     releaseDxSurface();
 
-    // This place is the best to handle game_dll loading, because game_dll is loaded only after starting mission.
-    // New surface is also created after mission loading start.
-    GameDllVersionDetector detector;
-    detector.DetectGameDll();
-    if (detector.GetDetectionStatus() == DetectionStatus::UnsupportedHash)
-    {
-        ShowErrorMessage("MultiCAD couldn't identify and doesn't fully support this version of Sudden Strike. The mod may not work correctly. \nTo add support, contact the author of the mod.");
-    }
-
     if (g_moduleState.isFullScreen)
     {
         ResolutionVerifier::GetInstance().IsSupported(width, height, GRAPHICS_BITS_PER_PIXEL_16, true);
@@ -278,7 +266,7 @@ bool initWindowDxSurface(S32 width, S32 height)
         {
             char buf[100];
             std::snprintf(buf, sizeof(buf), "Display mode %dx%dx%d is not supported by system. Terminating.", width, height, GRAPHICS_BITS_PER_PIXEL_16);
-            ShowErrorMessage(buf);
+            ShowErrorNow(buf);
             return false;
         }
 
@@ -1280,13 +1268,13 @@ void resetStencilSurface()
     const S32 width = g_moduleState.windowRect.width - g_moduleState.windowRect.x + 1;
     const S32 stride = (SCREEN_WIDTH - width) * sizeof(Pixel);
 
-    Pixel pixel = (Pixel)(g_moduleState.windowRect.y * STENCIL_PIXEL_COLOR_VALUE);
+    Pixel pixel = (Pixel)(g_moduleState.windowRect.y << STENCIL_PIXEL_COLOR_SHIFT);
 
     auto processRows = [&](S32 rows)
         {
             for (S32 i = 0; i < rows; ++i)
             {
-                for (S32 j = 0; j < width; ++j)
+                for (S32 j = 0; j < width; ++j)     // todo: think to use std::fill or even simd instructions. change std::fill to std::fill_n in other calls
                     pixels[j] = pixel;
 
                 pixel += STENCIL_PIXEL_COLOR_VALUE;
@@ -1327,7 +1315,7 @@ void maskStencilSurfaceRect(S32 x, S32 y, S32 width, S32 height)
 
     const S32 stride = (SCREEN_WIDTH - width) * sizeof(Pixel);
 
-    const Pixel pixel = (Pixel)STENCIL_PIXEL_MASK_VALUE;
+    const Pixel pixel = (Pixel)STENCIL_PIXEL_BIG_MASK;
 
     auto processRows = [&](S32 rows)
         {
@@ -3469,7 +3457,7 @@ void drawBackSurfaceRhombsPaletteShadedSprite(S32 x, S32 y, U16 level, const Ima
     g_rendererState.sprite.height = sprite->height;
     //g_rendererState.sprite.width = sprite->width + 1;
 
-    level = (level + STENCIL_PIXEL_OFFSET) * STENCIL_PIXEL_COLOR_VALUE;
+    level = (level + STENCIL_PIXEL_OFFSET) << STENCIL_PIXEL_COLOR_SHIFT;
 
     const void* content = &sprite->pixels;
     void* next = (void*)((Addr)content + (Addr)sprite->next);
@@ -3682,7 +3670,7 @@ void drawMainSurfacePaletteSpriteStencil(S32 x, S32 y, U16 level, const Pixel* c
     g_rendererState.sprite.height = sprite->height;
     //g_rendererState.sprite.width = sprite->width + 1;
 
-    level = (level + STENCIL_PIXEL_OFFSET) * STENCIL_PIXEL_COLOR_VALUE;
+    level = (level + STENCIL_PIXEL_OFFSET) << STENCIL_PIXEL_COLOR_SHIFT;
     const U32 stencilLevel = (level << 16) | level;
 
     const void* content = &sprite->pixels;
@@ -3871,12 +3859,12 @@ void drawMainSurfacePaletteSpriteCompact(S32 x, S32 y, const Pixel* palette, con
     if (y < g_moduleState.windowRect.y)
     {
         g_rendererState.sprite.height -= (g_moduleState.windowRect.y - y);
-        
+
         if (g_rendererState.sprite.height <= 0)
         {
             return;
         }
-        
+
         for (S32 i = 0; i < g_moduleState.windowRect.y - y; ++i)
         {
             content = (void*)((Addr)next + sizeof(U16));
@@ -4403,7 +4391,7 @@ void drawBackSurfacePaletteSpriteAndStencil(S32 x, S32 y, U16 level, const Pixel
     g_rendererState.sprite.height = sprite->height;
     //g_rendererState.sprite.width = sprite->width + 1;
 
-    level = (level + STENCIL_PIXEL_OFFSET) * STENCIL_PIXEL_COLOR_VALUE;
+    level = (level + STENCIL_PIXEL_OFFSET) << STENCIL_PIXEL_COLOR_SHIFT;
 
     const void* content = &sprite->pixels;
     void* next = (void*)((Addr)content + (Addr)sprite->next);
@@ -4601,7 +4589,7 @@ void drawBackSurfacePaletteShadedSprite(S32 x, S32 y, U16 level, const Pixel* co
     g_rendererState.sprite.colorMask = colorMask;
     g_rendererState.sprite.adjustedColorMask = colorMask | (colorMask << 1);
 
-    level = (level + STENCIL_PIXEL_OFFSET) * STENCIL_PIXEL_COLOR_VALUE;
+    level = (level + STENCIL_PIXEL_OFFSET) << STENCIL_PIXEL_COLOR_SHIFT;
 
     g_rendererState.sprite.height = sprite->height;
     //g_rendererState.sprite.width = sprite->width + 1;
@@ -5319,7 +5307,7 @@ void drawMainSurfaceAnimationSpriteStencil(S32 x, S32 y, U16 level, const Animat
     g_rendererState.sprite.colorMask = colorMask;
     g_rendererState.sprite.adjustedColorMask = colorMask | (colorMask << 1);
 
-    level = (level + STENCIL_PIXEL_OFFSET) * STENCIL_PIXEL_COLOR_VALUE;
+    level = (level + STENCIL_PIXEL_OFFSET) << STENCIL_PIXEL_COLOR_SHIFT;
     const DoublePixel stencilLevel = (level << 16) | level;
 
     g_rendererState.sprite.height = sprite->height;
@@ -5517,7 +5505,7 @@ void drawMainSurfacePaletteSpriteFrontStencil(S32 x, S32 y, U16 level, const Pix
     g_rendererState.sprite.colorMask = colorMask;
     g_rendererState.sprite.adjustedColorMask = colorMask | (colorMask << 1);
 
-    level = (level + STENCIL_PIXEL_OFFSET) * STENCIL_PIXEL_COLOR_VALUE;
+    level = (level + STENCIL_PIXEL_OFFSET) << STENCIL_PIXEL_COLOR_SHIFT;
     const DoublePixel stencilLevel = (level << 16) | level;
 
     g_rendererState.sprite.height = sprite->height;
@@ -5726,7 +5714,7 @@ void drawMainSurfacePaletteSpriteBackStencil(S32 x, S32 y, U16 level, const Pixe
     g_rendererState.sprite.colorMask = colorMask;
     g_rendererState.sprite.adjustedColorMask = colorMask | (colorMask << 1);
 
-    level = (level + STENCIL_PIXEL_OFFSET) * STENCIL_PIXEL_COLOR_VALUE;
+    level = (level + STENCIL_PIXEL_OFFSET) << STENCIL_PIXEL_COLOR_SHIFT;
     const DoublePixel stencilLevel = (level << 16) | level;
 
     g_rendererState.sprite.height = sprite->height;
@@ -6052,13 +6040,13 @@ void drawMainSurfaceShadowSprite(S32 x, S32 y, const DoublePixel shadePixel, con
                         for (ptrdiff_t i = 0; i < availCount; ++i)
                         {
                             const DoublePixel sten = *(DoublePixel*)(stencil + i);
-                            if ((sten & 0x8007) == 0)
-                            {
-                                *(DoublePixel*)(stencil + i) = shadePixel | sten;
+                                if ((sten & STENCIL_PIXEL_SHADOW_MASK) == 0)
+                                {
+                                    *(DoublePixel*)(stencil + i) = shadePixel | sten;
 
-                                const Pixel pixel = (Pixel)(g_moduleState.backSurfaceShadePixel + SHADEPIXEL(*(DoublePixel*)(sx + i), *(DoublePixel*)&g_moduleState.shadeColorMask));
-                                sx[i] = pixel;
-                            }
+                                    const Pixel pixel = (Pixel)(g_moduleState.backSurfaceShadePixel + SHADEPIXEL(*(DoublePixel*)(sx + i), *(DoublePixel*)&g_moduleState.shadeColorMask));
+                                    sx[i] = pixel;
+                                }
                         }
                     }
 
@@ -6206,7 +6194,7 @@ void drawBackSurfaceShadowSprite(S32 x, S32 y, const DoublePixel shadePixel, con
                         for (ptrdiff_t i = 0; i < availCount; ++i)
                         {
                             const DoublePixel sten = *(DoublePixel*)(stencil + i);
-                            if ((sten & 0x8007) == 0)
+                            if ((sten & STENCIL_PIXEL_SHADOW_MASK) == 0)
                             {
                                 *(DoublePixel*)(stencil + i) = shadePixel | sten;
 
@@ -6251,7 +6239,7 @@ void drawMainSurfaceAdjustedSprite(S32 x, S32 y, U16 level, const ImagePaletteSp
     g_rendererState.sprite.colorMask = colorMask;
     g_rendererState.sprite.adjustedColorMask = colorMask | (colorMask << 1);
 
-    level = (level + STENCIL_PIXEL_OFFSET) * STENCIL_PIXEL_COLOR_VALUE;
+    level = (level + STENCIL_PIXEL_OFFSET) << STENCIL_PIXEL_COLOR_SHIFT;
     const DoublePixel stencilLevel = (level << 16) | level;
 
     g_rendererState.sprite.height = sprite->height;
@@ -6386,7 +6374,7 @@ void drawMainSurfaceAdjustedSprite(S32 x, S32 y, U16 level, const ImagePaletteSp
                             {
                                 DoublePixel pixel = g_rendererState.sprite.colorMask & (sx[i] | ((DoublePixel)sx[i] << 16));
                                 pixel = g_rendererState.sprite.adjustedColorMask & ((pixel * (pixels->pixels[0] & IMAGE_SPRITE_ITEM_SMALL_PIXEL_MASK)) >> 4);
-                                pixel = g_rendererState.sprite.colorMask & 
+                                pixel = g_rendererState.sprite.colorMask &
                                     (((g_rendererState.sprite.colorMask - pixel) >> 5) | pixel);
 
                                 sx[i] = (Pixel)((pixel >> 16) | pixel);
@@ -6447,7 +6435,7 @@ void drawMainSurfaceActualSprite(S32 x, S32 y, U16 level, const Pixel* const pal
     g_rendererState.sprite.colorMask = colorMask;
     g_rendererState.sprite.adjustedColorMask = colorMask | (colorMask << 1);
 
-    level = (level + STENCIL_PIXEL_OFFSET) * STENCIL_PIXEL_COLOR_VALUE;
+    level = (level + STENCIL_PIXEL_OFFSET) << STENCIL_PIXEL_COLOR_SHIFT;
     const DoublePixel stencilLevel = (level << 16) | level;
 
     g_rendererState.sprite.height = sprite->height;
@@ -7004,7 +6992,7 @@ void drawUiSprite(S32 x, S32 y, const ImagePaletteSprite* const sprite, const vo
                         {
                             for (ptrdiff_t i = 0; i < availCount; ++i)
                             {
-                                if ((sx[i] & 0x8007) == 0)
+                                if ((sx[i] & STENCIL_PIXEL_SHADOW_MASK) == 0)
                                 {
                                     const Pixel pixel = (Pixel)(g_moduleState.backSurfaceShadePixel + SHADEPIXEL(*(DoublePixel*)(sx + i), *(DoublePixel*)&g_moduleState.shadeColorMask));
 

@@ -7,24 +7,20 @@
 #include <array>
 
 #include "types.h"
-
-enum class DetectionStatus
-{
-    NotDetected,
-    NotCalculated,
-    UnsupportedHash,
-    Supported
-};
+#include "PatchTypes.h"
 
 class GameDllVersionDetector
 {
 public:
     static GameDllVersionDetector& GetInstance();
 
-    void DetectGameDll();
+    GameDllVersionDetector(const uintptr_t moduleBase, const size_t imageSize) : moduleInfo_{ moduleBase, imageSize } {}
+
+    void DetectGameDll(const std::wstring& modulePath);
 
     DetectionStatus GetDetectionStatus() const;
     GameVersion GetGameVersion() const;
+    ModuleInfo GetModuleInfo() const;
 
 private:
     struct DllVersion
@@ -61,10 +57,11 @@ private:
     } };
 
     DetectionStatus detectionStatus_{ DetectionStatus::NotDetected };
-    GameVersion detectedVersion_{ GameVersion::UNKNOWN };
+
+    ModuleInfo moduleInfo_;
 
     static GameDllVersionDetector* instance_;
 
-    HMODULE FindGameDllModule(std::wstring& path);
-    bool ComputeTextSectionHashFromFile(const std::wstring& filePath, std::array<uint8_t, 32>& outHash);
+    bool FindGameDllModule(std::wstring& path);
+    bool AnalyzeDll(const std::wstring& path, std::array<uint8_t, 32>& outHash);
 };

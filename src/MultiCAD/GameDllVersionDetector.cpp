@@ -4,29 +4,13 @@
 #include <fstream>
 #include <wincrypt.h>
 
-
-GameDllVersionDetector& GameDllVersionDetector::GetInstance()
+void GameDllVersionDetector::DetectGameDll(const std::wstring& modulePath)
 {
-    static GameDllVersionDetector instance;
-    return instance;
-}
-
-void GameDllVersionDetector::DetectGameDll()
-{
-    std::wstring modulePath;
-    HMODULE dll = FindGameDllModule(modulePath);
-    if (!dll)
-    {
-        detectionStatus_ = DetectionStatus::NotDetected;
-        detectedVersion_ = GameVersion::UNKNOWN;
-        return;
-    }
-
     std::array<uint8_t, 32> hash;
-    if (!ComputeTextSectionHashFromFile(modulePath, hash))
+    if (!AnalyzeDll(modulePath, hash))
     {
         detectionStatus_ = DetectionStatus::NotCalculated;
-        detectedVersion_ = GameVersion::UNKNOWN;
+        moduleInfo_.version = GameVersion::UNKNOWN;
         return;
     }
 
@@ -35,13 +19,13 @@ void GameDllVersionDetector::DetectGameDll()
         if (kv.sha256 == hash)
         {
             detectionStatus_ = DetectionStatus::Supported;
-            detectedVersion_ = kv.version;
+            moduleInfo_.version = kv.version;
             return;
         }
     }
 
     detectionStatus_ = DetectionStatus::UnsupportedHash;
-    detectedVersion_ = GameVersion::UNKNOWN;
+    moduleInfo_.version = GameVersion::UNKNOWN;
 }
 
 DetectionStatus GameDllVersionDetector::GetDetectionStatus() const
@@ -51,18 +35,23 @@ DetectionStatus GameDllVersionDetector::GetDetectionStatus() const
 
 GameVersion GameDllVersionDetector::GetGameVersion() const
 {
-    return detectedVersion_;
+    return moduleInfo_.version;
+}
+
+ModuleInfo GameDllVersionDetector::GetModuleInfo() const
+{
+    return moduleInfo_;
 }
 
 
-HMODULE GameDllVersionDetector::FindGameDllModule(std::wstring& path)
+bool GameDllVersionDetector::FindGameDllModule(std::wstring& path)
 {
     HMODULE hMods[1024];
     DWORD cbNeeded;
 
     HANDLE hProcess = GetCurrentProcess();
     if (!EnumProcessModules(hProcess, hMods, sizeof(hMods), &cbNeeded))
-        return nullptr;
+        return false;
 
     const size_t moduleCount = cbNeeded / sizeof(HMODULE);
     wchar_t modulePath[MAX_PATH];
@@ -76,18 +65,21 @@ HMODULE GameDllVersionDetector::FindGameDllModule(std::wstring& path)
 
             if (_wcsicmp(filename, L"game_dll.dll") == 0)
             {
+                moduleInfo_.base = (uintptr_t)hMods[i];
+
                 path = std::move(modulePath);
+
                 return hMods[i];
             }
         }
     }
 
-    return nullptr;
+    return false;
 }
 
-bool GameDllVersionDetector::ComputeTextSectionHashFromFile(const std::wstring& filePath, std::array<uint8_t, 32>& outHash)
+bool GameDllVersionDetector::AnalyzeDll(const std::wstring& path, std::array<uint8_t, 32>& outHash)
 {
-    std::ifstream file(filePath, std::ios::binary);
+    std::ifstream file(path, std::ios::binary);
     if (!file)
         return false;
 
@@ -103,7 +95,7 @@ bool GameDllVersionDetector::ComputeTextSectionHashFromFile(const std::wstring& 
         return false;
 
     // Read PE signature
-    DWORD peSig{ 0 };
+    DWORD peSig = 0;
     if (!file.read(reinterpret_cast<char*>(&peSig), sizeof(peSig)))
         return false;
     if (peSig != IMAGE_NT_SIGNATURE)
@@ -114,9 +106,19 @@ bool GameDllVersionDetector::ComputeTextSectionHashFromFile(const std::wstring& 
     if (!file.read(reinterpret_cast<char*>(&fh), sizeof(fh)))
         return false;
 
-    // Skip Optional Header using SizeOfOptionalHeader (works for PE32 and PE32+)
-    if (!file.seekg(fh.SizeOfOptionalHeader, std::ios::cur))
+    // Read Optional Header
+    std::vector<char> optionalHeaderData(fh.SizeOfOptionalHeader);
+    if (!file.read(optionalHeaderData.data(), fh.SizeOfOptionalHeader))
         return false;
+
+    // Get image size
+    auto* opt32 = reinterpret_cast<const IMAGE_OPTIONAL_HEADER32*>(optionalHeaderData.data());
+    moduleInfo_.imageSize = opt32->SizeOfImage;
+
+    // Get reloc VA and size
+    const IMAGE_DATA_DIRECTORY& relocDir = opt32->DataDirectory[IMAGE_DIRECTORY_ENTRY_BASERELOC];
+    moduleInfo_.relocVA = relocDir.VirtualAddress ? moduleInfo_.base + relocDir.VirtualAddress : 0;
+    moduleInfo_.relocSize = relocDir.Size;
 
     // Section table begins here
     if (fh.NumberOfSections == 0)

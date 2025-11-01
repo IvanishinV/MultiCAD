@@ -2,6 +2,40 @@
 
 #include "assets.h"
 #include "util.h"
+#include "ScreenGlobals.h"
+
+
+constexpr S32 DEFAULT_FONT_ASSET_SPACING = 2;
+
+/*
+* Stencil array is used to mask pixels according to shown sprites or shadows.
+* E.g. tree marks pixel and almost any other object or shadow cannot be shown on this pixel.
+*
+* Each row increases by STENCIL_PIXEL_COLOR_VALUE, but when I increased screen height,
+* the used method turned out to be broken. The original game increased every row by 0x20,
+* and the value of the last row was placed in a pixel (16 bit, 0xFFFF).
+* We perform shift to has some data in lower bits. Most likely 0x440 was used so that first row
+* would have a mask of 0x8800, in that case last row has mask 0xE800 (0x8800-0xE800). So, mask
+* 0x8007 works fine.
+*
+* However, for greater screen height 0xFFFF is not enough, so I reduced STENCIL_PIXEL_COLOR_VALUE
+* to 0x10, which is 1 << 4, and changed STENCIL_PIXEL_OFFET to 0x800. In that case I still have
+* 4 significant lower bits and all rows are in the range 0x8000-0xC380. It should work fine.
+*
+* FYI: in the original HD mod I used values 4 and 0x370 for some reason, and a bug appeared
+* with 0x8007 mask used for shadowing. Therefore, it was necessary to handle this case separately
+* in the unit shadow display function. So, I added condition
+* (y >= 0xC0 && sten < 0x4400) || (y < 0xC0 && sten < 0x3890)
+* Again, I don't remember correctly why I chose exactly 4 and 0x370 values.
+*/
+constexpr U32 PIXEL_COLOR_BIT_MASK = 0x8000;
+constexpr S32 STENCIL_PIXEL_COLOR_SHIFT = 4;
+constexpr S32 STENCIL_PIXEL_COLOR_VALUE = 1 << STENCIL_PIXEL_COLOR_SHIFT;
+constexpr S32 STENCIL_PIXEL_OFFSET = 0x800;
+constexpr S32 STENCIL_PIXEL_SHADOW_MASK = PIXEL_COLOR_BIT_MASK | 0x7;
+constexpr S32 STENCIL_PIXEL_SMALL_MASK = 0x7FF;
+constexpr S32 STENCIL_PIXEL_BIG_MASK = 0xFFFB;
+
 
 template<typename T>
 inline void dxRelease(T*& p)
@@ -191,9 +225,12 @@ struct FogRenderParams
     S32 actualRgbMask;          //10012ae8
 };
 
-struct Fog
+#pragma warning(push)
+#pragma warning(disable : 4324)
+
+struct alignas(16) Fog
 {
-    U8    unk[0x50];        // Fog array for visible screen
+    U8    unk[(MAX_POSSIBLE_SCREEN_WIDTH >> 4) + 8];        // One fog line for screen. Originally it was 0x50. Adding 8 due to chessboard layout
 };
 
 struct RhombsPalette
@@ -231,13 +268,21 @@ struct ModuleState
     U32                 actualRgbMask;                   //10012b50
     U32                 pitch;                           //10012b54              // Size in bytes of pixel line in DX renderer. Usually is: width * 2
     DoublePixel         backSurfaceShadePixel;           //10012b58
-    Fog                 fogSprites[112];                 //10012b5a-10014e5b     // Describes fog of war
+    U8                  pad_3[0x2300];                                           // Just pad to save all following offsets. The used fog array is further
     RhombsPalette       rhombsPalette;                   //10014e5c              // Landscape palette array (rhomb.pl)
 
     HWND                hwnd;
     bool                isFullScreen;                    //1001d478
     DirectX             directX;
     RendererActions     actions;
+
+    // Important! We need to increase fog array, so move it to another part of the struct
+    Fog                 fogSprites[(MAX_POSSIBLE_SCREEN_HEIGHT >> 3) + 0x10];      //10012b5a-10014e5b     // For array for screen. Originally it was 112 elements. Adding 0x10 for borderline cases
 };
 
+#pragma warning(pop)
+
 extern ModuleState g_moduleState;
+
+static_assert(offsetof(ModuleState, hwnd) == 0xA96C, "hwnd offset mismatch");
+static_assert(offsetof(ModuleState, actions.initDxInstance) == 0xA980, "initDxInstance offset mismatch");   // This function is called from game.exe
