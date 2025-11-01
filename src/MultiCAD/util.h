@@ -3,7 +3,7 @@
 #include "types.h"
 #include <string>
 
-constexpr U32 DIRECTDRAW_VERSION = 0x0700;
+#define DIRECTDRAW_VERSION 0x0700
 #include <ddraw.h>
 
 const U8 IMAGE_SPRITE_ITEM_SMALL_PIXEL_MASK     = 0x1F;
