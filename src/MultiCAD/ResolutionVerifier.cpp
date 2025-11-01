@@ -53,6 +53,10 @@ HRESULT WINAPI ResolutionVerifier::EnumModesCallback(LPDDSURFACEDESC lpDDSurface
         return DDENUMRET_OK;
     }
 
+    // Screen height not divisible by 8 is not supported    // todo: fix renderer.cpp
+    if ((lpDDSurfaceDesc->dwHeight & 7) != 0)
+        return DDENUMRET_OK;
+
     Resolution res{
         static_cast<int>(lpDDSurfaceDesc->dwWidth),
         static_cast<int>(lpDDSurfaceDesc->dwHeight),
