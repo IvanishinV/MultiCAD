@@ -374,7 +374,7 @@ void drawMainSurfaceHorLine(const S32 x, const S32 y, const S32 length, const Pi
             if (g_moduleState.surface.y <= y)
                 pixels = (Pixel*)((Addr)pixels - Screen::sizeInBytes_);
 
-            std::fill(pixels, pixels + (max_x - new_x + 1), pixel);
+            std::fill_n(pixels, max_x - new_x + 1, pixel);
         }
     }
 }
@@ -492,7 +492,7 @@ void drawMainSurfaceFilledColorRect(S32 x, S32 y, S32 width, S32 height, const P
         {
             for (S32 yy = 0; yy < height; ++yy)
             {
-                std::fill(pixels, pixels + width, pixel);
+                std::fill_n(pixels, width, pixel);
 
                 pixels = (Pixel*)((Addr)pixels + widthInBytes);
             }
@@ -501,7 +501,7 @@ void drawMainSurfaceFilledColorRect(S32 x, S32 y, S32 width, S32 height, const P
         {
             for (S32 yy = 0; yy < height - delta; ++yy)
             {
-                std::fill(pixels, pixels + width, pixel);
+                std::fill_n(pixels, width, pixel);
 
                 pixels = (Pixel*)((Addr)pixels + widthInBytes);
             }
@@ -510,7 +510,7 @@ void drawMainSurfaceFilledColorRect(S32 x, S32 y, S32 width, S32 height, const P
 
             for (S32 yy = 0; yy < delta; ++yy)
             {
-                std::fill(pixels, pixels + width, pixel);
+                std::fill_n(pixels, width, pixel);
 
                 pixels = (Pixel*)((Addr)pixels + widthInBytes);
             }
@@ -522,7 +522,7 @@ void drawMainSurfaceFilledColorRect(S32 x, S32 y, S32 width, S32 height, const P
 
         for (S32 yy = 0; yy < height; ++yy)
         {
-            std::fill(pixels, pixels + width, pixel);
+            std::fill_n(pixels, width, pixel);
 
             pixels = (Pixel*)((Addr)pixels + widthInBytes);
         }
@@ -1284,8 +1284,7 @@ void resetStencilSurface()
         {
             for (S32 i = 0; i < rows; ++i)
             {
-                for (S32 j = 0; j < width; ++j)     // todo: think to use std::fill or even simd instructions. change std::fill to std::fill_n in other calls
-                    pixels[j] = pixel;
+                std::fill_n(pixels, width, pixel);
 
                 pixel += STENCIL_PIXEL_COLOR_VALUE;
 
@@ -3227,7 +3226,7 @@ void drawBackSurfaceRhombsPaletteSprite(S32 x, S32 y, const ImagePaletteSprite* 
                         const U8 indx = pixels->pixels[0];
                         const Pixel pixel = g_moduleState.rhombsPalette.palette[indx + 0x4100];
 
-                        std::fill(sx, sx + availCount, pixel);
+                        std::fill_n(sx, availCount, pixel);
 
                         pixels = (ImagePaletteSpritePixel*)((Addr)pixels + sizeof(ImagePaletteSpritePixel));
                     }
@@ -3418,7 +3417,7 @@ void drawBackSurfaceRhombsPaletteSprite2(S32 x, S32 y, const ImagePaletteSprite*
                         const U8 indx = pixels->pixels[0];
                         const Pixel pixel = g_moduleState.rhombsPalette.palette[indx + 0x4200];
 
-                        std::fill(sx, sx + availCount, pixel);
+                        std::fill_n(sx, availCount, pixel);
 
                         pixels = (ImagePaletteSpritePixel*)((Addr)pixels + sizeof(ImagePaletteSpritePixel));
                     }
@@ -3992,7 +3991,7 @@ void drawMainSurfacePaletteSpriteCompact(S32 x, S32 y, const Pixel* palette, con
                         {
                             const Pixel pixel = palette[indx];
 
-                            std::fill(sx, sx + availCount, pixel);
+                            std::fill_n(sx, availCount, pixel);
                         }
 
                         pixels = (ImagePaletteSpritePixel*)((Addr)pixels + sizeof(ImagePaletteSpritePixel));
@@ -4357,7 +4356,7 @@ void drawBackSurfacePalletteSprite(S32 x, S32 y, const Pixel* const palette, con
                         {
                             const Pixel pixel = palette[indx];
 
-                            std::fill(sx, sx + availCount, pixel);
+                            std::fill_n(sx, availCount, pixel);
                         }
 
                         pixels = (ImagePaletteSpritePixel*)((Addr)pixels + sizeof(ImagePaletteSpritePixel));
@@ -4551,8 +4550,8 @@ void drawBackSurfacePaletteSpriteAndStencil(S32 x, S32 y, U16 level, const Pixel
                         const U8 indx = pixels->pixels[0];
                         const Pixel pixel = palette[indx];
 
-                        std::fill(sx, sx + availCount, pixel);
-                        std::fill(stencil, stencil + availCount, level);
+                        std::fill_n(sx, availCount, pixel);
+                        std::fill_n(stencil, availCount, level);
 
                         pixels = (ImagePaletteSpritePixel*)((Addr)pixels + sizeof(ImagePaletteSpritePixel));
                     }
@@ -4567,7 +4566,7 @@ void drawBackSurfacePaletteSpriteAndStencil(S32 x, S32 y, U16 level, const Pixel
                             sx[i] = (sx[i] + pixel - (g_moduleState.actualColorBits & (sx[i] ^ pixel))) >> 1;
                         }
 
-                        std::fill(stencil, stencil + availCount, level);
+                        std::fill_n(stencil, availCount, level);
 
                         pixels = (ImagePaletteSpritePixel*)((Addr)pixels + sizeof(ImagePaletteSpritePixel) + (count - 1) * sizeof(U8));
                     }
@@ -4582,7 +4581,7 @@ void drawBackSurfacePaletteSpriteAndStencil(S32 x, S32 y, U16 level, const Pixel
                             sx[i] = pixel;
                         }
 
-                        std::fill(stencil, stencil + availCount, level);
+                        std::fill_n(stencil, availCount, level);
 
                         pixels = (ImagePaletteSpritePixel*)((Addr)pixels + sizeof(ImagePaletteSpritePixel) + (count - 1) * sizeof(U8));
                     }
@@ -4936,7 +4935,7 @@ void drawMainSurfacePaletteSprite(S32 x, S32 y, const Pixel* const palette, cons
                         const U8 indx = pixels->pixels[0];
                         const Pixel pixel = palette[indx];
 
-                        std::fill(sx, sx + availCount, pixel);
+                        std::fill_n(sx, availCount, pixel);
 
                         pixels = (ImagePaletteSpritePixel*)((Addr)pixels + sizeof(ImagePaletteSpritePixel));
                     }
@@ -5107,7 +5106,7 @@ void drawMainSurfaceSprite(S32 x, S32 y, const ImageSprite* const sprite)
 
                         if (pixel != PixelColor::MAGENTA)
                         {
-                            std::fill(sx, sx + availCount, pixel);
+                            std::fill_n(sx, availCount, pixel);
                         }
 
                         pixels = (ImageSpritePixel*)((Addr)pixels + sizeof(ImageSpritePixel));
@@ -6824,7 +6823,7 @@ void drawUiSprite(S32 x, S32 y, const ImagePaletteSprite* const sprite, const vo
                             {
                                 const Pixel pixel = palette[indx];
 
-                                std::fill(sx, sx + availCount, pixel);
+                                std::fill_n(sx, availCount, pixel);
                             }
 
                             pixels = (ImagePaletteSpritePixel*)((Addr)pixels + sizeof(ImagePaletteSpritePixel));
@@ -6928,7 +6927,7 @@ void drawUiSprite(S32 x, S32 y, const ImagePaletteSprite* const sprite, const vo
                             const U8 indx = pixels->pixels[0];
                             const Pixel pixel = palette[indx];
 
-                            std::fill(sx, sx + availCount, pixel);
+                            std::fill_n(sx, availCount, pixel);
 
                             pixels = (ImagePaletteSpritePixel*)((Addr)pixels + sizeof(ImagePaletteSpritePixel));
                         }
