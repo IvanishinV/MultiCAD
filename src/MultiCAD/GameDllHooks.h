@@ -45,6 +45,8 @@
 // 7FD20    done    // selecting units under the screen by double click
 // 1FE00    done    // bug with supply trucks and enemy buildings
 // 3E7B0    done    // no nullptr check (dump sent by Alee)
+// 5C170    done    // no nullptr check (dump sent by Bulldozer)
+// 6CC60    done    // no nullptr check (dump sent by Bulldozer)
 
 constexpr uint32_t kRowStrideOldDwordSize = 0x10;
 constexpr uint32_t kRowStrideOldShift = 6;
@@ -159,6 +161,73 @@ private:
     static_assert(sizeof(GameObject) == 5957, "GameObject size mismatch");
     static_assert(sizeof(UnkEntry) == 19, "UnkEntry size mismatch");
 
+
+#pragma pack(push, 1)
+    struct GameData3
+    {
+        int* param_00;
+        int param_04;
+        int param_08;
+        int param_0C;
+        int param_10;
+        int param_14;
+        int param_18;
+        unsigned int* param_1C;
+        int param_20;
+        int param_24;
+        int param_28;
+        int param_2C;
+        int param_30;
+        int param_34;
+        int param_38;
+        int param_3C;
+        int param_40;
+        int param_44;
+        int param_48;
+        int param_4C;
+        int param_50;
+        int param_54;
+        int param_58;
+        int param_5C;
+        int* param_60;
+        unsigned int param_64;
+        int param_68;
+        int param_6C;
+        int param_70;
+        int param_74;
+        int param_78;
+        int param_7C;
+        int param_80;
+        int param_84;
+        int param_88;
+        int param_8C;
+        int param_90;
+        unsigned int param_94;
+    };
+
+    struct GameData4
+    {
+        int* param_00;
+        int param_04;
+        int param_08;
+        char pad_1;
+        int param_0D;
+        int param_11;
+        int param_15;
+        int param_19;
+        int param_1D;
+        int param_21;
+        char pad_2;
+        int param_26;
+        int param_2A;
+        int param_2E;
+        char pad_3;
+        int param_33;
+    };
+#pragma pack(pop)
+
+    static_assert(sizeof(GameData4) == 0x37, "GameData4 size mismatch");
+
 #pragma endregion Helper_Structs
 
 public:
@@ -190,11 +259,12 @@ public:
     static int  __declspec(noinline) __fastcall sub_10056030(uint8_t* self, void* /*dummy*/, int a2, int a3, GameData* const a4);
     static int  __declspec(noinline) __fastcall sub_10056170(uint8_t* self, void* /*dummy*/, int a2, int a3, GameData* const a4);
     static int  __declspec(noinline) __fastcall sub_100563B0(uint8_t* self, void* /*dummy*/, int a2, int a3, GameData2* const a4);
+    static void __declspec(noinline) __stdcall  sub_1005C170(); // not needed since it's easy to fix by changing one byte
     static void __declspec(noinline) __stdcall  sub_1006AD20();
     static void __declspec(noinline) __stdcall  sub_1006AEA0();
     static void __declspec(noinline) __cdecl    sub_1006B1C0(char mask, int* a2);
     static char __declspec(noinline) __cdecl    sub_1006B2C0(char mask, int* a2, int a3);
+    static void __declspec(noinline) __fastcall sub_1006CC60(GameData3* self);
     static void __declspec(noinline) __stdcall  sub_1006D940();
     static void __declspec(noinline) __stdcall  sub_1006F120();
-
 };

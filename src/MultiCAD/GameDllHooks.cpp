@@ -640,6 +640,162 @@ doneMasking:
     return 1;
 }
 
+void __declspec(noinline) __stdcall  GameDllHooks::sub_1005C170()
+{
+    auto* g = globals_;
+
+    int* dword_100ADF88 = g->getPtr<int>(0xADF88);
+    int* dword_10299D64 = g->getPtr<int>(0x299D64);
+    int dword_10295618 = g->getValue<int>(0x295618);
+    int* dword_10295C58 = g->getPtr<int>(0x295C58);
+    char* byte_10295C5F = g->getPtr<char>(0x295C5F);
+    char* byte_10295C60 = g->getPtr<char>(0x295C60);
+    char* byte_10296CEE = g->getPtr<char>(0x296CEE);
+    char* byte_102996E0 = g->getPtr<char>(0x2996E0);
+    int16_t* word_10296C63 = g->getPtr<int16_t>(0x296C63);
+    char* byte_102990E0 = g->getPtr<char>(0x2990E0);
+    int dword_10383CAC = g->getValue<int>(0x383CAC);
+
+    auto sub_10056740 = g->getFn<void(__cdecl)(void*)>(0x56740);
+    auto sub_100592C0 = g->getFn<void(__stdcall)(void*, size_t)>(0x592C0);
+    auto sub_1005C0D0 = g->getFn<void(__cdecl)(char*, char*)>(0x5C0D0);
+
+    int& randSeed = *g->getPtr<int>(0x295144);
+    auto randNext = [&randSeed]() {
+        randSeed = 0x41C64E6D * randSeed + 0x3039;
+        return HIWORD(randSeed) & 0x7FFF;
+        };
+
+    int count = *dword_10299D64;
+
+    char tempBuffer[128];
+    memcpy(tempBuffer, &byte_102990E0[128 * dword_10383CAC], sizeof(tempBuffer));
+
+    size_t writeIndex = 2;
+    *(uint16_t*)byte_10295C60 = (uint16_t)randNext();
+    *dword_10295C58 = 2;
+
+    int16_t* currentWord = word_10296C63;
+    for (int i = 0; i < count; ++i, currentWord = currentWord + 73)
+    {
+        unsigned char flags = *((unsigned char*)currentWord - 3);
+        if ((flags & 0x20) == 0)
+        {
+            int j = 0;
+            bool skip = false;
+            while (!*((unsigned char*)currentWord + j + 11))
+            {
+                if (++j >= 128)
+                {
+                    skip = true;
+                    break;
+                }
+            }
+            if (skip)
+                continue;
+
+            sub_1005C0D0(tempBuffer, (char*)currentWord + 11);
+
+            writeIndex = *dword_10295C58;
+            byte_10295C60[writeIndex++] = flags;
+            if (flags & 0x40)
+            {
+                memcpy(&byte_10295C60[writeIndex], currentWord, 2 * sizeof(int16_t));
+                writeIndex += 2 * sizeof(int16_t);
+            }
+
+            if ((char)flags < 0)
+            {
+                int16_t val = currentWord[2];
+                byte_10295C60[writeIndex++] = val & 0xFF;
+                byte_10295C60[writeIndex++] = (val >> 8) & 0xFF;
+            }
+
+            char lastChar = *((unsigned char*)currentWord + 6);
+            byte_10295C60[writeIndex++] = lastChar;
+
+            *dword_10295C58 = writeIndex;
+        }
+        else
+        {
+            switch (flags)
+            {
+            case 33:
+            {
+                char v10 = *((char*)currentWord + 6);
+                byte_10295C60[writeIndex++] = 33;
+                byte_10295C60[writeIndex++] = v10;
+                *dword_10295C58 = writeIndex;
+
+                if (v10 & 0x80)
+                    byte_10295C60[writeIndex++] = *((char*)currentWord + 4);
+
+                if (v10 & 0x40)
+                {
+                    memcpy(&byte_10295C60[writeIndex], currentWord, 2 * sizeof(int16_t));
+                    writeIndex += 2 * sizeof(int16_t);
+                }
+
+                *dword_10295C58 = writeIndex;
+
+                break;
+            }
+            case 34:
+                byte_10295C60[writeIndex++] = 34;
+
+                *dword_10295C58 = writeIndex;
+                break;
+
+            case 35:
+            {
+                char v3 = *((char*)currentWord);
+                byte_10295C60[writeIndex++] = 35;
+                byte_10295C60[writeIndex++] = v3;
+                int v5 = *currentWord;
+                *dword_10295C58 = writeIndex;
+                if (v5 == 0)
+                {
+                    byte_10295C60[writeIndex++] = *((char*)currentWord + 2);
+                }
+                else if (v5 == 2)
+                {
+                    char* src = byte_10296CEE;
+                    for (int k = 0; k < 16; ++k)
+                        byte_10295C5F[++writeIndex] = src[k];
+                    src += 16;
+                    while (*src)
+                        byte_10295C60[writeIndex++] = *src++;
+                    byte_10295C60[writeIndex++] = *src;
+                }
+                *dword_10295C58 = writeIndex;
+                break;
+            }
+            default:
+                break;
+            }
+        }
+    }
+
+    memset(byte_102996E0, 0xFF, 0x680);
+    byte_102996E0[1664] = -1;
+
+    constexpr size_t kBlockSize = 146;
+    for (int i = 0; i < count; ++i)
+    {
+        char* block = byte_10296CEE + i * kBlockSize;
+        void* ptr = *reinterpret_cast<void**>(block);
+        if (ptr != nullptr)
+        {
+            sub_10056740(ptr);
+            *reinterpret_cast<void**>(block) = nullptr;
+        }
+    }
+
+    *dword_100ADF88 = dword_10295618;
+    *dword_10299D64 = 0;
+    sub_100592C0(byte_10295C60, writeIndex);
+}
+
 void __declspec(noinline) __stdcall  GameDllHooks::sub_1006AD20()
 {
     auto* g = globals_;
@@ -900,6 +1056,55 @@ char __declspec(noinline) __cdecl    GameDllHooks::sub_1006B2C0(char mask, int* 
     }
 
     return val;
+}
+
+void __declspec(noinline) __fastcall GameDllHooks::sub_1006CC60(GameData3* self)
+{
+    if (!self->param_00)
+        return;
+
+    auto* g = globals_;
+
+    int* g_1037EFE0 = g->getValue<int*>(0x37EFE0);   // get value at 0x37EFE0 as int*
+    int16_t* srcRect = reinterpret_cast<int16_t*>(g_1037EFE0[1]);
+    if (!srcRect)    // self is always not nullptr
+        return;
+
+    Rect dstRect;
+    dstRect.x = srcRect[0];
+    dstRect.y = srcRect[1];
+    dstRect.width = srcRect[2] + srcRect[0] - 1;
+    const int y2 = srcRect[3] + srcRect[1] - 1;
+
+    const int verticalOffset = g->getValue<int>(0x34FF0C) - y2 + dstRect.y - 1;
+    dstRect.y += verticalOffset;
+    dstRect.height = y2 + verticalOffset;
+
+    auto funcArray = reinterpret_cast<void(__thiscall**)(GameData3*, int, Rect*, int, int, uint32_t)>(self->param_00);
+    auto func19 = funcArray[19];
+    func19(self, 0x50414E4C, &dstRect, 10, -1, 0);
+
+    int* g_10353030 = g->getPtr<int>(0x353030);
+    int* g_1037EDE0 = g->getPtr<int>(0x37EDE0);
+    int* g_10295434 = g->getValue<int*>(0x295434);
+
+    auto sub_10071850 = g->getFn<void(__thiscall)(GameData3*, int)>(0x71850);
+    auto sub_1006BC50 = g->getFn<void(__thiscall)(int*, GameData3*, int, int)>(0x6BC50);
+    auto sub_10072980 = g->getFn<void(__thiscall)(GameData3*, int*, int, int, int)>(0x72980);
+    auto sub_100718D0 = g->getFn<GameData4 * (__thiscall)(GameData3*, int, int, int, int, int*, int, int*, int*, int)>(0x718D0);
+    auto sub_10071FD0 = g->getFn<void(__thiscall)(uint32_t*, uint32_t, uint32_t, uint16_t*, int*)>(0x71FD0);
+    auto sub_1006B410 = g->getFn<void(__cdecl)(uint32_t*, int)>(0x6B410);
+
+    sub_10071850(self, *g_1037EFE0);
+    sub_1006BC50(g_10353030, self, self->param_60[40], self->param_60[41]);
+    sub_10072980(self, g_10353030, 20, 100, 0);
+    GameData4* gd4 = sub_100718D0(self, 2, 1, 2, 2, &g_1037EFE0[17], g_1037EFE0[17], g_1037EDE0, g_10295434, 24);
+    gd4->param_0D = 10; // if gd4 was not allocated, it will crash in this or another function
+
+    sub_10071FD0(&self->param_64, self->param_0C, self->param_10, reinterpret_cast<uint16_t*>(g_1037EFE0[2]), g_1037EDE0);
+    sub_10071FD0(&self->param_94, self->param_0C, self->param_10, reinterpret_cast<uint16_t*>(g_1037EFE0[3]), g_1037EDE0);
+    sub_1006B410(&self->param_64, 11);
+    sub_1006B410(&self->param_94, 12);
 }
 
 void __declspec(noinline) __stdcall  GameDllHooks::sub_1006D940()

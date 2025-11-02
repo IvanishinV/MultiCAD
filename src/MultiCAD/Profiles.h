@@ -66,11 +66,25 @@ const std::array hooks_ss_gold_en
 
     // Fixes a null pointer dereference (issue reported via dump from Иван 'Alee' Петров)
     HookSpec{0x3E7B0, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_1003E7B0)},
+    // Fixes a null pointer dereference (issue reported via dump from Eugin 'Bulldozer' Banks)
+    HookSpec{0x6CC60, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_1006CC60)},
 };
 
 const std::array patches_ss_gold_en
 {
     PatchSpec{0x0, {}},
+
+    // Fixes bug where enemies inside buildings were revealed by your supply trucks
+    PatchSpec{0x1FE41, {0x75, 0xB1}},   // jmp 1FDF4
+    PatchSpec{0x1FDF4,
+    {
+        0x80, 0x7E, 0x00, 0x68,         // cmp byte ptr [esi+0], 68h
+        0x74, 0x49,                     // jz 1FE43
+        0xEB, 0x77                      // jmp 1FE73
+    }},
+
+    // Fixes null pointer dereference (issue reported via dump from Eugin 'Bulldozer' Banks)
+    PatchSpec{0x5C23D, {0xB8}},
 
     // Sets the screen height at which units are displayed
     PatchSpec{0x6D147, PatchSpec::to_bytes(SCREEN_HEIGHT_TO_SHOW_UNITS)},
@@ -109,15 +123,6 @@ const std::array patches_ss_gold_en
     PatchSpec{0x7FE63, {0xBA}},             // mov edx, offset yBottom
     PatchSpec{0x7FE68, {0x3B, 0x4A, 0xFC}}, // cmp ecx, [edx-4]     // screen height
     PatchSpec{0x7FE6D, {0x3B, 0x02}},       // cmp eax, [edx]       // screen width
-
-    // Fixes bug where enemies inside buildings were revealed by your supply trucks
-    PatchSpec{0x1FE41, {0x75, 0xB1}},   // jmp 1FDF4
-    PatchSpec{0x1FDF4,
-    {
-        0x80, 0x7E, 0x00, 0x68,         // cmp byte ptr [esi+0], 68h
-        0x74, 0x49,                     // jz 1FE43
-        0xEB, 0x77                      // jmp 1FE73
-    }}
 };
 
 using Profile_SS_GOLD_EN = PatchProfile<
