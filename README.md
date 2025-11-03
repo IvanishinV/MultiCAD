@@ -8,18 +8,29 @@ This DLL supports arbitrary screen resolutions for the following games:
 
 - Sudden Strike *(WIP)*
 - Sudden Strike Forever *(WIP)*
-- Sudden Strike Gold *(WIP)*
-- (More titles and mods to be added)
+- Sudden Strike Gold:
+  - en (Steam) — ✔
+  - de (Steam) — ⏳ *(WIP)*
+  - fr (Steam) — ⏳ *(WIP)*
+  - ru (Steam) — ⏳ *(WIP)*
+- Sudden Strike HD v1.2:
+  - en ⏳ — *(WIP)*
+  - de ⏳ — *(WIP)*
+  - fr ⏳ — *(WIP)*
+  - ru ⏳ — *(WIP)*
+- *(More titles and mods to be added)*
+
+The DLL supports native screen resolutions from 640x480 to 2560x1440 (a bit laggy).
 
 ## Usage
 
 1. Build or download the `cadMulti.dll` file.
 2. Place the file in the game folder (same directory as the game executable).
-3. Open `sudtest.ini` and set the value of any *SSDraw* variable to `cadMulti.dll`.
-4. Select the appropriate resolution option from the main menu.
-5. By default, the game will launch using your current desktop screen resolution.
+3. Open `sudtest.ini` and set the value of any existing *SSDraw* variable to `cadMulti.dll`.
+4. After launching the game, in the main menu, select the required resolution option depending on the *SSDraw* number.
+5. By default, the game will launch in 1920x1080 resolution. If this is not supported, the game will offer to change it.
 
-> ⚠️ If you want to override the resolution, support for custom settings will be added in future updates.
+> ⚠️ If you want to specify a different resolution, add a new line before *SSDraw* specifying the desired resolution, e.g.: `Resolution=1600x900` and rerun the game.
 
 ## Compilation
 
