@@ -1,36 +1,39 @@
 # MultiCAD
 
-**MultiCAD** is a universal graphics DLL replacement for **Sudden Strike**, **Sudden Strike Forever**, and other derivative games. It adds support for **any custom screen resolution**.
+**MultiCAD** is a universal graphics DLL replacement for **Sudden Strike**, **Sudden Strike Forever**, and related games. It supports **any custom screen resolution** from 640x480 up to 2560x1440  (note: higher resolutions may be a bit laggy) and includes various bug fixes across different game versions.
 
-## Features
-
-This DLL supports arbitrary screen resolutions for the following games:
+## Supported Games
 
 - Sudden Strike *(WIP)*
 - Sudden Strike Forever *(WIP)*
-- Sudden Strike Gold:
-  - en (Steam) — ✔
-  - de (Steam) — ⏳ *(WIP)*
-  - fr (Steam) — ⏳ *(WIP)*
-  - ru (Steam) — ⏳ *(WIP)*
+- Sudden Strike Gold (5 bug fixes):
+  - en (Steam) ✔
+  - de (Steam) ⏳ *(WIP)*
+  - fr (Steam) ⏳ *(WIP)*
+  - ru (Steam) ⏳ *(WIP)*
 - Sudden Strike HD v1.2:
-  - en ⏳ — *(WIP)*
-  - de ⏳ — *(WIP)*
-  - fr ⏳ — *(WIP)*
-  - ru ⏳ — *(WIP)*
+  - en ⏳ *(WIP)*
+  - de ⏳ *(WIP)*
+  - fr ⏳ *(WIP)*
+  - ru ⏳ *(WIP)*
 - *(More titles and mods to be added)*
-
-The DLL supports native screen resolutions from 640x480 to 2560x1440 (a bit laggy).
 
 ## Usage
 
-1. Build or download the `cadMulti.dll` file.
+1. Build the project or download the latest precompiled `cadMulti.dll` file from the [Releases](../../releases) page.
 2. Place the file in the game folder (same directory as the game executable).
 3. Open `sudtest.ini` and set the value of any existing *SSDraw* variable to `cadMulti.dll`.
-4. After launching the game, in the main menu, select the required resolution option depending on the *SSDraw* number.
-5. By default, the game will launch in 1920x1080 resolution. If this is not supported, the game will offer to change it.
+4. After launching the game, in the main menu, select the required resolution option depending on the changed *SSDraw* number.
+5. By default, the game will launch in 1920x1080. If this resolution is not supported, the game will offer to change it.
 
-> ⚠️ If you want to specify a different resolution, add a new line before *SSDraw* specifying the desired resolution, e.g.: `Resolution=1600x900` and rerun the game.
+> ⚠️ To use a custom resolution, add a `Resolution` line **anywhere after the [Game] header** in `sudtest.ini`:
+> 
+> ```ini
+> [Game]
+> Resolution=1600x900   ; optional, change to a supported resolution
+> SSDraw1=cad640.dll
+> ```
+> Restart the game to apply the change.
 
 ## Compilation
 
