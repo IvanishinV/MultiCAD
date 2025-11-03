@@ -1377,6 +1377,7 @@ void moveStencilSurface(const S32 x, const S32 y, const S32 width, const S32 hei
     if (addOp == false)
         pix = (DoublePixel)(-(S32)pix);
 
+    // SSE2 is not needed here. For full HD scalar time is 0.18ms, SSE2 time is 0.20ms
     auto processRows = [&](S32 rows)
         {
             for (S32 i = 0; i < rows; ++i)
@@ -1677,14 +1678,7 @@ void copyMainSurfaceToRendererWithWarFog(const S32 x, const S32 y, const S32 end
                             {
                                 do
                                 {
-                                    dst[0] = src[0];
-                                    dst[1] = src[1];
-                                    dst[2] = src[2];
-                                    dst[3] = src[3];
-                                    dst[4] = src[4];
-                                    dst[5] = src[5];
-                                    dst[6] = src[6];
-                                    dst[7] = src[7];
+                                    memcpy(dst, src, 8 * sizeof(*src));
                                     src = (DoublePixel*)((Addr)src + screenWidthInBytes);
                                     dst = (DoublePixel*)((Addr)dst + (Addr)g_moduleState.pitch);
 
