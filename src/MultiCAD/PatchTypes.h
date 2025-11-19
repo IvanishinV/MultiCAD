@@ -68,6 +68,13 @@ struct RelocateGapSpec
     size_t      newSize;
 };
 
+enum class DllType
+{
+    Game,
+    Menu,
+    Unknown
+};
+
 struct ModuleInfo
 {
     uintptr_t   base{};
@@ -76,6 +83,7 @@ struct ModuleInfo
     size_t      relocSize{};
 
     GameVersion  version{ GameVersion::UNKNOWN };
+    DllType     type{ DllType::Unknown };
 
     bool valid() const
     {

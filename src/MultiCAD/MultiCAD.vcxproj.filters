@@ -87,6 +87,12 @@
     <ClInclude Include="ScreenConfig.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="PatchInstallers.h">
+      <Filter>Header Files\Patcher</Filter>
+    </ClInclude>
+    <ClInclude Include="MenuDllHooks.h">
+      <Filter>Header Files\Patcher</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -121,6 +127,9 @@
     </ClCompile>
     <ClCompile Include="ScreenConfig.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PatchInstallers.cpp">
+      <Filter>Source Files\Patcher</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

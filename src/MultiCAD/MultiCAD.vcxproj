@@ -80,12 +80,15 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="assets.h" />
+    <ClInclude Include="DllHooksBase.h" />
     <ClInclude Include="DllMonitor.h" />
     <ClInclude Include="GameDllHooks.h" />
-    <ClInclude Include="GameDllVersionDetector.h" />
+    <ClInclude Include="DllVersionDetector.h" />
     <ClInclude Include="CodePatcher.h" />
     <ClInclude Include="GameGlobals.h" />
     <ClInclude Include="LdrNotification.h" />
+    <ClInclude Include="MenuDllHooks.h" />
+    <ClInclude Include="PatchInstallers.h" />
     <ClInclude Include="ProfileBase.h" />
     <ClInclude Include="PatchEngine.h" />
     <ClInclude Include="PatchTypes.h" />
@@ -105,9 +108,10 @@
   <ItemGroup>
     <ClCompile Include="DllMonitor.cpp" />
     <ClCompile Include="GameDllHooks.cpp" />
-    <ClCompile Include="GameDllVersionDetector.cpp" />
+    <ClCompile Include="DllVersionDetector.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="cad.cpp" />
+    <ClCompile Include="PatchInstallers.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>

@@ -14,7 +14,38 @@ struct PatchSession
     RelocationHandle reloc;
     bool             active{ false };
     MemoryRelocator* relocator{};
-    CodePatcher*     injector{};
+    CodePatcher* injector{};
+
+    PatchSession() = default;
+
+    PatchSession(const PatchSession&) = delete;
+    PatchSession& operator=(const PatchSession&) = delete;
+
+    PatchSession(PatchSession&& other) noexcept
+        : reloc{ other.reloc },
+        active{ other.active },
+        relocator{ other.relocator },
+        injector{ other.injector }
+    {
+        other.relocator = nullptr;
+        other.injector = nullptr;
+        other.active = false;
+    }
+    PatchSession& operator=(PatchSession&& other) noexcept
+    {
+        if (this != &other)
+        {
+            reloc = other.reloc;
+            active = other.active;
+            relocator = other.relocator;
+            injector = other.injector;
+
+            other.relocator = nullptr;
+            other.injector = nullptr;
+            other.active = false;
+        }
+        return *this;
+    }
 
     void Unapply()
     {
@@ -41,9 +72,8 @@ public:
         injector_(std::move(injector))
     { }
 
-    bool Apply(const ModuleInfo& mod, const IPatchProfile& profile, PatchSession& outSession)
+    bool Apply(const ModuleInfo& mod, const IPatchSpecSet& profile, PatchSession& outSession)
     {
-        outSession = {};
         outSession.relocator = relocator_.get();
         outSession.injector = injector_.get();
 

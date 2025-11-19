@@ -2,6 +2,7 @@
 
 #include "ProfileBase.h"
 #include "GameDllHooks.h"
+#include "MenuDllHooks.h"
 #include "cad.h"
 #include "ScreenConfig.h"
 
@@ -9,7 +10,7 @@ constexpr uint16_t SCREEN_HEIGHT_TO_SHOW_UNITS = Graphics::kMaxHeight;   // to s
 constexpr uint32_t ARRAY_37B588_DWORD_SIZE = Graphics::kMaxWidth;
 constexpr uint32_t ARRAY_37B588_BYTE_SIZE = ARRAY_37B588_DWORD_SIZE * sizeof(uint32_t);
 
-constexpr std::array relocs_ss_gold_en
+constexpr std::array relocs_game_ss_gold_en
 {
     RelocateGapSpec{0x0, 0x0, 0x0},
     /*
@@ -45,7 +46,7 @@ constexpr std::array relocs_ss_gold_en
     RelocateGapSpec{ 0x0037C596, 0x0037E898, 2 + sizeof(((ModuleState*)0)->fogSprites) },
 };
 
-const std::array hooks_ss_gold_en
+const std::array hooks_game_ss_gold_en
 {
     HookSpec{0x0, 0x0},
     HookSpec{0x55A20, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_10055A20)},
@@ -70,7 +71,7 @@ const std::array hooks_ss_gold_en
     HookSpec{0x6CC60, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_1006CC60)},
 };
 
-const std::array patches_ss_gold_en
+const std::array patches_game_ss_gold_en
 {
     PatchSpec{0x0, {}},
 
@@ -125,9 +126,27 @@ const std::array patches_ss_gold_en
     PatchSpec{0x7FE6D, {0x3B, 0x02}},       // cmp eax, [edx]       // screen width
 };
 
-using Profile_SS_GOLD_EN = PatchProfile<
+constexpr std::array relocs_menu_ss_gold_en
+{
+    RelocateGapSpec{0x0, 0x0, 0x0}
+};
+
+const std::array hooks_menu_ss_gold_en
+{
+    HookSpec{0x0, 0x0},
+};
+
+const std::array patches_menu_ss_gold_en
+{
+    PatchSpec{0x0, {}},
+};
+
+using Profile_SS_GOLD_EN = GameVersionProfile<
     GameVersion::SS_GOLD_EN,
-    relocs_ss_gold_en,
-    hooks_ss_gold_en,
-    patches_ss_gold_en
+    relocs_game_ss_gold_en,
+    hooks_game_ss_gold_en,
+    patches_game_ss_gold_en,
+    relocs_menu_ss_gold_en,
+    hooks_menu_ss_gold_en,
+    patches_menu_ss_gold_en
 >;

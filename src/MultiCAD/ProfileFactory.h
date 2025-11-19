@@ -7,7 +7,7 @@
 class ProfileFactory final
 {
 public:
-    std::unique_ptr<IPatchProfile> create(GameVersion v)
+    std::unique_ptr<IGameVersionProfile> create(GameVersion v)
     {
         switch (v)
         {

@@ -6,11 +6,10 @@
 #include <span>
 #include <array>
 
-class IPatchProfile
+class IPatchSpecSet
 {
 public:
-    virtual ~IPatchProfile() = default;
-    virtual GameVersion version() const = 0;
+    virtual ~IPatchSpecSet() = default;
     virtual std::span<const RelocateGapSpec> relocations() const = 0;
     virtual std::span<const HookSpec> hooks() const = 0;
     virtual std::span<const PatchSpec> patches() const = 0;
@@ -28,17 +27,43 @@ constexpr bool check_relocations(auto const& reloc)
     return true;
 }
 
-template<GameVersion Ver,
-    auto& Relocs,
-    auto& Hooks,
-    auto& Patches>
-class PatchProfile final : public IPatchProfile
+template<auto& Relocs, auto& Hooks, auto& Patches>
+class PatchSpecSet final : public IPatchSpecSet
 {
 public:
     static_assert(check_relocations(Relocs), "RelocateGapSpec: end must be greater or equal than start");
 
-    GameVersion version() const override { return Ver; }
     std::span<const RelocateGapSpec> relocations() const override { return Relocs; }
     std::span<const HookSpec> hooks() const override { return Hooks; }
     std::span<const PatchSpec> patches() const override { return Patches; }
+};
+
+class IGameVersionProfile
+{
+public:
+    virtual ~IGameVersionProfile() = default;
+
+    virtual GameVersion version() const = 0;
+
+    virtual const IPatchSpecSet& game() const = 0;
+    virtual const IPatchSpecSet& menu() const = 0;
+};
+
+template<GameVersion Ver,
+    auto& GameRelocs, auto& GameHooks, auto& GamePatches,
+    auto& MenuRelocs, auto& MenuHooks, auto& MenuPatches>
+class GameVersionProfile final : public IGameVersionProfile
+{
+public:
+    GameVersion version() const override { return Ver; }
+
+    const IPatchSpecSet& game() const { return m_game; }
+    const IPatchSpecSet& menu() const { return m_menu; }
+
+    using GameProfileT = PatchSpecSet<GameRelocs, GameHooks, GamePatches>;
+    using MenuProfileT = PatchSpecSet<MenuRelocs, MenuHooks, MenuPatches>;
+
+private:
+    GameProfileT m_game{};
+    MenuProfileT m_menu{};
 };

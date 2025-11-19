@@ -15,7 +15,7 @@ struct RelocationHandle
         size_t    copied{};  // bytes copied from old -> new
     };
     std::vector<GapRuntime> gaps;
-    char* bigBlock;
+    char* bigBlock{};
 };
 
 class MemoryRelocator final
@@ -38,6 +38,9 @@ public:
         size_t totalSize = 0;
         for (const auto& g : gaps)
             totalSize += g.newSize;
+
+        if (totalSize == 0)
+            return true;
 
         // Allocate the whole memory block. This is done due to the problem of needing continuous memory for some global variables
         out.bigBlock = new char[totalSize];
@@ -208,7 +211,7 @@ private:
             cursor += block->SizeOfBlock;
         }
 
-        VirtualProtect(textPtr, textSize, oldProtect, NULL);
+        VirtualProtect(textPtr, textSize, oldProtect, &oldProtect);
 
 #ifdef _DEBUG
         OutputDebugStringA(std::format("Patched {} refs via .reloc.\n", patched).c_str());

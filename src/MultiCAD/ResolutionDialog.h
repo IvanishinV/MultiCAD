@@ -8,7 +8,7 @@
 struct ResolutionDialogContext
 {
     std::vector<ResolutionVerifier::Resolution> availableModes;
-    ResolutionVerifier::Resolution selectedMode;
+    ResolutionVerifier::Resolution selectedMode{};
     int selectedIndex{ -1 };
 };
 

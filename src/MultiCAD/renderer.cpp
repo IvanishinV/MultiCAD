@@ -3,7 +3,7 @@
 #include "renderer.h"
 #include "ResolutionVerifier.h"
 
-#include "GameDllVersionDetector.h"
+#include "DllVersionDetector.h"
 #include "PatchEngine.h"
 #include "ProfileFactory.h"
 #include "MemoryRelocator.h"
