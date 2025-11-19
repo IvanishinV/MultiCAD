@@ -1,11 +1,14 @@
 #include "pch.h"
-#include "GameDllVersionDetector.h"
+#include "DllVersionDetector.h"
 
 #include <fstream>
 #include <wincrypt.h>
+#include <span>
 
-void GameDllVersionDetector::DetectGameDll(const std::wstring& modulePath)
+void DllVersionDetector::DetectDll(DllType type, const std::wstring& modulePath)
 {
+    moduleInfo_.type = type;
+
     std::array<uint8_t, 32> hash;
     if (!AnalyzeDll(modulePath, hash))
     {
@@ -14,7 +17,12 @@ void GameDllVersionDetector::DetectGameDll(const std::wstring& modulePath)
         return;
     }
 
-    for (const auto& kv : knownVersions_)
+    std::span<const DllVersion> versions =
+        (type == DllType::Game)
+        ? std::span<const DllVersion>(gameDllVersions_)
+        : std::span<const DllVersion>(menuDllVersions_);
+
+    for (const auto& kv : versions)
     {
         if (kv.sha256 == hash)
         {
@@ -28,56 +36,70 @@ void GameDllVersionDetector::DetectGameDll(const std::wstring& modulePath)
     moduleInfo_.version = GameVersion::UNKNOWN;
 }
 
-DetectionStatus GameDllVersionDetector::GetDetectionStatus() const
+void DllVersionDetector::DetectGameDll(const std::wstring& modulePath)
+{
+    std::array<uint8_t, 32> hash;
+    if (!AnalyzeDll(modulePath, hash))
+    {
+        detectionStatus_ = DetectionStatus::NotCalculated;
+        moduleInfo_.version = GameVersion::UNKNOWN;
+        return;
+    }
+
+    for (const auto& kv : gameDllVersions_)
+    {
+        if (kv.sha256 == hash)
+        {
+            detectionStatus_ = DetectionStatus::Supported;
+            moduleInfo_.version = kv.version;
+            return;
+        }
+    }
+
+    detectionStatus_ = DetectionStatus::UnsupportedHash;
+    moduleInfo_.version = GameVersion::UNKNOWN;
+}
+
+void DllVersionDetector::DetectMenuDll(const std::wstring& modulePath)
+{
+    std::array<uint8_t, 32> hash;
+    if (!AnalyzeDll(modulePath, hash))
+    {
+        detectionStatus_ = DetectionStatus::NotCalculated;
+        moduleInfo_.version = GameVersion::UNKNOWN;
+        return;
+    }
+
+    for (const auto& kv : menuDllVersions_)
+    {
+        if (kv.sha256 == hash)
+        {
+            detectionStatus_ = DetectionStatus::Supported;
+            moduleInfo_.version = kv.version;
+            return;
+        }
+    }
+
+    detectionStatus_ = DetectionStatus::UnsupportedHash;
+    moduleInfo_.version = GameVersion::UNKNOWN;
+}
+
+DetectionStatus DllVersionDetector::GetDetectionStatus() const
 {
     return detectionStatus_;
 }
 
-GameVersion GameDllVersionDetector::GetGameVersion() const
+GameVersion DllVersionDetector::GetGameVersion() const
 {
     return moduleInfo_.version;
 }
 
-ModuleInfo GameDllVersionDetector::GetModuleInfo() const
+ModuleInfo DllVersionDetector::GetModuleInfo() const
 {
     return moduleInfo_;
 }
 
-
-bool GameDllVersionDetector::FindGameDllModule(std::wstring& path)
-{
-    HMODULE hMods[1024];
-    DWORD cbNeeded;
-
-    HANDLE hProcess = GetCurrentProcess();
-    if (!EnumProcessModules(hProcess, hMods, sizeof(hMods), &cbNeeded))
-        return false;
-
-    const size_t moduleCount = cbNeeded / sizeof(HMODULE);
-    wchar_t modulePath[MAX_PATH];
-
-    for (size_t i = 0; i < moduleCount; ++i)
-    {
-        if (GetModuleFileNameExW(hProcess, hMods[i], modulePath, MAX_PATH))
-        {
-            const wchar_t* filename = wcsrchr(modulePath, L'\\');
-            filename = filename ? filename + 1 : modulePath;
-
-            if (_wcsicmp(filename, L"game_dll.dll") == 0)
-            {
-                moduleInfo_.base = (uintptr_t)hMods[i];
-
-                path = std::move(modulePath);
-
-                return hMods[i];
-            }
-        }
-    }
-
-    return false;
-}
-
-bool GameDllVersionDetector::AnalyzeDll(const std::wstring& path, std::array<uint8_t, 32>& outHash)
+bool DllVersionDetector::AnalyzeDll(const std::wstring& path, std::array<uint8_t, 32>& outHash)
 {
     std::ifstream file(path, std::ios::binary);
     if (!file)

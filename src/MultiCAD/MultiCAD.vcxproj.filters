@@ -48,9 +48,6 @@
     <ClInclude Include="ResolutionDialog.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="GameDllVersionDetector.h">
-      <Filter>Header Files\Patcher</Filter>
-    </ClInclude>
     <ClInclude Include="GameDllHooks.h">
       <Filter>Header Files\Patcher</Filter>
     </ClInclude>
@@ -87,6 +84,27 @@
     <ClInclude Include="ScreenConfig.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="PatchInstallers.h">
+      <Filter>Header Files\Patcher</Filter>
+    </ClInclude>
+    <ClInclude Include="MenuDllHooks.h">
+      <Filter>Header Files\Patcher</Filter>
+    </ClInclude>
+<<<<<<< Updated upstream
+=======
+    <ClInclude Include="DllHooksBase.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DllVersionDetector.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="version.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SplashTextRenderer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+>>>>>>> Stashed changes
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -110,9 +128,6 @@
     <ClCompile Include="ResolutionDialog.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="GameDllVersionDetector.cpp">
-      <Filter>Source Files\Patcher</Filter>
-    </ClCompile>
     <ClCompile Include="GameDllHooks.cpp">
       <Filter>Source Files\Patcher</Filter>
     </ClCompile>
@@ -122,6 +137,18 @@
     <ClCompile Include="ScreenConfig.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="PatchInstallers.cpp">
+      <Filter>Source Files\Patcher</Filter>
+    </ClCompile>
+<<<<<<< Updated upstream
+=======
+    <ClCompile Include="DllVersionDetector.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MenuDllHooks.cpp">
+      <Filter>Source Files\Patcher</Filter>
+    </ClCompile>
+>>>>>>> Stashed changes
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="MultiCAD.rc">

@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "DllMonitor.h"
-#include "GameDllVersionDetector.h"
+#include "DllVersionDetector.h"
 #include "ProfileFactory.h"
 #include "MemoryRelocator.h"
 #include "CodePatcher.h"
@@ -8,31 +8,39 @@
 #include "util.h"
 
 #include <algorithm>
+#include <TlHelp32.h>
 
 /**
-    DllMonitor -> Detector -> GameVersion + ModuleInfo
-             \                    |
-              \            ProfileFactory + IPatchProfile
-               \          /
-               PatchEngine
-              /           \
-    MemoryRelocator       CodePatcher
+                                 DllMonitor
+                                /          \
+                Game dll GameVersion      Menu dll GameVersion
+                             /                \
+   ProfileFactory + GameVersionProfile  ProfileFactory + GameVersionProfile
+                                \           /
+                                 PatchEngine
+                                /           \
+                      MemoryRelocator       CodePatcher
 * */
 
 DllMonitor& GetDllMonitor()
 {
-    static DllMonitor instance(L"game");
+    static DllMonitor instance;
     return instance;
-}
-
-DllMonitor::DllMonitor(const std::wstring& targetNamePart)
-    : m_targetNamePart(targetNamePart)
-{
 }
 
 DllMonitor::~DllMonitor()
 {
     Shutdown();
+}
+
+void DllMonitor::RegisterTarget(const TargetInfo& info)
+{
+    std::lock_guard lk(m_targetsMutex);
+
+    std::wstring key = info.namePart;
+    std::transform(key.begin(), key.end(), key.begin(), ::towlower);
+
+    m_targets.emplace(key, info);
 }
 
 bool DllMonitor::Init()
@@ -54,6 +62,7 @@ bool DllMonitor::Init()
 
     if (!pLdrRegisterDllNotification || !m_pLdrUnregisterDllNotification)
     {
+        Shutdown();
         return false;
     }
 
@@ -61,130 +70,177 @@ bool DllMonitor::Init()
     if (!NT_SUCCESS(status))
     {
         m_dllNotificationCookie = nullptr;
+        Shutdown();
         return false;
     }
+
+    ScanLoadedModules();
+
     return true;
 }
 
 void DllMonitor::Shutdown()
 {
-    if (m_dllNotificationCookie)
+    if (m_dllNotificationCookie && m_pLdrUnregisterDllNotification)
     {
         m_pLdrUnregisterDllNotification(m_dllNotificationCookie);
         m_dllNotificationCookie = nullptr;
     }
 
-    if (m_patchEngine)
+    std::lock_guard lkStates(m_statesMutex);
+    for (auto& kv : m_states)
     {
-        m_patchSession.Unapply();
-        m_patchEngine.reset();
+        auto& state = kv.second;
+        if (state.active && !kv.first.empty())
+        {
+            std::lock_guard lk2(m_targetsMutex);
+            auto it = m_targets.find(kv.first);
+            if (it != m_targets.end() && it->second.onUnloaded)
+            {
+                it->second.onUnloaded(state);
+            }
+        }
+    }
+    m_states.clear();
+}
+
+void DllMonitor::HandleLoad(const std::wstring& matched, uintptr_t base, size_t size, const std::wstring& fullPath)
+{
+    TargetInfo target;
+    {
+        std::lock_guard lk(m_targetsMutex);
+        target = m_targets.at(matched);
+    }
+
+    TargetState st;
+    const bool ok = target.onLoaded ? target.onLoaded(st, base, size, fullPath) : false;
+
+    if (ok)
+    {
+        st.active = true;
+        std::lock_guard lk(m_statesMutex);
+        m_states[matched] = std::move(st);
     }
 }
 
-void CALLBACK DllMonitor::DllNotification(
-    ULONG notificationReason,
-    const LDR_DLL_NOTIFICATION_DATA* notificationData,
-    PVOID context)
+void DllMonitor::HandleUnload(const std::wstring& matched)
 {
-    if (!context || !notificationData)
+    std::lock_guard lk(m_statesMutex);
+    auto it = m_states.find(matched);
+    if (it == m_states.end())
         return;
 
-    auto* self = reinterpret_cast<DllMonitor*>(context);
-
-    switch (notificationReason)
+    TargetState& st = it->second;
     {
-    case LDR_DLL_NOTIFICATION_REASON_LOADED:
-        self->HandleDllLoaded(&notificationData->Loaded);
-        break;
-    case LDR_DLL_NOTIFICATION_REASON_UNLOADED:
-        self->HandleDllUnloaded(&notificationData->Unloaded);
-        break;
+        std::lock_guard lk2(m_targetsMutex);
+        auto it2 = m_targets.find(matched);
+        if (it2 != m_targets.end() && it2->second.onUnloaded)
+        {
+            it2->second.onUnloaded(st);
+        }
     }
+
+    m_states.erase(it);
 }
 
-bool DllMonitor::HandleDllLoaded(const LDR_DLL_LOADED_NOTIFICATION_DATA* data)
+bool DllMonitor::TryMatchTargets(const std::wstring& moduleBaseName, std::wstring& outMatchedPart)
 {
-    if (!data || !data->BaseDllName || !data->BaseDllName->Buffer || !data->FullDllName || !data->FullDllName->Buffer)
+    std::string lowerMod;
+    lowerMod.reserve(moduleBaseName.size());
+
+    std::wstring lowerW = moduleBaseName;
+    std::transform(lowerW.begin(), lowerW.end(), lowerW.begin(), ::towlower);
+
+    if (!lowerW.ends_with(L".dll"))
         return false;
 
-    const std::wstring dllName(data->BaseDllName->Buffer, data->BaseDllName->Length / sizeof(WCHAR));
-    if (!ContainsIgnoreCase(dllName, m_targetNamePart))
-        return false;
-
-    const std::wstring dllPath(data->FullDllName->Buffer, data->FullDllName->Length / sizeof(WCHAR));
-
-    GameDllVersionDetector detector((uintptr_t)data->DllBase, data->SizeOfImage);
-    detector.DetectGameDll(dllPath);
-
-
-    switch (detector.GetDetectionStatus())
+    std::lock_guard lk(m_targetsMutex);
+    for (const auto& kv : m_targets)
     {
-    case DetectionStatus::UnsupportedHash:
-    {
-        ShowErrorAsync("MultiCAD couldn't identify and doesn't fully support this version of Sudden Strike. The mod may not work correctly. \nTo add support, contact the author of the mod.");
-        break;
-    }
-    case DetectionStatus::Supported:
-    {
-        ProfileFactory factory;
-        auto profile = factory.create(detector.GetGameVersion());
-        if (!profile)
-            break;
-
-        auto relocator = std::make_unique<MemoryRelocator>();
-        auto injector = std::make_unique<CodePatcher>();
-        
-        GameDllHooks::init(detector.GetModuleInfo().base);
-        m_patchEngine = std::make_unique<PatchEngine>(std::move(relocator), std::move(injector));
-
-        if (!m_patchEngine->Apply(detector.GetModuleInfo(), *profile, m_patchSession))
+        const std::wstring& targetKey = kv.first;
+        if (lowerW.find(targetKey) != std::wstring::npos)
         {
-            GameDllHooks::shutdown();
-
-            ShowErrorAsync("Couldn't patch game dll due to some error. Contact the author.");
-            return false;
+            outMatchedPart = kv.first;
+            return true;
         }
-
-
-        return true;
     }
-    }
-
     return false;
 }
 
-bool DllMonitor::HandleDllUnloaded(const LDR_DLL_UNLOADED_NOTIFICATION_DATA* data)
+void CALLBACK DllMonitor::DllNotification(ULONG reason, const LDR_DLL_NOTIFICATION_DATA* data, PVOID ctx)
 {
-    if (!data || !data->BaseDllName || !data->BaseDllName->Buffer)
-        return false;
+    if (!ctx || !data)
+        return;
 
-    const std::wstring dllName(data->BaseDllName->Buffer, data->BaseDllName->Length / sizeof(WCHAR));
-    if (!ContainsIgnoreCase(dllName, m_targetNamePart))
-        return false;
+    auto* self = reinterpret_cast<DllMonitor*>(ctx);
 
-    if (m_patchEngine)
+    if (reason == LDR_DLL_NOTIFICATION_REASON_LOADED)
     {
-        m_patchSession.Unapply();
-        m_patchEngine.reset();
+        const auto& d = data->Loaded;
+        if (!d.BaseDllName || !d.BaseDllName->Buffer)
+            return;
+
+        std::wstring base(d.BaseDllName->Buffer, d.BaseDllName->Length / sizeof(WCHAR));
+        std::wstring full;
+
+        if (d.FullDllName && d.FullDllName->Buffer)
+            full.assign(d.FullDllName->Buffer, d.FullDllName->Length / sizeof(WCHAR));
+
+        std::wstring matched;
+        if (self->TryMatchTargets(base, matched))
+            self->HandleLoad(matched, reinterpret_cast<uintptr_t>(d.DllBase), d.SizeOfImage, full);
     }
+    else if (reason == LDR_DLL_NOTIFICATION_REASON_UNLOADED)
+    {
+        const auto& d = data->Unloaded;
+        if (!d.BaseDllName || !d.BaseDllName->Buffer)
+            return;
 
-    GameDllHooks::shutdown();
+        std::wstring base(d.BaseDllName->Buffer, d.BaseDllName->Length / sizeof(WCHAR));
+        std::wstring matched;
 
-    return true;
+        if (self->TryMatchTargets(base, matched))
+            self->HandleUnload(matched);
+    }
 }
 
-bool DllMonitor::ContainsIgnoreCase(const std::wstring& str, const std::wstring& part)
+void DllMonitor::ScanLoadedModules()
 {
-    if (part.empty() || str.empty())
-        return false;
+    HANDLE snap = CreateToolhelp32Snapshot(TH32CS_SNAPMODULE, GetCurrentProcessId());
+    if (snap == INVALID_HANDLE_VALUE) return;
 
-    auto it = std::search(
-        str.begin(), str.end(),
-        part.begin(), part.end(),
-        [](wchar_t ch1, wchar_t ch2)
+    MODULEENTRY32W me;
+    ZeroMemory(&me, sizeof(me));
+    me.dwSize = sizeof(me);
+    if (Module32FirstW(snap, &me))
+    {
+        do
         {
-            return towlower(ch1) == towlower(ch2);
-        });
+            const std::wstring baseName = me.szModule;
+            std::wstring matchedPart;
+            if (!TryMatchTargets(baseName, matchedPart))
+                continue;
 
-    return (it != str.end());
+            TargetInfo target;
+            {
+                std::lock_guard lk(m_targetsMutex);
+                target = m_targets.at(matchedPart);
+            }
+
+            TargetState state;
+            const bool ok = target.onLoaded ? target.onLoaded(state,
+                reinterpret_cast<uintptr_t>(me.modBaseAddr),
+                me.modBaseSize,
+                me.szExePath) : false;
+
+            if (ok)
+            {
+                state.active = true;
+                std::lock_guard lk(m_statesMutex);
+                m_states[matchedPart] = std::move(state);
+            }
+        } while (Module32NextW(snap, &me));
+    }
+
+    CloseHandle(snap);
 }

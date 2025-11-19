@@ -9,14 +9,14 @@
 #include "types.h"
 #include "PatchTypes.h"
 
-class GameDllVersionDetector
+class DllVersionDetector
 {
 public:
-    static GameDllVersionDetector& GetInstance();
+    static DllVersionDetector& GetInstance();
 
-    GameDllVersionDetector(const uintptr_t moduleBase, const size_t imageSize) : moduleInfo_{ moduleBase, imageSize } {}
+    DllVersionDetector(const uintptr_t moduleBase, const size_t imageSize) : moduleInfo_{ moduleBase, imageSize } {}
 
-    void DetectGameDll(const std::wstring& modulePath);
+    void DetectDll(DllType type, const std::wstring& modulePath);
 
     DetectionStatus GetDetectionStatus() const;
     GameVersion GetGameVersion() const;
@@ -29,7 +29,7 @@ private:
         std::array<uint8_t, 32> sha256;
     };
 
-    static constexpr std::array<DllVersion, 4> knownVersions_ = { {
+    static constexpr std::array<DllVersion, 4> gameDllVersions_ = { {
         { GameVersion::SS_GOLD_RU, {
             0x10, 0xb9, 0x2b, 0x02, 0x09, 0xd2, 0xed, 0xfe,
             0xd1, 0xfd, 0x90, 0xda, 0xec, 0x95, 0xdd, 0x49,
@@ -56,12 +56,23 @@ private:
         }}
     } };
 
+    static constexpr std::array<DllVersion, 1> menuDllVersions_ = { {
+        { GameVersion::SS_GOLD_EN, {
+             0x0B, 0xD6, 0x00, 0xDE, 0xCB, 0xF4, 0x34, 0xCE,
+             0x89, 0x27, 0xEA, 0xF9, 0x0A, 0x10, 0x33, 0x9F,
+             0x75, 0x0B, 0x6F, 0x55, 0x29, 0x69, 0x9C, 0xE1,
+             0x96, 0xF2, 0xF5, 0x91, 0x7C, 0xBD, 0x8D, 0x5D
+        }}
+    } };
+
     DetectionStatus detectionStatus_{ DetectionStatus::NotDetected };
 
     ModuleInfo moduleInfo_;
 
-    static GameDllVersionDetector* instance_;
+    static DllVersionDetector* instance_;
 
-    bool FindGameDllModule(std::wstring& path);
     bool AnalyzeDll(const std::wstring& path, std::array<uint8_t, 32>& outHash);
+
+    void DetectGameDll(const std::wstring& path);
+    void DetectMenuDll(const std::wstring& path);
 };

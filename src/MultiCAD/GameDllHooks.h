@@ -1,8 +1,8 @@
 #pragma once
 
 #include "types.h"
-#include "GameGlobals.h"
 #include "cad.h"
+#include "DllHooksBase.h"
 
 #include <vector>
 
@@ -58,11 +58,11 @@ constexpr uint8_t  kRowStrideShift = kRowStrideOldShift + 2;     // + sqrt(4)
 constexpr uint32_t kFogLineByteSize = sizeof(Fog);
 constexpr uint32_t kFogDoubleLineByteSize = kFogLineByteSize * 2;
 
-class GameDllHooks
+struct GameTag {};
+
+class GameDllHooks : public DllHooksBase<GameTag>
 {
 private:
-
-    inline static GameGlobals* globals_{ nullptr };
 
 #pragma region Helper_Structs
 
@@ -231,24 +231,6 @@ private:
 #pragma endregion Helper_Structs
 
 public:
-    static void init(uintptr_t moduleBase)
-    {
-        delete globals_;
-        globals_ = new GameGlobals(moduleBase);
-    }
-
-    static void initRelocs(std::span<const RelocationHandle::GapRuntime> newGaps)
-    {
-        if (globals_)
-            globals_->addReloc(newGaps);
-    }
-
-    static void shutdown()
-    {
-        delete globals_;
-        globals_ = nullptr;
-    }
-
     static void __declspec(noinline) __cdecl    sub_1003E7B0(UnkEntry* a1, int a2, int* a3, int a4);
     static void __declspec(noinline) __fastcall sub_10055A20(uint32_t* self, void* /*dummy*/, int a2, int a3);
     static void __declspec(noinline) __fastcall sub_10055DC0(uint32_t* self);
