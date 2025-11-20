@@ -646,7 +646,6 @@ void __declspec(noinline) __stdcall  GameDllHooks::sub_1005C170()
 
     int* dword_100ADF88 = g->getPtr<int>(0xADF88);
     int* dword_10299D64 = g->getPtr<int>(0x299D64);
-    int dword_10295618 = g->getValue<int>(0x295618);
     int* dword_10295C58 = g->getPtr<int>(0x295C58);
     char* byte_10295C5F = g->getPtr<char>(0x295C5F);
     char* byte_10295C60 = g->getPtr<char>(0x295C60);
@@ -679,6 +678,7 @@ void __declspec(noinline) __stdcall  GameDllHooks::sub_1005C170()
     for (int i = 0; i < count; ++i, currentWord = currentWord + 73)
     {
         unsigned char flags = *((unsigned char*)currentWord - 3);
+        // Condition when ordering unit to move
         if ((flags & 0x20) == 0)
         {
             int j = 0;
@@ -706,10 +706,11 @@ void __declspec(noinline) __stdcall  GameDllHooks::sub_1005C170()
 
             if ((char)flags < 0)
             {
-                int16_t val = currentWord[2];
-                byte_10295C60[writeIndex++] = val & 0xFF;
-                byte_10295C60[writeIndex++] = (val >> 8) & 0xFF;
+                memcpy(&byte_10295C60[writeIndex], &currentWord[2], sizeof(int16_t));
+                writeIndex += sizeof(int16_t);
             }
+
+            count = *dword_10299D64;
 
             char lastChar = *((unsigned char*)currentWord + 6);
             byte_10295C60[writeIndex++] = lastChar;
@@ -741,33 +742,44 @@ void __declspec(noinline) __stdcall  GameDllHooks::sub_1005C170()
                 break;
             }
             case 34:
+            {
                 byte_10295C60[writeIndex++] = 34;
 
-                *dword_10295C58 = writeIndex;
+                byte_10295C60[writeIndex] = *((char*)currentWord + 6);
+                *dword_10295C58 = ++writeIndex;
                 break;
-
+            }
             case 35:
             {
-                char v3 = *((char*)currentWord);
-                byte_10295C60[writeIndex++] = 35;
-                byte_10295C60[writeIndex++] = v3;
+                // Case when saving game
                 int v5 = *currentWord;
+                byte_10295C60[writeIndex++] = 35;
+                byte_10295C60[writeIndex++] = static_cast<char>(v5);
                 *dword_10295C58 = writeIndex;
                 if (v5 == 0)
                 {
-                    byte_10295C60[writeIndex++] = *((char*)currentWord + 2);
+                    byte_10295C60[writeIndex] = *((char*)currentWord + 2);
                 }
                 else if (v5 == 2)
                 {
-                    char* src = byte_10296CEE;
-                    for (int k = 0; k < 16; ++k)
-                        byte_10295C5F[++writeIndex] = src[k];
-                    src += 16;
-                    while (*src)
-                        byte_10295C60[writeIndex++] = *src++;
-                    byte_10295C60[writeIndex++] = *src;
+                    char* src = *(char**)byte_10296CEE;
+                    if (src)
+                    {
+                        for (int k = 0; k < 16; ++k)
+                        {
+                            byte_10295C5F[++writeIndex] = *src++;
+                            *dword_10295C58 = writeIndex;
+                        }
+                        while (*src)
+                        {
+                            byte_10295C60[writeIndex++] = *src++;
+                            *dword_10295C58 = writeIndex;
+                        }
+
+                        byte_10295C60[writeIndex] = *src;
+                    }
                 }
-                *dword_10295C58 = writeIndex;
+                *dword_10295C58 = ++writeIndex;
                 break;
             }
             default:
@@ -787,11 +799,12 @@ void __declspec(noinline) __stdcall  GameDllHooks::sub_1005C170()
         if (ptr != nullptr)
         {
             sub_10056740(ptr);
+            count = *dword_10299D64;
             *reinterpret_cast<void**>(block) = nullptr;
         }
     }
 
-    *dword_100ADF88 = dword_10295618;
+    *dword_100ADF88 = g->getValue<int>(0x295618);
     *dword_10299D64 = 0;
     sub_100592C0(byte_10295C60, writeIndex);
 }

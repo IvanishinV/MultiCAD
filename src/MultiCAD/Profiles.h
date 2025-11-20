@@ -67,8 +67,9 @@ const std::array hooks_game_ss_gold_en
 
     // Fixes a null pointer dereference (issue reported via dump from Иван 'Alee' Петров)
     HookSpec{0x3E7B0, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_1003E7B0)},
-    // Fixes a null pointer dereference (issue reported via dump from Eugin 'Bulldozer' Banks)
+    // Fixes a null pointer dereferences (issues reported via dumps from Eugin 'Bulldozer' Banks)
     HookSpec{0x6CC60, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_1006CC60)},
+    HookSpec{0x5C170, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_1005C170)},
 };
 
 const std::array patches_game_ss_gold_en
@@ -83,9 +84,6 @@ const std::array patches_game_ss_gold_en
         0x74, 0x49,                     // jz 1FE43
         0xEB, 0x77                      // jmp 1FE73
     }},
-
-    // Fixes null pointer dereference (issue reported via dump from Eugin 'Bulldozer' Banks)
-    PatchSpec{0x5C23D, {0xB8}},
 
     // Sets the screen height at which units are displayed
     PatchSpec{0x6D147, PatchSpec::to_bytes(SCREEN_HEIGHT_TO_SHOW_UNITS)},
