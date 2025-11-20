@@ -26,12 +26,14 @@
 4. After launching the game, in the main menu, select the required resolution option depending on the changed *SSDraw* number.
 5. By default, the game will launch in 1920x1080. If this resolution is not supported, the game will offer to change it.
 
-> ⚠️ To use a custom resolution, add a `Resolution` line **anywhere after the [Game] header** in `sudtest.ini`:
+> ⚠️ To use a custom resolution, add a `Resolution` line **anywhere after the [Game] header** in `sudtest.ini` and make sure any `SSDraw` is set to `cadMulti.dll`:
 > 
 > ```ini
 > [Game]
 > Resolution=1600x900   ; optional, change to a supported resolution
 > SSDraw1=cad640.dll
+> SSDraw2=cad1024.dll
+> SSDraw3=cadMulti.dll  ; required
 > ```
 > Restart the game to apply the change.
 
