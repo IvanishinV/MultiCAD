@@ -90,8 +90,6 @@
     <ClInclude Include="MenuDllHooks.h">
       <Filter>Header Files\Patcher</Filter>
     </ClInclude>
-<<<<<<< Updated upstream
-=======
     <ClInclude Include="DllHooksBase.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -104,7 +102,6 @@
     <ClInclude Include="SplashTextRenderer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
->>>>>>> Stashed changes
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -140,15 +137,12 @@
     <ClCompile Include="PatchInstallers.cpp">
       <Filter>Source Files\Patcher</Filter>
     </ClCompile>
-<<<<<<< Updated upstream
-=======
     <ClCompile Include="DllVersionDetector.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="MenuDllHooks.cpp">
       <Filter>Source Files\Patcher</Filter>
     </ClCompile>
->>>>>>> Stashed changes
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="MultiCAD.rc">
