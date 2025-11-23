@@ -132,6 +132,7 @@ constexpr std::array relocs_menu_ss_gold_en
 const std::array hooks_menu_ss_gold_en
 {
     HookSpec{0x0, 0x0},
+    HookSpec{0x14B70, reinterpret_cast<uintptr_t>(&MenuDllHooks::sub_10014B70)},
 };
 
 const std::array patches_menu_ss_gold_en

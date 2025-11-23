@@ -112,6 +112,7 @@
     <ClCompile Include="DllVersionDetector.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="cad.cpp" />
+    <ClCompile Include="MenuDllHooks.cpp" />
     <ClCompile Include="PatchInstallers.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
