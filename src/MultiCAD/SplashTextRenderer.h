@@ -75,7 +75,7 @@ private:
     DWORD lastShownTime = 0;
     std::mt19937 rng;
 
-    static constexpr std::array<const char*, 14> funPhrases = {
+    static constexpr std::array<const char*, 16> funPhrases = {
         "Keep calm and play SS",
         "Ultimate HD mode activated!",
         "Beware of sneaky tanks!",
@@ -83,8 +83,10 @@ private:
         "Coffee break time!",
         "Tsoi is alive... and commanding tanks",
         "Tanks fear Bulldozer... barely",
+        "Bulldozer is a reliable dump provider!",
         "Koteus is taking notes... and tanks!",
         "Watch your back, Pufik is near",
+        "Konan is the first tester!",
         "Dad taught me Sudden Strike!",
         "This mod has Dad's approval",
         "Dad's wisdom: always flank!",

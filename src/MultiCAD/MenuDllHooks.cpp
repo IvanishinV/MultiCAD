@@ -2,6 +2,7 @@
 #include "MenuDllHooks.h"
 #include "resource.h"
 #include "version.h"
+#include "SplashTextRenderer.h"
 
 void __fastcall MenuDllHooks::sub_10014B70(void* self)
 {
@@ -21,6 +22,8 @@ void __fastcall MenuDllHooks::sub_10014B70(void* self)
     sub_10003D10(dword_100590F8, 605, 357, "Multi HD mod v" MULTICAD_VERSION_STR " for " SS_GOLD_GAME_STR, 1);
     sub_10003D10(dword_100590F8, 605, 370, SS_HD_MOD_TG_LINK, 1);
     sub_10003D10(dword_100590F8, 605, 383, SS_HD_MOD_AUTHOR_EMAIL, 1);
+
+    SplashTextRenderer::Instance().render(sub_100039F0, sub_10003D10, dword_100590F8);
 
     sub_10017480(&self);
 }
