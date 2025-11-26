@@ -116,13 +116,13 @@ std::vector<TargetInfo> CreatePatchTargets()
     std::vector<TargetInfo> targets;
 
     TargetInfo gameTarget;
-    gameTarget.namePart = L"game";
+    gameTarget.namePart = L"game_dll";
     gameTarget.onLoaded = InstallGamePatches;
     gameTarget.onUnloaded = UninstallGamePatches;
     targets.push_back(std::move(gameTarget));
 
     TargetInfo menuTarget;
-    menuTarget.namePart = L"menu";
+    menuTarget.namePart = L"menu_dll";
     menuTarget.onLoaded = InstallMenuPatches;
     menuTarget.onUnloaded = UninstallMenuPatches;
     targets.push_back(std::move(menuTarget));
