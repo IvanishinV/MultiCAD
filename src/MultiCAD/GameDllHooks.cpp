@@ -885,6 +885,82 @@ void __declspec(noinline) __stdcall  GameDllHooks::sub_1006AD20()
     }
 }
 
+void __declspec(noinline) __stdcall  GameDllHooks::sub_1006AD20_hd()
+{
+    auto* g = globals_;
+
+    struct GameObject
+    {
+        void** vtable;
+        GameObject* next;
+    };
+    auto* obj = g->getValue<GameObject*>(0x34FF04);
+    for (; obj; obj = obj->next)
+    {
+        using Fn = void(__thiscall*)(GameObject*);
+        Fn fn = reinterpret_cast<Fn>(obj->vtable[1]);
+        fn(obj);
+    }
+
+    auto sub_1006AEA0 = g->getFn<void(__stdcall)()>(0x6AEA0);
+    auto sub_100564F0 = g->getFn<int(__thiscall)(int*, GameData2*)>(0x564F0);
+    auto sub_10056530 = g->getFn<int(__thiscall)(int*, GameData2*)>(0x56530);
+    auto sub_1006AE80 = g->getFn<void(__thiscall)(int*, int, int, int, int)>(0x6AE80);
+
+    sub_1006AEA0();
+
+
+    GameData2 gd{};
+    gd.x = 0;
+    gd.y = 0;
+    gd.maxX = 0x7FFFFFFF;
+    gd.maxY = 0x7FFFFFFF;
+    gd.mask = 16;
+    gd.maskValue = 32;
+
+
+    int* div16Ptr = g->getPtr<int>(0x3AD000);
+    uintptr_t cadObj = g->getValue<uintptr_t>(0x384474);
+    auto cad_2B90 = *reinterpret_cast<void(__cdecl**)(int, int, int, int)>(cadObj + 0xAA3C);
+    auto cad_2A90 = *reinterpret_cast<void(__cdecl**)(int, int, int, int)>(cadObj + 0xAA40);
+
+    if (sub_100564F0(div16Ptr, &gd))
+    {
+        do
+        {
+            if (gd.cellMask == 16)
+                cad_2B90(gd.alignX, gd.alignY, gd.allowX, gd.allowY);
+            else
+                cad_2A90(gd.alignX, gd.alignY, gd.allowX - gd.alignX + 1, gd.allowY - gd.alignY + 1);
+        } while (sub_10056530(div16Ptr, &gd));
+    }
+
+    int v9[4]{};
+    sub_1006AE80(v9, 0, 0, g->getValue<int>(0x34FF10) - 1, g->getValue<int>(0x34FF0C) - 1);
+
+    int x0 = v9[0] >> 4;
+    int x1 = v9[2] >> 4;
+    int y0 = v9[1] >> 3;
+    int y1 = v9[3] >> 3;
+
+    x0 = std::max(x0, 0);
+    y0 = std::max(y0, 0);
+
+    x1 = std::min(x1, *div16Ptr - 1);
+    y1 = std::min(y1, *(div16Ptr + 1) - 1);     // 0x35172C
+
+    for (int row = y0; row <= y1; ++row)
+    {
+        uint8_t* line = reinterpret_cast<uint8_t*>(div16Ptr + 2) + kRowStrideByteSize * row; // 0x351730
+        for (int j = x0; j <= x1; ++j)
+        {
+            uint8_t val = line[j];
+            if (val & 0x40)
+                line[j] = (val & 0xBF) | 0x18;
+        }
+    }
+}
+
 void __declspec(noinline) __stdcall  GameDllHooks::sub_1006AEA0()
 {
     auto* g = globals_;
@@ -973,6 +1049,94 @@ void __declspec(noinline) __stdcall  GameDllHooks::sub_1006AEA0()
     }
 }
 
+void __declspec(noinline) __stdcall  GameDllHooks::sub_1006AEA0_hd()
+{
+    auto* g = globals_;
+
+    auto sub_10071290 = g->getFn<int(__cdecl)(int*)>(0x71290);
+    auto sub_100564F0 = g->getFn<int(__thiscall)(int*, GameData2*)>(0x564F0);
+    auto sub_10056530 = g->getFn<int(__thiscall)(int*, GameData2*)>(0x56530);
+    auto sub_10071310 = g->getFn<void(__cdecl)(int*)>(0x71310);
+    auto sub_10055E00 = g->getFn<void(__thiscall)(int*, int, int, int, int, int)>(0x55E00);
+    auto sub_1006B070 = g->getFn<void(__thiscall)(int*, int*)>(0x6B070);
+
+    int v13[4];
+
+    if (!sub_10071290(v13))
+        return;
+
+    int x, y, maxX, maxY;
+    x = v13[0] & 0xFFFFFFF0;
+    y = v13[1] & 0xFFFFFFF8;
+    maxX = (v13[2] & 0xFFFFFFF0) + 15;
+    maxY = (v13[3] & 0xFFFFFFF8) + 7;
+
+    bool isNegative = v13[0] < 0;
+    v13[0] = x;
+    v13[1] = y;
+    v13[2] = maxX;
+    v13[3] = maxY;
+
+    if (isNegative)
+        x = v13[0] = 0;
+    if (y < 0)
+        y = v13[1] = 0;
+
+    maxX = std::min(maxX, g->getValue<int>(0x34FF10) - 1);
+    v13[2] = maxX;
+    maxY = std::min(maxY, g->getValue<int>(0x34FF0C) - 1);
+    v13[3] = maxY;
+
+    GameData2 gd{};
+    gd.x = x >> 4;
+    gd.y = y >> 3;
+    gd.maxX = (x >> 4) + ((maxX - x + 1) >> 4);
+    gd.maxY = (y >> 3) + ((maxY - y + 1) >> 3);
+    gd.mask = 16;
+    gd.maskValue = 32;
+
+    int* div16Ptr = g->getPtr<int>(0x3AD000);
+    uintptr_t cadObj = g->getValue<uintptr_t>(0x384474);
+    auto cad_2FB0 = *reinterpret_cast<void(__cdecl**)(int, int, int, int)>(cadObj + 0xA9E8);
+
+    if (sub_100564F0(div16Ptr, &gd))
+    {
+        do
+        {
+            if (gd.cellMask == 16)
+                cad_2FB0(gd.alignX, gd.alignY, gd.allowX, gd.allowY);
+
+            sub_10071310(&gd.alignX);
+            sub_10055E00(div16Ptr, 128, gd.alignX, gd.alignY, gd.allowX, gd.allowY);
+        } while (sub_10056530(div16Ptr, &gd));
+    }
+
+    int v14[4];
+    sub_1006B070(v14, v13);
+
+    int x0 = v14[0] >> 4;
+    int x1 = v14[2] >> 4;
+    int y0 = v14[1] >> 3;
+    int y1 = v14[3] >> 3;
+
+    x0 = std::max(x0, 0);
+    y0 = std::max(y0, 0);
+
+    x1 = std::min(x1, *div16Ptr - 1);
+    y1 = std::min(y1, *(div16Ptr + 1) - 1);    // 0x35172C
+
+    for (int row = y0; row <= y1; ++row)
+    {
+        uint8_t* line = reinterpret_cast<uint8_t*>(div16Ptr + 2) + kRowStrideByteSize * row; // 0x351730
+        for (int j = x0; j <= x1; ++j)
+        {
+            uint8_t val = line[j];
+            if (static_cast<int8_t>(val) < 0)
+                line[j] = (val & 0x5D) | 0x22;
+        }
+    }
+}
+
 void __declspec(noinline) __cdecl    GameDllHooks::sub_1006B1C0(char mask, int* a2)
 {
     auto* g = globals_;
@@ -1019,6 +1183,52 @@ void __declspec(noinline) __cdecl    GameDllHooks::sub_1006B1C0(char mask, int* 
     }
 }
 
+void __declspec(noinline) __cdecl    GameDllHooks::sub_1006B1C0_hd(char mask, int* a2)
+{
+    auto* g = globals_;
+
+    auto sub_10055E00 = g->getFn<void(__thiscall)(int*, int, int, int, int, int)>(0x55E00);
+    auto sub_1006B550 = g->getFn<int* (__cdecl)(int)>(0x6B550);
+    auto sub_10055F40 = g->getFn<void(__thiscall)(int*, int, int, int, int, int)>(0x55F40);
+    auto sub_1006B070 = g->getFn<void(__thiscall)(int*, int*)>(0x6B070);
+
+    int* div16Ptr = g->getPtr<int>(0x3AD000);
+
+    sub_10055E00(div16Ptr, 128, a2[0], a2[1], a2[2], a2[3]);
+
+    int* node = sub_1006B550(g->getValue<int>(0x37E948));
+    while (node)
+    {
+        sub_10055F40(div16Ptr, 128, node[3], node[4], node[5], node[6]);
+        node = reinterpret_cast<int*>(node[1]);
+    }
+
+    int v11[4];
+    sub_1006B070(v11, a2);
+
+    int x0 = v11[0] >> 4;
+    int x1 = v11[2] >> 4;
+    int y0 = v11[1] >> 3;
+    int y1 = v11[3] >> 3;
+
+    x0 = std::max(x0, 0);
+    y0 = std::max(y0, 0);
+
+    x1 = std::min(x1, *div16Ptr - 1);
+    y1 = std::min(y1, *(div16Ptr + 1) - 1);
+
+    for (int row = y0; row <= y1; ++row)
+    {
+        uint8_t* line = reinterpret_cast<uint8_t*>(div16Ptr + 2) + kRowStrideByteSize * row; // 0x351730
+        for (int j = x0; j <= x1; ++j)
+        {
+            uint8_t val = line[j];
+            if (static_cast<int8_t>(val) < 0)
+                line[j] = (val & 0x7F) | mask;
+        }
+    }
+}
+
 char __declspec(noinline) __cdecl    GameDllHooks::sub_1006B2C0(char mask, int* a2, int a3)
 {
     auto* g = globals_;
@@ -1029,6 +1239,58 @@ char __declspec(noinline) __cdecl    GameDllHooks::sub_1006B2C0(char mask, int* 
     auto sub_1006B070 = g->getFn<void(__thiscall)(int*, int*)>(0x6B070);
 
     int* div16Ptr = g->getPtr<int>(0x34FF20);
+
+    sub_10055E00(div16Ptr, 128, a2[0], a2[1], a2[2], a2[3]);
+
+    int* node = sub_1006B550(a3);
+    while (node)
+    {
+        sub_10055F40(div16Ptr, 128, node[3], node[4], node[5], node[6]);
+        node = reinterpret_cast<int*>(node[1]);
+    }
+
+    int v12[4];
+    sub_1006B070(v12, a2);
+
+    int x0 = v12[0] >> 4;
+    int x1 = v12[2] >> 4;
+    int y0 = v12[1] >> 3;
+    int y1 = v12[3] >> 3;
+
+    x0 = std::max(x0, 0);
+    y0 = std::max(y0, 0);
+
+    x1 = std::min(x1, *div16Ptr - 1);
+    y1 = std::min(y1, *(div16Ptr + 1) - 1);
+
+    uint8_t val = static_cast<uint8_t>(y1);
+    for (int row = y0; row <= y1; ++row)
+    {
+        uint8_t* line = reinterpret_cast<uint8_t*>(div16Ptr + 2) + kRowStrideByteSize * row; // 0x34FF28
+        for (int j = x0; j <= x1; ++j)
+        {
+            val = line[j];
+            if (static_cast<int8_t>(val) < 0)
+            {
+                val = (val & 0x7F) | mask;
+                line[j] = val;
+            }
+        }
+    }
+
+    return val;
+}
+
+char __declspec(noinline) __cdecl    GameDllHooks::sub_1006B2C0_hd(char mask, int* a2, int a3)
+{
+    auto* g = globals_;
+
+    auto sub_10055E00 = g->getFn<void(__thiscall)(int*, int, int, int, int, int)>(0x55E00);
+    auto sub_1006B550 = g->getFn<int* (__cdecl)(int)>(0x6B550);
+    auto sub_10055F40 = g->getFn<void(__thiscall)(int*, int, int, int, int, int)>(0x55F40);
+    auto sub_1006B070 = g->getFn<void(__thiscall)(int*, int*)>(0x6B070);
+
+    int* div16Ptr = g->getPtr<int>(0x3A8000);
 
     sub_10055E00(div16Ptr, 128, a2[0], a2[1], a2[2], a2[3]);
 
@@ -1229,6 +1491,115 @@ void __declspec(noinline) __stdcall  GameDllHooks::sub_1006D940()
     }
 }
 
+void __declspec(noinline) __stdcall  GameDllHooks::sub_1006D940_hd()
+{
+    auto* g = globals_;
+
+    auto sub_1006AE80 = g->getFn<void(__thiscall)(int*, int, int, int, int)>(0x6AE80);
+    auto sub_100562F0 = g->getFn<int(__thiscall)(int*, GameData*)>(0x562F0);
+    auto sub_10056330 = g->getFn<int(__thiscall)(int*, GameData*)>(0x56330);
+    auto sub_1006D2E0 = g->getFn<void()>(0x6D2E0);
+    auto sub_1006D300 = g->getFn<void()>(0x6D300);
+    auto sub_1006D4D0 = g->getFn<void()>(0x6D4D0);
+    auto sub_10049EC0 = g->getFn<void(__cdecl)(int, int, int, int, void*)>(0x49EC0);
+    auto sub_10049FF0 = g->getFn<void(__cdecl)(int, int, int, int, void*)>(0x49FF0);
+    auto sub_1006D810 = g->getFn<int(__cdecl)(int, int, int, int)>(0x6D810);
+    auto sub_1006D8D0 = g->getFn<int(__cdecl)(int, int, int, int)>(0x6D8D0);
+    auto sub_1004DDC0 = g->getFn<void()>(0x4DDC0);
+
+
+    auto cadPtr = reinterpret_cast<ModuleState*>(g->getValue<uintptr_t>(0x384474));
+    auto cad_26E0 = *reinterpret_cast<void(__cdecl**)()>(reinterpret_cast<uintptr_t>(cadPtr) + 0xAA50);
+
+    uint16_t paletteWord = g->getValue<uint16_t>(0x383EFE);
+
+    uint32_t low = 0;
+    low |= (cadPtr->actualRedMask & (static_cast<uint32_t>((paletteWord & 0xF800u) >> cadPtr->redOffset)));
+    low |= (cadPtr->actualBlueMask & (static_cast<uint32_t>(((paletteWord & 0x001Fu) << 11) >> static_cast<uint8_t>(cadPtr->blueOffset))));
+    low |= (cadPtr->actualGreenMask & (static_cast<uint32_t>(((paletteWord & 0x07E0u) << 5) >> static_cast<uint8_t>(cadPtr->greenOffset))));
+
+    cadPtr->backSurfaceShadePixel = (low & 0xFFFFu) | ((low & 0xFFFFu) << 16);
+
+
+    int v9[4];
+    const int xRight = g->getValue<int>(0x37E91C);
+    const int yBottom = g->getValue<int>(0x37E918);
+    sub_1006AE80(v9, 0, 0, xRight - 1, yBottom - 1);
+
+    int* const div16Ptr = g->getPtr<int>(0x3AD000);
+
+    int x0 = v9[0] >> 4;
+    int x1 = v9[2] >> 4;
+    int y0 = v9[1] >> 3;
+    int y1 = v9[3] >> 3;
+
+    x0 = std::max(x0, 0);
+    y0 = std::max(y0, 0);
+
+    x1 = std::min(x1, *div16Ptr - 1);
+    y1 = std::min(y1, *(div16Ptr + 1) - 1);
+
+
+    for (int row = y0; row <= y1; ++row)
+    {
+        uint8_t* line = reinterpret_cast<uint8_t*>(div16Ptr + 2) + kRowStrideByteSize * row; // 0x351730
+        for (int j = x0; j <= x1; ++j)
+        {
+            uint8_t val = line[j];
+            if ((val & 1) != 0)
+                line[j] = static_cast<uint8_t>((val & 0xFB) | 0x1A);
+        }
+    }
+
+
+    GameData gd{};
+    gd.x = 0;
+    gd.y = 0;
+    gd.maxX = 0x7FFFFFFF;
+    gd.maxY = 0x7FFFFFFF;
+    gd.mask = 1;
+    gd.maskValue = static_cast<uint8_t>(-2);
+
+    if (sub_100562F0(div16Ptr, &gd))
+    {
+        *g->getPtr<int>(0x37B16C) = g->getValue<int>(0x37E924);
+        *g->getPtr<int>(0x37B174) = g->getValue<int>(0x37E924) + xRight - 1;
+        *g->getPtr<int>(0x37B170) = g->getValue<int>(0x37E920);
+        *g->getPtr<int>(0x37B178) = g->getValue<int>(0x37E920) + yBottom - 1;
+
+        sub_1004DDC0();
+        sub_1006D2E0();
+
+        do
+        {
+            cadPtr->windowRect.x = gd.alignX;
+            cadPtr->windowRect.y = gd.alignY;
+            cadPtr->windowRect.width = gd.allowX;
+            cadPtr->windowRect.height = gd.allowY;
+
+            cad_26E0();     // resetStencilSurface()
+
+            sub_10049EC0(
+                gd.alignX + g->getValue<int>(0x37E924),
+                gd.alignY + g->getValue<int>(0x37E920),
+                g->getValue<int>(0x37E924) + gd.allowX,
+                g->getValue<int>(0x37E920) + gd.allowY,
+                sub_1006D810);
+
+            sub_1006D300();
+
+            sub_10049FF0(
+                gd.alignX + g->getValue<int>(0x37E924),
+                gd.alignY + g->getValue<int>(0x37E920),
+                g->getValue<int>(0x37E924) + gd.allowX,
+                g->getValue<int>(0x37E920) + gd.allowY,
+                sub_1006D8D0);
+
+            sub_1006D4D0();
+        } while (sub_10056330(div16Ptr, &gd));
+    }
+}
+
 void __declspec(noinline) __stdcall  GameDllHooks::sub_1006F120()
 {
     auto* g = globals_;
@@ -1254,6 +1625,239 @@ void __declspec(noinline) __stdcall  GameDllHooks::sub_1006F120()
     int* div16Ptr = g->getPtr<int>(0x351728);
     const uint8_t byte_10383CB9 = g->getValue<uint8_t>(0x383CB9);
     uint8_t* byte_1037C598 = g->getPtr<uint8_t>(0x37C598);
+    std::memset(byte_1037C598, 0x80, sizeof(((ModuleState*)0)->fogSprites));
+
+    const int v54 = dword_1037E920 >> 3;
+
+    const int tmp = (dword_1037E920 >> 3) - 3;
+    const int v0 = (tmp & 1);
+    int v1 = (1 - 2 * (v0 ^ (tmp >> 1)) - (dword_1037E924 >> 4)) & 3;
+    const int v2 = (dword_1037E924 + 16 * (v1 - 3)) >> 1;
+    const int v57 = dword_1037E924 >> 4;
+    const int v3 = 8 * v0 - 24;
+    const int v4 = dword_1037E920 + v3 + v2;
+    int v51 = (dword_1037E920 + v3 - v2) >> 5;
+
+    const int v59 = yBottom >> 3;
+    const int v5 = (yBottom >> 3) + 11;
+    const int len_sar_4 = xRight >> 4;
+    const int v6 = (xRight >> 4) + 11;
+    const int v7 = v0 + 5;
+    int v8 = v4 >> 5;
+    int v52 = v1;
+
+    // 1. Initialize buffer byte_1037C598
+    if (v7 <= v5)
+    {
+        uint8_t* v9 = &byte_1037C598[kFogLineByteSize * v7];
+        unsigned int big_counta = ((v5 - v7) >> 1) + 1;
+        int v47 = v1 + 5;
+        do
+        {
+            int v10 = v47;
+            int v50 = v51;
+            int v11 = v8;
+            if (v47 <= v6)
+            {
+                int v12 = v51 << 8;
+                do
+                {
+                    if (v11 >= 4
+                        && v50 >= 4
+                        && v11 < map_length_probably - 4
+                        && v50 < map_width_probably - 4
+                        && (byte_10383CB9 & byte_101C14FE[v12 + v11]) != 0)
+                    {
+                        if (v9[v10] > 0x40u)
+                        {
+                            if ((byte_10383CB9 & byte_101C15FE[v12 + v11]) != 0)
+                            {
+                                if ((byte_10383CB9 & byte_101C14FF[v12 + v11]) != 0)
+                                {
+                                    if ((byte_10383CB9 & byte_101C13FE[v12 + v11]) != 0)
+                                    {
+                                        if ((byte_10383CB9 & byte_101C14FD[v12 + v11]) == 0)
+                                            v9[v10] = 64;
+                                    }
+                                    else
+                                    {
+                                        v9[v10] = 64;
+                                    }
+                                }
+                                else
+                                {
+                                    v9[v10] = 64;
+                                }
+                            }
+                            else
+                            {
+                                v9[v10] = 64;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        v9[v10] = 0;
+                    }
+
+                    v10 += 4;
+                    ++v11;
+                    --v50;
+                    v12 -= 256;
+                } while (v10 <= v6);
+            }
+
+            if (v52 < 2)
+            {
+                v47 = v47 + 2;
+                ++v8;
+            }
+            else
+            {
+                v47 = v47 - 2;
+                ++v51;
+            }
+            v52 ^= 2;
+            v9 += kFogDoubleLineByteSize;
+            --big_counta;
+        } while (big_counta != 0);
+    }
+
+    // 2. Intermediate antialiasing
+    int v15;
+    if (v1 >= 2)
+    {
+        v15 = 2;
+    }
+    else
+    {
+        v1 += 4;
+        v15 = -2;
+    }
+    const int v17 = v6 - 1;
+    const int v18 = v5 - 1;
+    if (v0 + 7 < v18)
+    {
+        int v16 = v1 + 5;
+        const int v19 = v0 + 7;
+        uint8_t* v20 = &byte_1037C598[kFogLineByteSize * v19 - 2];
+        int v21 = ((v18 - v19 - 1) >> 1) + 1;
+        do
+        {
+            if (v16 < v17)
+            {
+                int v22 = v16;
+                do
+                {
+                    uint8_t a = v20[v22 - (kFogDoubleLineByteSize - 2)];
+                    uint8_t b = v20[v22 + 4];
+                    v22 += 4;
+                    v20[v22 - 2] = (v20[v22 + (kFogDoubleLineByteSize - 2)] + v20[v22 - 4] + b + a) >> 2;
+                } while (v22 < v17);
+            }
+            v16 += v15;
+            v15 = -v15;
+            v20 += kFogDoubleLineByteSize;
+        } while (--v21);
+    }
+
+    // 3. Horizontal solid antialiasing
+    const int v25 = v18 - 2;
+    const int v26 = (v54 & 1) + 8;
+    const int v27 = v17 - 2;
+    if (v26 <= v25)
+    {
+        uint8_t* lp_array_1 = &byte_1037C598[kFogLineByteSize * v26 + 1];
+        int v29 = ((v25 - v26) >> 1) + 1;
+        do
+        {
+            int start_i = ((v57 - 1) & 1) + 8;
+            for (int i = start_i; i <= v27; i += 2)
+            {
+                uint8_t v31 = lp_array_1[i - 2];
+                uint8_t v32 = lp_array_1[i];
+                lp_array_1[i - 1] = (v32 + v31) >> 1;
+            }
+            lp_array_1 += kFogDoubleLineByteSize;
+        } while (--v29);
+    }
+
+    // 4. Vertical solid antialiasing
+    const int v33 = ((v54 - 1) & 1) + 8;
+    if (v33 <= v25)
+    {
+        uint8_t* v34 = &byte_1037C598[kFogLineByteSize + kFogLineByteSize * v33];
+        int v35 = ((v25 - v33) >> 1) + 1;
+        do
+        {
+            for (int j = 8; j <= v27; ++j)
+            {
+                v34[j - kFogLineByteSize] = (v34[j] + v34[j - kFogDoubleLineByteSize]) >> 1;
+            }
+            v34 += kFogDoubleLineByteSize;
+        } while (--v35);
+    }
+
+    // 5. Update fogSprites
+    int v37 = len_sar_4 + 9;
+    if (v59 + 9 > 0)
+    {
+        int v38 = 0;
+        int v39 = -72;
+        int v55_local = v59 + 9;
+        do
+        {
+            if (v37 > 0)
+            {
+                int v40 = 0;
+                int v41 = -144;
+                do
+                {
+                    uint8_t* v42 = &cadPtr->fogSprites[v38].unk[v40];
+                    uint8_t v43 = byte_1037C598[v40 + v38 * kFogLineByteSize];
+                    if (v43 != *v42)
+                    {
+                        *v42 = v43;
+
+                        sub_10055E00(div16Ptr, 24, v41, v39, v41 + 31, v39 + 15);
+                        v37 = len_sar_4 + 9;
+                    }
+                    ++v40;
+                    v41 += 16;
+                } while (v40 < v37);
+            }
+            ++v38;
+            v39 += 8;
+            --v55_local;
+        } while (v55_local);
+    }
+}
+
+void __declspec(noinline) __stdcall  GameDllHooks::sub_1006F120_hd()
+{
+    auto* g = globals_;
+
+    uint8_t* byte_101C13FE = g->getPtr<uint8_t>(0x1C13FE);
+    uint8_t* byte_101C14FD = g->getPtr<uint8_t>(0x1C14FD);
+    uint8_t* byte_101C14FE = g->getPtr<uint8_t>(0x1C14FE);
+    uint8_t* byte_101C14FF = g->getPtr<uint8_t>(0x1C14FF);
+    uint8_t* byte_101C15FE = g->getPtr<uint8_t>(0x1C15FE);
+
+    const int map_length_probably = g->getValue<int>(0xC14EC);
+    const int map_width_probably = g->getValue<int>(0xC14F0);
+
+    const auto cadPtr = g->getValue<ModuleState*>(0x384474);
+
+    const auto sub_10055E00 = g->getFn<void(__thiscall)(int*, int, int, int, int, int)>(0x55E00);
+
+    const int dword_1037E920 = g->getValue<int>(0x37E920);
+    const int dword_1037E924 = g->getValue<int>(0x37E924);
+    const int xRight = g->getValue<int>(0x37E91C);
+    const int yBottom = g->getValue<int>(0x37E918);
+
+    int* div16Ptr = g->getPtr<int>(0x3AD000);
+    const uint8_t byte_10383CB9 = g->getValue<uint8_t>(0x383CB9);
+    uint8_t* byte_1037C598 = g->getPtr<uint8_t>(0x3B2002);
     std::memset(byte_1037C598, 0x80, sizeof(((ModuleState*)0)->fogSprites));
 
     const int v54 = dword_1037E920 >> 3;

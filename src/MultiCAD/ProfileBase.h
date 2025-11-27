@@ -4,7 +4,6 @@
 #include "PatchTypes.h"
 
 #include <span>
-#include <array>
 
 class IPatchSpecSet
 {

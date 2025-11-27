@@ -243,10 +243,16 @@ public:
     static int  __declspec(noinline) __fastcall sub_100563B0(uint8_t* self, void* /*dummy*/, int a2, int a3, GameData2* const a4);
     static void __declspec(noinline) __stdcall  sub_1005C170(); // not needed since it's easy to fix by changing one byte
     static void __declspec(noinline) __stdcall  sub_1006AD20();
+    static void __declspec(noinline) __stdcall  sub_1006AD20_hd();
     static void __declspec(noinline) __stdcall  sub_1006AEA0();
+    static void __declspec(noinline) __stdcall  sub_1006AEA0_hd();
     static void __declspec(noinline) __cdecl    sub_1006B1C0(char mask, int* a2);
+    static void __declspec(noinline) __cdecl    sub_1006B1C0_hd(char mask, int* a2);
     static char __declspec(noinline) __cdecl    sub_1006B2C0(char mask, int* a2, int a3);
+    static char __declspec(noinline) __cdecl    sub_1006B2C0_hd(char mask, int* a2, int a3);
     static void __declspec(noinline) __fastcall sub_1006CC60(GameData3* self);
     static void __declspec(noinline) __stdcall  sub_1006D940();
+    static void __declspec(noinline) __stdcall  sub_1006D940_hd();
     static void __declspec(noinline) __stdcall  sub_1006F120();
+    static void __declspec(noinline) __stdcall  sub_1006F120_hd();
 };

@@ -4,7 +4,7 @@
 #include "version.h"
 #include "SplashTextRenderer.h"
 
-void __fastcall MenuDllHooks::sub_10014B70(void* self)
+void MenuDllHooks::sub_10014B70_common(void* self, const char* versionStr, int x)
 {
     auto* g = globals_;
 
@@ -18,9 +18,19 @@ void __fastcall MenuDllHooks::sub_10014B70(void* self)
 
     // Last parameter points if the text is written from right to left.
     // Otherwise, it's centered at the specified offset 
-    sub_10003D10(dword_100590F8, 605, 357, "Multi HD mod v" MULTICAD_VERSION_STR " for " SS_GOLD_GAME_STR, 1);
-    sub_10003D10(dword_100590F8, 605, 370, SS_HD_MOD_TG_LINK, 1);
-    sub_10003D10(dword_100590F8, 605, 383, SS_HD_MOD_AUTHOR_EMAIL, 1);
+    sub_10003D10(dword_100590F8, x, 357, versionStr, 1);
+    sub_10003D10(dword_100590F8, x, 370, SS_HD_MOD_TG_LINK, 1);
+    sub_10003D10(dword_100590F8, x, 383, SS_HD_MOD_AUTHOR_EMAIL, 1);
 
     SplashTextRenderer::Instance().render(sub_100039F0, sub_10003D10, dword_100590F8);
+}
+
+void __fastcall MenuDllHooks::sub_10014B70(void* self)
+{
+    sub_10014B70_common(self, "Multi HD mod v" MULTICAD_VERSION_STR " for " SS_GOLD_GAME_STR, 605);
+}
+
+void __fastcall MenuDllHooks::sub_10014B70_hd(void* self)
+{
+    sub_10014B70_common(self, "Multi HD mod v" MULTICAD_VERSION_STR " for " SS_GOLD_HD_GAME_STR, 617);
 }

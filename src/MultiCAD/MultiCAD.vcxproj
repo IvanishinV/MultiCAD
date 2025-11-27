@@ -82,6 +82,7 @@
     <ClInclude Include="assets.h" />
     <ClInclude Include="DllHooksBase.h" />
     <ClInclude Include="DllMonitor.h" />
+    <ClInclude Include="profiles\ProfileSSGoldEn.h" />
     <ClInclude Include="SplashTextRenderer.h" />
     <ClInclude Include="GameDllHooks.h" />
     <ClInclude Include="DllVersionDetector.h" />
