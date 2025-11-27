@@ -10,7 +10,6 @@ void __fastcall MenuDllHooks::sub_10014B70(void* self)
 
     const auto sub_100020A0 = g->getFn<void(__thiscall)(void*)>(0x20A0);
     const auto sub_100039F0 = g->getFn<void(__thiscall)(void*, int, int, int)>(0x39F0);
-    const auto sub_10017480 = g->getFn<void(__thiscall)(void*)>(0x17480);
     const auto sub_10003D10 = g->getFn<void(__thiscall)(void*, int, int, const char*, int)>(0x3D10);
     int* dword_100590F8 = g->getPtr<int>(0x590F8);
 
@@ -24,6 +23,4 @@ void __fastcall MenuDllHooks::sub_10014B70(void* self)
     sub_10003D10(dword_100590F8, 605, 383, SS_HD_MOD_AUTHOR_EMAIL, 1);
 
     SplashTextRenderer::Instance().render(sub_100039F0, sub_10003D10, dword_100590F8);
-
-    sub_10017480(&self);
 }
