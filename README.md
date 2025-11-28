@@ -6,12 +6,12 @@
 
 - Sudden Strike *(WIP)*
 - Sudden Strike Forever *(WIP)*
-- Sudden Strike Gold (5 bug fixes):
+- Sudden Strike Gold (5 bug fixes + audio fix):
   - en (Steam) ✔
   - de (Steam) ⏳ *(WIP)*
   - fr (Steam) ⏳ *(WIP)*
   - ru (Steam) ⏳ *(WIP)*
-- Sudden Strike HD v1.2 (5 bug fixes):
+- Sudden Strike HD v1.2 (5 bug fixes + audio fix):
   - en ✔
   - de ✔
   - fr ✔

@@ -120,6 +120,9 @@
     <ClInclude Include="profiles\ProfileFactory.h">
       <Filter>Header Files\Profiles</Filter>
     </ClInclude>
+    <ClInclude Include="core\AudioHelper.h">
+      <Filter>Header Files\Core</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">

@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "PatchInstallers.h"
+#include "AudioHelper.h"
 
 bool InstallGamePatches(TargetState& state, uintptr_t base, size_t size, const std::wstring& path)
 {
@@ -58,6 +59,8 @@ bool UninstallGamePatches(TargetState& state)
 
 bool InstallMenuPatches(TargetState& state, uintptr_t base, size_t size, const std::wstring& path)
 {
+    std::thread([] { AudioHelper::EnsureMaxVolume(); }).detach();
+
     DllVersionDetector detector(base, size);
     detector.DetectDll(DllType::Menu, path);
 

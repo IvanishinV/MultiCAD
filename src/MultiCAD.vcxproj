@@ -81,6 +81,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="core\assets.h" />
+    <ClInclude Include="core\AudioHelper.h" />
     <ClInclude Include="core\cad.h" />
     <ClInclude Include="core\pch.h" />
     <ClInclude Include="core\renderer.h" />
