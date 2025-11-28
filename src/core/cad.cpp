@@ -6,6 +6,8 @@ ModuleState g_moduleState;
 
 ModuleState* InitializeModule()
 {
+#pragma comment(linker, "/EXPORT:" "CADraw_Init=" __FUNCDNAME__)
+
     g_moduleState.surface.main      = g_rendererState.surfaces.main;
     g_moduleState.surface.back      = g_rendererState.surfaces.back;
     g_moduleState.surface.stencil   = g_rendererState.surfaces.stencil;

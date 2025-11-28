@@ -1,3 +1,0 @@
-LIBRARY
-EXPORTS
-    CADraw_Init=InitializeModule

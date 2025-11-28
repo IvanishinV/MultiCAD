@@ -76,7 +76,7 @@
       <EnableUAC>false</EnableUAC>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies);ddraw.lib;dxguid.lib</AdditionalDependencies>
-      <ModuleDefinitionFile>MultiCAD.def</ModuleDefinitionFile>
+      <AdditionalOptions>/NOIMPLIB %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -128,9 +128,6 @@
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="MultiCAD.rc" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="MultiCAD.def" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
