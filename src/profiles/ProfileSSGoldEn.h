@@ -143,7 +143,7 @@ const std::array patches_menu_ss_gold_en
 };
 
 
-constexpr std::array relocs_game_ss_gold_hd_ru_1_2
+constexpr std::array relocs_game_ss_gold_hd_1_2
 {
     RelocateGapSpec{ 0x003A8000, 0x003AD000, 8 + sizeof(uint32_t) * kRowStrideDwordSize * ((Graphics::kMaxHeight + 7) >> 3) },
     RelocateGapSpec{ 0x003AD000, 0x003B2000, 8 + sizeof(uint32_t) * kRowStrideDwordSize * ((Graphics::kMaxHeight + 7) >> 3) },
@@ -152,7 +152,7 @@ constexpr std::array relocs_game_ss_gold_hd_ru_1_2
     RelocateGapSpec{ 0x003B2000, 0x003BC000, 2 + sizeof(((ModuleState*)0)->fogSprites) },
 };
 
-const std::array hooks_game_ss_gold_hd_ru_1_2
+const std::array hooks_game_ss_gold_hd_1_2
 {
     HookSpec{0x55A20, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_10055A20)},
     HookSpec{0x55DC0, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_10055DC0)},
@@ -175,7 +175,7 @@ const std::array hooks_game_ss_gold_hd_ru_1_2
     HookSpec{0x5C170, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_1005C170)},
 };
 
-const std::array patches_game_ss_gold_hd_ru_1_2
+const std::array patches_game_ss_gold_hd_1_2
 {
     PatchSpec{0x6D147, PatchSpec::to_bytes(SCREEN_HEIGHT_TO_SHOW_UNITS)},
 
@@ -198,17 +198,17 @@ const std::array patches_game_ss_gold_hd_ru_1_2
     PatchSpec{0x71E55, PatchSpec::to_bytes(kRowStrideByteSize)},
 };
 
-constexpr std::array relocs_menu_ss_gold_hd_ru_1_2
+constexpr std::array relocs_menu_ss_gold_hd_1_2
 {
     RelocateGapSpec{0x0, 0x0, 0x0}
 };
 
-const std::array hooks_menu_ss_gold_hd_ru_1_2
+const std::array hooks_menu_ss_gold_hd_1_2
 {
     HookSpec{0x14B70, reinterpret_cast<uintptr_t>(&MenuDllHooks::sub_10014B70_hd)},
 };
 
-const std::array patches_menu_ss_gold_hd_ru_1_2
+const std::array patches_menu_ss_gold_hd_1_2
 {
     // Remove the displayed text on main menu from the old HD mod
     PatchSpec{0x13931, { 0x8B, 0xF1, 0xE8, 0xB8, 0xE0, 0xFE, 0xFF, 0x8B, 0x4E, 0x05, 0x85, 0xC9, 0x5E, 0x74, 0x05, 0x8B, 0x01, 0xFF, 0x60, 0x0C, 0xC3 }},

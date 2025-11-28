@@ -74,7 +74,7 @@ enum class GameVersion
 
     // Known mods
     SS_GOLD_HD_1_2_RU,  // Sudden Strike Gold HD v1.2 (ru)
-    SS_GOLD_HD_1_2_INT,  // Sudden Strike Gold HD v1.2 (en, de, fr)
+    SS_GOLD_HD_1_2_INT, // Sudden Strike Gold HD v1.2 (en, de, fr)
     HS_APRM,            // Hidden Stroke APRM: Allied Power Realism Mod (2003)
     HS_2,               // Hidden Stroke 2 (2005, March)
     HS_2_RW,            // Hidden Stroke 2: Resource War

@@ -15,10 +15,20 @@ using Profile_SS_GOLD_EN = GameVersionProfile<
 
 using Profile_SS_GOLD_HD_1_2_RU = GameVersionProfile<
     GameVersion::SS_GOLD_HD_1_2_RU,
-    relocs_game_ss_gold_hd_ru_1_2,
-    hooks_game_ss_gold_hd_ru_1_2,
-    patches_game_ss_gold_hd_ru_1_2,
-    relocs_menu_ss_gold_hd_ru_1_2,
-    hooks_menu_ss_gold_hd_ru_1_2,
-    patches_menu_ss_gold_hd_ru_1_2
+    relocs_game_ss_gold_hd_1_2,
+    hooks_game_ss_gold_hd_1_2,
+    patches_game_ss_gold_hd_1_2,
+    relocs_menu_ss_gold_hd_1_2,
+    hooks_menu_ss_gold_hd_1_2,
+    patches_menu_ss_gold_hd_1_2
+>;
+
+using Profile_SS_GOLD_HD_1_2_INT = GameVersionProfile<
+    GameVersion::SS_GOLD_HD_1_2_INT,
+    relocs_game_ss_gold_hd_1_2,
+    hooks_game_ss_gold_hd_1_2,
+    patches_game_ss_gold_hd_1_2,
+    relocs_menu_ss_gold_hd_1_2,
+    hooks_menu_ss_gold_hd_1_2,
+    patches_menu_ss_gold_hd_1_2
 >;
