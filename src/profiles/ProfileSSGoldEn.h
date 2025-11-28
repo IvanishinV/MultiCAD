@@ -1,10 +1,10 @@
 #pragma once
 
-#include "../ProfileBase.h"
-#include "../GameDllHooks.h"
-#include "../MenuDllHooks.h"
-#include "../cad.h"
-#include "../ScreenConfig.h"
+#include "ProfileBase.h"
+#include "GameDllHooks.h"
+#include "MenuDllHooks.h"
+#include "cad.h"
+#include "ScreenConfig.h"
 
 #include <array>
 

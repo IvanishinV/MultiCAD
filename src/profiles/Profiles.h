@@ -1,7 +1,7 @@
 #pragma once
 
 #include "ProfileBase.h"
-#include "profiles/ProfileSSGoldEn.h"
+#include "ProfileSSGoldEn.h"
 
 using Profile_SS_GOLD_EN = GameVersionProfile<
     GameVersion::SS_GOLD_EN,

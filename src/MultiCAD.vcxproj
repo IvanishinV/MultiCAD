@@ -25,6 +25,7 @@
     <TargetName>cadMulti</TargetName>
     <OutDir>$(SolutionDir)\bin\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)\obj\$(Platform)\$(Configuration)\</IntDir>
+    <IncludePath>$(ProjectDir)core;$(ProjectDir)ui;$(ProjectDir)patcher;$(ProjectDir)profiles;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <UseDebugLibraries>true</UseDebugLibraries>
@@ -79,51 +80,51 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="assets.h" />
-    <ClInclude Include="DllHooksBase.h" />
-    <ClInclude Include="DllMonitor.h" />
+    <ClInclude Include="core\assets.h" />
+    <ClInclude Include="core\cad.h" />
+    <ClInclude Include="core\pch.h" />
+    <ClInclude Include="core\renderer.h" />
+    <ClInclude Include="core\resource.h" />
+    <ClInclude Include="core\ScreenConfig.h" />
+    <ClInclude Include="core\types.h" />
+    <ClInclude Include="core\util.h" />
+    <ClInclude Include="core\version.h" />
+    <ClInclude Include="patcher\CodePatcher.h" />
+    <ClInclude Include="patcher\DllHooksBase.h" />
+    <ClInclude Include="patcher\DllMonitor.h" />
+    <ClInclude Include="patcher\DllVersionDetector.h" />
+    <ClInclude Include="patcher\GameDllHooks.h" />
+    <ClInclude Include="patcher\GameGlobals.h" />
+    <ClInclude Include="patcher\LdrNotification.h" />
+    <ClInclude Include="patcher\MemoryRelocator.h" />
+    <ClInclude Include="patcher\MenuDllHooks.h" />
+    <ClInclude Include="patcher\PatchEngine.h" />
+    <ClInclude Include="patcher\PatchInstallers.h" />
+    <ClInclude Include="patcher\PatchTypes.h" />
+    <ClInclude Include="profiles\ProfileBase.h" />
+    <ClInclude Include="profiles\ProfileFactory.h" />
+    <ClInclude Include="profiles\Profiles.h" />
     <ClInclude Include="profiles\ProfileSSGoldEn.h" />
-    <ClInclude Include="SplashTextRenderer.h" />
-    <ClInclude Include="GameDllHooks.h" />
-    <ClInclude Include="DllVersionDetector.h" />
-    <ClInclude Include="CodePatcher.h" />
-    <ClInclude Include="GameGlobals.h" />
-    <ClInclude Include="LdrNotification.h" />
-    <ClInclude Include="MenuDllHooks.h" />
-    <ClInclude Include="PatchInstallers.h" />
-    <ClInclude Include="ProfileBase.h" />
-    <ClInclude Include="PatchEngine.h" />
-    <ClInclude Include="PatchTypes.h" />
-    <ClInclude Include="ProfileFactory.h" />
-    <ClInclude Include="Profiles.h" />
-    <ClInclude Include="MemoryRelocator.h" />
-    <ClInclude Include="ResolutionDialog.h" />
-    <ClInclude Include="ResolutionVerifier.h" />
-    <ClInclude Include="ScreenConfig.h" />
-    <ClInclude Include="types.h" />
-    <ClInclude Include="cad.h" />
-    <ClInclude Include="renderer.h" />
-    <ClInclude Include="pch.h" />
-    <ClInclude Include="resource.h" />
-    <ClInclude Include="util.h" />
-    <ClInclude Include="version.h" />
+    <ClInclude Include="ui\ResolutionDialog.h" />
+    <ClInclude Include="ui\ResolutionVerifier.h" />
+    <ClInclude Include="ui\SplashTextRenderer.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="DllMonitor.cpp" />
-    <ClCompile Include="GameDllHooks.cpp" />
-    <ClCompile Include="DllVersionDetector.cpp" />
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="cad.cpp" />
-    <ClCompile Include="MenuDllHooks.cpp" />
-    <ClCompile Include="PatchInstallers.cpp" />
-    <ClCompile Include="pch.cpp">
+    <ClCompile Include="core\cad.cpp" />
+    <ClCompile Include="core\pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="renderer.cpp" />
-    <ClCompile Include="ResolutionDialog.cpp" />
-    <ClCompile Include="ResolutionVerifier.cpp" />
-    <ClCompile Include="ScreenConfig.cpp" />
-    <ClCompile Include="util.cpp" />
+    <ClCompile Include="core\renderer.cpp" />
+    <ClCompile Include="core\ScreenConfig.cpp" />
+    <ClCompile Include="core\util.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="patcher\DllMonitor.cpp" />
+    <ClCompile Include="patcher\DllVersionDetector.cpp" />
+    <ClCompile Include="patcher\GameDllHooks.cpp" />
+    <ClCompile Include="patcher\MenuDllHooks.cpp" />
+    <ClCompile Include="patcher\PatchInstallers.cpp" />
+    <ClCompile Include="ui\ResolutionDialog.cpp" />
+    <ClCompile Include="ui\ResolutionVerifier.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="MultiCAD.rc" />

@@ -1,0 +1,175 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Header Files\Patcher">
+      <UniqueIdentifier>{37348c54-ca2d-4a05-b073-7db03dbf70a2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Patcher">
+      <UniqueIdentifier>{8f7d7824-09d2-445c-bdc2-9e955c9f41a4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Profiles">
+      <UniqueIdentifier>{bababc17-e14e-41a5-ba1c-d49e719a8fb5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Core">
+      <UniqueIdentifier>{5ab6c796-afb4-4852-95d2-c071e1aed67e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\UI">
+      <UniqueIdentifier>{1e0d2ff4-7ebe-422c-8a5f-82c864347277}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Core">
+      <UniqueIdentifier>{0cf1d228-9040-4102-bbc1-54637f1feaa3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\UI">
+      <UniqueIdentifier>{dcd70d81-5d4d-4c72-bd00-058230d9f722}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="profiles\ProfileSSGoldEn.h">
+      <Filter>Header Files\Profiles</Filter>
+    </ClInclude>
+    <ClInclude Include="core\util.h">
+      <Filter>Header Files\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="core\version.h">
+      <Filter>Header Files\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="core\assets.h">
+      <Filter>Header Files\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="core\cad.h">
+      <Filter>Header Files\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="core\pch.h">
+      <Filter>Header Files\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="core\renderer.h">
+      <Filter>Header Files\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="core\resource.h">
+      <Filter>Header Files\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="core\ScreenConfig.h">
+      <Filter>Header Files\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="core\types.h">
+      <Filter>Header Files\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="ui\ResolutionVerifier.h">
+      <Filter>Header Files\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="ui\SplashTextRenderer.h">
+      <Filter>Header Files\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="ui\ResolutionDialog.h">
+      <Filter>Header Files\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="patcher\PatchTypes.h">
+      <Filter>Header Files\Patcher</Filter>
+    </ClInclude>
+    <ClInclude Include="patcher\CodePatcher.h">
+      <Filter>Header Files\Patcher</Filter>
+    </ClInclude>
+    <ClInclude Include="patcher\DllHooksBase.h">
+      <Filter>Header Files\Patcher</Filter>
+    </ClInclude>
+    <ClInclude Include="patcher\DllMonitor.h">
+      <Filter>Header Files\Patcher</Filter>
+    </ClInclude>
+    <ClInclude Include="patcher\DllVersionDetector.h">
+      <Filter>Header Files\Patcher</Filter>
+    </ClInclude>
+    <ClInclude Include="patcher\GameDllHooks.h">
+      <Filter>Header Files\Patcher</Filter>
+    </ClInclude>
+    <ClInclude Include="patcher\GameGlobals.h">
+      <Filter>Header Files\Patcher</Filter>
+    </ClInclude>
+    <ClInclude Include="patcher\LdrNotification.h">
+      <Filter>Header Files\Patcher</Filter>
+    </ClInclude>
+    <ClInclude Include="patcher\MemoryRelocator.h">
+      <Filter>Header Files\Patcher</Filter>
+    </ClInclude>
+    <ClInclude Include="patcher\MenuDllHooks.h">
+      <Filter>Header Files\Patcher</Filter>
+    </ClInclude>
+    <ClInclude Include="patcher\PatchEngine.h">
+      <Filter>Header Files\Patcher</Filter>
+    </ClInclude>
+    <ClInclude Include="patcher\PatchInstallers.h">
+      <Filter>Header Files\Patcher</Filter>
+    </ClInclude>
+    <ClInclude Include="profiles\Profiles.h">
+      <Filter>Header Files\Profiles</Filter>
+    </ClInclude>
+    <ClInclude Include="profiles\ProfileBase.h">
+      <Filter>Header Files\Profiles</Filter>
+    </ClInclude>
+    <ClInclude Include="profiles\ProfileFactory.h">
+      <Filter>Header Files\Profiles</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="core\ScreenConfig.cpp">
+      <Filter>Source Files\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="core\util.cpp">
+      <Filter>Source Files\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="core\cad.cpp">
+      <Filter>Source Files\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="core\pch.cpp">
+      <Filter>Source Files\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="core\renderer.cpp">
+      <Filter>Source Files\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\ResolutionDialog.cpp">
+      <Filter>Source Files\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\ResolutionVerifier.cpp">
+      <Filter>Source Files\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="patcher\DllMonitor.cpp">
+      <Filter>Source Files\Patcher</Filter>
+    </ClCompile>
+    <ClCompile Include="patcher\DllVersionDetector.cpp">
+      <Filter>Source Files\Patcher</Filter>
+    </ClCompile>
+    <ClCompile Include="patcher\GameDllHooks.cpp">
+      <Filter>Source Files\Patcher</Filter>
+    </ClCompile>
+    <ClCompile Include="patcher\MenuDllHooks.cpp">
+      <Filter>Source Files\Patcher</Filter>
+    </ClCompile>
+    <ClCompile Include="patcher\PatchInstallers.cpp">
+      <Filter>Source Files\Patcher</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="MultiCAD.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="MultiCAD.def">
+      <Filter>Resource Files</Filter>
+    </None>
+  </ItemGroup>
+</Project>
