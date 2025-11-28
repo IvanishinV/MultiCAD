@@ -23,5 +23,5 @@
 #define SS_GOLD_HD_VERSION_STR STR(SS_GOLD_HD_VERSION_MAJOR) "." STR(SS_GOLD_HD_VERSION_MINOR)
 #define SS_GOLD_HD_GAME_STR "SS Gold HD v" SS_GOLD_HD_VERSION_STR
 
-#define SS_HD_MOD_TG_LINK "t.me/ss_hd_mod"
+#define SS_HD_MOD_TG_LINK "tg: @ss_hd_mod"
 #define SS_HD_MOD_AUTHOR_EMAIL "ivanishin.vladislav@gmail.com"
