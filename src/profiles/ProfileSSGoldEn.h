@@ -72,6 +72,7 @@ const std::array hooks_game_ss_gold_en
     // Fixes a null pointer dereferences (issues reported via dumps from Eugin 'Bulldozer' Banks)
     HookSpec{0x6CC60, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_1006CC60)},
     HookSpec{0x5C170, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_1005C170)},
+    HookSpec{0x99E01, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_10099E01)},
 };
 
 const std::array patches_game_ss_gold_en
@@ -173,6 +174,7 @@ const std::array hooks_game_ss_gold_hd_1_2
     //HookSpec{0x3E7B0, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_1003E7B0)},
     HookSpec{0x6CC60, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_1006CC60)},
     HookSpec{0x5C170, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_1005C170)},
+    HookSpec{0x99E01, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_10099E01)},
 };
 
 const std::array patches_game_ss_gold_hd_1_2

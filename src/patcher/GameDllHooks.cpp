@@ -2065,3 +2065,79 @@ void __declspec(noinline) __stdcall  GameDllHooks::sub_1006F120_hd()
         } while (v55_local);
     }
 }
+
+void __cdecl GameDllHooks::sub_10099E01(void* mem)
+{
+    if (!mem)
+        return;
+
+    auto* g = globals_;
+
+    HANDLE hHeap = g->getValue<HANDLE>(0x3A7FD0);
+
+    if (!is_valid_ptr(mem))
+    {
+        HeapFree(hHeap, 0, mem);
+        return;
+    }
+
+    __try
+    {
+        const int dword_103A7FD4 = g->getValue<int>(0x3A7FD4);
+
+        const auto _lock = g->getFn<void(__cdecl)(int)>(0x9C8F4);
+        const auto _unlock = g->getFn<void(__cdecl)(int)>(0x9C955);
+        const auto __sbh_find_block = g->getFn<void*(__cdecl)(void*)>(0x9D9C8);
+        const auto sbh_free = g->getFn<void(__cdecl)(void*, void*)>(0x9D9F3);
+        const auto small_find = g->getFn<void*(__cdecl)(void*, uint32_t**, uint32_t*)>(0x9E723);
+        const auto small_free = g->getFn<void(__cdecl)(uint32_t*, int, void*)>(0x9E77A);
+
+        void* v1;
+        uint32_t* a2;
+        uint32_t a3;
+        if (dword_103A7FD4 == 3)
+        {
+            _lock(9);
+            v1 = __sbh_find_block(mem);
+            if (v1)
+                sbh_free(v1, mem);
+            _unlock(9);
+
+            if (!v1)
+                HeapFree(hHeap, 0, mem);
+        }
+        else if (dword_103A7FD4 != 2)
+        {
+            HeapFree(hHeap, 0, mem);
+        }
+        else
+        {
+            _lock(9);
+            v1 = small_find(mem, &a2, &a3);
+            if (v1)
+                small_free(a2, a3, v1);
+            _unlock(9);
+
+            if (!v1)
+                HeapFree(hHeap, 0, mem);
+        }
+    }
+    __except (EXCEPTION_EXECUTE_HANDLER)
+    {
+    }
+}
+
+bool GameDllHooks::is_valid_ptr(void* p)
+{
+    MEMORY_BASIC_INFORMATION mbi;
+    if (!VirtualQuery(p, &mbi, sizeof(mbi)))
+        return false;
+
+    if (mbi.State != MEM_COMMIT)
+        return false;
+
+    if (!(mbi.Protect & (PAGE_READWRITE | PAGE_READONLY | PAGE_EXECUTE_READWRITE)))
+        return false;
+
+    return true;
+}

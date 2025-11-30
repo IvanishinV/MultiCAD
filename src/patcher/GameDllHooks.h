@@ -47,6 +47,7 @@
 // 3E7B0    done    // no nullptr check (dump sent by Alee)
 // 5C170    done    // no nullptr check (dump sent by Bulldozer)
 // 6CC60    done    // no nullptr check (dump sent by Bulldozer)
+// 99E01    done    // freeing bad memory (dump sent by Bulldozer)
 
 constexpr uint32_t kRowStrideOldDwordSize = 0x10;
 constexpr uint32_t kRowStrideOldShift = 6;
@@ -255,4 +256,8 @@ public:
     static void __declspec(noinline) __stdcall  sub_1006D940_hd();
     static void __declspec(noinline) __stdcall  sub_1006F120();
     static void __declspec(noinline) __stdcall  sub_1006F120_hd();
+    static void __declspec(noinline) __cdecl    sub_10099E01(void* mem);
+
+private:
+    static bool is_valid_ptr(void* p);
 };
