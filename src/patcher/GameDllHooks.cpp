@@ -353,21 +353,11 @@ void __declspec(noinline) __fastcall GameDllHooks::sub_10055FE0(int* input, void
     int v2 = 0;
     if (input[1] > 0)
     {
-        int v3;
         int* v4 = input + 2;
         do
         {
-            v3 = *input;
-            int v5 = 0;
-            if (v3 > 0)
-            {
-                do
-                {
-                    *((unsigned char*)v4 + v5) &= static_cast<unsigned char>(~a2);
-                    v3 = *input;
-                    ++v5;
-                } while (v5 < *input);
-            }
+            for (int i = 0; i < *input; ++i)
+                *((unsigned char*)v4 + i) &= static_cast<unsigned char>(~a2);
             ++v2;
             v4 += kRowStrideDwordSize;
         } while (v2 < input[1]);
@@ -2075,21 +2065,15 @@ void __cdecl GameDllHooks::sub_10099E01(void* mem)
 
     HANDLE hHeap = g->getValue<HANDLE>(0x3A7FD0);
 
-    if (!is_valid_ptr(mem))
-    {
-        HeapFree(hHeap, 0, mem);
-        return;
-    }
-
     __try
     {
         const int dword_103A7FD4 = g->getValue<int>(0x3A7FD4);
 
         const auto _lock = g->getFn<void(__cdecl)(int)>(0x9C8F4);
         const auto _unlock = g->getFn<void(__cdecl)(int)>(0x9C955);
-        const auto __sbh_find_block = g->getFn<void*(__cdecl)(void*)>(0x9D9C8);
-        const auto sbh_free = g->getFn<void(__cdecl)(void*, void*)>(0x9D9F3);
-        const auto small_find = g->getFn<void*(__cdecl)(void*, uint32_t**, uint32_t*)>(0x9E723);
+        const auto __sbh_find_block = g->getFn<void* (__cdecl)(void*)>(0x9D9C8);
+        const auto __sbh_free_block = g->getFn<void(__cdecl)(void*, void*)>(0x9D9F3);
+        const auto small_find = g->getFn<void* (__cdecl)(void*, uint32_t**, uint32_t*)>(0x9E723);
         const auto small_free = g->getFn<void(__cdecl)(uint32_t*, int, void*)>(0x9E77A);
 
         void* v1;
@@ -2100,10 +2084,10 @@ void __cdecl GameDllHooks::sub_10099E01(void* mem)
             _lock(9);
             v1 = __sbh_find_block(mem);
             if (v1)
-                sbh_free(v1, mem);
+                __sbh_free_block(v1, mem);
             _unlock(9);
 
-            if (!v1)
+            if (!v1 && is_valid_ptr(mem))
                 HeapFree(hHeap, 0, mem);
         }
         else if (dword_103A7FD4 != 2)
@@ -2118,7 +2102,7 @@ void __cdecl GameDllHooks::sub_10099E01(void* mem)
                 small_free(a2, a3, v1);
             _unlock(9);
 
-            if (!v1)
+            if (!v1 && is_valid_ptr(mem))
                 HeapFree(hHeap, 0, mem);
         }
     }
