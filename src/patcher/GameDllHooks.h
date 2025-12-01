@@ -233,6 +233,8 @@ private:
 
 public:
     static void __declspec(noinline) __cdecl    sub_1003E7B0(UnkEntry* a1, int a2, int* a3, int a4);
+    static void __declspec(noinline) __cdecl    sub_1003E7B0_de(UnkEntry* a1, int a2, int* a3, int a4);
+    static void __declspec(noinline) __cdecl    sub_1003E7B0_fr(UnkEntry* a1, int a2, int* a3, int a4);
     static void __declspec(noinline) __fastcall sub_10055A20(uint32_t* self, void* /*dummy*/, int a2, int a3);
     static void __declspec(noinline) __fastcall sub_10055DC0(uint32_t* self);
     static void __declspec(noinline) __fastcall sub_10055E00(int* self, void* /*dummy*/, char a2, int a3, int a4, int a5, int a6);
@@ -242,8 +244,11 @@ public:
     static int  __declspec(noinline) __fastcall sub_10056030(uint8_t* self, void* /*dummy*/, int a2, int a3, GameData* const a4);
     static int  __declspec(noinline) __fastcall sub_10056170(uint8_t* self, void* /*dummy*/, int a2, int a3, GameData* const a4);
     static int  __declspec(noinline) __fastcall sub_100563B0(uint8_t* self, void* /*dummy*/, int a2, int a3, GameData2* const a4);
-    static void __declspec(noinline) __stdcall  sub_1005C170(); // not needed since it's easy to fix by changing one byte
+    static void __declspec(noinline) __stdcall  sub_1005C170();
+    static void __declspec(noinline) __stdcall  sub_1005C170_de();
+    static void __declspec(noinline) __stdcall  sub_1005C170_fr();
     static void __declspec(noinline) __stdcall  sub_1006AD20();
+    static void __declspec(noinline) __stdcall  sub_1006AD20_de();
     static void __declspec(noinline) __stdcall  sub_1006AD20_hd();
     static void __declspec(noinline) __stdcall  sub_1006AEA0();
     static void __declspec(noinline) __stdcall  sub_1006AEA0_hd();
@@ -252,11 +257,17 @@ public:
     static char __declspec(noinline) __cdecl    sub_1006B2C0(char mask, int* a2, int a3);
     static char __declspec(noinline) __cdecl    sub_1006B2C0_hd(char mask, int* a2, int a3);
     static void __declspec(noinline) __fastcall sub_1006CC60(GameData3* self);
+    static void __declspec(noinline) __fastcall sub_1006CC60_de(GameData3* self);
+    static void __declspec(noinline) __fastcall sub_1006CC60_fr(GameData3* self);
     static void __declspec(noinline) __stdcall  sub_1006D940();
     static void __declspec(noinline) __stdcall  sub_1006D940_hd();
     static void __declspec(noinline) __stdcall  sub_1006F120();
+    static void __declspec(noinline) __stdcall  sub_1006F120_de();
+    static void __declspec(noinline) __stdcall  sub_1006F120_fr();
     static void __declspec(noinline) __stdcall  sub_1006F120_hd();
     static void __declspec(noinline) __cdecl    sub_10099E01(void* mem);
+    static void __declspec(noinline) __cdecl    sub_10099E01_de(void* mem);
+    static void __declspec(noinline) __cdecl    sub_10099E01_fr(void* mem);
 
 private:
     static bool is_valid_ptr(void* p);

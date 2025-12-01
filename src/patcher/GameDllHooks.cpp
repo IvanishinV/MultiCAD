@@ -54,6 +54,112 @@ void __cdecl GameDllHooks::sub_1003E7B0(UnkEntry* a1, int a2, int* a3, int a4)
     }
 }
 
+void __cdecl GameDllHooks::sub_1003E7B0_de(UnkEntry* a1, int a2, int* a3, int a4)
+{
+    auto* g = globals_;
+
+    const auto sub_10002560 = g->getFn<int(__thiscall)(UnkEntry*, int)>(0x2650);
+    int& randSeed = *g->getPtr<int>(0x295110);
+
+    auto randNext = [&randSeed]() {
+        randSeed = 0x41C64E6D * randSeed + 0x3039;
+        return HIWORD(randSeed) & 0x7FFF;
+        };
+
+    UnkEntry* structPtr = &a1[a2];
+    GameObject* objPtr = structPtr->objPtr;
+
+    if (objPtr == nullptr || structPtr->counter == 0)
+        return;
+
+    const int subVal = sub_10002560(structPtr, 0);
+
+    int tmp = randNext()
+        * (objPtr->param_173d + ((subVal * objPtr->param_1741) >> 15));
+    if (tmp < 0 || (tmp & 0xFFFF8000) == 0)
+    {
+        const int index = (a4 * randNext()) >> 15;
+        const int offset = a3[index];
+
+        UnkEntry* targetPtr = &a1[offset];
+        GameObject* targetObj = targetPtr->objPtr;
+
+        if (targetObj == nullptr)
+            return;
+
+        if (targetPtr->param_4 < targetObj->param_B8)
+        {
+            const int limit = targetObj->param_B8;
+            const int computed = targetPtr->param_4
+                + objPtr->param_1705
+                + ((subVal * objPtr->param_1709) >> 15);
+
+            targetPtr->param_4 = static_cast<uint16_t>(limit >= computed ? computed : limit);
+
+            --structPtr->counter;
+
+            int tmp2 = objPtr->param_1735
+                + ((subVal * objPtr->param_1739) >> 15);
+            const int v12 = std::min(tmp2 + subVal, 0x8000);
+
+            structPtr->value = static_cast<uint16_t>(v12);
+        }
+    }
+}
+
+void __cdecl GameDllHooks::sub_1003E7B0_fr(UnkEntry* a1, int a2, int* a3, int a4)
+{
+    auto* g = globals_;
+
+    const auto sub_10002560 = g->getFn<int(__thiscall)(UnkEntry*, int)>(0x2650);
+    int& randSeed = *g->getPtr<int>(0x299130);
+
+    auto randNext = [&randSeed]() {
+        randSeed = 0x41C64E6D * randSeed + 0x3039;
+        return HIWORD(randSeed) & 0x7FFF;
+        };
+
+    UnkEntry* structPtr = &a1[a2];
+    GameObject* objPtr = structPtr->objPtr;
+
+    if (objPtr == nullptr || structPtr->counter == 0)
+        return;
+
+    const int subVal = sub_10002560(structPtr, 0);
+
+    int tmp = randNext()
+        * (objPtr->param_173d + ((subVal * objPtr->param_1741) >> 15));
+    if (tmp < 0 || (tmp & 0xFFFF8000) == 0)
+    {
+        const int index = (a4 * randNext()) >> 15;
+        const int offset = a3[index];
+
+        UnkEntry* targetPtr = &a1[offset];
+        GameObject* targetObj = targetPtr->objPtr;
+
+        if (targetObj == nullptr)
+            return;
+
+        if (targetPtr->param_4 < targetObj->param_B8)
+        {
+            const int limit = targetObj->param_B8;
+            const int computed = targetPtr->param_4
+                + objPtr->param_1705
+                + ((subVal * objPtr->param_1709) >> 15);
+
+            targetPtr->param_4 = static_cast<uint16_t>(limit >= computed ? computed : limit);
+
+            --structPtr->counter;
+
+            int tmp2 = objPtr->param_1735
+                + ((subVal * objPtr->param_1739) >> 15);
+            const int v12 = std::min(tmp2 + subVal, 0x8000);
+
+            structPtr->value = static_cast<uint16_t>(v12);
+        }
+    }
+}
+
 void __declspec(noinline) __fastcall GameDllHooks::sub_10055A20(uint32_t* buffer, void* /*dummy*/, int shiftX, int shiftY)
 {
     static constexpr uint32_t BUFFER_OFFSET = 8;
@@ -799,6 +905,344 @@ void __declspec(noinline) __stdcall  GameDllHooks::sub_1005C170()
     sub_100592C0(byte_10295C60, writeIndex);
 }
 
+void __declspec(noinline) __stdcall  GameDllHooks::sub_1005C170_de()
+{
+    auto* g = globals_;
+
+    int* dword_100ADF88 = g->getPtr<int>(0xAFF88);
+    int* dword_10299D64 = g->getPtr<int>(0x299D34);
+    int* dword_10295C58 = g->getPtr<int>(0x295C28);
+    char* byte_10295C5F = g->getPtr<char>(0x295C2B);
+    char* byte_10295C60 = g->getPtr<char>(0x295C2C);
+    char* byte_10296CEE = g->getPtr<char>(0x296CBE);
+    char* byte_102996E0 = g->getPtr<char>(0x2996B0);
+    int16_t* word_10296C63 = g->getPtr<int16_t>(0x296C33);
+    char* byte_102990E0 = g->getPtr<char>(0x2990B0);
+    int dword_10383CAC = g->getValue<int>(0x383C80);
+
+    auto sub_10056740 = g->getFn<void(__cdecl)(void*)>(0x58C30);
+    auto sub_100592C0 = g->getFn<void(__stdcall)(void*, size_t)>(0x5B8D0);
+    auto sub_1005C0D0 = g->getFn<void(__cdecl)(char*, char*)>(0x5E710);
+
+    int& randSeed = *g->getPtr<int>(0x295110);
+    auto randNext = [&randSeed]() {
+        randSeed = 0x41C64E6D * randSeed + 0x3039;
+        return HIWORD(randSeed) & 0x7FFF;
+        };
+
+    int count = *dword_10299D64;
+
+    char tempBuffer[128];
+    memcpy(tempBuffer, &byte_102990E0[128 * dword_10383CAC], sizeof(tempBuffer));
+
+    size_t writeIndex = 2;
+    *(uint16_t*)byte_10295C60 = (uint16_t)randNext();
+    *dword_10295C58 = 2;
+
+    int16_t* currentWord = word_10296C63;
+    for (int i = 0; i < count; ++i, currentWord = currentWord + 73)
+    {
+        unsigned char flags = *((unsigned char*)currentWord - 3);
+        // Condition when ordering unit to move
+        if ((flags & 0x20) == 0)
+        {
+            int j = 0;
+            bool skip = false;
+            while (!*((unsigned char*)currentWord + j + 11))
+            {
+                if (++j >= 128)
+                {
+                    skip = true;
+                    break;
+                }
+            }
+            if (skip)
+                continue;
+
+            sub_1005C0D0(tempBuffer, (char*)currentWord + 11);
+
+            writeIndex = *dword_10295C58;
+            byte_10295C60[writeIndex++] = flags;
+            if (flags & 0x40)
+            {
+                memcpy(&byte_10295C60[writeIndex], currentWord, 2 * sizeof(int16_t));
+                writeIndex += 2 * sizeof(int16_t);
+            }
+
+            if ((char)flags < 0)
+            {
+                memcpy(&byte_10295C60[writeIndex], &currentWord[2], sizeof(int16_t));
+                writeIndex += sizeof(int16_t);
+            }
+
+            count = *dword_10299D64;
+
+            char lastChar = *((unsigned char*)currentWord + 6);
+            byte_10295C60[writeIndex++] = lastChar;
+
+            *dword_10295C58 = writeIndex;
+        }
+        else
+        {
+            switch (flags)
+            {
+            case 33:
+            {
+                char v10 = *((char*)currentWord + 6);
+                byte_10295C60[writeIndex++] = 33;
+                byte_10295C60[writeIndex++] = v10;
+                *dword_10295C58 = writeIndex;
+
+                if (v10 & 0x80)
+                    byte_10295C60[writeIndex++] = *((char*)currentWord + 4);
+
+                if (v10 & 0x40)
+                {
+                    memcpy(&byte_10295C60[writeIndex], currentWord, 2 * sizeof(int16_t));
+                    writeIndex += 2 * sizeof(int16_t);
+                }
+
+                *dword_10295C58 = writeIndex;
+
+                break;
+            }
+            case 34:
+            {
+                byte_10295C60[writeIndex++] = 34;
+
+                byte_10295C60[writeIndex] = *((char*)currentWord + 6);
+                *dword_10295C58 = ++writeIndex;
+                break;
+            }
+            case 35:
+            {
+                // Case when saving game
+                int v5 = *currentWord;
+                byte_10295C60[writeIndex++] = 35;
+                byte_10295C60[writeIndex++] = static_cast<char>(v5);
+                *dword_10295C58 = writeIndex;
+                if (v5 == 0)
+                {
+                    byte_10295C60[writeIndex] = *((char*)currentWord + 2);
+                }
+                else if (v5 == 2)
+                {
+                    char* src = *(char**)byte_10296CEE;
+                    if (src)
+                    {
+                        for (int k = 0; k < 16; ++k)
+                        {
+                            byte_10295C5F[++writeIndex] = *src++;
+                            *dword_10295C58 = writeIndex;
+                        }
+                        while (*src)
+                        {
+                            byte_10295C60[writeIndex++] = *src++;
+                            *dword_10295C58 = writeIndex;
+                        }
+
+                        byte_10295C60[writeIndex] = *src;
+                    }
+                }
+                *dword_10295C58 = ++writeIndex;
+                break;
+            }
+            default:
+                break;
+            }
+        }
+    }
+
+    memset(byte_102996E0, 0xFF, 0x680);
+    byte_102996E0[1664] = -1;
+
+    constexpr size_t kBlockSize = 146;
+    for (int i = 0; i < count; ++i)
+    {
+        char* block = byte_10296CEE + i * kBlockSize;
+        void* ptr = *reinterpret_cast<void**>(block);
+        if (ptr != nullptr)
+        {
+            sub_10056740(ptr);
+            count = *dword_10299D64;
+            *reinterpret_cast<void**>(block) = nullptr;
+        }
+    }
+
+    *dword_100ADF88 = g->getValue<int>(0x2955E8);
+    *dword_10299D64 = 0;
+    sub_100592C0(byte_10295C60, writeIndex);
+}
+
+void __declspec(noinline) __stdcall  GameDllHooks::sub_1005C170_fr()
+{
+    auto* g = globals_;
+
+    int* dword_100ADF88 = g->getPtr<int>(0xB1F88);
+    int* dword_10299D64 = g->getPtr<int>(0x29DD54);
+    int* dword_10295C58 = g->getPtr<int>(0x299C48);
+    char* byte_10295C5F = g->getPtr<char>(0x299C4B);
+    char* byte_10295C60 = g->getPtr<char>(0x299C4C);
+    char* byte_10296CEE = g->getPtr<char>(0x29ACDE);
+    char* byte_102996E0 = g->getPtr<char>(0x29D6D0);
+    int16_t* word_10296C63 = g->getPtr<int16_t>(0x29AC53);
+    char* byte_102990E0 = g->getPtr<char>(0x29D0D0);
+    int dword_10383CAC = g->getValue<int>(0x387CA0);
+
+    auto sub_10056740 = g->getFn<void(__cdecl)(void*)>(0x58BE0);
+    auto sub_100592C0 = g->getFn<void(__stdcall)(void*, size_t)>(0x5B880);
+    auto sub_1005C0D0 = g->getFn<void(__cdecl)(char*, char*)>(0x5E770);
+
+    int& randSeed = *g->getPtr<int>(0x299130);
+    auto randNext = [&randSeed]() {
+        randSeed = 0x41C64E6D * randSeed + 0x3039;
+        return HIWORD(randSeed) & 0x7FFF;
+        };
+
+    int count = *dword_10299D64;
+
+    char tempBuffer[128];
+    memcpy(tempBuffer, &byte_102990E0[128 * dword_10383CAC], sizeof(tempBuffer));
+
+    size_t writeIndex = 2;
+    *(uint16_t*)byte_10295C60 = (uint16_t)randNext();
+    *dword_10295C58 = 2;
+
+    int16_t* currentWord = word_10296C63;
+    for (int i = 0; i < count; ++i, currentWord = currentWord + 73)
+    {
+        unsigned char flags = *((unsigned char*)currentWord - 3);
+        // Condition when ordering unit to move
+        if ((flags & 0x20) == 0)
+        {
+            int j = 0;
+            bool skip = false;
+            while (!*((unsigned char*)currentWord + j + 11))
+            {
+                if (++j >= 128)
+                {
+                    skip = true;
+                    break;
+                }
+            }
+            if (skip)
+                continue;
+
+            sub_1005C0D0(tempBuffer, (char*)currentWord + 11);
+
+            writeIndex = *dword_10295C58;
+            byte_10295C60[writeIndex++] = flags;
+            if (flags & 0x40)
+            {
+                memcpy(&byte_10295C60[writeIndex], currentWord, 2 * sizeof(int16_t));
+                writeIndex += 2 * sizeof(int16_t);
+            }
+
+            if ((char)flags < 0)
+            {
+                memcpy(&byte_10295C60[writeIndex], &currentWord[2], sizeof(int16_t));
+                writeIndex += sizeof(int16_t);
+            }
+
+            count = *dword_10299D64;
+
+            char lastChar = *((unsigned char*)currentWord + 6);
+            byte_10295C60[writeIndex++] = lastChar;
+
+            *dword_10295C58 = writeIndex;
+        }
+        else
+        {
+            switch (flags)
+            {
+            case 33:
+            {
+                char v10 = *((char*)currentWord + 6);
+                byte_10295C60[writeIndex++] = 33;
+                byte_10295C60[writeIndex++] = v10;
+                *dword_10295C58 = writeIndex;
+
+                if (v10 & 0x80)
+                    byte_10295C60[writeIndex++] = *((char*)currentWord + 4);
+
+                if (v10 & 0x40)
+                {
+                    memcpy(&byte_10295C60[writeIndex], currentWord, 2 * sizeof(int16_t));
+                    writeIndex += 2 * sizeof(int16_t);
+                }
+
+                *dword_10295C58 = writeIndex;
+
+                break;
+            }
+            case 34:
+            {
+                byte_10295C60[writeIndex++] = 34;
+
+                byte_10295C60[writeIndex] = *((char*)currentWord + 6);
+                *dword_10295C58 = ++writeIndex;
+                break;
+            }
+            case 35:
+            {
+                // Case when saving game
+                int v5 = *currentWord;
+                byte_10295C60[writeIndex++] = 35;
+                byte_10295C60[writeIndex++] = static_cast<char>(v5);
+                *dword_10295C58 = writeIndex;
+                if (v5 == 0)
+                {
+                    byte_10295C60[writeIndex] = *((char*)currentWord + 2);
+                }
+                else if (v5 == 2)
+                {
+                    char* src = *(char**)byte_10296CEE;
+                    if (src)
+                    {
+                        for (int k = 0; k < 16; ++k)
+                        {
+                            byte_10295C5F[++writeIndex] = *src++;
+                            *dword_10295C58 = writeIndex;
+                        }
+                        while (*src)
+                        {
+                            byte_10295C60[writeIndex++] = *src++;
+                            *dword_10295C58 = writeIndex;
+                        }
+
+                        byte_10295C60[writeIndex] = *src;
+                    }
+                }
+                *dword_10295C58 = ++writeIndex;
+                break;
+            }
+            default:
+                break;
+            }
+        }
+    }
+
+    memset(byte_102996E0, 0xFF, 0x680);
+    byte_102996E0[1664] = -1;
+
+    constexpr size_t kBlockSize = 146;
+    for (int i = 0; i < count; ++i)
+    {
+        char* block = byte_10296CEE + i * kBlockSize;
+        void* ptr = *reinterpret_cast<void**>(block);
+        if (ptr != nullptr)
+        {
+            sub_10056740(ptr);
+            count = *dword_10299D64;
+            *reinterpret_cast<void**>(block) = nullptr;
+        }
+    }
+
+    *dword_100ADF88 = g->getValue<int>(0x299608);
+    *dword_10299D64 = 0;
+    sub_100592C0(byte_10295C60, writeIndex);
+}
+
 void __declspec(noinline) __stdcall  GameDllHooks::sub_1006AD20()
 {
     auto* g = globals_;
@@ -820,6 +1264,82 @@ void __declspec(noinline) __stdcall  GameDllHooks::sub_1006AD20()
     auto sub_100564F0 = g->getFn<int(__thiscall)(int*, GameData2*)>(0x564F0);
     auto sub_10056530 = g->getFn<int(__thiscall)(int*, GameData2*)>(0x56530);
     auto sub_1006AE80 = g->getFn<void(__thiscall)(int*, int, int, int, int)>(0x6AE80);
+
+    sub_1006AEA0();
+
+
+    GameData2 gd{};
+    gd.x = 0;
+    gd.y = 0;
+    gd.maxX = 0x7FFFFFFF;
+    gd.maxY = 0x7FFFFFFF;
+    gd.mask = 16;
+    gd.maskValue = 32;
+
+
+    int* div16Ptr = g->getPtr<int>(0x351728);
+    uintptr_t cadObj = g->getValue<uintptr_t>(0x384474);
+    auto cad_2B90 = *reinterpret_cast<void(__cdecl**)(int, int, int, int)>(cadObj + 0xAA3C);
+    auto cad_2A90 = *reinterpret_cast<void(__cdecl**)(int, int, int, int)>(cadObj + 0xAA40);
+
+    if (sub_100564F0(div16Ptr, &gd))
+    {
+        do
+        {
+            if (gd.cellMask == 16)
+                cad_2B90(gd.alignX, gd.alignY, gd.allowX, gd.allowY);
+            else
+                cad_2A90(gd.alignX, gd.alignY, gd.allowX - gd.alignX + 1, gd.allowY - gd.alignY + 1);
+        } while (sub_10056530(div16Ptr, &gd));
+    }
+
+    int v9[4]{};
+    sub_1006AE80(v9, 0, 0, g->getValue<int>(0x34FF10) - 1, g->getValue<int>(0x34FF0C) - 1);
+
+    int x0 = v9[0] >> 4;
+    int x1 = v9[2] >> 4;
+    int y0 = v9[1] >> 3;
+    int y1 = v9[3] >> 3;
+
+    x0 = std::max(x0, 0);
+    y0 = std::max(y0, 0);
+
+    x1 = std::min(x1, *div16Ptr - 1);
+    y1 = std::min(y1, *(div16Ptr + 1) - 1);     // 0x35172C
+
+    for (int row = y0; row <= y1; ++row)
+    {
+        uint8_t* line = reinterpret_cast<uint8_t*>(div16Ptr + 2) + kRowStrideByteSize * row; // 0x351730
+        for (int j = x0; j <= x1; ++j)
+        {
+            uint8_t val = line[j];
+            if (val & 0x40)
+                line[j] = (val & 0xBF) | 0x18;
+        }
+    }
+}
+
+void __declspec(noinline) __stdcall  GameDllHooks::sub_1006AD20_de()
+{
+    auto* g = globals_;
+
+    struct GameObject
+    {
+        void** vtable;
+        GameObject* next;
+    };
+    auto* obj = g->getValue<GameObject*>(0x34FEBC);
+    for (; obj; obj = obj->next)
+    {
+        using Fn = void(__thiscall*)(GameObject*);
+        Fn fn = reinterpret_cast<Fn>(obj->vtable[1]);
+        fn(obj);
+    }
+
+    auto sub_1006AEA0 = g->getFn<void(__stdcall)()>(0x6D8A0);
+    auto sub_100564F0 = g->getFn<int(__thiscall)(int*, GameData2*)>(0x58A10);
+    auto sub_10056530 = g->getFn<int(__thiscall)(int*, GameData2*)>(0x58A50);
+    auto sub_1006AE80 = g->getFn<void(__thiscall)(int*, int, int, int, int)>(0x6D850);
 
     sub_1006AEA0();
 
@@ -1372,6 +1892,104 @@ void __declspec(noinline) __fastcall GameDllHooks::sub_1006CC60(GameData3* self)
     sub_1006B410(&self->param_94, 12);
 }
 
+void __declspec(noinline) __fastcall GameDllHooks::sub_1006CC60_de(GameData3* self)
+{
+    if (!self->param_00)
+        return;
+
+    auto* g = globals_;
+
+    int* g_1037EFE0 = g->getValue<int*>(0x37EFA0);   // get value at 0x37EFE0 as int*
+    int16_t* srcRect = reinterpret_cast<int16_t*>(g_1037EFE0[1]);
+    if (!srcRect)    // self is always not nullptr
+        return;
+
+    Rect dstRect;
+    dstRect.x = srcRect[0];
+    dstRect.y = srcRect[1];
+    dstRect.width = srcRect[2] + srcRect[0] - 1;
+    const int y2 = srcRect[3] + srcRect[1] - 1;
+
+    const int verticalOffset = g->getValue<int>(0x34FEC4) - y2 + dstRect.y - 1;
+    dstRect.y += verticalOffset;
+    dstRect.height = y2 + verticalOffset;
+
+    auto funcArray = reinterpret_cast<void(__thiscall**)(GameData3*, int, Rect*, int, int, uint32_t)>(self->param_00);
+    auto func19 = funcArray[19];
+    func19(self, 0x50414E4C, &dstRect, 10, -1, 0);
+
+    int* g_10353030 = g->getPtr<int>(0x352FE8);
+    int* g_1037EDE0 = g->getPtr<int>(0x37EDA0);
+    int* g_10295434 = g->getValue<int*>(0x295404);
+
+    auto sub_10071850 = g->getFn<void(__thiscall)(GameData3*, int)>(0x74450);
+    auto sub_1006BC50 = g->getFn<void(__thiscall)(int*, GameData3*, int, int)>(0x6E540);
+    auto sub_10072980 = g->getFn<void(__thiscall)(GameData3*, int*, int, int, int)>(0x75560);
+    auto sub_100718D0 = g->getFn<GameData4 * (__thiscall)(GameData3*, int, int, int, int, int*, int, int*, int*, int)>(0x744D0);
+    auto sub_10071FD0 = g->getFn<void(__thiscall)(uint32_t*, uint32_t, uint32_t, uint16_t*, int*)>(0x74BB0);
+    auto sub_1006B410 = g->getFn<void(__cdecl)(uint32_t*, int)>(0x6DD10);
+
+    sub_10071850(self, *g_1037EFE0);
+    sub_1006BC50(g_10353030, self, self->param_60[40], self->param_60[41]);
+    sub_10072980(self, g_10353030, 20, 100, 0);
+    GameData4* gd4 = sub_100718D0(self, 2, 1, 2, 2, &g_1037EFE0[17], g_1037EFE0[17], g_1037EDE0, g_10295434, 24);
+    gd4->param_0D = 10; // if gd4 was not allocated, it will crash in this or another function
+
+    sub_10071FD0(&self->param_64, self->param_0C, self->param_10, reinterpret_cast<uint16_t*>(g_1037EFE0[2]), g_1037EDE0);
+    sub_10071FD0(&self->param_94, self->param_0C, self->param_10, reinterpret_cast<uint16_t*>(g_1037EFE0[3]), g_1037EDE0);
+    sub_1006B410(&self->param_64, 11);
+    sub_1006B410(&self->param_94, 12);
+}
+
+void __declspec(noinline) __fastcall GameDllHooks::sub_1006CC60_fr(GameData3* self)
+{
+    if (!self->param_00)
+        return;
+
+    auto* g = globals_;
+
+    int* g_1037EFE0 = g->getValue<int*>(0x382FC0);   // get value at 0x37EFE0 as int*
+    int16_t* srcRect = reinterpret_cast<int16_t*>(g_1037EFE0[1]);
+    if (!srcRect)    // self is always not nullptr
+        return;
+
+    Rect dstRect;
+    dstRect.x = srcRect[0];
+    dstRect.y = srcRect[1];
+    dstRect.width = srcRect[2] + srcRect[0] - 1;
+    const int y2 = srcRect[3] + srcRect[1] - 1;
+
+    const int verticalOffset = g->getValue<int>(0x353EE4) - y2 + dstRect.y - 1;
+    dstRect.y += verticalOffset;
+    dstRect.height = y2 + verticalOffset;
+
+    auto funcArray = reinterpret_cast<void(__thiscall**)(GameData3*, int, Rect*, int, int, uint32_t)>(self->param_00);
+    auto func19 = funcArray[19];
+    func19(self, 0x50414E4C, &dstRect, 10, -1, 0);
+
+    int* g_10353030 = g->getPtr<int>(0x357008);
+    int* g_1037EDE0 = g->getPtr<int>(0x382DC0);
+    int* g_10295434 = g->getValue<int*>(0x299424);
+
+    auto sub_10071850 = g->getFn<void(__thiscall)(GameData3*, int)>(0x74470);
+    auto sub_1006BC50 = g->getFn<void(__thiscall)(int*, GameData3*, int, int)>(0x6E5C0);
+    auto sub_10072980 = g->getFn<void(__thiscall)(GameData3*, int*, int, int, int)>(0x755A0);
+    auto sub_100718D0 = g->getFn<GameData4 * (__thiscall)(GameData3*, int, int, int, int, int*, int, int*, int*, int)>(0x74500);
+    auto sub_10071FD0 = g->getFn<void(__thiscall)(uint32_t*, uint32_t, uint32_t, uint16_t*, int*)>(0x74BE0);
+    auto sub_1006B410 = g->getFn<void(__cdecl)(uint32_t*, int)>(0x6DD90);
+
+    sub_10071850(self, *g_1037EFE0);
+    sub_1006BC50(g_10353030, self, self->param_60[40], self->param_60[41]);
+    sub_10072980(self, g_10353030, 20, 100, 0);
+    GameData4* gd4 = sub_100718D0(self, 2, 1, 2, 2, &g_1037EFE0[17], g_1037EFE0[17], g_1037EDE0, g_10295434, 24);
+    gd4->param_0D = 10; // if gd4 was not allocated, it will crash in this or another function
+
+    sub_10071FD0(&self->param_64, self->param_0C, self->param_10, reinterpret_cast<uint16_t*>(g_1037EFE0[2]), g_1037EDE0);
+    sub_10071FD0(&self->param_94, self->param_0C, self->param_10, reinterpret_cast<uint16_t*>(g_1037EFE0[3]), g_1037EDE0);
+    sub_1006B410(&self->param_64, 11);
+    sub_1006B410(&self->param_94, 12);
+}
+
 void __declspec(noinline) __stdcall  GameDllHooks::sub_1006D940()
 {
     auto* g = globals_;
@@ -1615,6 +2233,472 @@ void __declspec(noinline) __stdcall  GameDllHooks::sub_1006F120()
     int* div16Ptr = g->getPtr<int>(0x351728);
     const uint8_t byte_10383CB9 = g->getValue<uint8_t>(0x383CB9);
     uint8_t* byte_1037C598 = g->getPtr<uint8_t>(0x37C598);
+    std::memset(byte_1037C598, 0x80, sizeof(((ModuleState*)0)->fogSprites));
+
+    const int v54 = dword_1037E920 >> 3;
+
+    const int tmp = (dword_1037E920 >> 3) - 3;
+    const int v0 = (tmp & 1);
+    int v1 = (1 - 2 * (v0 ^ (tmp >> 1)) - (dword_1037E924 >> 4)) & 3;
+    const int v2 = (dword_1037E924 + 16 * (v1 - 3)) >> 1;
+    const int v57 = dword_1037E924 >> 4;
+    const int v3 = 8 * v0 - 24;
+    const int v4 = dword_1037E920 + v3 + v2;
+    int v51 = (dword_1037E920 + v3 - v2) >> 5;
+
+    const int v59 = yBottom >> 3;
+    const int v5 = (yBottom >> 3) + 11;
+    const int len_sar_4 = xRight >> 4;
+    const int v6 = (xRight >> 4) + 11;
+    const int v7 = v0 + 5;
+    int v8 = v4 >> 5;
+    int v52 = v1;
+
+    // 1. Initialize buffer byte_1037C598
+    if (v7 <= v5)
+    {
+        uint8_t* v9 = &byte_1037C598[kFogLineByteSize * v7];
+        unsigned int big_counta = ((v5 - v7) >> 1) + 1;
+        int v47 = v1 + 5;
+        do
+        {
+            int v10 = v47;
+            int v50 = v51;
+            int v11 = v8;
+            if (v47 <= v6)
+            {
+                int v12 = v51 << 8;
+                do
+                {
+                    if (v11 >= 4
+                        && v50 >= 4
+                        && v11 < map_length_probably - 4
+                        && v50 < map_width_probably - 4
+                        && (byte_10383CB9 & byte_101C14FE[v12 + v11]) != 0)
+                    {
+                        if (v9[v10] > 0x40u)
+                        {
+                            if ((byte_10383CB9 & byte_101C15FE[v12 + v11]) != 0)
+                            {
+                                if ((byte_10383CB9 & byte_101C14FF[v12 + v11]) != 0)
+                                {
+                                    if ((byte_10383CB9 & byte_101C13FE[v12 + v11]) != 0)
+                                    {
+                                        if ((byte_10383CB9 & byte_101C14FD[v12 + v11]) == 0)
+                                            v9[v10] = 64;
+                                    }
+                                    else
+                                    {
+                                        v9[v10] = 64;
+                                    }
+                                }
+                                else
+                                {
+                                    v9[v10] = 64;
+                                }
+                            }
+                            else
+                            {
+                                v9[v10] = 64;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        v9[v10] = 0;
+                    }
+
+                    v10 += 4;
+                    ++v11;
+                    --v50;
+                    v12 -= 256;
+                } while (v10 <= v6);
+            }
+
+            if (v52 < 2)
+            {
+                v47 = v47 + 2;
+                ++v8;
+            }
+            else
+            {
+                v47 = v47 - 2;
+                ++v51;
+            }
+            v52 ^= 2;
+            v9 += kFogDoubleLineByteSize;
+            --big_counta;
+        } while (big_counta != 0);
+    }
+
+    // 2. Intermediate antialiasing
+    int v15;
+    if (v1 >= 2)
+    {
+        v15 = 2;
+    }
+    else
+    {
+        v1 += 4;
+        v15 = -2;
+    }
+    const int v17 = v6 - 1;
+    const int v18 = v5 - 1;
+    if (v0 + 7 < v18)
+    {
+        int v16 = v1 + 5;
+        const int v19 = v0 + 7;
+        uint8_t* v20 = &byte_1037C598[kFogLineByteSize * v19 - 2];
+        int v21 = ((v18 - v19 - 1) >> 1) + 1;
+        do
+        {
+            if (v16 < v17)
+            {
+                int v22 = v16;
+                do
+                {
+                    uint8_t a = v20[v22 - (kFogDoubleLineByteSize - 2)];
+                    uint8_t b = v20[v22 + 4];
+                    v22 += 4;
+                    v20[v22 - 2] = (v20[v22 + (kFogDoubleLineByteSize - 2)] + v20[v22 - 4] + b + a) >> 2;
+                } while (v22 < v17);
+            }
+            v16 += v15;
+            v15 = -v15;
+            v20 += kFogDoubleLineByteSize;
+        } while (--v21);
+    }
+
+    // 3. Horizontal solid antialiasing
+    const int v25 = v18 - 2;
+    const int v26 = (v54 & 1) + 8;
+    const int v27 = v17 - 2;
+    if (v26 <= v25)
+    {
+        uint8_t* lp_array_1 = &byte_1037C598[kFogLineByteSize * v26 + 1];
+        int v29 = ((v25 - v26) >> 1) + 1;
+        do
+        {
+            int start_i = ((v57 - 1) & 1) + 8;
+            for (int i = start_i; i <= v27; i += 2)
+            {
+                uint8_t v31 = lp_array_1[i - 2];
+                uint8_t v32 = lp_array_1[i];
+                lp_array_1[i - 1] = (v32 + v31) >> 1;
+            }
+            lp_array_1 += kFogDoubleLineByteSize;
+        } while (--v29);
+    }
+
+    // 4. Vertical solid antialiasing
+    const int v33 = ((v54 - 1) & 1) + 8;
+    if (v33 <= v25)
+    {
+        uint8_t* v34 = &byte_1037C598[kFogLineByteSize + kFogLineByteSize * v33];
+        int v35 = ((v25 - v33) >> 1) + 1;
+        do
+        {
+            for (int j = 8; j <= v27; ++j)
+            {
+                v34[j - kFogLineByteSize] = (v34[j] + v34[j - kFogDoubleLineByteSize]) >> 1;
+            }
+            v34 += kFogDoubleLineByteSize;
+        } while (--v35);
+    }
+
+    // 5. Update fogSprites
+    int v37 = len_sar_4 + 9;
+    if (v59 + 9 > 0)
+    {
+        int v38 = 0;
+        int v39 = -72;
+        int v55_local = v59 + 9;
+        do
+        {
+            if (v37 > 0)
+            {
+                int v40 = 0;
+                int v41 = -144;
+                do
+                {
+                    uint8_t* v42 = &cadPtr->fogSprites[v38].unk[v40];
+                    uint8_t v43 = byte_1037C598[v40 + v38 * kFogLineByteSize];
+                    if (v43 != *v42)
+                    {
+                        *v42 = v43;
+
+                        sub_10055E00(div16Ptr, 24, v41, v39, v41 + 31, v39 + 15);
+                        v37 = len_sar_4 + 9;
+                    }
+                    ++v40;
+                    v41 += 16;
+                } while (v40 < v37);
+            }
+            ++v38;
+            v39 += 8;
+            --v55_local;
+        } while (v55_local);
+    }
+}
+
+void __declspec(noinline) __stdcall  GameDllHooks::sub_1006F120_de()
+{
+    auto* g = globals_;
+
+    uint8_t* byte_101C13FE = g->getPtr<uint8_t>(0x1C13C6);
+    uint8_t* byte_101C14FD = g->getPtr<uint8_t>(0x1C14C5);
+    uint8_t* byte_101C14FE = g->getPtr<uint8_t>(0x1C14C6);
+    uint8_t* byte_101C14FF = g->getPtr<uint8_t>(0x1C14C7);
+    uint8_t* byte_101C15FE = g->getPtr<uint8_t>(0x1C15C6);
+
+    const int map_length_probably = g->getValue<int>(0xC14B4);
+    const int map_width_probably = g->getValue<int>(0xC14B8);
+
+    const auto cadPtr = g->getValue<ModuleState*>(0x38446C);
+
+    const auto sub_10055E00 = g->getFn<void(__thiscall)(int*, int, int, int, int, int)>(0x58370);
+
+    const int dword_1037E920 = g->getValue<int>(0x37E8E0);
+    const int dword_1037E924 = g->getValue<int>(0x37E8E4);
+    const int xRight = g->getValue<int>(0x37E8DC);
+    const int yBottom = g->getValue<int>(0x37E8D8);
+
+    int* div16Ptr = g->getPtr<int>(0x3516E0);
+    const uint8_t byte_10383CB9 = g->getValue<uint8_t>(0x383C8D);
+    uint8_t* byte_1037C598 = g->getPtr<uint8_t>(0x37C554);
+    std::memset(byte_1037C598, 0x80, sizeof(((ModuleState*)0)->fogSprites));
+
+    const int v54 = dword_1037E920 >> 3;
+
+    const int tmp = (dword_1037E920 >> 3) - 3;
+    const int v0 = (tmp & 1);
+    int v1 = (1 - 2 * (v0 ^ (tmp >> 1)) - (dword_1037E924 >> 4)) & 3;
+    const int v2 = (dword_1037E924 + 16 * (v1 - 3)) >> 1;
+    const int v57 = dword_1037E924 >> 4;
+    const int v3 = 8 * v0 - 24;
+    const int v4 = dword_1037E920 + v3 + v2;
+    int v51 = (dword_1037E920 + v3 - v2) >> 5;
+
+    const int v59 = yBottom >> 3;
+    const int v5 = (yBottom >> 3) + 11;
+    const int len_sar_4 = xRight >> 4;
+    const int v6 = (xRight >> 4) + 11;
+    const int v7 = v0 + 5;
+    int v8 = v4 >> 5;
+    int v52 = v1;
+
+    // 1. Initialize buffer byte_1037C598
+    if (v7 <= v5)
+    {
+        uint8_t* v9 = &byte_1037C598[kFogLineByteSize * v7];
+        unsigned int big_counta = ((v5 - v7) >> 1) + 1;
+        int v47 = v1 + 5;
+        do
+        {
+            int v10 = v47;
+            int v50 = v51;
+            int v11 = v8;
+            if (v47 <= v6)
+            {
+                int v12 = v51 << 8;
+                do
+                {
+                    if (v11 >= 4
+                        && v50 >= 4
+                        && v11 < map_length_probably - 4
+                        && v50 < map_width_probably - 4
+                        && (byte_10383CB9 & byte_101C14FE[v12 + v11]) != 0)
+                    {
+                        if (v9[v10] > 0x40u)
+                        {
+                            if ((byte_10383CB9 & byte_101C15FE[v12 + v11]) != 0)
+                            {
+                                if ((byte_10383CB9 & byte_101C14FF[v12 + v11]) != 0)
+                                {
+                                    if ((byte_10383CB9 & byte_101C13FE[v12 + v11]) != 0)
+                                    {
+                                        if ((byte_10383CB9 & byte_101C14FD[v12 + v11]) == 0)
+                                            v9[v10] = 64;
+                                    }
+                                    else
+                                    {
+                                        v9[v10] = 64;
+                                    }
+                                }
+                                else
+                                {
+                                    v9[v10] = 64;
+                                }
+                            }
+                            else
+                            {
+                                v9[v10] = 64;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        v9[v10] = 0;
+                    }
+
+                    v10 += 4;
+                    ++v11;
+                    --v50;
+                    v12 -= 256;
+                } while (v10 <= v6);
+            }
+
+            if (v52 < 2)
+            {
+                v47 = v47 + 2;
+                ++v8;
+            }
+            else
+            {
+                v47 = v47 - 2;
+                ++v51;
+            }
+            v52 ^= 2;
+            v9 += kFogDoubleLineByteSize;
+            --big_counta;
+        } while (big_counta != 0);
+    }
+
+    // 2. Intermediate antialiasing
+    int v15;
+    if (v1 >= 2)
+    {
+        v15 = 2;
+    }
+    else
+    {
+        v1 += 4;
+        v15 = -2;
+    }
+    const int v17 = v6 - 1;
+    const int v18 = v5 - 1;
+    if (v0 + 7 < v18)
+    {
+        int v16 = v1 + 5;
+        const int v19 = v0 + 7;
+        uint8_t* v20 = &byte_1037C598[kFogLineByteSize * v19 - 2];
+        int v21 = ((v18 - v19 - 1) >> 1) + 1;
+        do
+        {
+            if (v16 < v17)
+            {
+                int v22 = v16;
+                do
+                {
+                    uint8_t a = v20[v22 - (kFogDoubleLineByteSize - 2)];
+                    uint8_t b = v20[v22 + 4];
+                    v22 += 4;
+                    v20[v22 - 2] = (v20[v22 + (kFogDoubleLineByteSize - 2)] + v20[v22 - 4] + b + a) >> 2;
+                } while (v22 < v17);
+            }
+            v16 += v15;
+            v15 = -v15;
+            v20 += kFogDoubleLineByteSize;
+        } while (--v21);
+    }
+
+    // 3. Horizontal solid antialiasing
+    const int v25 = v18 - 2;
+    const int v26 = (v54 & 1) + 8;
+    const int v27 = v17 - 2;
+    if (v26 <= v25)
+    {
+        uint8_t* lp_array_1 = &byte_1037C598[kFogLineByteSize * v26 + 1];
+        int v29 = ((v25 - v26) >> 1) + 1;
+        do
+        {
+            int start_i = ((v57 - 1) & 1) + 8;
+            for (int i = start_i; i <= v27; i += 2)
+            {
+                uint8_t v31 = lp_array_1[i - 2];
+                uint8_t v32 = lp_array_1[i];
+                lp_array_1[i - 1] = (v32 + v31) >> 1;
+            }
+            lp_array_1 += kFogDoubleLineByteSize;
+        } while (--v29);
+    }
+
+    // 4. Vertical solid antialiasing
+    const int v33 = ((v54 - 1) & 1) + 8;
+    if (v33 <= v25)
+    {
+        uint8_t* v34 = &byte_1037C598[kFogLineByteSize + kFogLineByteSize * v33];
+        int v35 = ((v25 - v33) >> 1) + 1;
+        do
+        {
+            for (int j = 8; j <= v27; ++j)
+            {
+                v34[j - kFogLineByteSize] = (v34[j] + v34[j - kFogDoubleLineByteSize]) >> 1;
+            }
+            v34 += kFogDoubleLineByteSize;
+        } while (--v35);
+    }
+
+    // 5. Update fogSprites
+    int v37 = len_sar_4 + 9;
+    if (v59 + 9 > 0)
+    {
+        int v38 = 0;
+        int v39 = -72;
+        int v55_local = v59 + 9;
+        do
+        {
+            if (v37 > 0)
+            {
+                int v40 = 0;
+                int v41 = -144;
+                do
+                {
+                    uint8_t* v42 = &cadPtr->fogSprites[v38].unk[v40];
+                    uint8_t v43 = byte_1037C598[v40 + v38 * kFogLineByteSize];
+                    if (v43 != *v42)
+                    {
+                        *v42 = v43;
+
+                        sub_10055E00(div16Ptr, 24, v41, v39, v41 + 31, v39 + 15);
+                        v37 = len_sar_4 + 9;
+                    }
+                    ++v40;
+                    v41 += 16;
+                } while (v40 < v37);
+            }
+            ++v38;
+            v39 += 8;
+            --v55_local;
+        } while (v55_local);
+    }
+}
+
+void __declspec(noinline) __stdcall  GameDllHooks::sub_1006F120_fr()
+{
+    auto* g = globals_;
+
+    uint8_t* byte_101C13FE = g->getPtr<uint8_t>(0x1C53E6);
+    uint8_t* byte_101C14FD = g->getPtr<uint8_t>(0x1C54E5);
+    uint8_t* byte_101C14FE = g->getPtr<uint8_t>(0x1C54E6);
+    uint8_t* byte_101C14FF = g->getPtr<uint8_t>(0x1C54E7);
+    uint8_t* byte_101C15FE = g->getPtr<uint8_t>(0x1C55E6);
+
+    const int map_length_probably = g->getValue<int>(0xC54D4);
+    const int map_width_probably = g->getValue<int>(0xC54D8);
+
+    const auto cadPtr = g->getValue<ModuleState*>(0x388598);
+
+    const auto sub_10055E00 = g->getFn<void(__thiscall)(int*, int, int, int, int, int)>(0x582D0);
+
+    const int dword_1037E920 = g->getValue<int>(0x382900);
+    const int dword_1037E924 = g->getValue<int>(0x382904);
+    const int xRight = g->getValue<int>(0x3828FC);
+    const int yBottom = g->getValue<int>(0x3828F8);
+
+    int* div16Ptr = g->getPtr<int>(0x355700);
+    const uint8_t byte_10383CB9 = g->getValue<uint8_t>(0x387CAD);
+    uint8_t* byte_1037C598 = g->getPtr<uint8_t>(0x380574);
     std::memset(byte_1037C598, 0x80, sizeof(((ModuleState*)0)->fogSprites));
 
     const int v54 = dword_1037E920 >> 3;
@@ -2075,6 +3159,96 @@ void __cdecl GameDllHooks::sub_10099E01(void* mem)
         const auto __sbh_free_block = g->getFn<void(__cdecl)(void*, void*)>(0x9D9F3);
         const auto small_find = g->getFn<void* (__cdecl)(void*, uint32_t**, uint32_t*)>(0x9E723);
         const auto small_free = g->getFn<void(__cdecl)(uint32_t*, int, void*)>(0x9E77A);
+
+        void* v1;
+        uint32_t* a2;
+        uint32_t a3;
+        if (dword_103A7FD4 == 3)
+        {
+            _lock(9);
+            v1 = __sbh_find_block(mem);
+            if (v1)
+                __sbh_free_block(v1, mem);
+            _unlock(9);
+
+            if (!v1 && is_valid_ptr(mem))
+                HeapFree(hHeap, 0, mem);
+        }
+        else if (dword_103A7FD4 != 2)
+        {
+            HeapFree(hHeap, 0, mem);
+        }
+        else
+        {
+            _lock(9);
+            v1 = small_find(mem, &a2, &a3);
+            if (v1)
+                small_free(a2, a3, v1);
+            _unlock(9);
+
+            if (!v1 && is_valid_ptr(mem))
+                HeapFree(hHeap, 0, mem);
+        }
+    }
+    __except (EXCEPTION_EXECUTE_HANDLER)
+    {
+    }
+}
+
+void __cdecl GameDllHooks::sub_10099E01_de(void* mem)
+{
+    if (!mem)
+        return;
+
+    auto* g = globals_;
+
+    HANDLE hHeap = g->getValue<HANDLE>(0x3A7FCC);
+
+    __try
+    {
+        const auto _lock = g->getFn<void(__cdecl)(int)>(0x9F6C4);
+        const auto _unlock = g->getFn<void(__cdecl)(int)>(0x9F725);
+        const auto __sbh_find_block = g->getFn<void* (__cdecl)(void*)>(0xA05C5);
+        const auto __sbh_free_block = g->getFn<void(__cdecl)(const void*, void*)>(0xA05F0);
+
+        _lock(9);
+        const void* v1 = __sbh_find_block(mem);
+        if (v1)
+        {
+            __sbh_free_block(v1, mem);
+            _unlock(9);
+        }
+        else
+        {
+            _unlock(9);
+            if (is_valid_ptr(mem))
+                HeapFree(hHeap, 0, mem);
+        }
+    }
+    __except (EXCEPTION_EXECUTE_HANDLER)
+    {
+    }
+}
+
+void __cdecl GameDllHooks::sub_10099E01_fr(void* mem)
+{
+    if (!mem)
+        return;
+
+    auto* g = globals_;
+
+    HANDLE hHeap = g->getValue<HANDLE>(0x3BB0F0);
+
+    __try
+    {
+        const int dword_103A7FD4 = g->getValue<int>(0x3BB0F4);
+
+        const auto _lock = g->getFn<void(__cdecl)(int)>(0x9FFC4);
+        const auto _unlock = g->getFn<void(__cdecl)(int)>(0xA0025);
+        const auto __sbh_find_block = g->getFn<void* (__cdecl)(void*)>(0xA1098);
+        const auto __sbh_free_block = g->getFn<void(__cdecl)(void*, void*)>(0xA10C3);
+        const auto small_find = g->getFn<void* (__cdecl)(void*, uint32_t**, uint32_t*)>(0xA1DF3);
+        const auto small_free = g->getFn<void(__cdecl)(uint32_t*, int, void*)>(0xA1E4A);
 
         void* v1;
         uint32_t* a2;

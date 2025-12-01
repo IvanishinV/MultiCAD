@@ -10,6 +10,7 @@ class MenuDllHooks : public DllHooksBase<MenuTag>
 public:
     static void __declspec(noinline) __fastcall sub_10014B70(void* self);
     static void __declspec(noinline) __fastcall sub_10014B70_hd(void* self);
+    static void __declspec(noinline) __fastcall sub_10014B70_fr(void* self);
 
 private:
     static void sub_10014B70_common(void* self, const char* versionStr, int x);
