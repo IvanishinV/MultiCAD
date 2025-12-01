@@ -106,6 +106,7 @@ const std::array patches_game_ss_gold_en
     PatchSpec{0x6E42C, PatchSpec::to_bytes(ARRAY_37B588_DWORD_SIZE)},
     PatchSpec{0x6E472, PatchSpec::to_bytes(ARRAY_37B588_DWORD_SIZE)},
     PatchSpec{0x713CE, PatchSpec::to_bytes(Graphics::kMaxHeight)},
+    PatchSpec{0x71CE0, {0x78}},             // jg 71E5C
     PatchSpec{0x71E24, {0x37}},             // jg 71E5C
     PatchSpec{0x71E29, {kRowStrideShift}}, // shl esi, 6
     PatchSpec{0x71E53, PatchSpec::concat(
