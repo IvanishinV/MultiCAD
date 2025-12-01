@@ -19,7 +19,10 @@ bool InstallGamePatches(TargetState& state, uintptr_t base, size_t size, const s
         ProfileFactory factory;
         auto profile = factory.create(detector.GetGameVersion());
         if (!profile)
-            break;
+        {
+            ShowErrorAsync("This is most likely a build error. MultiCAD identified game dll, but couldn't find relevant patches. Contact the author.");
+            return false;
+        }
 
         const auto& module = detector.GetModuleInfo();
         GameDllHooks::init(module.base);
@@ -76,7 +79,10 @@ bool InstallMenuPatches(TargetState& state, uintptr_t base, size_t size, const s
         ProfileFactory factory;
         auto profile = factory.create(detector.GetGameVersion());
         if (!profile)
-            break;
+        {
+            ShowErrorAsync("This is most likely a build error. MultiCAD identified menu dll, but couldn't find relevant patches. Contact the author.");
+            return false;
+        }
 
         const auto& module = detector.GetModuleInfo();
         MenuDllHooks::init(module.base);
