@@ -82,7 +82,7 @@ struct ModuleInfo
     uintptr_t   relocVA{};
     size_t      relocSize{};
 
-    GameVersion  version{ GameVersion::UNKNOWN };
+    GameVersion version{ GameVersion::UNKNOWN };
     DllType     type{ DllType::Unknown };
 
     bool valid() const

@@ -3,103 +3,83 @@
 
 #include <fstream>
 #include <wincrypt.h>
-#include <span>
+#include <cwctype>
+#include <queue>
 
-void DllVersionDetector::DetectDll(DllType type, const std::wstring& modulePath)
+DllVersionDetector& DllVersionDetector::GetInstance()
 {
-    moduleInfo_.type = type;
+    static DllVersionDetector instance;
+    return instance;
+}
+
+void DllVersionDetector::DetectDllVersion(const DllType type, const std::wstring& modulePath, const uintptr_t moduleBase, const size_t imageSize)
+{
+    auto& state = states_[type];
+    state.info.type = type;
+    state.info.base = moduleBase;
+    state.info.imageSize = imageSize;
 
     std::array<uint8_t, 32> hash;
-    if (!AnalyzeDll(modulePath, hash))
+    if (!AnalyzeDll(modulePath, hash, state.info))
     {
-        detectionStatus_ = DetectionStatus::NotCalculated;
-        moduleInfo_.version = GameVersion::UNKNOWN;
+        state.status = DetectionStatus::NotCalculated;
+        state.info.version = GameVersion::UNKNOWN;
         return;
     }
 
-    std::span<const DllVersion> versions =
-        (type == DllType::Game)
-        ? std::span<const DllVersion>(gameDllVersions_)
-        : std::span<const DllVersion>(menuDllVersions_);
-
-    for (const auto& kv : versions)
+    for (const auto& kv : GetVersions(type))
     {
         if (kv.sha256 == hash)
         {
-            detectionStatus_ = DetectionStatus::Supported;
-            moduleInfo_.version = kv.version;
+            state.status = DetectionStatus::Supported;
+            state.info.version = kv.version;
             return;
         }
     }
 
-    detectionStatus_ = DetectionStatus::UnsupportedHash;
-    moduleInfo_.version = GameVersion::UNKNOWN;
+    state.status = DetectionStatus::UnsupportedHash;
+    state.info.version = GameVersion::UNKNOWN;
 }
 
-void DllVersionDetector::DetectGameDll(const std::wstring& modulePath)
+DetectionStatus DllVersionDetector::GetDetectionStatus(const DllType type) const
 {
-    std::array<uint8_t, 32> hash;
-    if (!AnalyzeDll(modulePath, hash))
+    auto it = states_.find(type);
+    return it != states_.end() ? it->second.status : DetectionStatus::NotDetected;
+}
+
+GameVersion DllVersionDetector::GetGameVersion(const DllType type) const
+{
+    auto it = states_.find(type);
+    return it != states_.end() ? it->second.info.version : GameVersion::UNKNOWN;
+}
+
+GameVersion DllVersionDetector::GetOrDetectGameVersion(const DllType type, const std::wstring& modulePath, const uintptr_t moduleBase, const size_t imageSize)
+{
+    auto it = states_.find(type);
+    if (it != states_.end() && it->second.status != DetectionStatus::NotDetected && it->second.status != DetectionStatus::NotCalculated)
     {
-        detectionStatus_ = DetectionStatus::NotCalculated;
-        moduleInfo_.version = GameVersion::UNKNOWN;
-        return;
+        const uintptr_t diff = moduleBase - it->second.info.base;
+        it->second.info.relocVA += diff;
+        it->second.info.base = moduleBase;
+        it->second.info.imageSize = imageSize;
+        return it->second.info.version;
     }
 
-    for (const auto& kv : gameDllVersions_)
-    {
-        if (kv.sha256 == hash)
-        {
-            detectionStatus_ = DetectionStatus::Supported;
-            moduleInfo_.version = kv.version;
-            return;
-        }
-    }
+    if (it == states_.end() && (moduleBase == 0 || imageSize == 0))
+        return GameVersion::UNKNOWN;
 
-    detectionStatus_ = DetectionStatus::UnsupportedHash;
-    moduleInfo_.version = GameVersion::UNKNOWN;
+    DetectDllVersion(type, modulePath, moduleBase, imageSize);
+
+    return GetGameVersion(type);
 }
 
-void DllVersionDetector::DetectMenuDll(const std::wstring& modulePath)
+ModuleInfo DllVersionDetector::GetModuleInfo(const DllType type) const
 {
-    std::array<uint8_t, 32> hash;
-    if (!AnalyzeDll(modulePath, hash))
-    {
-        detectionStatus_ = DetectionStatus::NotCalculated;
-        moduleInfo_.version = GameVersion::UNKNOWN;
-        return;
-    }
-
-    for (const auto& kv : menuDllVersions_)
-    {
-        if (kv.sha256 == hash)
-        {
-            detectionStatus_ = DetectionStatus::Supported;
-            moduleInfo_.version = kv.version;
-            return;
-        }
-    }
-
-    detectionStatus_ = DetectionStatus::UnsupportedHash;
-    moduleInfo_.version = GameVersion::UNKNOWN;
+    auto it = states_.find(type);
+    return it != states_.end() ? it->second.info : ModuleInfo{};
 }
 
-DetectionStatus DllVersionDetector::GetDetectionStatus() const
-{
-    return detectionStatus_;
-}
-
-GameVersion DllVersionDetector::GetGameVersion() const
-{
-    return moduleInfo_.version;
-}
-
-ModuleInfo DllVersionDetector::GetModuleInfo() const
-{
-    return moduleInfo_;
-}
-
-bool DllVersionDetector::AnalyzeDll(const std::wstring& path, std::array<uint8_t, 32>& outHash)
+bool DllVersionDetector::AnalyzeDll(const std::wstring& path, std::array<uint8_t, 32>& outHash, ModuleInfo& info)
 {
     std::ifstream file(path, std::ios::binary);
     if (!file)
@@ -135,12 +115,12 @@ bool DllVersionDetector::AnalyzeDll(const std::wstring& path, std::array<uint8_t
 
     // Get image size
     auto* opt32 = reinterpret_cast<const IMAGE_OPTIONAL_HEADER32*>(optionalHeaderData.data());
-    moduleInfo_.imageSize = opt32->SizeOfImage;
+    info.imageSize = opt32->SizeOfImage;
 
     // Get reloc VA and size
     const IMAGE_DATA_DIRECTORY& relocDir = opt32->DataDirectory[IMAGE_DIRECTORY_ENTRY_BASERELOC];
-    moduleInfo_.relocVA = relocDir.VirtualAddress ? moduleInfo_.base + relocDir.VirtualAddress : 0;
-    moduleInfo_.relocSize = relocDir.Size;
+    info.relocVA = relocDir.VirtualAddress ? info.base + relocDir.VirtualAddress : 0;
+    info.relocSize = relocDir.Size;
 
     // Section table begins here
     if (fh.NumberOfSections == 0)
@@ -189,5 +169,86 @@ bool DllVersionDetector::AnalyzeDll(const std::wstring& path, std::array<uint8_t
 
         return success;
     }
+    return false;
+}
+
+static std::wstring GetProcessDirectory()
+{
+    wchar_t buffer[MAX_PATH];
+    DWORD len = GetModuleFileNameW(nullptr, buffer, MAX_PATH);
+
+    if (len == 0 || len == MAX_PATH)
+        return L"";
+
+    std::wstring path(buffer);
+
+    size_t pos = path.find_last_of(L"\\/");
+    if (pos != std::wstring::npos)
+        path.resize(pos);
+
+    return path;
+}
+
+bool DllVersionDetector::DetectFileDllVersion(const DllType type, const std::wstring_view& part)
+{
+    const std::wstring root = GetProcessDirectory();
+    std::queue<std::wstring> q;
+    q.push(root);
+
+    std::wstring partLower(part.size(), L'\0');
+    std::transform(part.begin(), part.end(), partLower.begin(), ::towlower);
+    std::wstring_view partView(partLower);
+
+    while (!q.empty())
+    {
+        std::wstring dir = q.front();
+        q.pop();
+
+        WIN32_FIND_DATAW fd;
+        std::wstring search = dir + L"\\*";
+        HANDLE hFind = FindFirstFileW(search.c_str(), &fd);
+        if (hFind == INVALID_HANDLE_VALUE)
+            continue;
+
+        do
+        {
+            const wchar_t* name = fd.cFileName;
+
+            if ((fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) &&
+                (wcscmp(name, L".") == 0 || wcscmp(name, L"..") == 0))
+                continue;
+
+            if (fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+            {
+                q.push(dir + L"\\" + name);
+            }
+            else
+            {
+                bool match = false;
+                if (partLower.empty())
+                    match = true;
+                else
+                {
+                    for (const wchar_t* p = name; *p && !match; ++p)
+                    {
+                        size_t i = 0;
+                        for (; i < partLower.size() && std::towlower(p[i]) == partLower[i]; ++i);
+                        if (i == partLower.size())
+                            match = true;
+                    }
+                }
+
+                if (match)
+                {
+                    DetectDllVersion(type, dir + L"\\" + name, 0, 0);
+                    FindClose(hFind);
+                    return true;
+                }
+            }
+        } while (FindNextFileW(hFind, &fd));
+
+        FindClose(hFind);
+    }
+
     return false;
 }

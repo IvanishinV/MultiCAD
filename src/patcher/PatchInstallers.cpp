@@ -4,47 +4,46 @@
 
 bool InstallGamePatches(TargetState& state, uintptr_t base, size_t size, const std::wstring& path)
 {
-    DllVersionDetector detector(base, size);
-    detector.DetectDll(DllType::Game, path);
+    DllVersionDetector& detector = DllVersionDetector::GetInstance();
+    GameVersion version = detector.GetOrDetectGameVersion(DllType::Game, path, base, size);
+    DetectionStatus status = detector.GetDetectionStatus(DllType::Game);
 
-    switch (detector.GetDetectionStatus())
-    {
-    case DetectionStatus::UnsupportedHash:
+    if (status == DetectionStatus::UnsupportedHash)
     {
         ShowErrorAsync("MultiCAD couldn't identify game dll and doesn't fully support this version of Sudden Strike. The mod may not work correctly. \nTo add support, contact the author of the mod.");
         return false;
     }
-    case DetectionStatus::Supported:
+
+    if (status != DetectionStatus::Supported)
     {
-        ProfileFactory factory;
-        auto profile = factory.create(detector.GetGameVersion());
-        if (!profile)
-        {
-            ShowErrorAsync("This is most likely a build error. MultiCAD identified game dll, but couldn't find relevant patches. Contact the author.");
-            return false;
-        }
-
-        const auto& module = detector.GetModuleInfo();
-        GameDllHooks::init(module.base);
-        state.patchEngine.emplace(
-            std::make_unique<MemoryRelocator>(),
-            std::make_unique<CodePatcher>()
-        );
-
-        if (!state.patchEngine->Apply(module, profile->game(), state.patchSession))
-        {
-            GameDllHooks::shutdown();
-            state.patchEngine.reset();
-
-            ShowErrorAsync("Couldn't patch game dll due to some error. Contact the author.");
-            return false;
-        }
-
-        return true;
-    }
+        return false;
     }
 
-    return false;
+    ProfileFactory factory;
+    auto profile = factory.create(version);
+    if (!profile)
+    {
+        ShowErrorAsync("This is most likely a build error. MultiCAD identified game dll, but couldn't find relevant patches. Contact the author.");
+        return false;
+    }
+
+    const auto& module = detector.GetModuleInfo(DllType::Game);
+    GameDllHooks::init(module.base);
+    state.patchEngine.emplace(
+        std::make_unique<MemoryRelocator>(),
+        std::make_unique<CodePatcher>()
+    );
+
+    if (!state.patchEngine->Apply(module, profile->game(), state.patchSession))
+    {
+        GameDllHooks::shutdown();
+        state.patchEngine.reset();
+
+        ShowErrorAsync("Couldn't patch game dll due to some error. Contact the author.");
+        return false;
+    }
+
+    return true;
 }
 
 bool UninstallGamePatches(TargetState& state)
@@ -64,47 +63,46 @@ bool InstallMenuPatches(TargetState& state, uintptr_t base, size_t size, const s
 {
     std::thread([] { AudioHelper::EnsureMaxVolume(); }).detach();
 
-    DllVersionDetector detector(base, size);
-    detector.DetectDll(DllType::Menu, path);
+    DllVersionDetector& detector = DllVersionDetector::GetInstance();
+    GameVersion version = detector.GetOrDetectGameVersion(DllType::Menu, path, base, size);
+    DetectionStatus status = detector.GetDetectionStatus(DllType::Menu);
 
-    switch (detector.GetDetectionStatus())
-    {
-    case DetectionStatus::UnsupportedHash:
+    if (status == DetectionStatus::UnsupportedHash)
     {
         ShowErrorAsync("MultiCAD couldn't identify menu dll and doesn't fully support this version of Sudden Strike. The mod may not work correctly. \nTo add support, contact the author of the mod.");
         return false;
     }
-    case DetectionStatus::Supported:
+
+    if (status != DetectionStatus::Supported)
     {
-        ProfileFactory factory;
-        auto profile = factory.create(detector.GetGameVersion());
-        if (!profile)
-        {
-            ShowErrorAsync("This is most likely a build error. MultiCAD identified menu dll, but couldn't find relevant patches. Contact the author.");
-            return false;
-        }
-
-        const auto& module = detector.GetModuleInfo();
-        MenuDllHooks::init(module.base);
-        state.patchEngine.emplace(
-            std::make_unique<MemoryRelocator>(),
-            std::make_unique<CodePatcher>()
-        );
-
-        if (!state.patchEngine->Apply(module, profile->menu(), state.patchSession))
-        {
-            MenuDllHooks::shutdown();
-            state.patchEngine.reset();
-
-            ShowErrorAsync("Couldn't patch game dll due to some error. Contact the author.");
-            return false;
-        }
-
-        return true;
-    }
+        return false;
     }
 
-    return false;
+    ProfileFactory factory;
+    auto profile = factory.create(version);
+    if (!profile)
+    {
+        ShowErrorAsync("This is most likely a build error. MultiCAD identified menu dll, but couldn't find relevant patches. Contact the author.");
+        return false;
+    }
+
+    const auto& module = detector.GetModuleInfo(DllType::Menu);
+    MenuDllHooks::init(module.base);
+    state.patchEngine.emplace(
+        std::make_unique<MemoryRelocator>(),
+        std::make_unique<CodePatcher>()
+    );
+
+    if (!state.patchEngine->Apply(module, profile->menu(), state.patchSession))
+    {
+        MenuDllHooks::shutdown();
+        state.patchEngine.reset();
+
+        ShowErrorAsync("Couldn't patch game dll due to some error. Contact the author.");
+        return false;
+    }
+
+    return true;
 }
 
 bool UninstallMenuPatches(TargetState& state)
