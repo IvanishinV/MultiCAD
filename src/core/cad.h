@@ -127,7 +127,8 @@ using DRAW_UI_SPRITE_PTR                = void(*)(S32 x, S32 y, const ImagePalet
 using MARK_UI_WITH_BUTTON_TYPE_PTR      = void(*)(S32 x, S32 y, const ImagePaletteSprite* const sprite, ButtonType type, const ImageSpriteUI* const uiSprite, const ButtonType* const offset);
 using DRAW_VANISHING_UI_SPRITE_PTR      = void(*)(S32 x, S32 y, S32 vanishLevel, const Pixel* palette, ImagePaletteSprite* const sprite, const ImageSpriteUI* const uiSprite);
 
-struct RendererActions
+
+struct RendererActionsPrefix
 {
     INIT_VALUES_PTR                                         initValues;
     INIT_DX_INSTANCE_PTR                                    initDxInstance;
@@ -164,7 +165,15 @@ struct RendererActions
     DRAW_MAIN_SURFACE_PALETTE_SPRITE_FRONT_STENCIL_PTR      drawMainSurfacePaletteSpriteFrontStencil;
     DRAW_MAIN_SURFACE_PALETTE_SPRITE_BACK_STENCIL_PTR       drawMainSurfacePaletteSpriteBackStencil;
     DRAW_MAIN_SURFACE_ANIMATION_SPRITE_STENCIL_PTR          drawMainSurfaceAnimationSpriteStencil;
+};
+
+struct RendererActionsAnimationSprite
+{
     DRAW_MAIN_SURFACE_ANIMATION_SPRITE_PTR                  drawMainSurfaceAnimationSprite;
+};
+
+struct RendererActionsPostfix
+{
     DRAW_MAIN_SURFACE_SHADOW_SPRITE_PTR                     drawMainSurfaceShadowSprite;
     DRAW_MAIN_SURFACE_ACTUAL_SPRITE_PTR                     drawMainSurfaceActualSprite;
     DRAW_MAIN_SURFACE_ADJUSTED_SPRITE_PTR                   drawMainSurfaceAdjustedSprite;
@@ -190,6 +199,9 @@ struct RendererActions
     MARK_UI_WITH_BUTTON_TYPE_PTR                            markUiWithButtonType;
     RELEASE_DX_INSTANCE_PTR                                 releaseDxInstance;
 };
+
+struct RendererActionsSSGoldRelease : RendererActionsAnimationSprite, RendererActionsPostfix {};
+
 
 struct Rect
 {
@@ -238,8 +250,14 @@ struct RhombsPalette
     Pixel palette[Graphics::kPaletteSize * 67];
 };
 
-struct ModuleState
+
+struct ModuleStateBase
 {
+    // Important! We need to increase fog array, so move it to another part of the struct
+    Fog                 fogSprites[(Graphics::kMaxHeight >> 3) + 0x10];      //10012b5a-10014e5b     // For array for screen. Originally it was 112 elements. Adding 0x10 for borderline cases
+
+    U32                 pad_4[2];
+
     Rect                windowRect;
     RendererSurface     surface;
 
@@ -274,7 +292,15 @@ struct ModuleState
     HWND                hwnd;
     bool                isFullScreen;                    //1001d478
     DirectX             directX;
-    RendererActions     actions;
+
+    RendererActionsPrefix actions;
+};
+
+// Sudden Strike Gold en, de, fr and all mods based on these versions
+struct ModuleStateSSGold_INT : ModuleStateBase
+{
+    RendererActionsSSGoldRelease     actionsPostfix;
+};
 
     // Important! We need to increase fog array, so move it to another part of the struct
     Fog                 fogSprites[(Graphics::kMaxHeight >> 3) + 0x10];      //10012b5a-10014e5b     // For array for screen. Originally it was 112 elements. Adding 0x10 for borderline cases
@@ -282,7 +308,18 @@ struct ModuleState
 
 #pragma warning(pop)
 
-extern ModuleState g_moduleState;
+extern ModuleStateBase* g_moduleState;
 
-static_assert(offsetof(ModuleState, hwnd) == 0xA96C, "hwnd offset mismatch");
-static_assert(offsetof(ModuleState, actions.initDxInstance) == 0xA980, "initDxInstance offset mismatch");   // This function is called from game.exe
+
+#define CHECK_OFFSET(STRUCT, BASE, MEMBER, EXPECTED) \
+    static_assert(offsetof(STRUCT, MEMBER) - offsetof(STRUCT, BASE) == (EXPECTED), \
+                  #STRUCT ": " #MEMBER " offset mismatch")
+
+static_assert(offsetof(ModuleStateBase, windowRect) % 0x10 == 8, "windowRect should be aligned by 8 bytes");
+CHECK_OFFSET(ModuleStateBase, windowRect, hwnd, 0xA96C);
+CHECK_OFFSET(ModuleStateBase, windowRect, actions, 0xA97C);
+CHECK_OFFSET(ModuleStateBase, windowRect, actions.initDxInstance, 0xA980);   // This function is called from game.exe
+CHECK_OFFSET(ModuleStateBase, windowRect, actions.drawMainSurfaceAnimationSpriteStencil, 0xAA04);
+
+CHECK_OFFSET(ModuleStateSSGold_INT, windowRect, actionsPostfix.drawMainSurfaceAnimationSprite, 0xAA08);
+CHECK_OFFSET(ModuleStateSSGold_INT, windowRect, actionsPostfix.drawMainSurfaceShadowSprite, 0xAA0C);

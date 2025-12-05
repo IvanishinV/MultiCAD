@@ -1,79 +1,132 @@
 #include "pch.h"
 #include "cad.h"
 #include "renderer.h"
+#include "DllVersionDetector.h"
 
-ModuleState g_moduleState;
+static ModuleStateSSGold_INT  g_moduleStateRelease;
 
-ModuleState* InitializeModule()
+ModuleStateBase* g_moduleState{ nullptr };
+
+inline void InitActionsPrefix(RendererActionsPrefix& a)
 {
-#pragma comment(linker, "/EXPORT:" "CADraw_Init=" __FUNCDNAME__)
+    a.initValues                                = initValues;
+    a.initDxInstance                            = initDxInstance;
+    a.restoreDxInstance                         = restoreDxInstance;
+    a.initWindowDxSurface                       = initWindowDxSurface;
+    a.setPixelColorMasks                        = setPixelColorMasks;
+    a.releaseDxSurface                          = releaseDxSurface;
+    a.lockDxSurface                             = lockDxSurface;
+    a.unlockDxSurface                           = unlockDxSurface;
+    a.copyMainBackSurfaces                      = copyMainBackSurfaces;
+    a.convertNotMagentaColors                   = convertNotMagentaColors;
+    a.convertAllColors                          = convertAllColors;
+    a.getTextLength                             = getTextLength;
+    a.drawBackSurfaceText                       = drawBackSurfaceText;
+    a.drawMainSurfaceText                       = drawMainSurfaceText;
+    a.callDrawBackSurfacePaletteRhomb           = callDrawBackSurfacePaletteRhomb;
+    a.callDrawBackSurfaceMaskRhomb              = callDrawBackSurfaceMaskRhomb;
+    a.drawBackSurfaceRhombsPaletteSprite        = drawBackSurfaceRhombsPaletteSprite;
+    a.drawBackSurfaceRhombsPaletteSprite2       = drawBackSurfaceRhombsPaletteSprite2;
+    a.drawBackSurfaceRhombsPaletteShadedSprite  = drawBackSurfaceRhombsPaletteShadedSprite;
+    a.drawBackSurfacePaletteShadedSprite        = drawBackSurfacePaletteShadedSprite;
+    a.drawBackSurfacePaletteSpriteAndStencil    = drawBackSurfacePaletteSpriteAndStencil;
+    a.drawBackSurfacePalletteSprite             = drawBackSurfacePalletteSprite;
+    a.drawBackSurfaceShadowSprite               = drawBackSurfaceShadowSprite;
+    a.copyBackToMainSurfaceRect                 = copyBackToMainSurfaceRect;
+    a.drawBackSurfaceColorPoint                 = drawBackSurfaceColorPoint;
+    a.callShadeMainSurfaceRhomb                 = callShadeMainSurfaceRhomb;
+    a.callCleanMainSurfaceRhomb                 = callCleanMainSurfaceRhomb;
+    a.drawMainSurfacePaletteSpriteCompact       = drawMainSurfacePaletteSpriteCompact;
+    a.drawMainSurfaceSprite                     = drawMainSurfaceSprite;
+    a.drawMainSurfacePaletteSprite              = drawMainSurfacePaletteSprite;
+    a.drawMainSurfacePaletteSpriteStencil       = drawMainSurfacePaletteSpriteStencil;
+    a.drawMainSurfacePaletteSpriteFrontStencil  = drawMainSurfacePaletteSpriteFrontStencil;
+    a.drawMainSurfacePaletteSpriteBackStencil   = drawMainSurfacePaletteSpriteBackStencil;
+    a.drawMainSurfaceAnimationSpriteStencil     = drawMainSurfaceAnimationSpriteStencil;
+    a.blendMainSurfaceWithWarFog_0              = blendMainSurfaceWithWarFog;
+}
 
-    g_moduleState.surface.main      = g_rendererState.surfaces.main;
-    g_moduleState.surface.back      = g_rendererState.surfaces.back;
-    g_moduleState.surface.stencil   = g_rendererState.surfaces.stencil;
+inline void InitActionsAnimationSprite(RendererActionsAnimationSprite& a)
+{
+    a.drawMainSurfaceAnimationSprite = drawMainSurfaceAnimationSprite;
+}
+
+inline void InitActionsPostfix(RendererActionsPostfix& p)
+{
+    p.drawMainSurfaceShadowSprite           = drawMainSurfaceShadowSprite;
+    p.drawMainSurfaceActualSprite           = drawMainSurfaceActualSprite;
+    p.drawMainSurfaceAdjustedSprite         = drawMainSurfaceAdjustedSprite;
+    p.drawMainSurfaceVanishingPaletteSprite = drawMainSurfaceVanishingPaletteSprite;
+    p.drawMainSurfaceColorPoint             = drawMainSurfaceColorPoint;
+    p.drawMainSurfaceFilledColorRect        = drawMainSurfaceFilledColorRect;
+    p.drawMainSurfaceColorRect              = drawMainSurfaceColorRect;
+    p.drawMainSurfaceHorLine                = drawMainSurfaceHorLine;
+    p.drawMainSurfaceVertLine               = drawMainSurfaceVertLine;
+    p.drawMainSurfaceShadeColorRect         = drawMainSurfaceShadeColorRect;
+    p.drawMainSurfaceColorOutline           = drawMainSurfaceColorOutline;
+    p.drawMainSurfaceColorEllipse           = drawMainSurfaceColorEllipse;
+    p.copyMainSurfaceToRendererWithWarFog   = copyMainSurfaceToRendererWithWarFog;
+    p.copyMainSurfaceToRenderer             = copyMainSurfaceToRenderer;
+    p.readMainSurfaceRect                   = readMainSurfaceRect;
+    p.maskStencilSurfaceRect                = maskStencilSurfaceRect;
+    p.resetStencilSurface                   = resetStencilSurface;
+    p.copyToRendererSurfaceRect             = copyToRendererSurfaceRect;
+    p.copyPixelRectFromTo                   = copyPixelRectFromTo;
+    p.drawUiSprite                          = drawUiSprite;
+    p.drawVanishingUiSprite                 = drawVanishingUiSprite;
+    p.markUiWithButtonType                  = markUiWithButtonType;
+    p.releaseDxInstance                     = releaseDxInstance;
+    p.blendMainSurfaceWithWarFog_1          = blendMainSurfaceWithWarFog;
+}
+
+template<typename ModuleState>
+void InitModuleState(ModuleState& s)
+{
+    s.surface.main = g_rendererState.surfaces.main;
+    s.surface.back = g_rendererState.surfaces.back;
+    s.surface.stencil = g_rendererState.surfaces.stencil;
 
     initValues();
 
-    g_moduleState.actions.blendMainSurfaceWithWarFog_0              = blendMainSurfaceWithWarFog;
-    g_moduleState.actions.blendMainSurfaceWithWarFog_1              = blendMainSurfaceWithWarFog;
-    g_moduleState.actions.initValues                                = initValues;
-    g_moduleState.actions.initDxInstance                            = initDxInstance;
-    g_moduleState.actions.restoreDxInstance                         = restoreDxInstance;
-    g_moduleState.actions.initWindowDxSurface                       = initWindowDxSurface;
-    g_moduleState.actions.setPixelColorMasks                        = setPixelColorMasks;
-    g_moduleState.actions.releaseDxSurface                          = releaseDxSurface;
-    g_moduleState.actions.lockDxSurface                             = lockDxSurface;
-    g_moduleState.actions.unlockDxSurface                           = unlockDxSurface;
-    g_moduleState.actions.copyMainBackSurfaces                      = copyMainBackSurfaces;
-    g_moduleState.actions.convertNotMagentaColors                   = convertNotMagentaColors;
-    g_moduleState.actions.convertAllColors                          = convertAllColors;
-    g_moduleState.actions.getTextLength                             = getTextLength;
-    g_moduleState.actions.drawBackSurfaceText                       = drawBackSurfaceText;
-    g_moduleState.actions.drawMainSurfaceText                       = drawMainSurfaceText;
-    g_moduleState.actions.callDrawBackSurfacePaletteRhomb           = callDrawBackSurfacePaletteRhomb;
-    g_moduleState.actions.callDrawBackSurfaceMaskRhomb              = callDrawBackSurfaceMaskRhomb;
-    g_moduleState.actions.drawBackSurfaceRhombsPaletteSprite        = drawBackSurfaceRhombsPaletteSprite;
-    g_moduleState.actions.drawBackSurfaceRhombsPaletteSprite2       = drawBackSurfaceRhombsPaletteSprite2;
-    g_moduleState.actions.drawBackSurfaceRhombsPaletteShadedSprite  = drawBackSurfaceRhombsPaletteShadedSprite;
-    g_moduleState.actions.drawBackSurfacePaletteShadedSprite        = drawBackSurfacePaletteShadedSprite;
-    g_moduleState.actions.drawBackSurfacePaletteSpriteAndStencil    = drawBackSurfacePaletteSpriteAndStencil;
-    g_moduleState.actions.drawBackSurfacePalletteSprite             = drawBackSurfacePalletteSprite;
-    g_moduleState.actions.drawBackSurfaceShadowSprite               = drawBackSurfaceShadowSprite;
-    g_moduleState.actions.copyBackToMainSurfaceRect                 = copyBackToMainSurfaceRect;
-    g_moduleState.actions.drawBackSurfaceColorPoint                 = drawBackSurfaceColorPoint;
-    g_moduleState.actions.callShadeMainSurfaceRhomb                 = callShadeMainSurfaceRhomb;
-    g_moduleState.actions.callCleanMainSurfaceRhomb                 = callCleanMainSurfaceRhomb;
-    g_moduleState.actions.drawMainSurfacePaletteSpriteCompact       = drawMainSurfacePaletteSpriteCompact;
-    g_moduleState.actions.drawMainSurfaceSprite                     = drawMainSurfaceSprite;
-    g_moduleState.actions.drawMainSurfacePaletteSprite              = drawMainSurfacePaletteSprite;
-    g_moduleState.actions.drawMainSurfacePaletteSpriteStencil       = drawMainSurfacePaletteSpriteStencil;
-    g_moduleState.actions.drawMainSurfacePaletteSpriteFrontStencil  = drawMainSurfacePaletteSpriteFrontStencil;
-    g_moduleState.actions.drawMainSurfacePaletteSpriteBackStencil   = drawMainSurfacePaletteSpriteBackStencil;
-    g_moduleState.actions.drawMainSurfaceAnimationSpriteStencil     = drawMainSurfaceAnimationSpriteStencil;
-    g_moduleState.actions.drawMainSurfaceAnimationSprite            = drawMainSurfaceAnimationSprite;
-    g_moduleState.actions.drawMainSurfaceShadowSprite               = drawMainSurfaceShadowSprite;
-    g_moduleState.actions.drawMainSurfaceActualSprite               = drawMainSurfaceActualSprite;
-    g_moduleState.actions.drawMainSurfaceAdjustedSprite             = drawMainSurfaceAdjustedSprite;
-    g_moduleState.actions.drawMainSurfaceVanishingPaletteSprite     = drawMainSurfaceVanishingPaletteSprite;
-    g_moduleState.actions.drawMainSurfaceColorPoint                 = drawMainSurfaceColorPoint;
-    g_moduleState.actions.drawMainSurfaceFilledColorRect            = drawMainSurfaceFilledColorRect;
-    g_moduleState.actions.drawMainSurfaceColorRect                  = drawMainSurfaceColorRect;
-    g_moduleState.actions.drawMainSurfaceHorLine                    = drawMainSurfaceHorLine;
-    g_moduleState.actions.drawMainSurfaceVertLine                   = drawMainSurfaceVertLine;
-    g_moduleState.actions.drawMainSurfaceShadeColorRect             = drawMainSurfaceShadeColorRect;
-    g_moduleState.actions.drawMainSurfaceColorOutline               = drawMainSurfaceColorOutline;
-    g_moduleState.actions.drawMainSurfaceColorEllipse               = drawMainSurfaceColorEllipse;
-    g_moduleState.actions.copyMainSurfaceToRendererWithWarFog       = copyMainSurfaceToRendererWithWarFog;
-    g_moduleState.actions.copyMainSurfaceToRenderer                 = copyMainSurfaceToRenderer;
-    g_moduleState.actions.readMainSurfaceRect                       = readMainSurfaceRect;
-    g_moduleState.actions.maskStencilSurfaceRect                    = maskStencilSurfaceRect;
-    g_moduleState.actions.resetStencilSurface                       = resetStencilSurface;
-    g_moduleState.actions.copyToRendererSurfaceRect                 = copyToRendererSurfaceRect;
-    g_moduleState.actions.copyPixelRectFromTo                       = copyPixelRectFromTo;
-    g_moduleState.actions.drawUiSprite                              = drawUiSprite;
-    g_moduleState.actions.drawVanishingUiSprite                     = drawVanishingUiSprite;
-    g_moduleState.actions.markUiWithButtonType                      = markUiWithButtonType;
-    g_moduleState.actions.releaseDxInstance                         = releaseDxInstance;
+    InitActionsPrefix(s.actions);
 
-    return &g_moduleState;
+    if constexpr (requires { s.actionsPostfix; })
+    {
+        InitActionsPostfix(s.actionsPostfix);
+    }
+
+    if constexpr (std::derived_from<ModuleState, RendererActionsAnimationSprite>)
+    {
+        InitActionsAnimationSprite(s.actionsPostfix);
+    }
+}
+
+void* InitSSGoldRelease()
+{
+    g_moduleState = &g_moduleStateRelease;
+
+    InitModuleState(g_moduleStateRelease);
+
+    return &g_moduleStateRelease.windowRect;
+}
+
+void* InitializeModule()
+{
+#pragma comment(linker, "/EXPORT:" "CADraw_Init=" __FUNCDNAME__)
+
+    DllVersionDetector& detector = DllVersionDetector::GetInstance();
+
+    detector.DetectFileDllVersion(DllType::Menu, L"menu_dll");
+    const GameVersion menuDllVersion = detector.GetGameVersion(DllType::Menu);
+
+    switch (menuDllVersion)
+    {
+    case GameVersion::UNKNOWN:
+    {
+        ShowErrorNow("MultiCAD couldn't identify menu dll and doesn't fully support this version of Sudden Strike. The mod may not work correctly. \nTo add support, contact the author of the mod.");
+        [[fallthrough]];
+    }
+    default:
+        return InitSSGoldRelease();
+    }
 }

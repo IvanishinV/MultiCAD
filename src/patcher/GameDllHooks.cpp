@@ -2007,8 +2007,8 @@ void __declspec(noinline) __stdcall  GameDllHooks::sub_1006D940()
     auto sub_1004DDC0 = g->getFn<void()>(0x4DDC0);
 
 
-    auto cadPtr = reinterpret_cast<ModuleState*>(g->getValue<uintptr_t>(0x384474));
-    auto cad_26E0 = *reinterpret_cast<void(__cdecl**)()>(reinterpret_cast<uintptr_t>(cadPtr) + 0xAA50);
+    ModuleStateSSGold_INT* const cadPtr = reinterpret_cast<ModuleStateSSGold_INT*>(g->getValue<uintptr_t>(0x384474) - (offsetof(ModuleStateSSGold_INT, windowRect) - offsetof(ModuleStateSSGold_INT, fogSprites)));
+    auto resetStencilSurface = cadPtr->actionsPostfix.resetStencilSurface;
 
     uint16_t paletteWord = g->getValue<uint16_t>(0x383EFE);
 
@@ -2076,7 +2076,7 @@ void __declspec(noinline) __stdcall  GameDllHooks::sub_1006D940()
             cadPtr->windowRect.width = gd.allowX;
             cadPtr->windowRect.height = gd.allowY;
 
-            cad_26E0();     // resetStencilSurface()
+            resetStencilSurface();
 
             sub_10049EC0(
                 gd.alignX + g->getValue<int>(0x37E924),
@@ -2116,8 +2116,8 @@ void __declspec(noinline) __stdcall  GameDllHooks::sub_1006D940_hd()
     auto sub_1004DDC0 = g->getFn<void()>(0x4DDC0);
 
 
-    auto cadPtr = reinterpret_cast<ModuleState*>(g->getValue<uintptr_t>(0x384474));
-    auto cad_26E0 = *reinterpret_cast<void(__cdecl**)()>(reinterpret_cast<uintptr_t>(cadPtr) + 0xAA50);
+    ModuleStateSSGold_INT* const cadPtr = reinterpret_cast<ModuleStateSSGold_INT*>(g->getValue<uintptr_t>(0x384474) - (offsetof(ModuleStateSSGold_INT, windowRect) - offsetof(ModuleStateSSGold_INT, fogSprites)));
+    auto resetStencilSurface = cadPtr->actionsPostfix.resetStencilSurface;
 
     uint16_t paletteWord = g->getValue<uint16_t>(0x383EFE);
 
@@ -2185,7 +2185,7 @@ void __declspec(noinline) __stdcall  GameDllHooks::sub_1006D940_hd()
             cadPtr->windowRect.width = gd.allowX;
             cadPtr->windowRect.height = gd.allowY;
 
-            cad_26E0();     // resetStencilSurface()
+            resetStencilSurface();
 
             sub_10049EC0(
                 gd.alignX + g->getValue<int>(0x37E924),
@@ -2221,7 +2221,7 @@ void __declspec(noinline) __stdcall  GameDllHooks::sub_1006F120()
     const int map_length_probably = g->getValue<int>(0xC14EC);
     const int map_width_probably = g->getValue<int>(0xC14F0);
 
-    const auto cadPtr = g->getValue<ModuleState*>(0x384474);
+    const auto cadPtr = reinterpret_cast<ModuleStateSSGold_INT*>(g->getValue<uintptr_t>(0x384474) - (offsetof(ModuleStateSSGold_INT, windowRect) - offsetof(ModuleStateSSGold_INT, fogSprites)));
 
     const auto sub_10055E00 = g->getFn<void(__thiscall)(int*, int, int, int, int, int)>(0x55E00);
 
@@ -2233,7 +2233,7 @@ void __declspec(noinline) __stdcall  GameDllHooks::sub_1006F120()
     int* div16Ptr = g->getPtr<int>(0x351728);
     const uint8_t byte_10383CB9 = g->getValue<uint8_t>(0x383CB9);
     uint8_t* byte_1037C598 = g->getPtr<uint8_t>(0x37C598);
-    std::memset(byte_1037C598, 0x80, sizeof(((ModuleState*)0)->fogSprites));
+    std::memset(byte_1037C598, 0x80, sizeof(((ModuleStateSSGold_INT*)0)->fogSprites));
 
     const int v54 = dword_1037E920 >> 3;
 
@@ -2454,7 +2454,7 @@ void __declspec(noinline) __stdcall  GameDllHooks::sub_1006F120_de()
     const int map_length_probably = g->getValue<int>(0xC14B4);
     const int map_width_probably = g->getValue<int>(0xC14B8);
 
-    const auto cadPtr = g->getValue<ModuleState*>(0x38446C);
+    const auto cadPtr = reinterpret_cast<ModuleStateSSGold_INT*>(g->getValue<uintptr_t>(0x38446C) - (offsetof(ModuleStateSSGold_INT, windowRect) - offsetof(ModuleStateSSGold_INT, fogSprites)));
 
     const auto sub_10055E00 = g->getFn<void(__thiscall)(int*, int, int, int, int, int)>(0x58370);
 
@@ -2466,7 +2466,7 @@ void __declspec(noinline) __stdcall  GameDllHooks::sub_1006F120_de()
     int* div16Ptr = g->getPtr<int>(0x3516E0);
     const uint8_t byte_10383CB9 = g->getValue<uint8_t>(0x383C8D);
     uint8_t* byte_1037C598 = g->getPtr<uint8_t>(0x37C554);
-    std::memset(byte_1037C598, 0x80, sizeof(((ModuleState*)0)->fogSprites));
+    std::memset(byte_1037C598, 0x80, sizeof(((ModuleStateSSGold_INT*)0)->fogSprites));
 
     const int v54 = dword_1037E920 >> 3;
 
@@ -2687,7 +2687,7 @@ void __declspec(noinline) __stdcall  GameDllHooks::sub_1006F120_fr()
     const int map_length_probably = g->getValue<int>(0xC54D4);
     const int map_width_probably = g->getValue<int>(0xC54D8);
 
-    const auto cadPtr = g->getValue<ModuleState*>(0x388598);
+    const auto cadPtr = reinterpret_cast<ModuleStateSSGold_INT*>(g->getValue<uintptr_t>(0x384598) - (offsetof(ModuleStateSSGold_INT, windowRect) - offsetof(ModuleStateSSGold_INT, fogSprites)));
 
     const auto sub_10055E00 = g->getFn<void(__thiscall)(int*, int, int, int, int, int)>(0x582D0);
 
@@ -2699,7 +2699,7 @@ void __declspec(noinline) __stdcall  GameDllHooks::sub_1006F120_fr()
     int* div16Ptr = g->getPtr<int>(0x355700);
     const uint8_t byte_10383CB9 = g->getValue<uint8_t>(0x387CAD);
     uint8_t* byte_1037C598 = g->getPtr<uint8_t>(0x380574);
-    std::memset(byte_1037C598, 0x80, sizeof(((ModuleState*)0)->fogSprites));
+    std::memset(byte_1037C598, 0x80, sizeof(((ModuleStateSSGold_INT*)0)->fogSprites));
 
     const int v54 = dword_1037E920 >> 3;
 
@@ -2920,7 +2920,7 @@ void __declspec(noinline) __stdcall  GameDllHooks::sub_1006F120_hd()
     const int map_length_probably = g->getValue<int>(0xC14EC);
     const int map_width_probably = g->getValue<int>(0xC14F0);
 
-    const auto cadPtr = g->getValue<ModuleState*>(0x384474);
+    const auto cadPtr = reinterpret_cast<ModuleStateSSGold_INT*>(g->getValue<uintptr_t>(0x384474) - (offsetof(ModuleStateSSGold_INT, windowRect) - offsetof(ModuleStateSSGold_INT, fogSprites)));
 
     const auto sub_10055E00 = g->getFn<void(__thiscall)(int*, int, int, int, int, int)>(0x55E00);
 
@@ -2932,7 +2932,7 @@ void __declspec(noinline) __stdcall  GameDllHooks::sub_1006F120_hd()
     int* div16Ptr = g->getPtr<int>(0x3AD000);
     const uint8_t byte_10383CB9 = g->getValue<uint8_t>(0x383CB9);
     uint8_t* byte_1037C598 = g->getPtr<uint8_t>(0x3B2002);
-    std::memset(byte_1037C598, 0x80, sizeof(((ModuleState*)0)->fogSprites));
+    std::memset(byte_1037C598, 0x80, sizeof(((ModuleStateSSGold_INT*)0)->fogSprites));
 
     const int v54 = dword_1037E920 >> 3;
 

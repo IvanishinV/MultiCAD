@@ -45,7 +45,7 @@ constexpr std::array relocs_game_ss_gold_en
     * This memory starts from 96, but previous array has int starting on 94. May be the developers
     * wanted to use the high word of 94 int value in helper array. So I left the same.
     */
-    RelocateGapSpec{ 0x0037C596, 0x0037E898, 2 + sizeof(((ModuleState*)0)->fogSprites) },
+    RelocateGapSpec{ 0x0037C596, 0x0037E898, 2 + sizeof(((ModuleStateBase*)0)->fogSprites) },
 };
 
 const std::array hooks_game_ss_gold_en
@@ -151,7 +151,7 @@ constexpr std::array relocs_game_ss_gold_de
     RelocateGapSpec{ 0x003516E0, 0x00352EE8, 8 + sizeof(uint32_t) * kRowStrideDwordSize * ((Graphics::kMaxHeight + 7) >> 3) },
     RelocateGapSpec{ 0x0037B53C, 0x0037C53C, ARRAY_37B588_BYTE_SIZE },
     RelocateGapSpec{ 0x0037C53C, 0x0037C552, 0x10 },
-    RelocateGapSpec{ 0x0037C552, 0x0037E858, 2 + sizeof(((ModuleState*)0)->fogSprites) },
+    RelocateGapSpec{ 0x0037C552, 0x0037E858, 2 + sizeof(((ModuleStateBase*)0)->fogSprites) },
 };
 
 const std::array hooks_game_ss_gold_de
@@ -237,7 +237,7 @@ constexpr std::array relocs_game_ss_gold_fr
     RelocateGapSpec{ 0x00355700, 0x00356F04, 8 + sizeof(uint32_t) * kRowStrideDwordSize * ((Graphics::kMaxHeight + 7) >> 3) },
     RelocateGapSpec{ 0x0037F55C, 0x0038055C, ARRAY_37B588_BYTE_SIZE },
     RelocateGapSpec{ 0x0038055C, 0x00380752, 0x10 },
-    RelocateGapSpec{ 0x00380752, 0x00382878, 2 + sizeof(((ModuleState*)0)->fogSprites) },
+    RelocateGapSpec{ 0x00380752, 0x00382878, 2 + sizeof(((ModuleStateBase*)0)->fogSprites) },
 };
 
 const std::array hooks_game_ss_gold_fr
@@ -339,7 +339,7 @@ constexpr std::array relocs_game_ss_gold_hd_1_2
     RelocateGapSpec{ 0x003AD000, 0x003B2000, 8 + sizeof(uint32_t) * kRowStrideDwordSize * ((Graphics::kMaxHeight + 7) >> 3) },
     RelocateGapSpec{ 0x003BC000, 0x003BD800, ARRAY_37B588_BYTE_SIZE },
     RelocateGapSpec{ 0x003BD800, 0x003BD80E, 0x10 },
-    RelocateGapSpec{ 0x003B2000, 0x003BC000, 2 + sizeof(((ModuleState*)0)->fogSprites) },
+    RelocateGapSpec{ 0x003B2000, 0x003BC000, 2 + sizeof(((ModuleStateBase*)0)->fogSprites) },
 };
 
 const std::array hooks_game_ss_gold_hd_1_2
