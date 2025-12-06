@@ -1,18 +1,18 @@
 # MultiCAD
 
 **MultiCAD** is a universal graphics DLL replacement for **Sudden Strike**, **Sudden Strike Forever**, and related games.
-It supports **any custom screen resolution** from 640x480 up to 2560x1440  (note: higher resolutions may be a bit laggy) and includes various bug fixes across different game versions.
+It supports **any custom screen resolution** from 640x480 up to 2560x1600  (note: higher resolutions may be a bit laggy) and includes various bug fixes across different game versions.
 
 ## Supported Games
 
 | Game                     | Status | Versions / Languages      | Fixes       |
 |--------------------------|--------|---------------------------|-------------|
 | **Sudden Strike**        |   🛠️   |                           |             |
-| **Sudden Strike Forever**|   ✔   | en, de, fr, ru, ch        | 6 bug fixes |
-| **Sudden Strike Gold**   |   ✔   | en, de, fr, ru            | 6 bug fixes |
-| **Sudden Strike HD v1.2**|   ✔   | en, de, fr, ru            | 6 bug fixes |
-| **APRM**                 |   ✔   | 3.0, 3.1, 4.0             | 6 bug fixes |
-| **TWO**                  |   ✔   | en                        | 6 bug fixes |
+| **Sudden Strike Forever**|   ✔   | en, de, fr, ru, ch        | 7 bug fixes |
+| **Sudden Strike Gold**   |   ✔   | en, de, fr, ru            | 7 bug fixes |
+| **Sudden Strike HD v1.2**|   ✔   | en, de, fr, ru            | 7 bug fixes |
+| **APRM**                 |   ✔   | 3.0, 3.1, 4.0             | 7 bug fixes |
+| **TWO**                  |   ✔   | en                        | 7 bug fixes |
 
 > 💡 Note: `Audio Mixer Zero-Volume Fix` restores the game volume in the audio mixer to full if it was set to zero. Applies to **all versions**.
 
