@@ -4,6 +4,7 @@
 #include "DllVersionDetector.h"
 
 static ModuleStateSSGold_INT  g_moduleStateRelease;
+static ModuleStateSSGold_RU   g_moduleStateDebug;
 
 ModuleStateBase* g_moduleState{ nullptr };
 
@@ -110,6 +111,15 @@ void* InitSSGoldRelease()
     return &g_moduleStateRelease.windowRect;
 }
 
+void* InitSSGoldDebug()
+{
+    g_moduleState = &g_moduleStateDebug;
+
+    InitModuleState(g_moduleStateDebug);
+
+    return &g_moduleStateDebug.windowRect;
+}
+
 void* InitializeModule()
 {
 #pragma comment(linker, "/EXPORT:" "CADraw_Init=" __FUNCDNAME__)
@@ -121,6 +131,10 @@ void* InitializeModule()
 
     switch (menuDllVersion)
     {
+    case GameVersion::SS_GOLD_RU:
+    {
+        return InitSSGoldDebug();
+    }
     case GameVersion::UNKNOWN:
     {
         ShowErrorNow("MultiCAD couldn't identify menu dll and doesn't fully support this version of Sudden Strike. The mod may not work correctly. \nTo add support, contact the author of the mod.");

@@ -28,7 +28,7 @@ constexpr std::array relocs_game_ss_gold_en
     * 1080 * 1920: 21C0h = 4 * kRowStrideDwordSize * ((438h + 7) >> 3)
     * 2560 * 1440: 2D00h = 4 * kRowStrideDwordSize * ((5A0h + 7) >> 3)
     */
-    RelocateGapSpec{ 0x00351728, 0x00352F2A, 8 + sizeof(uint32_t) * kRowStrideDwordSize * ((Graphics::kMaxHeight + 7) >> 3) },
+    RelocateGapSpec{ 0x00351728, 0x00352F30, 8 + sizeof(uint32_t) * kRowStrideDwordSize * ((Graphics::kMaxHeight + 7) >> 3) },
     /*
     * Helper array with size:
     * 1024: 1000h = 400h * 4 = 1024 * 4
@@ -145,7 +145,7 @@ const std::array patches_menu_ss_gold_en
 };
 
 
-constexpr std::array relocs_game_ss_gold_de
+constexpr std::array relocs_game_ss_gold_de_ru
 {
     RelocateGapSpec{ 0x0034FED8, 0x003516E0, 8 + sizeof(uint32_t) * kRowStrideDwordSize * ((Graphics::kMaxHeight + 7) >> 3) },
     RelocateGapSpec{ 0x003516E0, 0x00352EE8, 8 + sizeof(uint32_t) * kRowStrideDwordSize * ((Graphics::kMaxHeight + 7) >> 3) },
@@ -154,7 +154,7 @@ constexpr std::array relocs_game_ss_gold_de
     RelocateGapSpec{ 0x0037C552, 0x0037E858, 2 + sizeof(((ModuleStateBase*)0)->fogSprites) },
 };
 
-const std::array hooks_game_ss_gold_de
+const std::array hooks_game_ss_gold_de_ru
 {
     HookSpec{0x57F70, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_10055A20)},
     HookSpec{0x58330, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_10055DC0)},
@@ -180,7 +180,7 @@ const std::array hooks_game_ss_gold_de
     HookSpec{0x9CD23, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_10099E01_de)},
 };
 
-const std::array patches_game_ss_gold_de
+const std::array patches_game_ss_gold_de_ru
 {
     // Fixes bug where enemies inside buildings were revealed by your supply trucks
     PatchSpec{0x20601, {0x75, 0xB4}},   // jmp 20601 -> 205B7
@@ -231,10 +231,27 @@ const std::array patches_game_ss_gold_de
 };
 
 
+constexpr std::array relocs_menu_ss_gold_ru
+{
+    RelocateGapSpec{0x0, 0x0, 0x0}
+};
+
+const std::array hooks_menu_ss_gold_ru
+{
+    HookSpec{0x0, 0x0},
+    HookSpec{0x15540, reinterpret_cast<uintptr_t>(&MenuDllHooks::sub_10014B70_ru)},
+};
+
+const std::array patches_menu_ss_gold_ru
+{
+    PatchSpec{0x0, {}},
+};
+
+
 constexpr std::array relocs_game_ss_gold_fr
 {
     RelocateGapSpec{ 0x00353EF8, 0x00355700, 8 + sizeof(uint32_t) * kRowStrideDwordSize * ((Graphics::kMaxHeight + 7) >> 3) },
-    RelocateGapSpec{ 0x00355700, 0x00356F04, 8 + sizeof(uint32_t) * kRowStrideDwordSize * ((Graphics::kMaxHeight + 7) >> 3) },
+    RelocateGapSpec{ 0x00355700, 0x00356F08, 8 + sizeof(uint32_t) * kRowStrideDwordSize * ((Graphics::kMaxHeight + 7) >> 3) },
     RelocateGapSpec{ 0x0037F55C, 0x0038055C, ARRAY_37B588_BYTE_SIZE },
     RelocateGapSpec{ 0x0038055C, 0x00380752, 0x10 },
     RelocateGapSpec{ 0x00380752, 0x00382878, 2 + sizeof(((ModuleStateBase*)0)->fogSprites) },

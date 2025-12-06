@@ -202,6 +202,8 @@ struct RendererActionsPostfix
 
 struct RendererActionsSSGoldRelease : RendererActionsAnimationSprite, RendererActionsPostfix {};
 
+struct RendererActionsSSGoldDebug : RendererActionsPostfix {};
+
 
 struct Rect
 {
@@ -302,8 +304,10 @@ struct ModuleStateSSGold_INT : ModuleStateBase
     RendererActionsSSGoldRelease     actionsPostfix;
 };
 
-    // Important! We need to increase fog array, so move it to another part of the struct
-    Fog                 fogSprites[(Graphics::kMaxHeight >> 3) + 0x10];      //10012b5a-10014e5b     // For array for screen. Originally it was 112 elements. Adding 0x10 for borderline cases
+// Sudden Strike Gold ru (it was built via debug mode)
+struct ModuleStateSSGold_RU : ModuleStateBase
+{
+    RendererActionsSSGoldDebug     actionsPostfix;
 };
 
 #pragma warning(pop)
@@ -323,3 +327,5 @@ CHECK_OFFSET(ModuleStateBase, windowRect, actions.drawMainSurfaceAnimationSprite
 
 CHECK_OFFSET(ModuleStateSSGold_INT, windowRect, actionsPostfix.drawMainSurfaceAnimationSprite, 0xAA08);
 CHECK_OFFSET(ModuleStateSSGold_INT, windowRect, actionsPostfix.drawMainSurfaceShadowSprite, 0xAA0C);
+
+CHECK_OFFSET(ModuleStateSSGold_RU, windowRect, actionsPostfix.drawMainSurfaceShadowSprite, 0xAA08);
