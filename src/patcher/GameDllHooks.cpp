@@ -1,7 +1,37 @@
 #include "pch.h"
 #include "GameDllHooks.h"
 
-void __cdecl GameDllHooks::sub_1003E7B0(UnkEntry* a1, int a2, int* a3, int a4)
+int __declspec(noinline) __fastcall GameDllHooks::sub_1001D240(GameData5* self, void* /*dummy*/, int** a2)
+{
+    if (!self || !a2 || !a2[1] || !self->param_04)
+        return 0;
+
+    const int flags = a2[1][8];
+    const uint8_t a2_byte28 = *((uint8_t*)a2 + 28);
+
+    if (self->param_B3
+        || self->param_1A
+        || self->param_B8[0]
+        || self->param_1C != a2_byte28 && (flags & 0x4000000) == 0
+        || !(*(int(__thiscall**)(int*, int*))(*self->param_04 + 48))(self->param_04, a2[1]))
+    {
+        return 0;
+    }
+
+    if ((flags & 0x4200000) != 0)
+    {
+        if (self->param_17A >= self->param_04[0x51D])
+            return 0;
+    }
+    else if ((flags & 0x1000000) == 0 || self->param_17A + 2 > self->param_04[1309])
+    {
+        return 0;
+    }
+
+    return 1;
+}
+
+void __declspec(noinline) __cdecl GameDllHooks::sub_1003E7B0(UnkEntry* a1, int a2, int* a3, int a4)
 {
     auto* g = globals_;
 
@@ -54,7 +84,7 @@ void __cdecl GameDllHooks::sub_1003E7B0(UnkEntry* a1, int a2, int* a3, int a4)
     }
 }
 
-void __cdecl GameDllHooks::sub_1003E7B0_de(UnkEntry* a1, int a2, int* a3, int a4)
+void __declspec(noinline) __cdecl GameDllHooks::sub_1003E7B0_de(UnkEntry* a1, int a2, int* a3, int a4)
 {
     auto* g = globals_;
 
@@ -107,7 +137,7 @@ void __cdecl GameDllHooks::sub_1003E7B0_de(UnkEntry* a1, int a2, int* a3, int a4
     }
 }
 
-void __cdecl GameDllHooks::sub_1003E7B0_fr(UnkEntry* a1, int a2, int* a3, int a4)
+void __declspec(noinline) __cdecl GameDllHooks::sub_1003E7B0_fr(UnkEntry* a1, int a2, int* a3, int a4)
 {
     auto* g = globals_;
 
@@ -3140,7 +3170,7 @@ void __declspec(noinline) __stdcall  GameDllHooks::sub_1006F120_hd()
     }
 }
 
-void __cdecl GameDllHooks::sub_10099E01(void* mem)
+void __declspec(noinline) __cdecl GameDllHooks::sub_10099E01(void* mem)
 {
     if (!mem)
         return;
@@ -3195,7 +3225,7 @@ void __cdecl GameDllHooks::sub_10099E01(void* mem)
     }
 }
 
-void __cdecl GameDllHooks::sub_10099E01_de(void* mem)
+void __declspec(noinline) __cdecl GameDllHooks::sub_10099E01_de(void* mem)
 {
     if (!mem)
         return;
@@ -3230,7 +3260,7 @@ void __cdecl GameDllHooks::sub_10099E01_de(void* mem)
     }
 }
 
-void __cdecl GameDllHooks::sub_10099E01_fr(void* mem)
+void __declspec(noinline) __cdecl GameDllHooks::sub_10099E01_fr(void* mem)
 {
     if (!mem)
         return;

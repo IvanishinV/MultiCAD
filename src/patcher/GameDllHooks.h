@@ -225,13 +225,52 @@ private:
         char pad_3;
         int param_33;
     };
+
+    struct GameData5
+    {
+        int param_00;
+        int* param_04;
+        char param_08;
+        char param_09;
+        char param_0A;
+        char param_0B;
+        int param_0C;
+        int param_10;
+        int param_14;
+        char param_18;
+        char param_19;
+        bool param_1A;
+        char param_1B;
+        char param_1C;
+        char param_1D;
+        char param_1E;
+        char param_1F;
+        int param_20;
+        int param_24;
+        int param_28;
+        int param_2C;
+        int param_30[32];
+        char param_B0;
+        char param_B1;
+        char param_B2;
+        char param_B3;
+        int param_B4;
+        int param_B8[48];
+        char param_178;
+        char param_179;
+        unsigned char param_17A;
+        char param_17B;
+    };
+
 #pragma pack(pop)
 
     static_assert(sizeof(GameData4) == 0x37, "GameData4 size mismatch");
+    static_assert(sizeof(GameData5) == 0x17C, "GameData5 size mismatch");
 
 #pragma endregion Helper_Structs
 
 public:
+    static int  __declspec(noinline) __fastcall sub_1001D240(GameData5* self, void* /*dummy*/, int** a2);
     static void __declspec(noinline) __cdecl    sub_1003E7B0(UnkEntry* a1, int a2, int* a3, int a4);
     static void __declspec(noinline) __cdecl    sub_1003E7B0_de(UnkEntry* a1, int a2, int* a3, int a4);
     static void __declspec(noinline) __cdecl    sub_1003E7B0_fr(UnkEntry* a1, int a2, int* a3, int a4);

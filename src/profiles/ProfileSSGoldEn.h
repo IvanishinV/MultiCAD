@@ -70,6 +70,7 @@ const std::array hooks_game_ss_gold_en
     // Fixes a null pointer dereference (issue reported via dump from Иван 'Alee' Петров)
     HookSpec{0x3E7B0, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_1003E7B0)},
     // Fixes a null pointer dereferences (issues reported via dumps from Eugin 'Bulldozer' Banks)
+    HookSpec{0x1D240, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_1001D240)},
     HookSpec{0x6CC60, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_1006CC60)},
     HookSpec{0x5C170, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_1005C170)},
     HookSpec{0x99E01, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_10099E01)},
@@ -175,6 +176,7 @@ const std::array hooks_game_ss_gold_de_ru
     // Fixes a null pointer dereference (issue reported via dump from Иван 'Alee' Петров)
     HookSpec{0x3FB20, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_1003E7B0_de)},
     // Fixes a null pointer dereferences (issues reported via dumps from Eugin 'Bulldozer' Banks)
+    HookSpec{0x1D9E0, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_1001D240)},
     HookSpec{0x6F530, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_1006CC60_de)},
     HookSpec{0x5C170, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_1005C170_de)},
     HookSpec{0x9CD23, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_10099E01_de)},
@@ -279,6 +281,7 @@ const std::array hooks_game_ss_gold_fr
     // Fixes a null pointer dereference (issue reported via dump from Иван 'Alee' Петров)
     HookSpec{0x3FB20, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_1003E7B0_fr)},
     // Fixes a null pointer dereferences (issues reported via dumps from Eugin 'Bulldozer' Banks)
+    HookSpec{0x1D930, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_1001D240)},
     HookSpec{0x6F540, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_1006CC60_fr)},
     HookSpec{0x5E810, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_1005C170_fr)},
     HookSpec{0x9D611, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_10099E01_fr)},
@@ -378,6 +381,7 @@ const std::array hooks_game_ss_gold_hd_1_2
     HookSpec{0x6F120, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_1006F120_hd)},
 
     //HookSpec{0x3E7B0, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_1003E7B0)},
+    HookSpec{0x1D240, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_1001D240)},
     HookSpec{0x6CC60, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_1006CC60)},
     HookSpec{0x5C170, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_1005C170)},
     HookSpec{0x99E01, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_10099E01)},
