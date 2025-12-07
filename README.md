@@ -18,7 +18,7 @@ It supports **any custom screen resolution** from 640x480 up to 2560x1600  (note
 
 ## Installation
 
-1. Build the project or download the latest precompiled `cadMulti.dll` file from the [Releases](../../releases) page.
+1. Download the latest precompiled `cadMulti.dll` file from the [Releases](../../releases/latest) page.
 2. Place `cadMulti.dll` into the folder containing the original `cad*.dll` files (typically the game directory).
 3. Open `sudtest.ini` and set **at least one** `SSDraw` entry to `cadMulti.dll`. Example:
 > ```ini
@@ -27,7 +27,11 @@ It supports **any custom screen resolution** from 640x480 up to 2560x1600  (note
 > SSDraw2=cad1024.dll
 > SSDraw3=cadMulti.dll
 > ```
-4. Launch the game 
+4. Launch the game.
+
+> 💡 Note: If the game fails to launch or closes immediately with no error, it usually means the required Microsoft Visual C++ runtime is missing. You have two options to fix this:
+> 1. Install the Microsoft Visual C++ 2015-2022 Redistributable: [vc_redist.x86.exe](https://aka.ms/vc14/vc_redist.x86.exe).
+> 2. Alternatively, use [cadMulti_mt.dll](../../releases/latest), which works without installing any additional runtime (slightly larger than cadMulti.dll)
 
 ## Configuration
 
@@ -58,7 +62,7 @@ To build the project from source:
 
 1. Clone or download this repository.
 2. Open `MultiCAD.sln` in **Visual Studio 2022**.
-3. Choose the `Release` or `Debug` configuration.
+3. Choose the `Release`, 'Release_MT' or `Debug` configuration.
 4. Build the solution.
 
 ## License
