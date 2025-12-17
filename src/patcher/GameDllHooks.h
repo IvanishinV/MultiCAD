@@ -300,6 +300,8 @@ public:
     static void __declspec(noinline) __fastcall sub_1006CC60_fr(GameData3* self);
     static void __declspec(noinline) __stdcall  sub_1006D940();
     static void __declspec(noinline) __stdcall  sub_1006D940_hd();
+    // This method exists only in: SS en/ru, SS Gold de/fr/ru
+    static void __declspec(noinline) __fastcall sub_1006DC40(int* self, void* /*dummy*/, int a2, int a3, int a4, int a5, uint8_t a6, char a7, char a8);
     static void __declspec(noinline) __stdcall  sub_1006F120();
     static void __declspec(noinline) __stdcall  sub_1006F120_de();
     static void __declspec(noinline) __stdcall  sub_1006F120_fr();

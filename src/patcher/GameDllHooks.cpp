@@ -2238,6 +2238,40 @@ void __declspec(noinline) __stdcall  GameDllHooks::sub_1006D940_hd()
     }
 }
 
+void __declspec(noinline) __fastcall GameDllHooks::sub_1006DC40(int* self, void* /*dummy*/, int a2, int a3, int a4, int a5, uint8_t a6, char a7, char a8)
+{
+    int v8 = a2 >> 4;
+    int v9 = a4 >> 4;
+    int v10 = a3 >> 3;
+    int v11 = a5 >> 3;
+    int* v13;
+
+    if (a2 >> 4 < 0)
+        v8 = 0;
+    if (v10 < 0)
+        v10 = 0;
+    if (v9 >= self[0])
+        v9 = self[0] - 1;
+    if (v11 >= self[1])
+        v11 = self[1] - 1;
+    if (v10 <= v11)
+    {
+        v13 = &self[(v10 << (kRowStrideShift - 2)) + 2];
+        int a2a = v11 - v10 + 1;
+        do
+        {
+            for (int i = v8; i <= v9; ++i)
+            {
+                const uint8_t v15 = *((uint8_t*)v13 + i);
+                if ((v15 & a6) != 0)
+                    *((uint8_t*)v13 + i) = a8 | a7 & v15;
+            }
+            v13 += kRowStrideByteSize / sizeof(v13);
+            --a2a;
+        } while (a2a);
+    }
+}
+
 void __declspec(noinline) __stdcall  GameDllHooks::sub_1006F120()
 {
     auto* g = globals_;
