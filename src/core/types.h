@@ -73,6 +73,8 @@ enum class GameVersion
     SS_PIECE_2008,      // Противостояние: Принуждение к миру (2008)
 
     // Known mods
+    SS_HD_V1_1_RU,      // Sudden Strike HD v1.1 (ru)
+    SS_HD_V1_1_EN,      // Sudden Strike HD v1.1 (en)
     SS_GOLD_HD_1_2_RU,  // Sudden Strike Gold HD v1.2 (ru)
     SS_GOLD_HD_1_2_INT, // Sudden Strike Gold HD v1.2 (en, de, fr)
     HS_APRM,            // Hidden Stroke APRM: Allied Power Realism Mod (2003)

@@ -13,6 +13,26 @@ using Profile_SS_RU = GameVersionProfile<
     patches_menu_ss_ru
 >;
 
+using Profile_SS_HD_v1_1_RU = GameVersionProfile<
+    GameVersion::SS_HD_V1_1_RU,
+    relocs_game_ss_hd_v1_1,
+    hooks_game_ss_hd_v1_1,
+    patches_game_ss_hd_v1_1,
+    relocs_menu_ss_hd_v1_1,
+    hooks_menu_ss_hd_v1_1_ru,
+    patches_menu_ss_hd_v1_1
+>;
+
+using Profile_SS_HD_v1_1_EN = GameVersionProfile<
+    GameVersion::SS_HD_V1_1_RU,
+    relocs_game_ss_hd_v1_1,
+    hooks_game_ss_hd_v1_1,
+    patches_game_ss_hd_v1_1,
+    relocs_menu_ss_hd_v1_1,
+    hooks_menu_ss_hd_v1_1_en,
+    patches_menu_ss_hd_v1_1
+>;
+
 using Profile_SS_GOLD_EN = GameVersionProfile<
     GameVersion::SS_GOLD_EN,
     relocs_game_ss_gold_en,

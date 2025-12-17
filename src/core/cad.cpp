@@ -133,6 +133,8 @@ void* InitializeModule()
     {
     case GameVersion::SS_GOLD_RU:
     case GameVersion::SS_RU:
+    case GameVersion::SS_HD_V1_1_RU:
+    case GameVersion::SS_HD_V1_1_EN:
     {
         return InitSSGoldDebug();
     }

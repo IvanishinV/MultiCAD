@@ -509,3 +509,79 @@ const std::array patches_menu_ss_ru
 {
     PatchSpec{0x0, {}},
 };
+
+
+constexpr std::array relocs_game_ss_hd_v1_1
+{
+    RelocateGapSpec{ 0x00395000, 0x0039A000, 8 + sizeof(uint32_t) * kRowStrideDwordSize * ((Graphics::kMaxHeight + 7) >> 3) },
+    RelocateGapSpec{ 0x0039A000, 0x0039F000, 8 + sizeof(uint32_t) * kRowStrideDwordSize * ((Graphics::kMaxHeight + 7) >> 3) },
+    RelocateGapSpec{ 0x003A9000, 0x003AA800, ARRAY_37B588_BYTE_SIZE },
+    RelocateGapSpec{ 0x003AA800, 0x003AA80E, 0x10 },
+    RelocateGapSpec{ 0x0039F000, 0x003A9000, 2 + sizeof(((ModuleStateBase*)0)->fogSprites) },
+};
+
+const std::array hooks_game_ss_hd_v1_1
+{
+    HookSpec{0x498A0, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_10055A20)},
+    HookSpec{0x49C60, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_10055DC0)},
+    HookSpec{0x49CA0, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_10055E00)},
+    HookSpec{0x49D40, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_10055E90)},
+    HookSpec{0x49DF0, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_10055F40)},
+    HookSpec{0x49E80, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_10055FE0)},
+    HookSpec{0x49EC0, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_10056030)},
+    HookSpec{0x4A000, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_10056170)},
+    HookSpec{0x4A250, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_100563B0)},
+    //HookSpec{0x6AD20, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_1006AD20)},
+    //HookSpec{0x6AEA0, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_1006AEA0)},
+    //HookSpec{0x6B1C0, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_1006B1C0)},
+    //HookSpec{0x6B2C0, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_1006B2C0)},
+    //HookSpec{0x6D940, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_1006D940)},
+    //HookSpec{0x6F120, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_1006F120)},
+    HookSpec{0x62DC0, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_1006F120_v1_0_hd)},
+};
+
+const std::array patches_game_ss_hd_v1_1
+{
+    // Sets the screen height at which units are displayed
+    PatchSpec{0x60E59, PatchSpec::to_bytes(SCREEN_HEIGHT_TO_SHOW_UNITS)},
+
+    // Fixes building selection to account changes in CAD
+    PatchSpec{0x61C98, {kStencilPixelColorShift}},
+    PatchSpec{0x61C99, PatchSpec::concat(
+        {0x81, 0xEF}, kStencilPixelOffset       // sub edi, 440h
+    )},
+    PatchSpec{0x61C9F, {0xEB, 0x82}},           // jmp 61C9F -> 61C23
+    PatchSpec{0x61C23, PatchSpec::concat(
+        {0x81, 0xE7}, kStencilPixelSmallMask,   // and edi, 7FFh
+        std::array<uint8_t, 2>{0xEB, 0x77}      // jmp 61C29 -> 61CA2
+    )},
+
+    // Fixes due to changed array sizes
+    PatchSpec{0x620C2, PatchSpec::to_bytes(ARRAY_37B588_DWORD_SIZE)},
+    PatchSpec{0x62112, PatchSpec::to_bytes(ARRAY_37B588_DWORD_SIZE)},
+    PatchSpec{0x64FAE, PatchSpec::to_bytes(Graphics::kMaxHeight)},
+    // Part fix since the original HD mod already implemented this
+    PatchSpec{0x94672, {kRowStrideShift}},
+    PatchSpec{0x946A1, PatchSpec::to_bytes(kRowStrideByteSize)},
+};
+
+constexpr std::array relocs_menu_ss_hd_v1_1
+{
+    RelocateGapSpec{0x0, 0x0, 0x0}
+};
+
+const std::array hooks_menu_ss_hd_v1_1_ru
+{
+    HookSpec{0xE3D0, reinterpret_cast<uintptr_t>(&MenuDllHooks::sub_1000E3D0_hd_ru)},
+};
+
+const std::array hooks_menu_ss_hd_v1_1_en
+{
+    HookSpec{0xE3D0, reinterpret_cast<uintptr_t>(&MenuDllHooks::sub_1000E3D0_hd_en)},
+};
+
+const std::array patches_menu_ss_hd_v1_1
+{
+    // Remove the displayed text on main menu from the old HD mod
+    PatchSpec{0xD2F0, { 0x56, 0x8B, 0xF1, 0x8B, 0x4E, 0x05, 0x5E, 0x85, 0xC9, 0x74, 0x05, 0x8B, 0x01, 0xFF, 0x60, 0x0C, 0xC3 }},
+};
