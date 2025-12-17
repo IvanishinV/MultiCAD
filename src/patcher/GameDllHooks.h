@@ -239,7 +239,7 @@ private:
         int param_14;
         char param_18;
         char param_19;
-        bool param_1A;
+        unsigned char param_1A;
         char param_1B;
         char param_1C;
         char param_1D;

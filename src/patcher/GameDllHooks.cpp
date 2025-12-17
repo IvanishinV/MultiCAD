@@ -10,7 +10,7 @@ int __declspec(noinline) __fastcall GameDllHooks::sub_1001D240(GameData5* self, 
     const uint8_t a2_byte28 = *((uint8_t*)a2 + 28);
 
     if (self->param_B3
-        || self->param_1A
+        || (self->param_1A & 1) != 0
         || self->param_B8[0]
         || self->param_1C != a2_byte28 && (flags & 0x4000000) == 0
         || !(*(int(__thiscall**)(int*, int*))(*self->param_04 + 48))(self->param_04, a2[1]))
