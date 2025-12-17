@@ -306,6 +306,7 @@ public:
     static void __declspec(noinline) __stdcall  sub_1006F120_de();
     static void __declspec(noinline) __stdcall  sub_1006F120_fr();
     static void __declspec(noinline) __stdcall  sub_1006F120_hd();
+    static void __declspec(noinline) __stdcall  sub_1006F120_v1_0_ru();
     static void __declspec(noinline) __cdecl    sub_10099E01(void* mem);
     static void __declspec(noinline) __cdecl    sub_10099E01_de(void* mem);
     static void __declspec(noinline) __cdecl    sub_10099E01_fr(void* mem);

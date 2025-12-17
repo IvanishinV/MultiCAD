@@ -13,7 +13,10 @@ void MenuDllHooks::sub_10014B70_common(void* self, const char* versionStr, int x
     const auto sub_10003D10 = g->getFn<void(__thiscall)(void*, int, int, const char*, int)>(0x3D10);
     int* dword_100590F8 = g->getPtr<int>(0x590F8);
 
+    // Draw main menu
     sub_100020A0(self);
+
+    // And then draw text over the menu
     sub_100039F0(dword_100590F8, 0xDE, 0xD7, 0x42);
 
     // Last parameter points if the text is written from right to left.
@@ -67,6 +70,26 @@ void __fastcall MenuDllHooks::sub_10014B70_ru(void* self)
     sub_100039F0(dword_100590F8, 0xDE, 0xD7, 0x42);
 
     sub_10003D10(dword_100590F8, 640, 357, "Multi HD mod v" MULTICAD_VERSION_STR " for " SS_GOLD_GAME_STR, 1);
+    sub_10003D10(dword_100590F8, 640, 370, SS_HD_MOD_TG_LINK, 1);
+    sub_10003D10(dword_100590F8, 640, 383, SS_HD_MOD_AUTHOR_EMAIL, 1);
+
+    SplashTextRenderer::Instance().render(sub_100039F0, sub_10003D10, dword_100590F8);
+}
+
+void __fastcall MenuDllHooks::sub_1000E3D0_ru(void* self)
+{
+    auto* g = globals_;
+
+    const auto sub_100020A0 = g->getFn<void(__thiscall)(void*)>(0x1FE0);
+    sub_100020A0(self);
+
+    const auto sub_100039F0 = g->getFn<void(__thiscall)(void*, int, int, int)>(0x3960);
+    const auto sub_10003D10 = g->getFn<void(__thiscall)(void*, int, int, const char*, int)>(0x3CA0);
+    int* dword_100590F8 = g->getPtr<int>(0x4C268);
+
+    sub_100039F0(dword_100590F8, 0xDE, 0xD7, 0x42);
+
+    sub_10003D10(dword_100590F8, 640, 357, "Multi HD mod v" MULTICAD_VERSION_STR " for " SS_GAME_STR, 1);
     sub_10003D10(dword_100590F8, 640, 370, SS_HD_MOD_TG_LINK, 1);
     sub_10003D10(dword_100590F8, 640, 383, SS_HD_MOD_AUTHOR_EMAIL, 1);
 

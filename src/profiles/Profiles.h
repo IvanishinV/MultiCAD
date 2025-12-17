@@ -3,6 +3,16 @@
 #include "ProfileBase.h"
 #include "ProfileSSGoldEn.h"
 
+using Profile_SS_RU = GameVersionProfile<
+    GameVersion::SS_RU,
+    relocs_game_ss_ru,
+    hooks_game_ss_ru,
+    patches_game_ss_ru,
+    relocs_menu_ss_ru,
+    hooks_menu_ss_ru,
+    patches_menu_ss_ru
+>;
+
 using Profile_SS_GOLD_EN = GameVersionProfile<
     GameVersion::SS_GOLD_EN,
     relocs_game_ss_gold_en,

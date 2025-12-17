@@ -3204,6 +3204,239 @@ void __declspec(noinline) __stdcall  GameDllHooks::sub_1006F120_hd()
     }
 }
 
+void __declspec(noinline) __stdcall  GameDllHooks::sub_1006F120_v1_0_ru()
+{
+    auto* g = globals_;
+
+    uint8_t* byte_101C13FE = g->getPtr<uint8_t>(0x1AEF4E);
+    uint8_t* byte_101C14FD = g->getPtr<uint8_t>(0x1AF04D);
+    uint8_t* byte_101C14FE = g->getPtr<uint8_t>(0x1AF04E);
+    uint8_t* byte_101C14FF = g->getPtr<uint8_t>(0x1AF04F);
+    uint8_t* byte_101C15FE = g->getPtr<uint8_t>(0x1AF14E);
+
+    const int map_length_probably = g->getValue<int>(0xAF03C);
+    const int map_width_probably = g->getValue<int>(0xAF040);
+
+    const auto cadPtr = reinterpret_cast<ModuleStateSSGold_INT*>(g->getValue<uintptr_t>(0x370EE4) - (offsetof(ModuleStateSSGold_INT, windowRect) - offsetof(ModuleStateSSGold_INT, fogSprites)));
+
+    const auto sub_10055E00 = g->getFn<void(__thiscall)(int*, int, int, int, int, int)>(0x49CA0);
+
+    const int dword_1037E920 = g->getValue<int>(0x36C020);
+    const int dword_1037E924 = g->getValue<int>(0x36C024);
+    const int xRight = g->getValue<int>(0x36C01C);
+    const int yBottom = g->getValue<int>(0x36C018);
+
+    int* div16Ptr = g->getPtr<int>(0x33EE20);
+    const uint8_t byte_10383CB9 = g->getValue<uint8_t>(0x37099D);
+    uint8_t* byte_1037C598 = g->getPtr<uint8_t>(0x369C94);
+    std::memset(byte_1037C598, 0x80, sizeof(((ModuleStateSSGold_INT*)0)->fogSprites));
+
+    const int v54 = dword_1037E920 >> 3;
+
+    const int tmp = (dword_1037E920 >> 3) - 3;
+    const int v0 = (tmp & 1);
+    int v1 = (1 - 2 * (v0 ^ (tmp >> 1)) - (dword_1037E924 >> 4)) & 3;
+    const int v2 = (dword_1037E924 + 16 * (v1 - 3)) >> 1;
+    const int v57 = dword_1037E924 >> 4;
+    const int v3 = 8 * v0 - 24;
+    const int v4 = dword_1037E920 + v3 + v2;
+    int v51 = (dword_1037E920 + v3 - v2) >> 5;
+
+    const int v59 = yBottom >> 3;
+    const int v5 = (yBottom >> 3) + 11;
+    const int len_sar_4 = xRight >> 4;
+    const int v6 = (xRight >> 4) + 11;
+    const int v7 = v0 + 5;
+    int v8 = v4 >> 5;
+    int v52 = v1;
+
+    // 1. Initialize buffer byte_1037C598
+    if (v7 <= v5)
+    {
+        uint8_t* v9 = &byte_1037C598[kFogLineByteSize * v7];
+        unsigned int big_counta = ((v5 - v7) >> 1) + 1;
+        int v47 = v1 + 5;
+        do
+        {
+            int v10 = v47;
+            int v50 = v51;
+            int v11 = v8;
+            if (v47 <= v6)
+            {
+                int v12 = v51 << 8;
+                do
+                {
+                    if (v11 >= 4
+                        && v50 >= 4
+                        && v11 < map_length_probably - 4
+                        && v50 < map_width_probably - 4
+                        && (byte_10383CB9 & byte_101C14FE[v12 + v11]) != 0)
+                    {
+                        if (v9[v10] > 0x40u)
+                        {
+                            if ((byte_10383CB9 & byte_101C15FE[v12 + v11]) != 0)
+                            {
+                                if ((byte_10383CB9 & byte_101C14FF[v12 + v11]) != 0)
+                                {
+                                    if ((byte_10383CB9 & byte_101C13FE[v12 + v11]) != 0)
+                                    {
+                                        if ((byte_10383CB9 & byte_101C14FD[v12 + v11]) == 0)
+                                            v9[v10] = 64;
+                                    }
+                                    else
+                                    {
+                                        v9[v10] = 64;
+                                    }
+                                }
+                                else
+                                {
+                                    v9[v10] = 64;
+                                }
+                            }
+                            else
+                            {
+                                v9[v10] = 64;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        v9[v10] = 0;
+                    }
+
+                    v10 += 4;
+                    ++v11;
+                    --v50;
+                    v12 -= 256;
+                } while (v10 <= v6);
+            }
+
+            if (v52 < 2)
+            {
+                v47 = v47 + 2;
+                ++v8;
+            }
+            else
+            {
+                v47 = v47 - 2;
+                ++v51;
+            }
+            v52 ^= 2;
+            v9 += kFogDoubleLineByteSize;
+            --big_counta;
+        } while (big_counta != 0);
+    }
+
+    // 2. Intermediate antialiasing
+    int v15;
+    if (v1 >= 2)
+    {
+        v15 = 2;
+    }
+    else
+    {
+        v1 += 4;
+        v15 = -2;
+    }
+    const int v17 = v6 - 1;
+    const int v18 = v5 - 1;
+    if (v0 + 7 < v18)
+    {
+        int v16 = v1 + 5;
+        const int v19 = v0 + 7;
+        uint8_t* v20 = &byte_1037C598[kFogLineByteSize * v19 - 2];
+        int v21 = ((v18 - v19 - 1) >> 1) + 1;
+        do
+        {
+            if (v16 < v17)
+            {
+                int v22 = v16;
+                do
+                {
+                    uint8_t a = v20[v22 - (kFogDoubleLineByteSize - 2)];
+                    uint8_t b = v20[v22 + 4];
+                    v22 += 4;
+                    v20[v22 - 2] = (v20[v22 + (kFogDoubleLineByteSize - 2)] + v20[v22 - 4] + b + a) >> 2;
+                } while (v22 < v17);
+            }
+            v16 += v15;
+            v15 = -v15;
+            v20 += kFogDoubleLineByteSize;
+        } while (--v21);
+    }
+
+    // 3. Horizontal solid antialiasing
+    const int v25 = v18 - 2;
+    const int v26 = (v54 & 1) + 8;
+    const int v27 = v17 - 2;
+    if (v26 <= v25)
+    {
+        uint8_t* lp_array_1 = &byte_1037C598[kFogLineByteSize * v26 + 1];
+        int v29 = ((v25 - v26) >> 1) + 1;
+        do
+        {
+            int start_i = ((v57 - 1) & 1) + 8;
+            for (int i = start_i; i <= v27; i += 2)
+            {
+                uint8_t v31 = lp_array_1[i - 2];
+                uint8_t v32 = lp_array_1[i];
+                lp_array_1[i - 1] = (v32 + v31) >> 1;
+            }
+            lp_array_1 += kFogDoubleLineByteSize;
+        } while (--v29);
+    }
+
+    // 4. Vertical solid antialiasing
+    const int v33 = ((v54 - 1) & 1) + 8;
+    if (v33 <= v25)
+    {
+        uint8_t* v34 = &byte_1037C598[kFogLineByteSize + kFogLineByteSize * v33];
+        int v35 = ((v25 - v33) >> 1) + 1;
+        do
+        {
+            for (int j = 8; j <= v27; ++j)
+            {
+                v34[j - kFogLineByteSize] = (v34[j] + v34[j - kFogDoubleLineByteSize]) >> 1;
+            }
+            v34 += kFogDoubleLineByteSize;
+        } while (--v35);
+    }
+
+    // 5. Update fogSprites
+    int v37 = len_sar_4 + 9;
+    if (v59 + 9 > 0)
+    {
+        int v38 = 0;
+        int v39 = -72;
+        int v55_local = v59 + 9;
+        do
+        {
+            if (v37 > 0)
+            {
+                int v40 = 0;
+                int v41 = -144;
+                do
+                {
+                    uint8_t* v42 = &cadPtr->fogSprites[v38].unk[v40];
+                    uint8_t v43 = byte_1037C598[v40 + v38 * kFogLineByteSize];
+                    if (v43 != *v42)
+                    {
+                        *v42 = v43;
+
+                        sub_10055E00(div16Ptr, 24, v41, v39, v41 + 31, v39 + 15);
+                        v37 = len_sar_4 + 9;
+                    }
+                    ++v40;
+                    v41 += 16;
+                } while (v40 < v37);
+            }
+            ++v38;
+            v39 += 8;
+            --v55_local;
+        } while (v55_local);
+    }
+}
+
 void __declspec(noinline) __cdecl GameDllHooks::sub_10099E01(void* mem)
 {
     if (!mem)

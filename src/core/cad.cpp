@@ -132,6 +132,7 @@ void* InitializeModule()
     switch (menuDllVersion)
     {
     case GameVersion::SS_GOLD_RU:
+    case GameVersion::SS_RU:
     {
         return InitSSGoldDebug();
     }
