@@ -3,8 +3,8 @@
 #include "renderer.h"
 #include "DllVersionDetector.h"
 
-static ModuleStateSSGold_INT  g_moduleStateRelease;
-static ModuleStateSSGold_RU   g_moduleStateDebug;
+static ModuleStateSSGold_INT  g_moduleStateSSGold;
+static ModuleStateSSGold_RU   g_moduleStateSS;
 
 ModuleStateBase* g_moduleState{ nullptr };
 
@@ -102,22 +102,22 @@ void InitModuleState(ModuleState& s)
     }
 }
 
-void* InitSSGoldRelease()
+void* InitSSGoldCad()
 {
-    g_moduleState = &g_moduleStateRelease;
+    g_moduleState = &g_moduleStateSSGold;
 
-    InitModuleState(g_moduleStateRelease);
+    InitModuleState(g_moduleStateSSGold);
 
-    return &g_moduleStateRelease.windowRect;
+    return &g_moduleStateSSGold.windowRect;
 }
 
-void* InitSSGoldDebug()
+void* InitSSCad()
 {
-    g_moduleState = &g_moduleStateDebug;
+    g_moduleState = &g_moduleStateSS;
 
-    InitModuleState(g_moduleStateDebug);
+    InitModuleState(g_moduleStateSS);
 
-    return &g_moduleStateDebug.windowRect;
+    return &g_moduleStateSS.windowRect;
 }
 
 void* InitializeModule()
@@ -136,7 +136,7 @@ void* InitializeModule()
     case GameVersion::SS_HD_V1_1_RU:
     case GameVersion::SS_HD_V1_1_EN:
     {
-        return InitSSGoldDebug();
+        return InitSSCad();
     }
     case GameVersion::UNKNOWN:
     {
@@ -144,6 +144,6 @@ void* InitializeModule()
         [[fallthrough]];
     }
     default:
-        return InitSSGoldRelease();
+        return InitSSGoldCad();
     }
 }

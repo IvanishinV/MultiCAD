@@ -12,9 +12,24 @@ constexpr uint16_t SCREEN_HEIGHT_TO_SHOW_UNITS = Graphics::kMaxHeight;   // to s
 constexpr uint32_t ARRAY_37B588_DWORD_SIZE = Graphics::kMaxWidth;
 constexpr uint32_t ARRAY_37B588_BYTE_SIZE = ARRAY_37B588_DWORD_SIZE * sizeof(uint32_t);
 
+constexpr std::array relocs_empty
+{
+    RelocateGapSpec{0x0, 0x0, 0x0}
+};
+
+const std::array hooks_empty
+{
+    HookSpec{0x0, 0x0}
+};
+
+const std::array patches_empty
+{
+    PatchSpec{0x0, {}}
+};
+
+
 constexpr std::array relocs_game_ss_gold_en
 {
-    RelocateGapSpec{0x0, 0x0, 0x0},
     /*
     * (width + 7) >> 4, (height + 7) >> 3 and array 0x34FF20 with size:
     * 1024 * 768:  1800h = 4 * kRowStrideOldDwordSize * ((300h + 7) >> 3)
@@ -50,7 +65,6 @@ constexpr std::array relocs_game_ss_gold_en
 
 const std::array hooks_game_ss_gold_en
 {
-    HookSpec{0x0, 0x0},
     HookSpec{0x55A20, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_10055A20)},
     HookSpec{0x55DC0, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_10055DC0)},
     HookSpec{0x55E00, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_10055E00)},
@@ -78,21 +92,19 @@ const std::array hooks_game_ss_gold_en
 
 const std::array patches_game_ss_gold_en
 {
-    PatchSpec{0x0, {}},
-
     // Fixes bug where enemies inside buildings were revealed by your supply trucks
-    PatchSpec{0x1FE41, {0x75, 0xB1}},   // jmp 1FDF4
+    PatchSpec{0x1FE41, {0x75, 0xB1}},   // jne 1FDF4
     PatchSpec{0x1FDF4,
     {
         0x80, 0x7E, 0x00, 0x68,         // cmp byte ptr [esi+0], 68h
-        0x74, 0x49,                     // jz 1FE43
+        0x74, 0x49,                     // je 1FE43
         0xEB, 0x77                      // jmp 1FE73
     }},
 
     // Sets the screen height at which units are displayed
     PatchSpec{0x6D147, PatchSpec::to_bytes(SCREEN_HEIGHT_TO_SHOW_UNITS)},
 
-    // Fixes building selection to account changes in CAD
+    // Fixes a building selection issue related to changes in CAD structure
     PatchSpec{0x6E008, {kStencilPixelColorShift}},
     PatchSpec{0x6E009, PatchSpec::concat(
         {0x81, 0xEE}, kStencilPixelOffset       // sub esi, 440h
@@ -129,20 +141,9 @@ const std::array patches_game_ss_gold_en
     PatchSpec{0x7FE6D, {0x3B, 0x02}},       // cmp eax, [edx]       // screen width
 };
 
-constexpr std::array relocs_menu_ss_gold_en
-{
-    RelocateGapSpec{0x0, 0x0, 0x0}
-};
-
 const std::array hooks_menu_ss_gold_en
 {
-    HookSpec{0x0, 0x0},
     HookSpec{0x14B70, reinterpret_cast<uintptr_t>(&MenuDllHooks::sub_10014B70)},
-};
-
-const std::array patches_menu_ss_gold_en
-{
-    PatchSpec{0x0, {}},
 };
 
 
@@ -185,18 +186,18 @@ const std::array hooks_game_ss_gold_de_ru
 const std::array patches_game_ss_gold_de_ru
 {
     // Fixes bug where enemies inside buildings were revealed by your supply trucks
-    PatchSpec{0x20601, {0x75, 0xB4}},   // jmp 20601 -> 205B7
+    PatchSpec{0x20601, {0x75, 0xB4}},   // jne 20601 -> 205B7
     PatchSpec{0x205B7,
     {
         0x80, 0x7E, 0x00, 0x68,         // cmp byte ptr [esi+0], 68h
-        0x74, 0x46,                     // jz 20603
+        0x74, 0x46,                     // je 20603
         0xEB, 0x74                      // jmp 20633
     }},
 
     // Sets the screen height at which units are displayed
     PatchSpec{0x6FA17, PatchSpec::to_bytes(SCREEN_HEIGHT_TO_SHOW_UNITS)},
 
-    // Fixes building selection to account changes in CAD
+    // Fixes a building selection issue related to changes in CAD structure
     PatchSpec{0x70868, {kStencilPixelColorShift}},
     PatchSpec{0x70869, PatchSpec::concat(
         {0x81, 0xEF}, kStencilPixelOffset       // sub edi, 440h
@@ -232,21 +233,9 @@ const std::array patches_game_ss_gold_de_ru
     PatchSpec{0x82AAF, {0x3B, 0x02}},
 };
 
-
-constexpr std::array relocs_menu_ss_gold_ru
-{
-    RelocateGapSpec{0x0, 0x0, 0x0}
-};
-
 const std::array hooks_menu_ss_gold_ru
 {
-    HookSpec{0x0, 0x0},
     HookSpec{0x15540, reinterpret_cast<uintptr_t>(&MenuDllHooks::sub_10014B70_ru)},
-};
-
-const std::array patches_menu_ss_gold_ru
-{
-    PatchSpec{0x0, {}},
 };
 
 
@@ -261,7 +250,6 @@ constexpr std::array relocs_game_ss_gold_fr
 
 const std::array hooks_game_ss_gold_fr
 {
-    HookSpec{0x0, 0x0},
     HookSpec{0x57EF0, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_10055A20)},
     HookSpec{0x58290, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_10055DC0)},
     HookSpec{0x582D0, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_10055E00)},
@@ -290,18 +278,18 @@ const std::array hooks_game_ss_gold_fr
 const std::array patches_game_ss_gold_fr
 {
     // Fixes bug where enemies inside buildings were revealed by your supply trucks
-    PatchSpec{0x20551, {0x75, 0xB4}},   // jmp 20507
+    PatchSpec{0x20551, {0x75, 0xB4}},   // jne 20507
     PatchSpec{0x20507,
     {
         0x80, 0x7E, 0x00, 0x68,         // cmp byte ptr [esi+0], 68h
-        0x74, 0x46,                     // jz 20553
+        0x74, 0x46,                     // je 20553
         0xEB, 0x74                      // jmp 20583
     }},
 
     // Sets the screen height at which units are displayed
     PatchSpec{0x6FA27, PatchSpec::to_bytes(SCREEN_HEIGHT_TO_SHOW_UNITS)},
 
-    // Fixes building selection to account changes in CAD
+    // Fixes a building selection issue related to changes in CAD structure
     PatchSpec{0x70878, {kStencilPixelColorShift}},
     PatchSpec{0x70879, PatchSpec::concat(
         {0x81, 0xEF}, kStencilPixelOffset       // sub edi, 440h
@@ -337,19 +325,9 @@ const std::array patches_game_ss_gold_fr
     PatchSpec{0x82EBF, {0x3B, 0x02}},       // cmp eax, [edx]       // screen width
 };
 
-constexpr std::array relocs_menu_ss_gold_fr
-{
-    RelocateGapSpec{0x0, 0x0, 0x0}
-};
-
 const std::array hooks_menu_ss_gold_fr
 {
     HookSpec{0x14CB0, reinterpret_cast<uintptr_t>(&MenuDllHooks::sub_10014B70_fr)},
-};
-
-const std::array patches_menu_ss_gold_fr
-{
-    PatchSpec{0x0, {}},
 };
 
 
@@ -410,11 +388,6 @@ const std::array patches_game_ss_gold_hd_1_2
     PatchSpec{0x71E55, PatchSpec::to_bytes(kRowStrideByteSize)},
 };
 
-constexpr std::array relocs_menu_ss_gold_hd_1_2
-{
-    RelocateGapSpec{0x0, 0x0, 0x0}
-};
-
 const std::array hooks_menu_ss_gold_hd_1_2
 {
     HookSpec{0x14B70, reinterpret_cast<uintptr_t>(&MenuDllHooks::sub_10014B70_hd)},
@@ -460,18 +433,18 @@ const std::array hooks_game_ss_ru
 const std::array patches_game_ss_ru
 {
     // Fixes bug where enemies inside buildings were revealed by your supply trucks
-    PatchSpec{0x19E7E, {0x75, 0xB7}},   // jmp 19E37
+    PatchSpec{0x19E7E, {0x75, 0xB7}},   // jne 19E37
     PatchSpec{0x19E37,
     {
         0x80, 0x7E, 0x00, 0x68,         // cmp byte ptr [esi+0], 68h
-        0x74, 0x43,                     // jz 19E80
+        0x74, 0x43,                     // je 19E80
         0xEB, 0x67                      // jmp 19EA6
     }},
 
     // Sets the screen height at which units are displayed
     PatchSpec{0x60E59, PatchSpec::to_bytes(SCREEN_HEIGHT_TO_SHOW_UNITS)},
 
-    // Fixes building selection to account changes in CAD
+    // Fixes a building selection issue related to changes in CAD structure
     PatchSpec{0x61C98, {kStencilPixelColorShift}},
     PatchSpec{0x61C99, PatchSpec::concat(
         {0x81, 0xEF}, kStencilPixelOffset       // sub edi, 440h
@@ -494,20 +467,9 @@ const std::array patches_game_ss_ru
     PatchSpec{0x73161, {0x3B, 0x02}},
 };
 
-constexpr std::array relocs_menu_ss_ru
-{
-    RelocateGapSpec{0x0, 0x0, 0x0}
-};
-
 const std::array hooks_menu_ss_ru
 {
-    HookSpec{0x0, 0x0},
     HookSpec{0xE3D0, reinterpret_cast<uintptr_t>(&MenuDllHooks::sub_1000E3D0_ru)},
-};
-
-const std::array patches_menu_ss_ru
-{
-    PatchSpec{0x0, {}},
 };
 
 
@@ -545,7 +507,7 @@ const std::array patches_game_ss_hd_v1_1
     // Sets the screen height at which units are displayed
     PatchSpec{0x60E59, PatchSpec::to_bytes(SCREEN_HEIGHT_TO_SHOW_UNITS)},
 
-    // Fixes building selection to account changes in CAD
+    // Fixes a building selection issue related to changes in CAD structure
     PatchSpec{0x61C98, {kStencilPixelColorShift}},
     PatchSpec{0x61C99, PatchSpec::concat(
         {0x81, 0xEF}, kStencilPixelOffset       // sub edi, 440h
@@ -563,11 +525,6 @@ const std::array patches_game_ss_hd_v1_1
     // Part fix since the original HD mod already implemented this
     PatchSpec{0x94672, {kRowStrideShift}},
     PatchSpec{0x946A1, PatchSpec::to_bytes(kRowStrideByteSize)},
-};
-
-constexpr std::array relocs_menu_ss_hd_v1_1
-{
-    RelocateGapSpec{0x0, 0x0, 0x0}
 };
 
 const std::array hooks_menu_ss_hd_v1_1_ru

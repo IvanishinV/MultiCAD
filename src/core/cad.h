@@ -255,11 +255,12 @@ struct RhombsPalette
 
 struct ModuleStateBase
 {
-    // Important! We need to increase fog array, so move it to another part of the struct
+    // Important! We need to increase fog array, so moved it up to the main structure used by game
     Fog                 fogSprites[(Graphics::kMaxHeight >> 3) + 0x10];      //10012b5a-10014e5b     // For array for screen. Originally it was 112 elements. Adding 0x10 for borderline cases
 
     U32                 pad_4[2];
 
+    // All pointers to the CAD structure point here
     Rect                windowRect;
     RendererSurface     surface;
 
@@ -288,7 +289,7 @@ struct ModuleStateBase
     U32                 actualRgbMask;                   //10012b50
     U32                 pitch;                           //10012b54              // Size in bytes of pixel line in DX renderer. Usually is: width * 2
     DoublePixel         backSurfaceShadePixel;           //10012b58
-    U8                  pad_3[0x2300];                                           // Just pad to save all following offsets. The used fog array is further
+    U8                  pad_3[0x2300];                                           // Just pad to save all following offsets. The used fog array was moved to the beginning
     RhombsPalette       rhombsPalette;                   //10014e5c              // Landscape palette array (rhomb.pl)
 
     HWND                hwnd;
