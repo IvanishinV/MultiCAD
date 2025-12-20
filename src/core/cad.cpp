@@ -131,7 +131,7 @@ void* InitializeModule()
 
     switch (menuDllVersion)
     {
-    case GameVersion::SS_RU:
+    case GameVersion::SS_V1_0:
     case GameVersion::SS_V1_2:
     case GameVersion::SS_GOLD_RU:
     case GameVersion::SS_HD_V1_1_RU:

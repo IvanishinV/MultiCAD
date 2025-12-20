@@ -11,7 +11,7 @@ public:
     {
         switch (v)
         {
-        case GameVersion::SS_RU: return std::make_unique<Profile_SS_RU>();
+        case GameVersion::SS_V1_0:    return std::make_unique<Profile_SS_v1_0>();
         case GameVersion::SS_V1_2:    return std::make_unique<Profile_SS_v1_2>();
         case GameVersion::SS_GOLD_EN: return std::make_unique<Profile_SS_GOLD_EN>();
         case GameVersion::SS_GOLD_DE: return std::make_unique<Profile_SS_GOLD_DE>();

@@ -54,8 +54,7 @@ inline bool operator==(const PixelColor lhs, const U32 rhs)
 enum class GameVersion
 {
     // Official versions
-    SS_RU,              // Sudden Strike (1.0 ru, "Противостояние 3")
-    SS_EN,              // Sudden Strike (1.0 en)
+    SS_V1_0,            // Sudden Strike (1.0 de, ru, "Противостояние 3")
     SS_V1_2,            // Sudden Strike (1.2 en)
     SS_FOREVER,         // Противостояние 3: Война продолжается (2001)
     SS_APRM,            // Противостояние 3: Второе дыхание (2001-2003)
