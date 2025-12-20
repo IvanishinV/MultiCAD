@@ -1,7 +1,7 @@
 # MultiCAD
 
 **MultiCAD** is a universal graphics DLL replacement for **Sudden Strike**, **Sudden Strike Forever**, and related games.
-It supports **any custom screen resolution** from 640x480 up to 2560x1600  (note: higher resolutions may be a bit laggy) and includes various bug fixes across different game versions.
+It supports **any custom screen resolution** from 640x480 up to 3440x1600  (note: higher resolutions may be a bit laggy) and includes various bug fixes across different game versions.
 
 ## Supported Games
 
