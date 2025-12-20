@@ -54,10 +54,11 @@ inline bool operator==(const PixelColor lhs, const U32 rhs)
 enum class GameVersion
 {
     // Official versions
-    SS_RU,              // Sudden Strike (1.0 ru, "Противостояние 3")
+    SS_RU,              // Sudden Strike (1.0 ru, "РџСЂРѕС‚РёРІРѕСЃС‚РѕСЏРЅРёРµ 3")
     SS_EN,              // Sudden Strike (1.0 en)
-    SS_FOREVER,         // Противостояние 3: Война продолжается (2001)
-    SS_APRM,            // Противостояние 3: Второе дыхание (2001-2003)
+    SS_V1_2,            // Sudden Strike (1.2 en)
+    SS_FOREVER,         // РџСЂРѕС‚РёРІРѕСЃС‚РѕСЏРЅРёРµ 3: Р’РѕР№РЅР° РїСЂРѕРґРѕР»Р¶Р°РµС‚СЃСЏ (2001)
+    SS_APRM,            // РџСЂРѕС‚РёРІРѕСЃС‚РѕСЏРЅРёРµ 3: Р’С‚РѕСЂРѕРµ РґС‹С…Р°РЅРёРµ (2001-2003)
     SS_GOLD_RU,         // Sudden Strike Gold (1.21 ru)
     SS_GOLD_EN,         // Sudden Strike Gold (1.21 en)
     SS_GOLD_DE,         // Sudden Strike Gold (1.21 de)
@@ -66,11 +67,11 @@ enum class GameVersion
     SS_RW,              // Sudden Strike: Resource War (2004, October)
 
     // Official versions from Red Ice
-    SS_ASIA_IN_FIRE,    // Противостояние: Азия в огне (2004, "Cold War Conflicts")
-    SS_GULF_WAR,        // Противостояние: Война в заливе (2004, "Gulf War")
-    SS_BLACK_GOLD,      // Противостояние: Битва за чёрное золото (2005)
-    SS_EUROPE_2015,     // Противостояние: Европа 2015 (2008)
-    SS_PIECE_2008,      // Противостояние: Принуждение к миру (2008)
+    SS_ASIA_IN_FIRE,    // РџСЂРѕС‚РёРІРѕСЃС‚РѕСЏРЅРёРµ: РђР·РёСЏ РІ РѕРіРЅРµ (2004, "Cold War Conflicts")
+    SS_GULF_WAR,        // РџСЂРѕС‚РёРІРѕСЃС‚РѕСЏРЅРёРµ: Р’РѕР№РЅР° РІ Р·Р°Р»РёРІРµ (2004, "Gulf War")
+    SS_BLACK_GOLD,      // РџСЂРѕС‚РёРІРѕСЃС‚РѕСЏРЅРёРµ: Р‘РёС‚РІР° Р·Р° С‡С‘СЂРЅРѕРµ Р·РѕР»РѕС‚Рѕ (2005)
+    SS_EUROPE_2015,     // РџСЂРѕС‚РёРІРѕСЃС‚РѕСЏРЅРёРµ: Р•РІСЂРѕРїР° 2015 (2008)
+    SS_PIECE_2008,      // РџСЂРѕС‚РёРІРѕСЃС‚РѕСЏРЅРёРµ: РџСЂРёРЅСѓР¶РґРµРЅРёРµ Рє РјРёСЂСѓ (2008)
 
     // Known mods
     SS_HD_V1_1_RU,      // Sudden Strike HD v1.1 (ru)

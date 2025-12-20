@@ -542,3 +542,76 @@ const std::array patches_menu_ss_hd_v1_1
     // Remove the displayed text on main menu from the old HD mod
     PatchSpec{0xD2F0, { 0x56, 0x8B, 0xF1, 0x8B, 0x4E, 0x05, 0x5E, 0x85, 0xC9, 0x74, 0x05, 0x8B, 0x01, 0xFF, 0x60, 0x0C, 0xC3 }},
 };
+
+
+constexpr std::array relocs_game_ss_cd_en
+{
+    RelocateGapSpec{ 0x0034FF70, 0x00351778, 8 + sizeof(uint32_t) * kRowStrideDwordSize * ((Graphics::kMaxHeight + 7) >> 3) },
+    RelocateGapSpec{ 0x00351778, 0x00352F80, 8 + sizeof(uint32_t) * kRowStrideDwordSize * ((Graphics::kMaxHeight + 7) >> 3) },
+    RelocateGapSpec{ 0x0037B5D4, 0x0037C5D4, ARRAY_37B588_BYTE_SIZE },
+    RelocateGapSpec{ 0x0037C5D4, 0x0037C5EA, 0x10 },
+    RelocateGapSpec{ 0x0037C5EA, 0x0037E8F0, 2 + sizeof(((ModuleStateBase*)0)->fogSprites) },
+};
+
+const std::array hooks_game_ss_cd_en
+{
+    HookSpec{0x57C80, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_10055A20)},
+    HookSpec{0x58040, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_10055DC0)},
+    HookSpec{0x58080, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_10055E00)},
+    HookSpec{0x58120, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_10055E90)},
+    HookSpec{0x581D0, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_10055F40)},
+    HookSpec{0x58260, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_10055FE0)},
+    HookSpec{0x582A0, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_10056030)},
+    HookSpec{0x583E0, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_10056170)},
+    HookSpec{0x58630, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_100563B0)},
+    //HookSpec{0x6AD20, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_1006AD20)},
+    //HookSpec{0x6AEA0, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_1006AEA0)},
+    //HookSpec{0x6B1C0, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_1006B1C0)},
+    //HookSpec{0x6B2C0, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_1006B2C0)},
+    //HookSpec{0x6D940, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_1006D940)},
+    //HookSpec{0x6F120, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_1006F120)},
+    HookSpec{0x6DA90, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_1006DC40)},
+    HookSpec{0x71850, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_1006F120_v1_2_en)},
+};
+
+const std::array patches_game_ss_cd_en
+{
+    // Fixes bug where enemies inside buildings were revealed by your supply trucks
+    PatchSpec{0x201E1, {0x75, 0xB4}},   // jne 20197
+    PatchSpec{0x20197,
+    {
+        0x80, 0x7E, 0x00, 0x34,         // cmp byte ptr [esi+0], 68h
+        0x74, 0x46,                     // je 201E3
+        0xEB, 0x74                      // jmp 20213
+    }},
+
+    // Sets the screen height at which units are displayed
+    PatchSpec{0x6F899, PatchSpec::to_bytes(SCREEN_HEIGHT_TO_SHOW_UNITS)},
+
+    // Fixes a building selection issue related to changes in CAD structure
+    PatchSpec{0x70708, {kStencilPixelColorShift}},
+    PatchSpec{0x70709, PatchSpec::concat(
+        {0x81, 0xEF}, kStencilPixelOffset       // sub edi, 440h
+    )},
+    PatchSpec{0x7070F, {0xEB, 0x82}},           // jmp 7070F -> 70693
+    PatchSpec{0x70693, PatchSpec::concat(
+        {0x81, 0xE7}, kStencilPixelSmallMask,   // and edi, 7FFh
+        std::array<uint8_t, 2>{0xEB, 0x77}      // jmp 70699 -> 70712
+    )},
+
+    // Fixes due to changed array sizes
+    PatchSpec{0x70B52, PatchSpec::to_bytes(ARRAY_37B588_DWORD_SIZE)},
+    PatchSpec{0x70BA2, PatchSpec::to_bytes(ARRAY_37B588_DWORD_SIZE)},
+    PatchSpec{0x73A9E, PatchSpec::to_bytes(Graphics::kMaxHeight)},
+
+    // Fixes unit selection when double-clicking
+    PatchSpec{0x82A58, {}, 0x82A59, sizeof(uint32_t)},
+    PatchSpec{0x82A57, {0xBA}},
+    PatchSpec{0x82A5C, {0x3B, 0x4A, 0xFC}},
+    PatchSpec{0x82A61, {0x3B, 0x02}},
+};
+
+const std::array hooks_menu_ss_cd_en
+{
+    HookSpec{0xF2D0, reinterpret_cast<uintptr_t>(&MenuDllHooks::sub_1000F2D0_en)},
+};
