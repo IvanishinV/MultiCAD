@@ -5,14 +5,15 @@ It supports **any custom screen resolution** from 640x480 up to 3440x1600  (note
 
 ## Supported Games
 
-| Game                     | Status | Versions / Languages      | Fixes       |
-|--------------------------|--------|---------------------------|-------------|
-| **Sudden Strike**        |   🛠️   |                           |             |
-| **Sudden Strike Forever**|   ✔   | en, de, fr, ru, ch        | 7 bug fixes |
-| **Sudden Strike Gold**   |   ✔   | en, de, fr, ru            | 7 bug fixes |
-| **Sudden Strike HD v1.2**|   ✔   | en, de, fr, ru            | 7 bug fixes |
-| **APRM**                 |   ✔   | 3.0, 3.1, 4.0             | 7 bug fixes |
-| **TWO**                  |   ✔   | en                        | 7 bug fixes |
+| Game                           | Status | Versions / Languages      | Fixes       |
+|--------------------------------|--------|---------------------------|-------------|
+| **Sudden Strike**              |   ✔   | 1.0: de, ru, 1.2: en      | 2 bug fixes |
+| **Sudden Strike HD v1.1**      |   ✔   | en, ru                    | 2 bug fixes |
+| **Sudden Strike Forever**      |   ✔   | en, de, fr, ru, ch        | 7 bug fixes |
+| **Sudden Strike Gold**         |   ✔   | en, de, fr, ru            | 7 bug fixes |
+| **Sudden Strike Gold HD v1.2** |   ✔   | en, de, fr, ru            | 7 bug fixes |
+| **APRM**                       |   ✔   | 3.0, 3.1, 4.0             | 7 bug fixes |
+| **TWO**                        |   ✔   | en                        | 7 bug fixes |
 
 > 💡 Note: `Audio Mixer Zero-Volume Fix` restores the game volume in the audio mixer to full if it was set to zero. Applies to **all versions**.
 
@@ -62,7 +63,7 @@ To build the project from source:
 
 1. Clone or download this repository.
 2. Open `MultiCAD.sln` in **Visual Studio 2022**.
-3. Choose the `Release`, 'Release_MT' or `Debug` configuration.
+3. Choose the `Release`, `Release_MT` or `Debug` configuration.
 4. Build the solution.
 
 ## License
