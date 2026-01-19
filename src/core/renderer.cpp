@@ -271,7 +271,7 @@ bool initWindowDxSurface(S32 width, S32 height)
             ShowErrorNow(buf);
             return false;
         }
-        
+
         SetWindowPos(g_moduleState->hwnd, NULL, 0, 0, width, height, SWP_NOZORDER | SWP_NOMOVE);
     }
     else
@@ -3810,14 +3810,17 @@ void drawMainSurfacePaletteSpriteStencil(S32 x, S32 y, U16 level, const Pixel* c
                     {
                         // Mask 0x80 -> repeat one pixel
                         const U8 indx = pixels->pixels[0];
-                        const Pixel pixel = palette[indx];
-
-                        for (ptrdiff_t i = 0; i < availCount; ++i)
+                        if (indx)
                         {
-                            if (stencilLevel <= *(DoublePixel*)((Addr)stencil + (i - 1) * sizeof(Pixel)))
-                                continue;
+                            const Pixel pixel = palette[indx];
 
-                            sx[i] = pixel;
+                            for (ptrdiff_t i = 0; i < availCount; ++i)
+                            {
+                                if (stencilLevel <= *(DoublePixel*)((Addr)stencil + (i - 1) * sizeof(Pixel)))
+                                    continue;
+
+                                sx[i] = pixel;
+                            }
                         }
 
                         pixels = (ImagePaletteSpritePixel*)((Addr)pixels + sizeof(ImagePaletteSpritePixel));
@@ -5266,18 +5269,21 @@ void drawMainSurfaceAnimationSprite(S32 x, S32 y, const AnimationPixel* palette,
                     if (pixels->count & kImageSpriteItemCompactMask)
                     {
                         const U8 indx = pixels->pixels[0];
-                        const AnimationPixel pixel = palette[indx];
-
-                        const DoublePixel pix = pixel >> 19;
-
-                        if ((pix & 0xFF) != 0x1F)
+                        if (indx)
                         {
-                            for (ptrdiff_t i = 0; i < availCount; ++i)
-                            {
-                                const DoublePixel res = ((DoublePixel)sx[i] << 16) | sx[i];
-                                const DoublePixel value = g_rendererState.sprite.colorMask & (((g_rendererState.sprite.colorMask & res) * pix) >> 5);
+                            const AnimationPixel pixel = palette[indx];
 
-                                sx[i] = (Pixel)pixel + (Pixel)((value >> 16) | value);
+                            const DoublePixel pix = pixel >> 19;
+
+                            if ((pix & 0xFF) != 0x1F)
+                            {
+                                for (ptrdiff_t i = 0; i < availCount; ++i)
+                                {
+                                    const DoublePixel res = ((DoublePixel)sx[i] << 16) | sx[i];
+                                    const DoublePixel value = g_rendererState.sprite.colorMask & (((g_rendererState.sprite.colorMask & res) * pix) >> 5);
+
+                                    sx[i] = (Pixel)pixel + (Pixel)((value >> 16) | value);
+                                }
                             }
                         }
                     }
@@ -5457,21 +5463,24 @@ void drawMainSurfaceAnimationSpriteStencil(S32 x, S32 y, U16 level, const Animat
                     if (pixels->count & kImageSpriteItemCompactMask)
                     {
                         const U8 indx = pixels->pixels[0];
-                        const AnimationPixel pixel = palette[indx];
-
-                        const DoublePixel pix = pixel >> 19;
-
-                        if ((pix & 0xFF) != 0x1F)
+                        if (indx)
                         {
-                            for (ptrdiff_t i = 0; i < availCount; ++i)
+                            const AnimationPixel pixel = palette[indx];
+
+                            const DoublePixel pix = pixel >> 19;
+
+                            if ((pix & 0xFF) != 0x1F)
                             {
-                                if (stencilLevel <= *(DoublePixel*)(stencil + i - 1))
-                                    continue;
+                                for (ptrdiff_t i = 0; i < availCount; ++i)
+                                {
+                                    if (stencilLevel <= *(DoublePixel*)(stencil + i - 1))
+                                        continue;
 
-                                const DoublePixel value =
-                                    (pix * (((sx[i] << 16) | sx[i]) & g_rendererState.sprite.colorMask) >> 5) & g_rendererState.sprite.colorMask;
+                                    const DoublePixel value =
+                                        (pix * (((sx[i] << 16) | sx[i]) & g_rendererState.sprite.colorMask) >> 5) & g_rendererState.sprite.colorMask;
 
-                                sx[i] = (Pixel)((value >> 16) | value) + (Pixel)pixel;
+                                    sx[i] = (Pixel)((value >> 16) | value) + (Pixel)pixel;
+                                }
                             }
                         }
 
@@ -6073,13 +6082,13 @@ void drawMainSurfaceShadowSprite(S32 x, S32 y, const DoublePixel shadePixel, con
                         for (ptrdiff_t i = 0; i < availCount; ++i)
                         {
                             const DoublePixel sten = *(DoublePixel*)(stencil + i);
-                                if ((sten & kStencilPixelShadowMask) == 0)
-                                {
-                                    *(DoublePixel*)(stencil + i) = shadePixel | sten;
+                            if ((sten & kStencilPixelShadowMask) == 0)
+                            {
+                                *(DoublePixel*)(stencil + i) = shadePixel | sten;
 
-                                    const Pixel pixel = (Pixel)(g_moduleState->backSurfaceShadePixel + SHADEPIXEL(*(DoublePixel*)(sx + i), *(DoublePixel*)&g_moduleState->shadeColorMask));
-                                    sx[i] = pixel;
-                                }
+                                const Pixel pixel = (Pixel)(g_moduleState->backSurfaceShadePixel + SHADEPIXEL(*(DoublePixel*)(sx + i), *(DoublePixel*)&g_moduleState->shadeColorMask));
+                                sx[i] = pixel;
+                            }
                         }
                     }
 
@@ -6403,16 +6412,20 @@ void drawMainSurfaceAdjustedSprite(S32 x, S32 y, U16 level, const ImagePaletteSp
                     else if ((pixels->count & kImageSpriteItemCompactMask) == kImageSpriteItemCompactMask)
                     {
                         // Mask 0x80 -> repeat one pixel
-                        for (ptrdiff_t i = 0; i < availCount; ++i)
+                        const U8 indx = pixels->pixels[0];
+                        if (indx)
                         {
-                            if (*(DoublePixel*)(stencil + i - 1) < stencilLevel)
+                            for (ptrdiff_t i = 0; i < availCount; ++i)
                             {
-                                DoublePixel pixel = g_rendererState.sprite.colorMask & (sx[i] | ((DoublePixel)sx[i] << 16));
-                                pixel = g_rendererState.sprite.adjustedColorMask & ((pixel * (pixels->pixels[0] & kImageSpriteItemSmallPixelMask)) >> 4);
-                                pixel = g_rendererState.sprite.colorMask &
-                                    (((g_rendererState.sprite.colorMask - pixel) >> 5) | pixel);
+                                if (*(DoublePixel*)(stencil + i - 1) < stencilLevel)
+                                {
+                                    DoublePixel pixel = g_rendererState.sprite.colorMask & (sx[i] | ((DoublePixel)sx[i] << 16));
+                                    pixel = g_rendererState.sprite.adjustedColorMask & ((pixel * (indx & kImageSpriteItemSmallPixelMask)) >> 4);
+                                    pixel = g_rendererState.sprite.colorMask &
+                                        (((g_rendererState.sprite.colorMask - pixel) >> 5) | pixel);
 
-                                sx[i] = (Pixel)((pixel >> 16) | pixel);
+                                    sx[i] = (Pixel)((pixel >> 16) | pixel);
+                                }
                             }
                         }
 
@@ -6600,22 +6613,25 @@ void drawMainSurfaceActualSprite(S32 x, S32 y, U16 level, const Pixel* const pal
                     {
                         // Mask 0x80 -> repeat one pixel
                         const U8 indx = pixels->pixels[0];
-                        const Pixel pixel = palette[indx];
-
-                        for (ptrdiff_t i = 0; i < availCount; ++i)
+                        if (indx)
                         {
-                            if (*(DoublePixel*)(stencil + i - 1) < stencilLevel)
+                            const Pixel pixel = palette[indx];
+
+                            for (ptrdiff_t i = 0; i < availCount; ++i)
                             {
-                                const Pixel summ = pixel + sx[i];
-                                const Pixel colorPixel = g_moduleState->actualColorMask & ((summ ^ pixel ^ sx[i]) >> 1);
-                                Pixel out = summ - colorPixel;
-                                if (colorPixel & g_moduleState->actualRedMask)
-                                    out |= g_moduleState->actualRedMask;
-                                if (colorPixel & g_moduleState->actualGreenMask)
-                                    out |= g_moduleState->actualGreenMask;
-                                if (colorPixel & g_moduleState->actualBlueMask)
-                                    out |= g_moduleState->actualGreenMask;
-                                sx[i] = out;
+                                if (*(DoublePixel*)(stencil + i - 1) < stencilLevel)
+                                {
+                                    const Pixel summ = pixel + sx[i];
+                                    const Pixel colorPixel = g_moduleState->actualColorMask & ((summ ^ pixel ^ sx[i]) >> 1);
+                                    Pixel out = summ - colorPixel;
+                                    if (colorPixel & g_moduleState->actualRedMask)
+                                        out |= g_moduleState->actualRedMask;
+                                    if (colorPixel & g_moduleState->actualGreenMask)
+                                        out |= g_moduleState->actualGreenMask;
+                                    if (colorPixel & g_moduleState->actualBlueMask)
+                                        out |= g_moduleState->actualGreenMask;
+                                    sx[i] = out;
+                                }
                             }
                         }
 
@@ -7312,13 +7328,15 @@ void markUiWithButtonType(S32 x, S32 y, const ImagePaletteSprite* const sprite, 
 
                     const ptrdiff_t availCount = std::min(count - skip, (ButtonType*)g_rendererState.sprite.maxX - sx);
 
-                    std::memset(sx, type, availCount * sizeof(*sx));
                     if (pixels->count & kImageSpriteItemCompactMask)
                     {
+                        if (pixels->pixels[0])
+                            std::memset(sx, type, availCount * sizeof(*sx));
                         pixels = (ImagePaletteSpritePixel*)((Addr)pixels + sizeof(ImagePaletteSpritePixel));
                     }
                     else
                     {
+                        std::memset(sx, type, availCount * sizeof(*sx));
                         pixels = (ImagePaletteSpritePixel*)((Addr)pixels + ((count - 1) * sizeof(U8) + sizeof(ImagePaletteSpritePixel)));
                     }
 
@@ -7476,17 +7494,20 @@ void drawVanishingUiSprite(S32 x, S32 y, const S32 vanishLevel, const Pixel* pal
                     if (pixels->count & kImageSpriteItemCompactMask)
                     {
                         const U8 indx = pixels->pixels[0];
-                        const Pixel pixel = palette[indx];
-
-                        const DoublePixel res2 = ((DoublePixel)pixel << 16) | pixel;
-                        const DoublePixel mask2 = g_rendererState.sprite.colorMask & (((g_rendererState.sprite.colorMask & res2) * (31 - vanishLevel)) >> 5);
-
-                        for (ptrdiff_t i = 0; i < availCount; ++i)
+                        if (indx)
                         {
-                            const DoublePixel res = ((DoublePixel)sx[i] << 16) | sx[i];
-                            const DoublePixel mask = g_rendererState.sprite.colorMask & (((g_rendererState.sprite.colorMask & res) * vanishLevel) >> 5);
+                            const Pixel pixel = palette[indx];
 
-                            sx[i] = (Pixel)((mask | (mask >> 16)) + (mask2 | (mask >> 16)));
+                            const DoublePixel res2 = ((DoublePixel)pixel << 16) | pixel;
+                            const DoublePixel mask2 = g_rendererState.sprite.colorMask & (((g_rendererState.sprite.colorMask & res2) * (31 - vanishLevel)) >> 5);
+
+                            for (ptrdiff_t i = 0; i < availCount; ++i)
+                            {
+                                const DoublePixel res = ((DoublePixel)sx[i] << 16) | sx[i];
+                                const DoublePixel mask = g_rendererState.sprite.colorMask & (((g_rendererState.sprite.colorMask & res) * vanishLevel) >> 5);
+
+                                sx[i] = (Pixel)((mask | (mask >> 16)) + (mask2 | (mask >> 16)));
+                            }
                         }
 
                         pixels = (ImagePaletteSpritePixel*)((Addr)pixels + sizeof(ImagePaletteSpritePixel));
