@@ -114,6 +114,7 @@
     <ClInclude Include="profiles\ProfileSSGoldEn.h" />
     <ClInclude Include="ui\ResolutionDialog.h" />
     <ClInclude Include="ui\ResolutionVerifier.h" />
+    <ClInclude Include="ui\SplashConfig.h" />
     <ClInclude Include="ui\SplashTextRenderer.h" />
   </ItemGroup>
   <ItemGroup>

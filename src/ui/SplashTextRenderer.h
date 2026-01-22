@@ -6,11 +6,45 @@
 #include <functional>
 #include <windows.h>
 
+#include "SplashConfig.h"
+
 class SplashTextRenderer
 {
 public:
     using FnSetColor = void(__thiscall*)(void*, int, int, int);
     using FnDrawText = void(__thiscall*)(void*, int, int, const char*, int);
+
+    struct Params
+    {
+        FnSetColor setColorFn;
+        FnDrawText drawTextFn;
+        void* ctx;
+
+        uint8_t r = 0xDE;
+        uint8_t g = 0xD7;
+        uint8_t b = 0x42;
+
+        int x = 476;
+        int y = 300;
+        bool aligned = true;
+    };
+
+    static Params MakeParams(
+        const SplashStaticParams& s,
+        FnSetColor setColorFn,
+        FnDrawText drawTextFn,
+        void* ctx
+    )
+    {
+        return {
+            setColorFn,
+            drawTextFn,
+            ctx,
+            s.r, s.g, s.b,
+            s.x, s.y,
+            s.aligned
+        };
+    }
 
     static SplashTextRenderer& Instance() {
         static SplashTextRenderer inst;
@@ -22,9 +56,9 @@ public:
     {
     }
 
-    void render(FnSetColor setColorFn, FnDrawText drawTextFn, void* ctx)
+    void render(const Params& p)
     {
-        if (!setColorFn || !drawTextFn || !ctx)
+        if (!p.setColorFn || !p.drawTextFn || !p.ctx)
             return;
 
         DWORD now = (DWORD)GetTickCount64();
@@ -37,13 +71,13 @@ public:
         float t = static_cast<float>(now % 1000) / 1000.f;
         float brightness = 0.8f + 0.2f * std::sin(t * 3.1415f * 2);
 
-        uint8_t r = static_cast<uint8_t>(0xDE * brightness);
-        uint8_t g = static_cast<uint8_t>(0xD7 * brightness);
-        uint8_t b = static_cast<uint8_t>(0x42 * brightness);
+        const uint8_t r = static_cast<uint8_t>(p.r * brightness);
+        const uint8_t g = static_cast<uint8_t>(p.g * brightness);
+        const uint8_t b = static_cast<uint8_t>(p.b * brightness);
 
         __try
         {
-            setColorFn(ctx, r, g, b);
+            p.setColorFn(p.ctx, r, g, b);
         }
         __except (EXCEPTION_EXECUTE_HANDLER)
         {
@@ -51,7 +85,7 @@ public:
         }
         __try
         {
-            drawTextFn(ctx, 476, 300, funPhrases[currentIndex], 0);
+            p.drawTextFn(p.ctx, p.x, p.y, funPhrases[currentIndex], p.aligned);
         }
         __except (EXCEPTION_EXECUTE_HANDLER)
         {

@@ -25,7 +25,10 @@ void MenuDllHooks::sub_10014B70_common(void* self, const char* versionStr, int x
     sub_10003D10(dword_100590F8, x, 370, SS_HD_MOD_TG_LINK, 1);
     sub_10003D10(dword_100590F8, x, 383, SS_HD_MOD_AUTHOR_EMAIL, 1);
 
-    SplashTextRenderer::Instance().render(sub_100039F0, sub_10003D10, dword_100590F8);
+    constexpr auto& splashCfg = g_splashTable[(int)SplashVariant::SS];
+    const SplashTextRenderer::Params splash = SplashTextRenderer::MakeParams(splashCfg, sub_100039F0, sub_10003D10, dword_100590F8);
+
+    SplashTextRenderer::Instance().render(splash);
 }
 
 void __fastcall MenuDllHooks::sub_10014B70(void* self)
@@ -54,7 +57,10 @@ void __fastcall MenuDllHooks::sub_10014B70_fr(void* self)
     sub_10003D10(dword_100590F8, 605, 370, SS_HD_MOD_TG_LINK, 1);
     sub_10003D10(dword_100590F8, 605, 383, SS_HD_MOD_AUTHOR_EMAIL, 1);
 
-    SplashTextRenderer::Instance().render(sub_100039F0, sub_10003D10, dword_100590F8);
+    constexpr auto& splashCfg = g_splashTable[(int)SplashVariant::SS];
+    const SplashTextRenderer::Params splash = SplashTextRenderer::MakeParams(splashCfg, sub_100039F0, sub_10003D10, dword_100590F8);
+
+    SplashTextRenderer::Instance().render(splash);
 }
 
 void __fastcall MenuDllHooks::sub_10014B70_ru(void* self)
@@ -73,7 +79,10 @@ void __fastcall MenuDllHooks::sub_10014B70_ru(void* self)
     sub_10003D10(dword_100590F8, 640, 370, SS_HD_MOD_TG_LINK, 1);
     sub_10003D10(dword_100590F8, 640, 383, SS_HD_MOD_AUTHOR_EMAIL, 1);
 
-    SplashTextRenderer::Instance().render(sub_100039F0, sub_10003D10, dword_100590F8);
+    constexpr auto& splashCfg = g_splashTable[(int)SplashVariant::SS];
+    const SplashTextRenderer::Params splash = SplashTextRenderer::MakeParams(splashCfg, sub_100039F0, sub_10003D10, dword_100590F8);
+
+    SplashTextRenderer::Instance().render(splash);
 }
 
 void __fastcall MenuDllHooks::sub_1000E3D0_ru(void* self)
@@ -93,7 +102,10 @@ void __fastcall MenuDllHooks::sub_1000E3D0_ru(void* self)
     sub_10003D10(dword_100590F8, 640, 370, SS_HD_MOD_TG_LINK, 1);
     sub_10003D10(dword_100590F8, 640, 383, SS_HD_MOD_AUTHOR_EMAIL, 1);
 
-    SplashTextRenderer::Instance().render(sub_100039F0, sub_10003D10, dword_100590F8);
+    constexpr auto& splashCfg = g_splashTable[(int)SplashVariant::SS];
+    const SplashTextRenderer::Params splash = SplashTextRenderer::MakeParams(splashCfg, sub_100039F0, sub_10003D10, dword_100590F8);
+
+    SplashTextRenderer::Instance().render(splash);
 }
 
 void MenuDllHooks::sub_1000E3D0_hd_common(void* self, int x)
@@ -113,7 +125,10 @@ void MenuDllHooks::sub_1000E3D0_hd_common(void* self, int x)
     sub_10003D10(dword_100590F8, x, 370, SS_HD_MOD_TG_LINK, 1);
     sub_10003D10(dword_100590F8, x, 383, SS_HD_MOD_AUTHOR_EMAIL, 1);
 
-    SplashTextRenderer::Instance().render(sub_100039F0, sub_10003D10, dword_100590F8);
+    constexpr auto& splashCfg = g_splashTable[(int)SplashVariant::SS];
+    const SplashTextRenderer::Params splash = SplashTextRenderer::MakeParams(splashCfg, sub_100039F0, sub_10003D10, dword_100590F8);
+
+    SplashTextRenderer::Instance().render(splash);
 }
 
 void __fastcall MenuDllHooks::sub_1000E3D0_hd_ru(void* self)
@@ -143,5 +158,8 @@ void __fastcall MenuDllHooks::sub_1000F2D0_en(void* self)
     sub_10003D10(dword_100590F8, 605, 370, SS_HD_MOD_TG_LINK, 1);
     sub_10003D10(dword_100590F8, 605, 383, SS_HD_MOD_AUTHOR_EMAIL, 1);
 
-    SplashTextRenderer::Instance().render(sub_100039F0, sub_10003D10, dword_100590F8);
+    constexpr auto& splashCfg = g_splashTable[(int)SplashVariant::SS];
+    const SplashTextRenderer::Params splash = SplashTextRenderer::MakeParams(splashCfg, sub_100039F0, sub_10003D10, dword_100590F8);
+
+    SplashTextRenderer::Instance().render(splash);
 }

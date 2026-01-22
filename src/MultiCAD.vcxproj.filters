@@ -69,6 +69,9 @@
     <ClInclude Include="ui\ResolutionVerifier.h">
       <Filter>Header Files\UI</Filter>
     </ClInclude>
+    <ClInclude Include="ui\SplashConfig.h">
+      <Filter>Header Files\Core</Filter>
+    </ClInclude>
     <ClInclude Include="ui\SplashTextRenderer.h">
       <Filter>Header Files\UI</Filter>
     </ClInclude>
