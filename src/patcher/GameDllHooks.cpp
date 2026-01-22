@@ -2971,7 +2971,7 @@ void __declspec(noinline) __stdcall  GameDllHooks::sub_1006F120_fr()
     }
 }
 
-void __declspec(noinline) __stdcall  GameDllHooks::sub_1006F120_hd()
+void __declspec(noinline) __stdcall  GameDllHooks::sub_1006F120_hd_v1_2()
 {
     auto* g = globals_;
 
@@ -3670,7 +3670,7 @@ void __declspec(noinline) __stdcall  GameDllHooks::sub_1006F120_v1_2_en()
     }
 }
 
-void __declspec(noinline) __stdcall  GameDllHooks::sub_1006F120_v1_0_hd()
+void __declspec(noinline) __stdcall  GameDllHooks::sub_1006F120_hd_v1_1()
 {
     auto* g = globals_;
 

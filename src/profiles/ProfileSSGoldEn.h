@@ -356,7 +356,7 @@ const std::array hooks_game_ss_gold_hd_1_2
     HookSpec{0x6B1C0, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_1006B1C0_hd)},
     HookSpec{0x6B2C0, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_1006B2C0_hd)},
     HookSpec{0x6D940, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_1006D940_hd)},
-    HookSpec{0x6F120, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_1006F120_hd)},
+    HookSpec{0x6F120, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_1006F120_hd_v1_2)},
 
     //HookSpec{0x3E7B0, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_1003E7B0)},
     HookSpec{0x1D240, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_1001D240)},
@@ -499,7 +499,7 @@ const std::array hooks_game_ss_hd_v1_1
     //HookSpec{0x6B2C0, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_1006B2C0)},
     //HookSpec{0x6D940, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_1006D940)},
     //HookSpec{0x6F120, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_1006F120)},
-    HookSpec{0x62DC0, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_1006F120_v1_0_hd)},
+    HookSpec{0x62DC0, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_1006F120_hd_v1_1)},
 };
 
 const std::array patches_game_ss_hd_v1_1
