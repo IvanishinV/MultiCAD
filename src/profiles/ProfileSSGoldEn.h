@@ -189,7 +189,7 @@ const std::array patches_game_ss_gold_de_ru
     PatchSpec{0x20601, {0x75, 0xB4}},   // jne 20601 -> 205B7
     PatchSpec{0x205B7,
     {
-        0x80, 0x7E, 0x00, 0x68,         // cmp byte ptr [esi+0], 68h
+        0x80, 0x7E, 0x0A, 0x04,         // cmp byte ptr [esi+0Ah], 04h
         0x74, 0x46,                     // je 20603
         0xEB, 0x74                      // jmp 20633
     }},
