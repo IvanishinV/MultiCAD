@@ -1082,6 +1082,7 @@ void markUiWithButtonType(S32 x, S32 y, const ImagePaletteSprite* const sprite, 
 // 0x1000a4f3
 /**
  * Draws a sprite into a given sprite using the specified vanishing level.
+ * Draws text in strategy map mode (Alt+Tab in SS2 and SS:RW)
  *
  * Created by IVA 18.07.2025.
  *

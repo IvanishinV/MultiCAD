@@ -7506,7 +7506,7 @@ void drawVanishingUiSprite(S32 x, S32 y, const S32 vanishLevel, const Pixel* pal
                                 const DoublePixel res = ((DoublePixel)sx[i] << 16) | sx[i];
                                 const DoublePixel mask = g_rendererState.sprite.colorMask & (((g_rendererState.sprite.colorMask & res) * vanishLevel) >> 5);
 
-                                sx[i] = (Pixel)((mask | (mask >> 16)) + (mask2 | (mask >> 16)));
+                                sx[i] = (Pixel)((mask | (mask >> 16)) + (mask2 | (mask2 >> 16)));
                             }
                         }
 
@@ -7526,7 +7526,7 @@ void drawVanishingUiSprite(S32 x, S32 y, const S32 vanishLevel, const Pixel* pal
                             const DoublePixel res = ((DoublePixel)sx[i] << 16) | sx[i];
                             const DoublePixel mask = g_rendererState.sprite.colorMask & (((g_rendererState.sprite.colorMask & res) * vanishLevel) >> 5);
 
-                            sx[i] = (Pixel)((mask | (mask >> 16)) + (mask2 | (mask >> 16)));
+                            sx[i] = (Pixel)((mask | (mask >> 16)) + (mask2 | (mask2 >> 16)));
                         }
 
                         pixels = (ImagePaletteSpritePixel*)((Addr)pixels + sizeof(ImagePaletteSpritePixel) + (count - 1) * sizeof(pixels->pixels));
