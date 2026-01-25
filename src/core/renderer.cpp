@@ -6621,15 +6621,15 @@ void drawMainSurfaceActualSprite(S32 x, S32 y, U16 level, const Pixel* const pal
                             {
                                 if (*(DoublePixel*)(stencil + i - 1) < stencilLevel)
                                 {
-                                    const Pixel summ = pixel + sx[i];
+                                    const DoublePixel summ = pixel + sx[i];
                                     const Pixel colorPixel = g_moduleState->actualColorMask & ((summ ^ pixel ^ sx[i]) >> 1);
-                                    Pixel out = summ - colorPixel;
+                                    Pixel out = (Pixel)summ - colorPixel;
                                     if (colorPixel & g_moduleState->actualRedMask)
                                         out |= g_moduleState->actualRedMask;
                                     if (colorPixel & g_moduleState->actualGreenMask)
                                         out |= g_moduleState->actualGreenMask;
                                     if (colorPixel & g_moduleState->actualBlueMask)
-                                        out |= g_moduleState->actualGreenMask;
+                                        out |= g_moduleState->actualBlueMask;
                                     sx[i] = out;
                                 }
                             }
@@ -6646,15 +6646,15 @@ void drawMainSurfaceActualSprite(S32 x, S32 y, U16 level, const Pixel* const pal
                                 const U8 indx = pixels->pixels[skip + i];
                                 const Pixel pixel = palette[indx];
 
-                                const Pixel summ = pixel + sx[i];
+                                const DoublePixel summ = pixel + sx[i];
                                 const Pixel colorPixel = g_moduleState->actualColorMask & ((summ ^ pixel ^ sx[i]) >> 1);
-                                Pixel out = summ - colorPixel;
+                                Pixel out = (Pixel)summ - colorPixel;
                                 if (colorPixel & g_moduleState->actualRedMask)
                                     out |= g_moduleState->actualRedMask;
                                 if (colorPixel & g_moduleState->actualGreenMask)
                                     out |= g_moduleState->actualGreenMask;
                                 if (colorPixel & g_moduleState->actualBlueMask)
-                                    out |= g_moduleState->actualGreenMask;
+                                    out |= g_moduleState->actualBlueMask;
                                 sx[i] = out;
                             }
                         }

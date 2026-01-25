@@ -267,7 +267,7 @@ void drawMainSurfaceShadeColorRect(S32 x, S32 y, S32 width, S32 height, const Pi
 // 0x100017e0
 /**
  * Draws a colored point on main surface.
- * This function is used for displaying the mission minimap in the corner and in a large size.
+ * This function is used for displaying the mission minimap in the corner and in a large size in main menu.
  * 
  * Created by AM.
  *
@@ -314,7 +314,7 @@ void readMainSurfaceRect(const S32 sx, const S32 sy, const S32 width, const S32 
 // 0x10001be0
 /**
  * Transforms each not magenta pixel from the input array into a new format. Pixel should be a 16-bit value.
- * The funciton transform it according to the settings store in g_moduleState.
+ * The function transforms it according to the settings stored in g_moduleState.
  * Magenta color is 0xF81F.
  * 
  * Created by AM.
@@ -330,7 +330,7 @@ void convertNotMagentaColors(const Pixel* input, Pixel* output, const S32 count)
 // 0x10001c80
 /**
  * Transforms each pixel from the input array into a new format. Pixel should be a 16-bit value.
- * The funciton transform it according to the settings store in g_moduleState.
+ * The funciton transforms it according to the settings stored in g_moduleState.
  * 
  * Created by AM.
  *
@@ -528,7 +528,7 @@ void unlockDxSurface();
 
 // 0x10002990
 /**
- * Copies a rectangle from the provided pixel array to renderer. Displays minimap, toolbar, menu.
+ * Copies a rectangle from the provided pixel array to renderer. Displays minimap, toolbar, menu, strategic map.
  * 
  * Created by IVA 06.2025.
  *
@@ -1030,7 +1030,7 @@ void drawMainSurfaceAdjustedSprite(S32 x, S32 y, U16 level, const ImagePaletteSp
 // 0x10007fbc
 /**
  * Draws a sprite on main surface comparing a specified level with stencil. Uses actual color mask.
- * This function is called, but its purpose is unknown.
+ * Draws visual low flames in the air after explosions of shells or equipment.
  *
  * Created by IVA 16.07.2025.
  *
