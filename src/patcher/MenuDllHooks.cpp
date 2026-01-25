@@ -163,3 +163,40 @@ void __fastcall MenuDllHooks::sub_1000F2D0_en(void* self)
 
     SplashTextRenderer::Instance().render(splash);
 }
+
+void __fastcall MenuDllHooks::sub_1001AC60(void* self)
+{
+    auto* g = globals_;
+
+    int* dword_100A06A0 = g->getPtr<int>(0xA06A0);
+    const auto sub_10075F80 = g->getFn<void(__thiscall)()>(0x75F80);
+    if (*dword_100A06A0 != 0)
+    {
+        sub_10075F80();
+        *dword_100A06A0 = 1;
+
+        int* dword_100B6F40 = g->getPtr<int>(0xB6F40);
+        int* dword_100B6F3C = g->getPtr<int>(0xB6F3C);
+        *dword_100B6F3C = 0;
+        *dword_100B6F40 = 0;
+    }
+
+    const auto sub_1000D1B0 = g->getFn<void(__thiscall)(void*)>(0xD1B0);
+    sub_1000D1B0(self);
+
+    const auto sub_10002C00 = g->getFn<void(__thiscall)(void*, int, int, int)>(0x2C00);
+    const auto sub_10002FA0 = g->getFn<void(__thiscall)(void*, int, int, const char*, int)>(0x2FA0);
+    int* dword_100B4B48 = g->getPtr<int>(0xB4B48);
+
+    sub_10002C00(dword_100B4B48, 0xAA, 0xAA, 0x55);
+
+    sub_10002FA0(dword_100B4B48, 780, 524, "Multi HD mod v" MULTICAD_VERSION_STR " for " SS_2_V2_2_GAME_STR, 1);
+    sub_10002FA0(dword_100B4B48, 780, 537, SS_HD_MOD_TG_LINK, 1);
+    sub_10002FA0(dword_100B4B48, 780, 550, SS_HD_MOD_AUTHOR_EMAIL, 1);
+
+    constexpr auto& splashCfg = g_splashTable[(int)SplashVariant::SS2];
+    const SplashTextRenderer::Params splash =
+        SplashTextRenderer::MakeParams(splashCfg, sub_10002C00, sub_10002FA0, dword_100B4B48);
+
+    SplashTextRenderer::Instance().render(splash);
+}

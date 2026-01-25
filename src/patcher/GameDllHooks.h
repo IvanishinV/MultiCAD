@@ -267,6 +267,74 @@ private:
     static_assert(sizeof(GameData4) == 0x37, "GameData4 size mismatch");
     static_assert(sizeof(GameData5) == 0x17C, "GameData5 size mismatch");
 
+#pragma pack(push, 1)
+    struct MapData
+    {
+        int* vtable;
+        int var_004[4];
+        int width_minus_1;
+        int height_minus_1;
+        int var_1C[6];
+        int stride;
+        int clipLeft;
+        int clipTop;
+        int clipRight;
+        int clipBottom;
+        uint16_t* dstBuf;
+        int var_4C[5];
+        bool var_060;
+        bool isMapLoaded;
+        int screenSurfaceWidth;
+        int screenSurfaceHeight;
+        int verticalCenterMargin;
+        bool var_06E;
+        uint8_t* srcBuf;
+    };
+#pragma pack(pop)
+
+    static_assert(sizeof(MapData) == 0x73, "GameData4 size mismatch");
+    static_assert(offsetof(MapData, dstBuf) == 0x48, "dstBuf offset mismatch");
+    static_assert(offsetof(MapData, isMapLoaded) == 0x61, "isMapLoaded offset mismatch");
+    static_assert(offsetof(MapData, srcBuf) == 0x6F, "srcBuf offset mismatch");
+
+    enum class TeamType : uint8_t
+    {
+        Player = 0,
+        Enemy = 1,
+        Static = 12,
+    };
+
+#pragma pack(push, 1)
+    struct UnitData
+    {
+        int* vtable;
+        int var_04;
+        S16 var_08;
+        UnitData* next;
+        int var_0E[3];
+        U16 flag_1A;
+        U8 teamId;
+        bool var_1D;
+        int var_1E[1];
+        bool var_22;
+        bool flag_23;
+        bool var_24;
+        bool var_25;
+        int var_26[3];
+        bool var_32;
+        S16 tileX;
+        S16 tileY;
+        S16 subX;
+        S16 subY;
+        int var_3B[142];
+        S16 fogFlag;
+    };
+#pragma pack(pop)
+
+    static_assert(offsetof(UnitData, teamId) == 0x1C, "teamId offset mismatch");
+    static_assert(offsetof(UnitData, tileX) == 0x33, "tileX offset mismatch");
+    static_assert(offsetof(UnitData, fogFlag) == 0x273, "fogFlag offset mismatch");
+
 #pragma endregion Helper_Structs
 
 public:
@@ -300,7 +368,7 @@ public:
     static void __declspec(noinline) __fastcall sub_1006CC60_fr(GameData3* self);
     static void __declspec(noinline) __stdcall  sub_1006D940();
     static void __declspec(noinline) __stdcall  sub_1006D940_hd();
-    // This method exists only in: SS en/ru, SS Gold de/fr/ru
+    // This method exists only in: SS en/ru, SS Gold de/fr/ru, SS2
     static void __declspec(noinline) __fastcall sub_1006DC40(int* self, void* /*dummy*/, int a2, int a3, int a4, int a5, uint8_t a6, char a7, char a8);
     static void __declspec(noinline) __stdcall  sub_1006F120();
     static void __declspec(noinline) __stdcall  sub_1006F120_de();
@@ -309,9 +377,18 @@ public:
     static void __declspec(noinline) __stdcall  sub_1006F120_v1_0_ru();
     static void __declspec(noinline) __stdcall  sub_1006F120_v1_2_en();
     static void __declspec(noinline) __stdcall  sub_1006F120_hd_v1_1();
+    static void __declspec(noinline) __stdcall  sub_1006F120_v2_2();
     static void __declspec(noinline) __cdecl    sub_10099E01(void* mem);
     static void __declspec(noinline) __cdecl    sub_10099E01_de(void* mem);
     static void __declspec(noinline) __cdecl    sub_10099E01_fr(void* mem);
+
+    // These methods are related to strategic map view and exist only in SS2 and SS:RW
+    // Fixes strategic map loading from mis_mini file
+    static void __declspec(noinline) __fastcall sub_100AC870(MapData* self);
+    // Fixes original bug with white rectangle in strategic view
+    static void __declspec(noinline) __fastcall sub_100ACDE0(MapData* self);
+    // Fixes the same original bug with copying rectangle in strategic view. Related to the previous one
+    static void __declspec(noinline) __fastcall sub_100AD2C0(MapData* self, void* /*dummy*/, int offsetX, int offsetY);
 
 private:
     static bool is_valid_ptr(void* p);

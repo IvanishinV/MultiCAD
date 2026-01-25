@@ -62,7 +62,7 @@ enum class GameVersion
     SS_GOLD_EN,         // Sudden Strike Gold (1.21 en)
     SS_GOLD_DE,         // Sudden Strike Gold (1.21 de)
     SS_GOLD_FR,         // Sudden Strike Gold (1.21 fr)
-    SS_2,               // Sudden Strike 2 (de, en, fr, ru) (2002, October)
+    SS_2,               // Sudden Strike 2 (2.2 de, en, fr, ru) (2002, October)
     SS_RW,              // Sudden Strike: Resource War (2004, October)
 
     // Official versions from Red Ice

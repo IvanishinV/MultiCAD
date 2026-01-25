@@ -33,7 +33,7 @@ int __declspec(noinline) __fastcall GameDllHooks::sub_1001D240(GameData5* self, 
 
 void __declspec(noinline) __cdecl GameDllHooks::sub_1003E7B0(UnkEntry* a1, int a2, int* a3, int a4)
 {
-    auto* g = globals_;
+    auto* const g = globals_;
 
     const auto sub_10002560 = g->getFn<int(__thiscall)(UnkEntry*, int)>(0x2560);
     int& randSeed = *g->getPtr<int>(0x295144);
@@ -86,7 +86,7 @@ void __declspec(noinline) __cdecl GameDllHooks::sub_1003E7B0(UnkEntry* a1, int a
 
 void __declspec(noinline) __cdecl GameDllHooks::sub_1003E7B0_de(UnkEntry* a1, int a2, int* a3, int a4)
 {
-    auto* g = globals_;
+    auto* const g = globals_;
 
     const auto sub_10002560 = g->getFn<int(__thiscall)(UnkEntry*, int)>(0x2650);
     int& randSeed = *g->getPtr<int>(0x295110);
@@ -139,7 +139,7 @@ void __declspec(noinline) __cdecl GameDllHooks::sub_1003E7B0_de(UnkEntry* a1, in
 
 void __declspec(noinline) __cdecl GameDllHooks::sub_1003E7B0_fr(UnkEntry* a1, int a2, int* a3, int a4)
 {
-    auto* g = globals_;
+    auto* const g = globals_;
 
     const auto sub_10002560 = g->getFn<int(__thiscall)(UnkEntry*, int)>(0x2650);
     int& randSeed = *g->getPtr<int>(0x299130);
@@ -768,7 +768,7 @@ doneMasking:
 
 void __declspec(noinline) __stdcall  GameDllHooks::sub_1005C170()
 {
-    auto* g = globals_;
+    auto* const g = globals_;
 
     int* dword_100ADF88 = g->getPtr<int>(0xADF88);
     int* dword_10299D64 = g->getPtr<int>(0x299D64);
@@ -937,7 +937,7 @@ void __declspec(noinline) __stdcall  GameDllHooks::sub_1005C170()
 
 void __declspec(noinline) __stdcall  GameDllHooks::sub_1005C170_de()
 {
-    auto* g = globals_;
+    auto* const g = globals_;
 
     int* dword_100ADF88 = g->getPtr<int>(0xAFF88);
     int* dword_10299D64 = g->getPtr<int>(0x299D34);
@@ -1106,7 +1106,7 @@ void __declspec(noinline) __stdcall  GameDllHooks::sub_1005C170_de()
 
 void __declspec(noinline) __stdcall  GameDllHooks::sub_1005C170_fr()
 {
-    auto* g = globals_;
+    auto* const g = globals_;
 
     int* dword_100ADF88 = g->getPtr<int>(0xB1F88);
     int* dword_10299D64 = g->getPtr<int>(0x29DD54);
@@ -1275,7 +1275,7 @@ void __declspec(noinline) __stdcall  GameDllHooks::sub_1005C170_fr()
 
 void __declspec(noinline) __stdcall  GameDllHooks::sub_1006AD20()
 {
-    auto* g = globals_;
+    auto* const g = globals_;
 
     struct GameObject
     {
@@ -1351,7 +1351,7 @@ void __declspec(noinline) __stdcall  GameDllHooks::sub_1006AD20()
 
 void __declspec(noinline) __stdcall  GameDllHooks::sub_1006AD20_de()
 {
-    auto* g = globals_;
+    auto* const g = globals_;
 
     struct GameObject
     {
@@ -1427,7 +1427,7 @@ void __declspec(noinline) __stdcall  GameDllHooks::sub_1006AD20_de()
 
 void __declspec(noinline) __stdcall  GameDllHooks::sub_1006AD20_hd()
 {
-    auto* g = globals_;
+    auto* const g = globals_;
 
     struct GameObject
     {
@@ -1503,7 +1503,7 @@ void __declspec(noinline) __stdcall  GameDllHooks::sub_1006AD20_hd()
 
 void __declspec(noinline) __stdcall  GameDllHooks::sub_1006AEA0()
 {
-    auto* g = globals_;
+    auto* const g = globals_;
 
     auto sub_10071290 = g->getFn<int(__cdecl)(int*)>(0x71290);
     auto sub_100564F0 = g->getFn<int(__thiscall)(int*, GameData2*)>(0x564F0);
@@ -1591,7 +1591,7 @@ void __declspec(noinline) __stdcall  GameDllHooks::sub_1006AEA0()
 
 void __declspec(noinline) __stdcall  GameDllHooks::sub_1006AEA0_hd()
 {
-    auto* g = globals_;
+    auto* const g = globals_;
 
     auto sub_10071290 = g->getFn<int(__cdecl)(int*)>(0x71290);
     auto sub_100564F0 = g->getFn<int(__thiscall)(int*, GameData2*)>(0x564F0);
@@ -1679,7 +1679,7 @@ void __declspec(noinline) __stdcall  GameDllHooks::sub_1006AEA0_hd()
 
 void __declspec(noinline) __cdecl    GameDllHooks::sub_1006B1C0(char mask, int* a2)
 {
-    auto* g = globals_;
+    auto* const g = globals_;
 
     auto sub_10055E00 = g->getFn<void(__thiscall)(int*, int, int, int, int, int)>(0x55E00);
     auto sub_1006B550 = g->getFn<int* (__cdecl)(int)>(0x6B550);
@@ -1725,7 +1725,7 @@ void __declspec(noinline) __cdecl    GameDllHooks::sub_1006B1C0(char mask, int* 
 
 void __declspec(noinline) __cdecl    GameDllHooks::sub_1006B1C0_hd(char mask, int* a2)
 {
-    auto* g = globals_;
+    auto* const g = globals_;
 
     auto sub_10055E00 = g->getFn<void(__thiscall)(int*, int, int, int, int, int)>(0x55E00);
     auto sub_1006B550 = g->getFn<int* (__cdecl)(int)>(0x6B550);
@@ -1771,7 +1771,7 @@ void __declspec(noinline) __cdecl    GameDllHooks::sub_1006B1C0_hd(char mask, in
 
 char __declspec(noinline) __cdecl    GameDllHooks::sub_1006B2C0(char mask, int* a2, int a3)
 {
-    auto* g = globals_;
+    auto* const g = globals_;
 
     auto sub_10055E00 = g->getFn<void(__thiscall)(int*, int, int, int, int, int)>(0x55E00);
     auto sub_1006B550 = g->getFn<int* (__cdecl)(int)>(0x6B550);
@@ -1823,7 +1823,7 @@ char __declspec(noinline) __cdecl    GameDllHooks::sub_1006B2C0(char mask, int* 
 
 char __declspec(noinline) __cdecl    GameDllHooks::sub_1006B2C0_hd(char mask, int* a2, int a3)
 {
-    auto* g = globals_;
+    auto* const g = globals_;
 
     auto sub_10055E00 = g->getFn<void(__thiscall)(int*, int, int, int, int, int)>(0x55E00);
     auto sub_1006B550 = g->getFn<int* (__cdecl)(int)>(0x6B550);
@@ -1878,7 +1878,7 @@ void __declspec(noinline) __fastcall GameDllHooks::sub_1006CC60(GameData3* self)
     if (!self->param_00)
         return;
 
-    auto* g = globals_;
+    auto* const g = globals_;
 
     int* g_1037EFE0 = g->getValue<int*>(0x37EFE0);   // get value at 0x37EFE0 as int*
     int16_t* srcRect = reinterpret_cast<int16_t*>(g_1037EFE0[1]);
@@ -1927,7 +1927,7 @@ void __declspec(noinline) __fastcall GameDllHooks::sub_1006CC60_de(GameData3* se
     if (!self->param_00)
         return;
 
-    auto* g = globals_;
+    auto* const g = globals_;
 
     int* g_1037EFE0 = g->getValue<int*>(0x37EFA0);   // get value at 0x37EFE0 as int*
     int16_t* srcRect = reinterpret_cast<int16_t*>(g_1037EFE0[1]);
@@ -1976,7 +1976,7 @@ void __declspec(noinline) __fastcall GameDllHooks::sub_1006CC60_fr(GameData3* se
     if (!self->param_00)
         return;
 
-    auto* g = globals_;
+    auto* const g = globals_;
 
     int* g_1037EFE0 = g->getValue<int*>(0x382FC0);   // get value at 0x37EFE0 as int*
     int16_t* srcRect = reinterpret_cast<int16_t*>(g_1037EFE0[1]);
@@ -2022,7 +2022,7 @@ void __declspec(noinline) __fastcall GameDllHooks::sub_1006CC60_fr(GameData3* se
 
 void __declspec(noinline) __stdcall  GameDllHooks::sub_1006D940()
 {
-    auto* g = globals_;
+    auto* const g = globals_;
 
     auto sub_1006AE80 = g->getFn<void(__thiscall)(int*, int, int, int, int)>(0x6AE80);
     auto sub_100562F0 = g->getFn<int(__thiscall)(int*, GameData*)>(0x562F0);
@@ -2131,7 +2131,7 @@ void __declspec(noinline) __stdcall  GameDllHooks::sub_1006D940()
 
 void __declspec(noinline) __stdcall  GameDllHooks::sub_1006D940_hd()
 {
-    auto* g = globals_;
+    auto* const g = globals_;
 
     auto sub_1006AE80 = g->getFn<void(__thiscall)(int*, int, int, int, int)>(0x6AE80);
     auto sub_100562F0 = g->getFn<int(__thiscall)(int*, GameData*)>(0x562F0);
@@ -2274,7 +2274,7 @@ void __declspec(noinline) __fastcall GameDllHooks::sub_1006DC40(int* self, void*
 
 void __declspec(noinline) __stdcall  GameDllHooks::sub_1006F120()
 {
-    auto* g = globals_;
+    auto* const g = globals_;
 
     uint8_t* byte_101C13FE = g->getPtr<uint8_t>(0x1C13FE);
     uint8_t* byte_101C14FD = g->getPtr<uint8_t>(0x1C14FD);
@@ -2507,7 +2507,7 @@ void __declspec(noinline) __stdcall  GameDllHooks::sub_1006F120()
 
 void __declspec(noinline) __stdcall  GameDllHooks::sub_1006F120_de()
 {
-    auto* g = globals_;
+    auto* const g = globals_;
 
     uint8_t* byte_101C13FE = g->getPtr<uint8_t>(0x1C13C6);
     uint8_t* byte_101C14FD = g->getPtr<uint8_t>(0x1C14C5);
@@ -2740,7 +2740,7 @@ void __declspec(noinline) __stdcall  GameDllHooks::sub_1006F120_de()
 
 void __declspec(noinline) __stdcall  GameDllHooks::sub_1006F120_fr()
 {
-    auto* g = globals_;
+    auto* const g = globals_;
 
     uint8_t* byte_101C13FE = g->getPtr<uint8_t>(0x1C53E6);
     uint8_t* byte_101C14FD = g->getPtr<uint8_t>(0x1C54E5);
@@ -2973,7 +2973,7 @@ void __declspec(noinline) __stdcall  GameDllHooks::sub_1006F120_fr()
 
 void __declspec(noinline) __stdcall  GameDllHooks::sub_1006F120_hd_v1_2()
 {
-    auto* g = globals_;
+    auto* const g = globals_;
 
     uint8_t* byte_101C13FE = g->getPtr<uint8_t>(0x1C13FE);
     uint8_t* byte_101C14FD = g->getPtr<uint8_t>(0x1C14FD);
@@ -3206,7 +3206,7 @@ void __declspec(noinline) __stdcall  GameDllHooks::sub_1006F120_hd_v1_2()
 
 void __declspec(noinline) __stdcall  GameDllHooks::sub_1006F120_v1_0_ru()
 {
-    auto* g = globals_;
+    auto* const g = globals_;
 
     uint8_t* byte_101C13FE = g->getPtr<uint8_t>(0x1AEF4E);
     uint8_t* byte_101C14FD = g->getPtr<uint8_t>(0x1AF04D);
@@ -3439,7 +3439,7 @@ void __declspec(noinline) __stdcall  GameDllHooks::sub_1006F120_v1_0_ru()
 
 void __declspec(noinline) __stdcall  GameDllHooks::sub_1006F120_v1_2_en()
 {
-    auto* g = globals_;
+    auto* const g = globals_;
 
     uint8_t* byte_101C13FE = g->getPtr<uint8_t>(0x1C1436);
     uint8_t* byte_101C14FD = g->getPtr<uint8_t>(0x1C1535);
@@ -3672,7 +3672,7 @@ void __declspec(noinline) __stdcall  GameDllHooks::sub_1006F120_v1_2_en()
 
 void __declspec(noinline) __stdcall  GameDllHooks::sub_1006F120_hd_v1_1()
 {
-    auto* g = globals_;
+    auto* const g = globals_;
 
     uint8_t* byte_101C13FE = g->getPtr<uint8_t>(0x1AEF4E);
     uint8_t* byte_101C14FD = g->getPtr<uint8_t>(0x1AF04D);
@@ -3903,12 +3903,233 @@ void __declspec(noinline) __stdcall  GameDllHooks::sub_1006F120_hd_v1_1()
     }
 }
 
+void __declspec(noinline) __stdcall  GameDllHooks::sub_1006F120_v2_2()
+{
+    auto* const g = globals_;
+
+    uint8_t* byte_101C13FE = g->getPtr<uint8_t>(0x64219C);
+    uint8_t* byte_101C14FD = g->getPtr<uint8_t>(0x64239B);
+    uint8_t* byte_101C14FE = g->getPtr<uint8_t>(0x64239C);
+    uint8_t* byte_101C14FF = g->getPtr<uint8_t>(0x64239D);
+    uint8_t* byte_101C15FE = g->getPtr<uint8_t>(0x64259C);
+
+    const int map_length = g->getValue<int>(0x142384);
+    const int map_width = g->getValue<int>(0x142388);
+
+    const auto cadPtr = reinterpret_cast<ModuleStateSSGold_INT*>(g->getValue<uintptr_t>(0x106F6E4) - (offsetof(ModuleStateSSGold_INT, windowRect) - offsetof(ModuleStateSSGold_INT, fogSprites)));
+
+    const auto sub_10055E00 = g->getFn<void(__thiscall)(int*, int, int, int, int, int)>(0x79360);
+
+    const int dword_1037E920 = g->getValue<int>(0x106A130);
+    const int dword_1037E924 = g->getValue<int>(0x106A134);
+    const int xRight = g->getValue<int>(0x106A12C);
+    const int yBottom = g->getValue<int>(0x106A128);
+
+    int* div16Ptr = g->getPtr<int>(0x103CF10);
+    const uint8_t byte_10383CB9 = g->getValue<uint8_t>(0x106F069);
+    uint8_t* fogBuf = g->getPtr<uint8_t>(0x1067DA4);
+    std::memset(fogBuf, 0x80, sizeof(((ModuleStateSSGold_INT*)0)->fogSprites));
+
+    const int v54 = dword_1037E920 >> 3;
+    const int v59 = dword_1037E924 >> 4;
+
+    const int tmp = v54 - 3;
+    const int v0 = tmp & 1;
+    int v1 = (1 - 2 * (v0 ^ (tmp >> 1)) - (dword_1037E924 >> 4)) & 3;
+
+    const int v2 = (dword_1037E924 + 16 * (v1 - 3)) >> 1;
+    const int v3 = 8 * v0 - 24;
+
+    int v51 = (dword_1037E920 + v3 - v2) >> 5;
+    int v8 = (dword_1037E920 + v3 + v2) >> 5;
+
+    const int len_sar_4 = xRight >> 4;
+    const int v6 = (xRight >> 4) + 11;
+
+    const int v4 = yBottom >> 3;
+    const int v5 = (yBottom >> 3) + 11;
+
+    const int v7 = v0 + 5;
+
+    int v52 = v1;
+
+    // 1. Initialize buffer byte_1037C598
+    if (v7 <= v5)
+    {
+        uint8_t* row = &fogBuf[kFogLineByteSize * v7];
+        unsigned int count = (v5 - v7 + 2) >> 1;
+        int x = v1 + 5;
+
+        do
+        {
+            int tx = x;
+            int ty = v51;
+            int mx = v8;
+            if (x <= v6)
+            {
+                int idx = v51 << 9;
+                do
+                {
+                    if (mx >= 4
+                        && ty >= 4
+                        && mx < map_length - 4
+                        && ty < map_width - 4
+                        && (byte_10383CB9 & byte_101C14FE[idx + mx]) != 0)
+                    {
+                        if (row[tx] > 0x40u)
+                        {
+                            if (!(byte_10383CB9 & byte_101C15FE[idx + mx]) ||
+                                !(byte_10383CB9 & byte_101C14FF[idx + mx]) ||
+                                !(byte_10383CB9 & byte_101C13FE[idx + mx]) ||
+                                !(byte_10383CB9 & byte_101C14FD[idx + mx]))
+                            {
+                                row[tx] = 64;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        row[tx] = 0;
+                    }
+
+                    tx += 4;
+                    ++mx;
+                    --ty;
+                    idx -= 512;
+                } while (tx <= v6);
+            }
+
+            if (v52 < 2)
+            {
+                x += 2;
+                ++v8;
+            }
+            else
+            {
+                x -= 2;
+                ++v51;
+            }
+            v52 ^= 2;
+            row += kFogDoubleLineByteSize;
+        } while (--count);
+    }
+
+    // 2. Vertical antialiasing
+    int step;
+    if (v1 >= 2)
+    {
+        step = 2;
+    }
+    else
+    {
+        v1 += 4;
+        step = -2;
+    }
+
+    const int xEnd = v6 - 1;
+    const int yEnd = v5 - 1;
+    if (v0 + 7 < yEnd)
+    {
+        int x = v1 + 5;
+
+        const int v19 = v0 + 7;
+        uint8_t* p = &fogBuf[kFogLineByteSize * v19 - 2];
+        int cnt = (yEnd - v19 + 1) >> 1;
+
+        do
+        {
+            for (int xi = x; xi < xEnd;)
+            {
+                uint8_t a = p[xi - (kFogDoubleLineByteSize - 2)];
+                uint8_t b = p[xi + 4];
+                xi += 4;
+                p[xi - 2] = (p[xi + (kFogDoubleLineByteSize - 2)] + p[xi - 4] + b + a) >> 2;
+            }
+
+            x += step;
+            step = -step;
+            p += kFogDoubleLineByteSize;
+        } while (--cnt);
+    }
+
+    // 3. Horizontal antialiasing
+    const int yMax = yEnd - 2;
+    const int xMax = xEnd - 2;
+    const int startY = (v54 & 1) + 8;
+
+    if (startY <= yMax)
+    {
+        uint8_t* p = &fogBuf[kFogLineByteSize * startY + 1];
+        int cnt = (yMax - startY + 2) >> 1;
+        do
+        {
+            int start_i = ((v59 - 1) & 1) + 8;
+            for (int i = start_i; i <= xMax; i += 2)
+            {
+                p[i - 1] = (p[i] + p[i - 2]) >> 1;
+            }
+
+            p += kFogDoubleLineByteSize;
+        } while (--cnt);
+    }
+
+    // 4. Vertical smoothing
+    const int startY2 = ((v54 - 1) & 1) + 8;
+    if (startY2 <= yMax)
+    {
+        uint8_t* p = &fogBuf[kFogLineByteSize * (startY2 + 1)];
+        int cnt = (yMax - startY2 + 2) >> 1;
+
+        do
+        {
+            for (int j = 8; j <= xMax; ++j)
+            {
+                p[j - kFogLineByteSize] = (p[j] + p[j - kFogDoubleLineByteSize]) >> 1;
+            }
+            p += kFogDoubleLineByteSize;
+        } while (--cnt);
+    }
+
+    // 5. Update fogSprites
+    int width = len_sar_4 + 9;
+    if (v4 + 9 > 0)
+    {
+        int y = 0;
+        int screenY = -72;
+        int rows = v4 + 9;
+        do
+        {
+            if (width > 0)
+            {
+                int x = 0;
+                int screenX = -144;
+                do
+                {
+                    const uint8_t v = fogBuf[x + y * kFogLineByteSize];
+                    uint8_t* dst = &cadPtr->fogSprites[y].unk[x];
+                    if (v != *dst)
+                    {
+                        *dst = v;
+
+                        sub_10055E00(div16Ptr, 24, screenX, screenY, screenX + 31, screenY + 15);
+                        width = len_sar_4 + 9;
+                    }
+                    ++x;
+                    screenX += 16;
+                } while (x < width);
+            }
+            ++y;
+            screenY += 8;
+        } while (--rows);
+    }
+}
+
 void __declspec(noinline) __cdecl GameDllHooks::sub_10099E01(void* mem)
 {
     if (!mem)
         return;
 
-    auto* g = globals_;
+    auto* const g = globals_;
 
     HANDLE hHeap = g->getValue<HANDLE>(0x3A7FD0);
 
@@ -3963,7 +4184,7 @@ void __declspec(noinline) __cdecl GameDllHooks::sub_10099E01_de(void* mem)
     if (!mem)
         return;
 
-    auto* g = globals_;
+    auto* const g = globals_;
 
     HANDLE hHeap = g->getValue<HANDLE>(0x3A7FCC);
 
@@ -3998,7 +4219,7 @@ void __declspec(noinline) __cdecl GameDllHooks::sub_10099E01_fr(void* mem)
     if (!mem)
         return;
 
-    auto* g = globals_;
+    auto* const g = globals_;
 
     HANDLE hHeap = g->getValue<HANDLE>(0x3BB0F0);
 
@@ -4061,4 +4282,301 @@ bool GameDllHooks::is_valid_ptr(void* p)
         return false;
 
     return true;
+}
+
+void __declspec(noinline) __fastcall GameDllHooks::sub_100AC870(MapData* self)
+{
+    if (self->isMapLoaded)
+        return;
+
+    auto* const global = globals_;
+
+    const auto initHandle = global->getFn<void(__thiscall)(HANDLE*)>(0xCBF50);
+    const auto createFile = global->getFn<bool(__thiscall)(HANDLE*, const char*, int)>(0xCC010);
+    const auto getFileSize = global->getFn<uint32_t(__thiscall)(HANDLE*)>(0xCC240);
+    const auto readFile = global->getFn<void(__thiscall)(HANDLE*, void*, uint32_t)>(0xCC150);
+    const auto closeHandle = global->getFn<void(__thiscall)(HANDLE*)>(0xCC130);
+    const auto deinitHandle = global->getFn<void(__thiscall)(HANDLE*)>(0xCBF80);
+
+    const char* aXchngTogameMis = global->getPtr<char>(0xFC714);
+    const auto cadPtr = reinterpret_cast<ModuleStateSSGold_INT*>(global->getValue<uintptr_t>(0x106F6E4) - (offsetof(ModuleStateSSGold_INT, windowRect) - offsetof(ModuleStateSSGold_INT, fogSprites)));
+
+    HANDLE miniMapFileHandle[2];
+    initHandle(miniMapFileHandle);
+
+    int readStatus = 0;
+
+    if (createFile(miniMapFileHandle, aXchngTogameMis, 0) && getFileSize(miniMapFileHandle))
+    {
+        int mapWidth = 0, mapHeight = 0, mapExtraSize = 0;
+
+        readFile(miniMapFileHandle, &mapWidth, sizeof(mapWidth));
+        readFile(miniMapFileHandle, &mapHeight, sizeof(mapHeight));
+        readFile(miniMapFileHandle, &mapExtraSize, sizeof(mapExtraSize));
+
+        unsigned int mapBufferSize = 3 * mapWidth * mapHeight;  // 3 channels for pixel
+        uint8_t* mapBuffer = new uint8_t[mapBufferSize];
+        readFile(miniMapFileHandle, mapBuffer, mapBufferSize);
+
+        closeHandle(miniMapFileHandle);
+
+        const int screenWidth = cadPtr->surface.width;
+        const int screenHeight = cadPtr->surface.height;
+        self->screenSurfaceWidth = screenWidth;
+        self->screenSurfaceHeight = screenHeight;
+
+        double scaleX = static_cast<double>(mapWidth) / screenWidth;
+
+        // Calculate real strategic map height
+        int miniMapScreenHeight = static_cast<int>(mapHeight / scaleX);
+        if (miniMapScreenHeight > screenHeight)
+        {
+            // If height is too big, calculate it via Y
+            scaleX = static_cast<double>(mapHeight) / screenHeight;
+            miniMapScreenHeight = screenHeight;
+        }
+        double scaleY = static_cast<double>(mapHeight) / miniMapScreenHeight;
+
+        // Vertical offset from border
+        self->verticalCenterMargin = (screenHeight - miniMapScreenHeight) / 2;
+
+        // Buffer for future usage
+        self->srcBuf = new uint8_t[3 * screenWidth * screenHeight];
+        memset(self->srcBuf, 0, 3 * screenWidth * screenHeight);
+
+        // Bilinear interpolation
+        auto bilinearInterpolate = [&](double mapXScaled, double mapYScaled, uint8_t& rOut, uint8_t& gOut, uint8_t& bOut)
+            {
+                int mapX = std::min(static_cast<int>(mapXScaled), mapWidth - 2);
+                int mapY = std::min(static_cast<int>(mapYScaled), mapHeight - 2);
+
+                double fracX = mapXScaled - mapX;
+                double fracY = mapYScaled - mapY;
+                double invFracX = 1.0 - fracX;
+                double invFracY = 1.0 - fracY;
+
+                int idxTL = 3 * (mapY * mapWidth + mapX);
+                int idxTR = idxTL + 3;
+                int idxBL = 3 * ((mapY + 1) * mapWidth + mapX);
+                int idxBR = idxBL + 3;
+
+                double rTL = mapBuffer[idxTL + 0], gTL = mapBuffer[idxTL + 1], bTL = mapBuffer[idxTL + 2];
+                double rTR = mapBuffer[idxTR + 0], gTR = mapBuffer[idxTR + 1], bTR = mapBuffer[idxTR + 2];
+                double rBL = mapBuffer[idxBL + 0], gBL = mapBuffer[idxBL + 1], bBL = mapBuffer[idxBL + 2];
+                double rBR = mapBuffer[idxBR + 0], gBR = mapBuffer[idxBR + 1], bBR = mapBuffer[idxBR + 2];
+
+                double wTL = invFracX * invFracY;
+                double wTR = fracX * invFracY;
+                double wBL = invFracX * fracY;
+                double wBR = fracX * fracY;
+
+                rOut = static_cast<uint8_t>(rTL * wTL + rTR * wTR + rBL * wBL + rBR * wBR);
+                gOut = static_cast<uint8_t>(gTL * wTL + gTR * wTR + gBL * wBL + gBR * wBR);
+                bOut = static_cast<uint8_t>(bTL * wTL + bTR * wTR + bBL * wBL + bBR * wBR);
+            };
+
+        for (int screenY = 0; screenY < miniMapScreenHeight; ++screenY)
+        {
+            int targetY = screenY + self->verticalCenterMargin;
+            for (int screenX = 0; screenX < screenWidth; ++screenX)
+            {
+                double mapXScaled = screenX * scaleX;
+                double mapYScaled = screenY * scaleY;
+
+                uint8_t r, g, b;
+                bilinearInterpolate(mapXScaled, mapYScaled, r, g, b);
+
+                int screenIndex = screenX + targetY * screenWidth;
+                self->srcBuf[3 * screenIndex + 0] = r;
+                self->srcBuf[3 * screenIndex + 1] = g;
+                self->srcBuf[3 * screenIndex + 2] = b;
+            }
+        }
+
+        delete[] mapBuffer;
+
+        self->isMapLoaded = 1;
+    }
+
+    readStatus = -1;
+    deinitHandle(miniMapFileHandle);
+}
+
+void __declspec(noinline) __fastcall GameDllHooks::sub_100ACDE0(MapData* mapData)
+{
+    auto* const g = globals_;
+
+    const auto sub_10097740 = g->getFn<void(__cdecl)(int*, int, int, int, int)>(0x97740);
+    const auto sub_100A1110 = g->getFn<void(__thiscall)(MapData*)>(0xA1110);
+    const auto sub_100AC790 = g->getFn<void(__thiscall)(MapData*, int, int, int, int16_t)>(0xAC790);
+    const auto sub_100AC800 = g->getFn<void(__thiscall)(MapData*, int, int, int, int16_t)>(0xAC800);
+    const auto sub_100C3420 = g->getFn<void(__stdcall)(int, int, int)>(0xC3420);
+
+    UnitData* dword_1010F258 = g->getValue<UnitData*>(0x10F258);
+    const int16_t fogBorderColor = g->getValue<int16_t>(0x106F12E);
+
+    const int mapHeight = g->getValue<int>(0x142384);
+    const int mapWidth = g->getValue<int>(0x142388);
+    const int mapPosY = g->getValue<int>(0x106A130);
+    const int mapPosX = g->getValue<int>(0x106A134);
+
+    const uint8_t fogMask = g->getValue<uint8_t>(0x106F069);
+
+    const uint8_t* fog0 = g->getPtr<uint8_t>(0x64219C);
+    const uint8_t* fog1 = g->getPtr<uint8_t>(0x64239B);
+    const uint8_t* fog2 = g->getPtr<uint8_t>(0x64239C);
+    const uint8_t* fog3 = g->getPtr<uint8_t>(0x64239D);
+    const uint8_t* fog4 = g->getPtr<uint8_t>(0x64259C);
+
+    const auto cadPtr = reinterpret_cast<ModuleStateSSGold_INT*>(g->getValue<uintptr_t>(0x106F6E4) - (offsetof(ModuleStateSSGold_INT, windowRect) - offsetof(ModuleStateSSGold_INT, fogSprites)));
+
+    sub_100A1110(mapData);
+
+    int clip[4];
+    sub_10097740(clip, mapData->clipLeft, mapData->clipTop, mapData->clipRight, mapData->clipBottom);
+
+    clip[2] += 16;
+    clip[3] += 8;
+
+    // Calculate fog
+    const double scale = 64.0 * mapHeight / mapData->screenSurfaceWidth;
+    const double scale2 = scale / 32.0;
+
+    const auto getFogCount = [&](int index) -> int {
+        int cnt = 0;
+        if (fog4[index] & fogMask) ++cnt;
+        if (fog0[index] & fogMask) ++cnt;
+        if (fog3[index] & fogMask) ++cnt;
+        if (fog1[index] & fogMask) ++cnt;
+        return cnt;
+        };
+
+    const int halfScreenW = mapData->screenSurfaceWidth / 2;
+    const int screenH = mapData->screenSurfaceHeight;
+
+    for (int y = clip[1]; y < clip[3]; ++y)
+    {
+        for (int x = clip[0]; x < clip[2]; ++x)
+        {
+            const int dx = (x - halfScreenW) >> 1;
+            const int mapY1 = static_cast<int>((y + dx - mapData->verticalCenterMargin) * scale2);
+            const int mapY2 = static_cast<int>((y - dx - mapData->verticalCenterMargin) * scale2);
+
+            if (mapY1 < 1 || mapY2 < 1 || mapY1 >= mapHeight - 1 || mapY2 >= mapWidth - 1)
+                continue;
+
+            uint8_t* src = &mapData->srcBuf[3 * x + 3 * mapData->screenSurfaceWidth * (screenH - y - 1)];
+
+            int r = src[2];
+            int gCol = src[1];
+            int b = src[0];
+
+            const int fogIndex = mapY1 + (mapY2 << 9);
+
+            if ((fog2[fogIndex] & fogMask) == 0)
+            {
+                double brightness = (getFogCount(fogIndex) > 1) ? 0.8 : 0.5;
+                r = static_cast<int>(r * brightness);
+                gCol = static_cast<int>(gCol * brightness);
+                b = static_cast<int>(b * brightness);
+            }
+
+            const uint16_t gb =
+                (cadPtr->actualGreenMask & (gCol << 8 >> cadPtr->greenOffset)) |
+                (cadPtr->actualBlueMask & (b << 8 >> cadPtr->blueOffset));
+
+            mapData->dstBuf[x + y * mapData->stride] =
+                (cadPtr->actualRedMask & (r << 8 >> cadPtr->redOffset)) | gb;
+        }
+    }
+
+    // Draw screen rectangle
+    int rectWidth = static_cast<int>(mapData->screenSurfaceWidth / scale);
+    int rectHeight = static_cast<int>(mapData->screenSurfaceHeight / scale);
+
+    int left = static_cast<int>(mapData->screenSurfaceWidth / 2 + mapPosX / scale);
+    int right = left + rectWidth - 1;
+    int bottom = static_cast<int>(mapData->verticalCenterMargin + mapPosY / scale);
+    int top = bottom + rectHeight - 1;
+
+    const int w = right - left + 1;
+    const int h = top - bottom + 1;
+
+    sub_100AC790(mapData, left, bottom, w, fogBorderColor);
+    sub_100AC790(mapData, left, bottom + h - 1, w, fogBorderColor);
+    sub_100AC800(mapData, left, bottom, h, fogBorderColor);
+    sub_100AC800(mapData, left + w - 1, bottom, h, fogBorderColor);
+
+    sub_100C3420(
+        mapData->screenSurfaceWidth / 2,
+        mapData->verticalCenterMargin,
+        static_cast<int>(scale)
+    );
+
+    // This code always calls stubs
+    /* const int* dword_1106F69C = g->getValue<int*>(0x106F69C);
+    
+    const uintptr_t objAddr = static_cast<uintptr_t>(*dword_1106F69C);
+    const uintptr_t funcAddr = *reinterpret_cast<uintptr_t*>(objAddr + 56);
+
+    const uint64_t bits = *reinterpret_cast<const uint64_t*>(&scale2);
+    const uint32_t lo = static_cast<uint32_t>(bits & 0xFFFFFFFF);
+    const uint32_t hi = static_cast<uint32_t>(bits >> 32);
+
+    reinterpret_cast<void(__stdcall*)(int, int, uint32_t, uint32_t)>(funcAddr)(
+        mapData->screenSurfaceWidth / 2,
+        mapData->verticalCenterMargin,
+        lo,
+        hi
+        );*/
+
+    // Draw units points
+    // It also shows building occupied by enemy as red dot even if we don't know that the building is occupied by them
+    for (UnitData* obj = dword_1010F258; obj; obj = obj->next)
+    {
+        const int vx = static_cast<int>(((obj->subX >> 8) + 32.0 * obj->tileX) / scale);
+        const int vy = static_cast<int>(((obj->subY >> 8) + 32.0 * obj->tileY) / scale);
+
+        auto fn = reinterpret_cast<void(__thiscall*)(UnitData*, int, int)>(obj->vtable[105]);
+
+        fn(
+            obj,
+            vx + mapData->screenSurfaceWidth / 2 - vy,
+            mapData->verticalCenterMargin + ((vx + vy) >> 1)
+        );
+    }
+}
+
+void __declspec(noinline) __fastcall GameDllHooks::sub_100AD2C0(MapData* self, void* /*dummy*/, int offsetX, int offsetY)
+{
+    auto* const g = globals_;
+
+    const auto sub_100A11E0 = g->getFn<void(__thiscall)(MapData*, int, int)>(0xA11E0);
+    const auto sub_10099880 = g->getFn<void(__thiscall)(MapData*, int, int, int, int)>(0x99880);
+
+    const int mapHeight = g->getValue<int>(0x142384);
+    const int mapPosY = g->getValue<int>(0x106A130);
+    const int mapPosX = g->getValue<int>(0x106A134);
+
+    sub_100A11E0(self, offsetX, offsetY);
+
+    auto drawRect = [&](int centerX, int centerY)
+        {
+            const int width = self->screenSurfaceWidth;
+
+            const double scale = 64.0 * mapHeight / width;
+
+            int rectWidth = static_cast<int>(self->screenSurfaceWidth / scale);
+            int rectHeight = static_cast<int>(self->screenSurfaceHeight / scale);
+
+            int left = static_cast<int>(self->screenSurfaceWidth / 2 + centerX / scale);
+            int right = left + rectWidth - 1;
+            int top = static_cast<int>(self->verticalCenterMargin + centerY / scale);
+            int bottom = top + rectHeight - 1;
+
+            sub_10099880(self, left, top, right, bottom);
+        };
+
+    drawRect(mapPosX, mapPosY);
+    drawRect(mapPosX + offsetX, mapPosY + offsetY);
 }

@@ -39,5 +39,11 @@
 #define SS_GOLD_HD_VERSION_STR STR(SS_GOLD_HD_VERSION_MAJOR) "." STR(SS_GOLD_HD_VERSION_MINOR)
 #define SS_GOLD_HD_GAME_STR "SS Gold HD v" SS_GOLD_HD_VERSION_STR
 
+// Sudden Strike 2 version
+#define SS_2_V2_2_VERSION_MAJOR 2
+#define SS_2_V2_2_VERSION_MINOR 2
+#define SS_2_V2_2_VERSION_STR STR(SS_2_V2_2_VERSION_MAJOR) "." STR(SS_2_V2_2_VERSION_MINOR)
+#define SS_2_V2_2_GAME_STR "Sudden Strike 2 v" SS_2_V2_2_VERSION_STR
+
 #define SS_HD_MOD_TG_LINK "tg: @ss_hd_mod"
 #define SS_HD_MOD_AUTHOR_EMAIL "ivanishin.vladislav@gmail.com"

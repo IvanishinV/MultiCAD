@@ -102,3 +102,13 @@ using Profile_SS_GOLD_HD_1_2_INT = GameVersionProfile<
     hooks_menu_ss_gold_hd_1_2,
     patches_menu_ss_gold_hd_1_2
 >;
+
+using Profile_SS_2 = GameVersionProfile<
+    GameVersion::SS_2,
+    relocs_game_ss_2_2,
+    hooks_game_ss_2_2,
+    patches_game_ss_2_2,
+    relocs_empty,
+    hooks_menu_ss_2_2,
+    patches_empty
+>;

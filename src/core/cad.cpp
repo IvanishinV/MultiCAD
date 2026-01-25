@@ -136,6 +136,7 @@ void* InitializeModule()
     case GameVersion::SS_GOLD_RU:
     case GameVersion::SS_HD_V1_1_RU:
     case GameVersion::SS_HD_V1_1_EN:
+    case GameVersion::SS_2:
     {
         return InitSSCad();
     }
