@@ -1536,47 +1536,48 @@ bool copyMainSurfaceToRenderer(S32 x, S32 y, S32 width, S32 height)
     void* dst = (void*)((Addr)g_moduleState->surface.renderer + g_moduleState->pitch * y + x * sizeof(Pixel));
     const Addr widthInBytes = Screen::widthInBytes_;
 
-    if (y < g_moduleState->surface.y)
+    S32 copyWidth = width * sizeof(Pixel);
+    S32 copyHeight = height;
+
+    // Fix a crash when showing the final credits after completing the campaign in Sudden Strike 2.
+    // Pitch is changed only with the renderer, so it can help identify if the width is bigger than allowed.
+    if (copyWidth > (S32)g_moduleState->pitch)
     {
-        const S32 delta = y + height - g_moduleState->surface.y;
-        if (delta <= 0)
+        copyWidth = (g_moduleState->windowRect.width + 1) * sizeof(Pixel);
+        copyHeight = g_moduleState->windowRect.height + 1;
+    }
+
+    auto copyRows = [&](S32 rows)
         {
-            for (S32 vertical = 0; vertical < height; vertical++)
+            for (S32 i = 0; i < rows; ++i)
             {
-                std::memcpy(dst, src, width * sizeof(Pixel));
+                std::memcpy(dst, src, copyWidth);
                 src = (Pixel*)((Addr)src + widthInBytes);
                 dst = (void*)((Addr)dst + g_moduleState->pitch);
             }
+        };
+
+    if (y < g_moduleState->surface.y)
+    {
+        const S32 delta = y + copyHeight - g_moduleState->surface.y;
+        if (delta <= 0)
+        {
+            copyRows(copyHeight);
         }
         else
         {
-            for (S32 vertical = 0; vertical < height - delta; vertical++)
-            {
-                std::memcpy(dst, src, width * sizeof(Pixel));
-                src = (Pixel*)((Addr)src + widthInBytes);
-                dst = (void*)((Addr)dst + g_moduleState->pitch);
-            }
+            copyRows(copyHeight - delta);
 
             src = (Pixel*)((Addr)src - Screen::sizeInBytes_);
 
-            for (S32 vertical = 0; vertical < delta; vertical++)
-            {
-                std::memcpy(dst, src, width * sizeof(Pixel));
-                src = (Pixel*)((Addr)src + widthInBytes);
-                dst = (void*)((Addr)dst + g_moduleState->pitch);
-            }
+            copyRows(delta);
         }
     }
     else
     {
         src = (Pixel*)((Addr)src - Screen::sizeInBytes_);
 
-        for (S32 yy = 0; yy < height; ++yy)
-        {
-            std::memcpy(dst, src, width * sizeof(Pixel));
-            src = (Pixel*)((Addr)src + widthInBytes);
-            dst = (void*)((Addr)dst + (Addr)g_moduleState->pitch);
-        }
+        copyRows(copyHeight);
     }
 
     if (locked)
