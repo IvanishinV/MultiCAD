@@ -20,5 +20,5 @@ enum class SplashVariant : uint8_t
 constexpr SplashStaticParams g_splashTable[] =
 {
     { 0xDE, 0xD7, 0x42, 476, 300, false },  // SS
-    { 0xAA, 0xAA, 0x55, 780, 470, true },   // SS2
+    { 0xAA, 0xAA, 0x55, 780, 457, true },   // SS2 and SS:RW
 };

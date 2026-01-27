@@ -112,3 +112,13 @@ using Profile_SS_2 = GameVersionProfile<
     hooks_menu_ss_2_2,
     patches_empty
 >;
+
+using Profile_SS_RW = GameVersionProfile<
+    GameVersion::SS_RW,
+    relocs_game_ss_rw,
+    hooks_game_ss_rw,
+    patches_game_ss_rw,
+    relocs_empty,
+    hooks_menu_ss_rw,
+    patches_empty
+>;

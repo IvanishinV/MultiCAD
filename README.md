@@ -15,6 +15,7 @@ It supports **any custom screen resolution** from 640x480 up to 3440x1600  (note
 | **APRM**                       |   ✔   | 3.0, 3.1, 4.0             | 7 bug fixes |
 | **TWO**                        |   ✔   | en                        | 7 bug fixes |
 | **Sudden Strike 2**            |   ✔   | en, de, fr, ru            | 5 bug fixes |
+| **Sudden Strike: Resource War**|   ✔   | en, de, fr, ru            | 5 bug fixes |
 
 > 💡 Note: `Audio Mixer Zero-Volume Fix` restores the game volume in the audio mixer to full if it was set to zero. Applies to **all versions**.
 

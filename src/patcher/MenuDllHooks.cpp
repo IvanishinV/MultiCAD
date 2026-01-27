@@ -190,13 +190,52 @@ void __fastcall MenuDllHooks::sub_1001AC60(void* self)
 
     sub_10002C00(dword_100B4B48, 0xAA, 0xAA, 0x55);
 
-    sub_10002FA0(dword_100B4B48, 780, 524, "Multi HD mod v" MULTICAD_VERSION_STR " for " SS_2_V2_2_GAME_STR, 1);
+    sub_10002FA0(dword_100B4B48, 780, 498, "Multi HD mod v" MULTICAD_VERSION_STR " for", 1);
+    sub_10002FA0(dword_100B4B48, 780, 511, SS_2_V2_2_GAME_STR, 1);
     sub_10002FA0(dword_100B4B48, 780, 537, SS_HD_MOD_TG_LINK, 1);
     sub_10002FA0(dword_100B4B48, 780, 550, SS_HD_MOD_AUTHOR_EMAIL, 1);
 
     constexpr auto& splashCfg = g_splashTable[(int)SplashVariant::SS2];
     const SplashTextRenderer::Params splash =
         SplashTextRenderer::MakeParams(splashCfg, sub_10002C00, sub_10002FA0, dword_100B4B48);
+
+    SplashTextRenderer::Instance().render(splash);
+}
+
+void __fastcall MenuDllHooks::sub_1001B380(void* self)
+{
+    auto* g = globals_;
+
+    int* dword_1009E7C0 = g->getPtr<int>(0x9E7C0);
+    const auto sub_10076E90 = g->getFn<void(__thiscall)()>(0x76E90);
+    if (*dword_1009E7C0 != 0)
+    {
+        sub_10076E90();
+        *dword_1009E7C0 = 1;
+
+        int* dword_100B507C = g->getPtr<int>(0xB507C);
+        int* dword_100B5080 = g->getPtr<int>(0xB5080);
+        *dword_100B507C = 0;
+        *dword_100B5080 = 0;
+    }
+
+    const auto sub_1000D3B0 = g->getFn<void(__thiscall)(void*)>(0xD3B0);
+    sub_1000D3B0(self);
+
+    const auto sub_10002BC0 = g->getFn<void(__thiscall)(void*, int, int, int)>(0x2BC0);
+    const auto sub_10002F60 = g->getFn<void(__thiscall)(void*, int, int, const char*, int)>(0x2F60);
+    int* dword_100B2C68 = g->getPtr<int>(0xB2C68);
+
+    sub_10002BC0(dword_100B2C68, 0xAA, 0xAA, 0x55);
+
+    sub_10002F60(dword_100B2C68, 780, 498, "Multi HD mod v" MULTICAD_VERSION_STR " for", 1);
+    sub_10002F60(dword_100B2C68, 780, 511, SS_RW_V2_4_GAME_STR, 1);
+    sub_10002F60(dword_100B2C68, 780, 537, SS_HD_MOD_TG_LINK, 1);
+    sub_10002F60(dword_100B2C68, 780, 550, SS_HD_MOD_AUTHOR_EMAIL, 1);
+
+    constexpr auto& splashCfg = g_splashTable[(int)SplashVariant::SS2];
+    const SplashTextRenderer::Params splash =
+        SplashTextRenderer::MakeParams(splashCfg, sub_10002BC0, sub_10002F60, dword_100B2C68);
 
     SplashTextRenderer::Instance().render(splash);
 }
