@@ -4,6 +4,8 @@
 
 bool InstallGamePatches(TargetState& state, uintptr_t base, size_t size, const std::wstring& path)
 {
+    std::thread([] { AudioHelper::EnsureMaxVolume(); }).detach();
+
     DllVersionDetector& detector = DllVersionDetector::GetInstance();
     GameVersion version = detector.GetOrDetectGameVersion(DllType::Game, path, base, size);
     DetectionStatus status = detector.GetDetectionStatus(DllType::Game);
