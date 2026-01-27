@@ -218,6 +218,13 @@ bool DllVersionDetector::DetectFileDllVersion(const DllType type, const std::wst
                 (wcscmp(name, L".") == 0 || wcscmp(name, L"..") == 0))
                 continue;
 
+            const size_t len = wcslen(name);
+            if (len < 4)
+                continue;
+
+            if (_wcsicmp(name + len - 4, L".dll") != 0)
+                continue;
+
             if (fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
             {
                 q.push(dir + L"\\" + name);

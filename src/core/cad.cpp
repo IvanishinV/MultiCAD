@@ -126,7 +126,7 @@ void* InitializeModule()
 
     DllVersionDetector& detector = DllVersionDetector::GetInstance();
 
-    detector.DetectFileDllVersion(DllType::Menu, L"menu_dll");
+    detector.DetectFileDllVersion(DllType::Menu, ToDllName(DllType::Menu));
     const GameVersion menuDllVersion = detector.GetGameVersion(DllType::Menu);
 
     switch (menuDllVersion)

@@ -75,6 +75,16 @@ enum class DllType
     Unknown
 };
 
+constexpr const wchar_t* ToDllName(DllType type)
+{
+    switch (type)
+    {
+    case DllType::Game: return L"game";
+    case DllType::Menu: return L"menu";
+    default:            return L"";
+    }
+}
+
 struct ModuleInfo
 {
     uintptr_t   base{};

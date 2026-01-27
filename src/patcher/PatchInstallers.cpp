@@ -121,15 +121,15 @@ bool UninstallMenuPatches(TargetState& state)
 std::vector<TargetInfo> CreatePatchTargets()
 {
     std::vector<TargetInfo> targets;
-
+    
     TargetInfo gameTarget;
-    gameTarget.namePart = L"game_dll";
+    gameTarget.namePart = ToDllName(DllType::Game);
     gameTarget.onLoaded = InstallGamePatches;
     gameTarget.onUnloaded = UninstallGamePatches;
     targets.push_back(std::move(gameTarget));
 
     TargetInfo menuTarget;
-    menuTarget.namePart = L"menu_dll";
+    menuTarget.namePart = ToDllName(DllType::Menu);
     menuTarget.onLoaded = InstallMenuPatches;
     menuTarget.onUnloaded = UninstallMenuPatches;
     targets.push_back(std::move(menuTarget));
