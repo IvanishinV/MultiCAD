@@ -9,47 +9,48 @@
 #define MULTICAD_VERSION_PATCH 1
 #define MULTICAD_VERSION_STR STR(MULTICAD_VERSION_MAJOR) "." STR(MULTICAD_VERSION_MINOR) "." STR(MULTICAD_VERSION_PATCH)
 
-// Sudden Strike (v1.0) version
+// Sudden Strike (v1.0)
 #define SS_VERSION_MAJOR 1
 #define SS_VERSION_MINOR 0
 #define SS_VERSION_STR STR(SS_VERSION_MAJOR) "." STR(SS_VERSION_MINOR)
 #define SS_GAME_STR "SS v" SS_VERSION_STR
 
-// Sudden Strike (v1.2) version
+// Sudden Strike (v1.2)
 #define SS_V1_2_VERSION_MAJOR 1
 #define SS_V1_2_VERSION_MINOR 2
 #define SS_V1_2_VERSION_STR STR(SS_V1_2_VERSION_MAJOR) "." STR(SS_V1_2_VERSION_MINOR)
 #define SS_V1_2_GAME_STR "SS v" SS_V1_2_VERSION_STR
 
-// Sudden Strike Gold (v1.21) version
+// Sudden Strike Gold (v1.21)
 #define SS_GOLD_VERSION_MAJOR 1
 #define SS_GOLD_VERSION_MINOR 21
 #define SS_GOLD_VERSION_STR STR(SS_GOLD_VERSION_MAJOR) "." STR(SS_GOLD_VERSION_MINOR)
 #define SS_GOLD_GAME_STR "SS Gold v" SS_GOLD_VERSION_STR
 
-// Sudden Strike HD v1.1 version
+// Sudden Strike HD (v1.1)
 #define SS_HD_VERSION_MAJOR 1
 #define SS_HD_VERSION_MINOR 1
 #define SS_HD_VERSION_STR STR(SS_HD_VERSION_MAJOR) "." STR(SS_HD_VERSION_MINOR)
 #define SS_HD_GAME_STR "SS HD v" SS_HD_VERSION_STR
 
-// Sudden Strike Gold HD v1.2 version
+// Sudden Strike Gold HD (v1.2)
 #define SS_GOLD_HD_VERSION_MAJOR 1
 #define SS_GOLD_HD_VERSION_MINOR 2
 #define SS_GOLD_HD_VERSION_STR STR(SS_GOLD_HD_VERSION_MAJOR) "." STR(SS_GOLD_HD_VERSION_MINOR)
 #define SS_GOLD_HD_GAME_STR "SS Gold HD v" SS_GOLD_HD_VERSION_STR
 
-// Sudden Strike 2 version
+// Sudden Strike 2 (v2.2)
 #define SS_2_V2_2_VERSION_MAJOR 2
 #define SS_2_V2_2_VERSION_MINOR 2
 #define SS_2_V2_2_VERSION_STR STR(SS_2_V2_2_VERSION_MAJOR) "." STR(SS_2_V2_2_VERSION_MINOR)
 #define SS_2_V2_2_GAME_STR "Sudden Strike 2 v" SS_2_V2_2_VERSION_STR
 
-// Sudden Strike: Resource War version
+// Sudden Strike: Resource War (v2.4)
 #define SS_RW_V2_4_VERSION_MAJOR 2
 #define SS_RW_V2_4_VERSION_MINOR 4
 #define SS_RW_V2_4_VERSION_STR STR(SS_RW_V2_4_VERSION_MAJOR) "." STR(SS_RW_V2_4_VERSION_MINOR)
 #define SS_RW_V2_4_GAME_STR "Sudden Strike: Resource War v" SS_RW_V2_4_VERSION_STR
 
+// Contact info
 #define SS_HD_MOD_TG_LINK "tg: @ss_hd_mod"
 #define SS_HD_MOD_AUTHOR_EMAIL "ivanishin.vladislav@gmail.com"

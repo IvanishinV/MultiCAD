@@ -83,42 +83,42 @@ using Profile_SS_HD_v1_1_EN = GameVersionProfile<
     patches_menu_ss_hd_v1_1
 >;
 
-using Profile_SS_GOLD_HD_1_2_RU = GameVersionProfile<
+using Profile_SS_GOLD_HD_v1_2_RU = GameVersionProfile<
     GameVersion::SS_GOLD_HD_1_2_RU,
-    relocs_game_ss_gold_hd_1_2,
-    hooks_game_ss_gold_hd_1_2,
-    patches_game_ss_gold_hd_1_2,
+    relocs_game_ss_gold_hd_v1_2,
+    hooks_game_ss_gold_hd_v1_2,
+    patches_game_ss_gold_hd_v1_2,
     relocs_empty,
-    hooks_menu_ss_gold_hd_1_2,
-    patches_menu_ss_gold_hd_1_2
+    hooks_menu_ss_gold_hd_v1_2,
+    patches_menu_ss_gold_hd_v1_2
 >;
 
-using Profile_SS_GOLD_HD_1_2_INT = GameVersionProfile<
+using Profile_SS_GOLD_HD_v1_2_INT = GameVersionProfile<
     GameVersion::SS_GOLD_HD_1_2_INT,
-    relocs_game_ss_gold_hd_1_2,
-    hooks_game_ss_gold_hd_1_2,
-    patches_game_ss_gold_hd_1_2,
+    relocs_game_ss_gold_hd_v1_2,
+    hooks_game_ss_gold_hd_v1_2,
+    patches_game_ss_gold_hd_v1_2,
     relocs_empty,
-    hooks_menu_ss_gold_hd_1_2,
-    patches_menu_ss_gold_hd_1_2
+    hooks_menu_ss_gold_hd_v1_2,
+    patches_menu_ss_gold_hd_v1_2
 >;
 
 using Profile_SS_2 = GameVersionProfile<
     GameVersion::SS_2,
-    relocs_game_ss_2_2,
-    hooks_game_ss_2_2,
-    patches_game_ss_2_2,
+    relocs_game_ss_2_v2_2,
+    hooks_game_ss_2_v2_2,
+    patches_game_ss_2_v2_2,
     relocs_empty,
-    hooks_menu_ss_2_2,
+    hooks_menu_ss_2_v2_2,
     patches_empty
 >;
 
-using Profile_SS_RW = GameVersionProfile<
-    GameVersion::SS_RW,
-    relocs_game_ss_rw,
-    hooks_game_ss_rw,
-    patches_game_ss_rw,
+using Profile_SS_RW_v2_4 = GameVersionProfile<
+    GameVersion::SS_RW_V2_4,
+    relocs_game_ss_rw_v2_4,
+    hooks_game_ss_rw_v2_4,
+    patches_game_ss_rw_v2_4,
     relocs_empty,
-    hooks_menu_ss_rw,
+    hooks_menu_ss_rw_v2_4,
     patches_empty
 >;
