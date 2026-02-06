@@ -709,6 +709,38 @@ const std::array hooks_menu_ss_2_v2_2
 };
 
 
+const std::array hooks_game_ss_rw_v2_3
+{
+    HookSpec{0x785C0, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_10055A20)},
+    HookSpec{0x78980, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_10055DC0)},
+    HookSpec{0x789C0, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_10055E00)},
+    HookSpec{0x78A60, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_10055E90)},
+    HookSpec{0x78B10, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_10055F40)},
+    HookSpec{0x78BA0, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_10055FE0)},
+    HookSpec{0x78BE0, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_10056030)},
+    HookSpec{0x78D20, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_10056170)},
+    HookSpec{0x78F70, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_100563B0)},
+    //HookSpec{0x6AD20, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_1006AD20)},
+    //HookSpec{0x6AEA0, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_1006AEA0)},
+    //HookSpec{0x6B1C0, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_1006B1C0)},
+    //HookSpec{0x6B2C0, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_1006B2C0)},
+    //HookSpec{0x6D940, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_1006D940)},
+    //HookSpec{0x6F120, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_1006F120)},
+    HookSpec{0x95880, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_1006DC40)},
+    HookSpec{0x99E10, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_1006F120_rw)},
+
+    // Fixes an original bug and a new one caused by changed resolution. See functions' description
+    HookSpec{0xA8AF0, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_100A8AF0_v2_3)},
+    HookSpec{0xA9060, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_100A9060)},
+    HookSpec{0xA97C0, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_100A97C0)},
+};
+
+const std::array hooks_menu_ss_rw_v2_3
+{
+    HookSpec{0x1B470, reinterpret_cast<uintptr_t>(&MenuDllHooks::sub_1001B470)},
+};
+
+
 constexpr std::array relocs_game_ss_rw_v2_4
 {
     RelocateGapSpec{ 0x0107AAE0, 0x0107C2E8, 8 + sizeof(uint32_t) * kRowStrideDwordSize * ((Graphics::kMaxHeight + 7) >> 3) },
@@ -739,7 +771,7 @@ const std::array hooks_game_ss_rw_v2_4
     HookSpec{0x99E10, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_1006F120_rw)},
 
     // Fixes an original bug and a new one caused by changed resolution. See functions' description
-    HookSpec{0xA8AF0, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_100A8AF0)},
+    HookSpec{0xA8AF0, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_100A8AF0_v2_4)},
     HookSpec{0xA9060, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_100A9060)},
     HookSpec{0xA97C0, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_100A97C0)},
 };

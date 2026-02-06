@@ -385,11 +385,12 @@ public:
 
     // These methods are related to strategic map view and exist only in SS2 and SS:RW
     // Fixes strategic map loading from mis_mini file
-    static void __declspec(noinline) __fastcall sub_100AC870(MapData* self);    // SS 2
-    static void __declspec(noinline) __fastcall sub_100A8AF0(MapData* self);    // SS:RW
+    static void __declspec(noinline) __fastcall sub_100AC870(MapData* self);        // SS 2
+    static void __declspec(noinline) __fastcall sub_100A8AF0_v2_3(MapData* self);   // SS:RW v2.3
+    static void __declspec(noinline) __fastcall sub_100A8AF0_v2_4(MapData* self);   // SS:RW v2.4
     // Fixes original bug with white rectangle in strategic view
-    static void __declspec(noinline) __fastcall sub_100ACDE0(MapData* self);    // SS 2
-    static void __declspec(noinline) __fastcall sub_100A9060(MapData* self);    // SS:RW
+    static void __declspec(noinline) __fastcall sub_100ACDE0(MapData* self);        // SS 2
+    static void __declspec(noinline) __fastcall sub_100A9060(MapData* self);        // SS:RW
     // Fixes the same original bug with copying rectangle in strategic view. Related to the previous one
     static void __declspec(noinline) __fastcall sub_100AD2C0(MapData* self, void* /*dummy*/, int offsetX, int offsetY);    // SS 2
     static void __declspec(noinline) __fastcall sub_100A97C0(MapData* self, void* /*dummy*/, int offsetX, int offsetY);    // SS:RW

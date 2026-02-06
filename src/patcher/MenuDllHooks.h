@@ -25,7 +25,10 @@ public:
     // Sudden Strike 2
     static void __declspec(noinline) __fastcall sub_1001AC60(void* self);
 
-    // Sudden Strike: Resource War
+    // Sudden Strike: Resource War v2.3
+    static void __declspec(noinline) __fastcall sub_1001B470(void* self);
+
+    // Sudden Strike: Resource War v2.4
     static void __declspec(noinline) __fastcall sub_1001B380(void* self);
 
 private:

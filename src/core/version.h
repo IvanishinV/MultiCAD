@@ -45,6 +45,12 @@
 #define SS_2_V2_2_VERSION_STR STR(SS_2_V2_2_VERSION_MAJOR) "." STR(SS_2_V2_2_VERSION_MINOR)
 #define SS_2_V2_2_GAME_STR "Sudden Strike 2 v" SS_2_V2_2_VERSION_STR
 
+// Sudden Strike: Resource War (v2.3)
+#define SS_RW_V2_3_VERSION_MAJOR 2
+#define SS_RW_V2_3_VERSION_MINOR 3
+#define SS_RW_V2_3_VERSION_STR STR(SS_RW_V2_3_VERSION_MAJOR) "." STR(SS_RW_V2_3_VERSION_MINOR)
+#define SS_RW_V2_3_GAME_STR "Sudden Strike: Resource War v" SS_RW_V2_3_VERSION_STR
+
 // Sudden Strike: Resource War (v2.4)
 #define SS_RW_V2_4_VERSION_MAJOR 2
 #define SS_RW_V2_4_VERSION_MINOR 4

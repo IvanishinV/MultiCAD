@@ -4623,7 +4623,125 @@ void __declspec(noinline) __fastcall GameDllHooks::sub_100AC870(MapData* self)
     deinitHandle(miniMapFileHandle);
 }
 
-void __declspec(noinline) __fastcall GameDllHooks::sub_100A8AF0(MapData* self)
+void __declspec(noinline) __fastcall GameDllHooks::sub_100A8AF0_v2_3(MapData* self)
+{
+    if (self->isMapLoaded)
+        return;
+
+    auto* const global = globals_;
+
+    const auto initHandle = global->getFn<void(__thiscall)(HANDLE*)>(0xC6320);
+    const auto createFile = global->getFn<bool(__thiscall)(HANDLE*, const char*, int)>(0xC63E0);
+    const auto getFileSize = global->getFn<uint32_t(__thiscall)(HANDLE*)>(0xC6610);
+    const auto readFile = global->getFn<void(__thiscall)(HANDLE*, void*, uint32_t)>(0xC6520);
+    const auto closeHandle = global->getFn<void(__thiscall)(HANDLE*)>(0xC6500);
+    const auto deinitHandle = global->getFn<void(__thiscall)(HANDLE*)>(0xC6350);
+
+    const char* aXchngTogameMis = global->getPtr<char>(0xEC908);
+    const auto cadPtr = reinterpret_cast<ModuleStateLong*>(global->getValue<uintptr_t>(0x10AEABC) - (offsetof(ModuleStateLong, windowRect) - offsetof(ModuleStateLong, fogSprites)));
+
+    HANDLE miniMapFileHandle[2];
+    initHandle(miniMapFileHandle);
+
+    int readStatus = 0;
+
+    if (createFile(miniMapFileHandle, aXchngTogameMis, 0) && getFileSize(miniMapFileHandle))
+    {
+        int mapWidth = 0, mapHeight = 0, mapExtraSize = 0;
+
+        readFile(miniMapFileHandle, &mapWidth, sizeof(mapWidth));
+        readFile(miniMapFileHandle, &mapHeight, sizeof(mapHeight));
+        readFile(miniMapFileHandle, &mapExtraSize, sizeof(mapExtraSize));
+
+        unsigned int mapBufferSize = 3 * mapWidth * mapHeight;  // 3 channels for pixel
+        uint8_t* mapBuffer = new uint8_t[mapBufferSize];
+        readFile(miniMapFileHandle, mapBuffer, mapBufferSize);
+
+        closeHandle(miniMapFileHandle);
+
+        const int screenWidth = cadPtr->surface.width;
+        const int screenHeight = cadPtr->surface.height;
+        self->screenSurfaceWidth = screenWidth;
+        self->screenSurfaceHeight = screenHeight;
+
+        double scaleX = static_cast<double>(mapWidth) / screenWidth;
+
+        // Calculate real strategic map height
+        int miniMapScreenHeight = static_cast<int>(mapHeight / scaleX);
+        if (miniMapScreenHeight > screenHeight)
+        {
+            // If height is too big, calculate it via Y
+            scaleX = static_cast<double>(mapHeight) / screenHeight;
+            miniMapScreenHeight = screenHeight;
+        }
+        double scaleY = static_cast<double>(mapHeight) / miniMapScreenHeight;
+
+        // Vertical offset from border
+        self->verticalCenterMargin = (screenHeight - miniMapScreenHeight) / 2;
+
+        // Buffer for future usage
+        self->srcBuf = new uint8_t[3 * screenWidth * screenHeight];
+        memset(self->srcBuf, 0, 3 * screenWidth * screenHeight);
+
+        // Bilinear interpolation
+        auto bilinearInterpolate = [&](double mapXScaled, double mapYScaled, uint8_t& rOut, uint8_t& gOut, uint8_t& bOut)
+            {
+                int mapX = std::min(static_cast<int>(mapXScaled), mapWidth - 2);
+                int mapY = std::min(static_cast<int>(mapYScaled), mapHeight - 2);
+
+                double fracX = mapXScaled - mapX;
+                double fracY = mapYScaled - mapY;
+                double invFracX = 1.0 - fracX;
+                double invFracY = 1.0 - fracY;
+
+                int idxTL = 3 * (mapY * mapWidth + mapX);
+                int idxTR = idxTL + 3;
+                int idxBL = 3 * ((mapY + 1) * mapWidth + mapX);
+                int idxBR = idxBL + 3;
+
+                double rTL = mapBuffer[idxTL + 0], gTL = mapBuffer[idxTL + 1], bTL = mapBuffer[idxTL + 2];
+                double rTR = mapBuffer[idxTR + 0], gTR = mapBuffer[idxTR + 1], bTR = mapBuffer[idxTR + 2];
+                double rBL = mapBuffer[idxBL + 0], gBL = mapBuffer[idxBL + 1], bBL = mapBuffer[idxBL + 2];
+                double rBR = mapBuffer[idxBR + 0], gBR = mapBuffer[idxBR + 1], bBR = mapBuffer[idxBR + 2];
+
+                double wTL = invFracX * invFracY;
+                double wTR = fracX * invFracY;
+                double wBL = invFracX * fracY;
+                double wBR = fracX * fracY;
+
+                rOut = static_cast<uint8_t>(rTL * wTL + rTR * wTR + rBL * wBL + rBR * wBR);
+                gOut = static_cast<uint8_t>(gTL * wTL + gTR * wTR + gBL * wBL + gBR * wBR);
+                bOut = static_cast<uint8_t>(bTL * wTL + bTR * wTR + bBL * wBL + bBR * wBR);
+            };
+
+        for (int screenY = 0; screenY < miniMapScreenHeight; ++screenY)
+        {
+            int targetY = screenY + self->verticalCenterMargin;
+            for (int screenX = 0; screenX < screenWidth; ++screenX)
+            {
+                double mapXScaled = screenX * scaleX;
+                double mapYScaled = screenY * scaleY;
+
+                uint8_t r, g, b;
+                bilinearInterpolate(mapXScaled, mapYScaled, r, g, b);
+
+                int screenIndex = screenX + targetY * screenWidth;
+                self->srcBuf[3 * screenIndex + 0] = r;
+                self->srcBuf[3 * screenIndex + 1] = g;
+                self->srcBuf[3 * screenIndex + 2] = b;
+            }
+        }
+
+        delete[] mapBuffer;
+
+        self->isMapLoaded = 1;
+    }
+
+    readStatus = -1;
+    deinitHandle(miniMapFileHandle);
+}
+
+void __declspec(noinline) __fastcall GameDllHooks::sub_100A8AF0_v2_4(MapData* self)
 {
     if (self->isMapLoaded)
         return;
