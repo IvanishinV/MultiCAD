@@ -200,9 +200,9 @@ struct RendererActionsPostfix
     RELEASE_DX_INSTANCE_PTR                                 releaseDxInstance;
 };
 
-struct RendererActionsSSGoldRelease : RendererActionsAnimationSprite, RendererActionsPostfix {};
+struct RendererActionsLong : RendererActionsAnimationSprite, RendererActionsPostfix {};
 
-struct RendererActionsSSGoldDebug : RendererActionsPostfix {};
+struct RendererActionsShort : RendererActionsPostfix {};
 
 
 struct Rect
@@ -300,15 +300,15 @@ struct ModuleStateBase
 };
 
 // Sudden Strike Gold en, de, fr and all mods based on these versions
-struct ModuleStateSSGold_INT : ModuleStateBase
+struct ModuleStateLong : ModuleStateBase
 {
-    RendererActionsSSGoldRelease     actionsPostfix;
+    RendererActionsLong     actionsPostfix;
 };
 
 // Sudden Strike Gold ru (it was built via debug mode)
-struct ModuleStateSSGold_RU : ModuleStateBase
+struct ModuleStateShort : ModuleStateBase
 {
-    RendererActionsSSGoldDebug     actionsPostfix;
+    RendererActionsShort     actionsPostfix;
 };
 
 #pragma warning(pop)
@@ -326,7 +326,7 @@ CHECK_OFFSET(ModuleStateBase, windowRect, actions, 0xA97C);
 CHECK_OFFSET(ModuleStateBase, windowRect, actions.initDxInstance, 0xA980);   // This function is called from game.exe
 CHECK_OFFSET(ModuleStateBase, windowRect, actions.drawMainSurfaceAnimationSpriteStencil, 0xAA04);
 
-CHECK_OFFSET(ModuleStateSSGold_INT, windowRect, actionsPostfix.drawMainSurfaceAnimationSprite, 0xAA08);
-CHECK_OFFSET(ModuleStateSSGold_INT, windowRect, actionsPostfix.drawMainSurfaceShadowSprite, 0xAA0C);
+CHECK_OFFSET(ModuleStateLong, windowRect, actionsPostfix.drawMainSurfaceAnimationSprite, 0xAA08);
+CHECK_OFFSET(ModuleStateLong, windowRect, actionsPostfix.drawMainSurfaceShadowSprite, 0xAA0C);
 
-CHECK_OFFSET(ModuleStateSSGold_RU, windowRect, actionsPostfix.drawMainSurfaceShadowSprite, 0xAA08);
+CHECK_OFFSET(ModuleStateShort, windowRect, actionsPostfix.drawMainSurfaceShadowSprite, 0xAA08);

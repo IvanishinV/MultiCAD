@@ -3,8 +3,8 @@
 #include "renderer.h"
 #include "DllVersionDetector.h"
 
-static ModuleStateSSGold_INT  g_moduleStateSSGold;
-static ModuleStateSSGold_RU   g_moduleStateSS;
+static ModuleStateLong  g_moduleStateLong;
+static ModuleStateShort g_moduleStateShort;
 
 ModuleStateBase* g_moduleState{ nullptr };
 
@@ -102,22 +102,22 @@ void InitModuleState(ModuleState& s)
     }
 }
 
-void* InitSSGoldCad()
+void* InitModuleStateLong()
 {
-    g_moduleState = &g_moduleStateSSGold;
+    g_moduleState = &g_moduleStateLong;
 
-    InitModuleState(g_moduleStateSSGold);
+    InitModuleState(g_moduleStateLong);
 
-    return &g_moduleStateSSGold.windowRect;
+    return &g_moduleStateLong.windowRect;
 }
 
-void* InitSSCad()
+void* InitModuleStateShort()
 {
-    g_moduleState = &g_moduleStateSS;
+    g_moduleState = &g_moduleStateShort;
 
-    InitModuleState(g_moduleStateSS);
+    InitModuleState(g_moduleStateShort);
 
-    return &g_moduleStateSS.windowRect;
+    return &g_moduleStateShort.windowRect;
 }
 
 void* InitializeModule()
@@ -131,6 +131,19 @@ void* InitializeModule()
 
     switch (menuDllVersion)
     {
+    case GameVersion::SS_GOLD_EN:
+    case GameVersion::SS_GOLD_DE:
+    case GameVersion::SS_GOLD_FR:
+    case GameVersion::SS_GOLD_HD_1_2_RU:
+    case GameVersion::SS_GOLD_HD_1_2_INT:
+    {
+        return InitModuleStateLong();
+    }
+    case GameVersion::UNKNOWN:
+    {
+        ShowErrorNow("MultiCAD couldn't identify menu dll and doesn't fully support this version of Sudden Strike. The mod may not work correctly. \nTo add support, contact the author of the mod.");
+        [[fallthrough]];
+    }
     case GameVersion::SS_V1_0:
     case GameVersion::SS_V1_2:
     case GameVersion::SS_GOLD_RU:
@@ -138,15 +151,7 @@ void* InitializeModule()
     case GameVersion::SS_HD_V1_1_EN:
     case GameVersion::SS_2:
     case GameVersion::SS_RW_V2_4:
-    {
-        return InitSSCad();
-    }
-    case GameVersion::UNKNOWN:
-    {
-        ShowErrorNow("MultiCAD couldn't identify menu dll and doesn't fully support this version of Sudden Strike. The mod may not work correctly. \nTo add support, contact the author of the mod.");
-        [[fallthrough]];
-    }
     default:
-        return InitSSGoldCad();
+        return InitModuleStateShort();
     }
 }
