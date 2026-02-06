@@ -46,6 +46,22 @@ public:
         sizeInDoublePixels_ = sizeInPixels_ * sizeof(Pixel) * 2;
     }
 
+    static void UpdateToOrigSize()
+    {
+        constexpr S32 width = 1024;
+        constexpr S32 height = 768;
+
+        width_ = width;
+        height_ = height;
+
+        widthInBytes_ = width * 2;
+        heightInBytes_ = height * 2;
+
+        sizeInPixels_ = width * height;
+        sizeInBytes_ = sizeInPixels_ * sizeof(Pixel);
+        sizeInDoublePixels_ = sizeInPixels_ * sizeof(Pixel) * 2;
+    }
+
     static void UpdateResolutionFromIni()
     {
         std::string iniPath = GetIniPath();

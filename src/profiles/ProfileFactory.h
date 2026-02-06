@@ -23,7 +23,7 @@ public:
         case GameVersion::SS_GOLD_HD_1_2_INT: return std::make_unique<Profile_SS_GOLD_HD_v1_2_INT>();
         case GameVersion::SS_2:       return std::make_unique<Profile_SS_2>();
         case GameVersion::SS_RW_V2_4: return std::make_unique<Profile_SS_RW_v2_4>();
-        default: return nullptr;
+        default:                      return std::make_unique<Profile_Empty>();
         }
     }
 };

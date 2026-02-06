@@ -3,6 +3,16 @@
 #include "ProfileBase.h"
 #include "ProfileSSGoldEn.h"
 
+using Profile_Empty = GameVersionProfile<
+    GameVersion::UNKNOWN,
+    relocs_empty,
+    hooks_empty,
+    patches_empty,
+    relocs_empty,
+    hooks_empty,
+    patches_empty
+>;
+
 using Profile_SS_v1_0 = GameVersionProfile<
     GameVersion::SS_V1_0,
     relocs_game_ss_ru,

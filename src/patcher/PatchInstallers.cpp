@@ -10,23 +10,38 @@ bool InstallGamePatches(TargetState& state, uintptr_t base, size_t size, const s
     GameVersion version = detector.GetOrDetectGameVersion(DllType::Game, path, base, size);
     DetectionStatus status = detector.GetDetectionStatus(DllType::Game);
 
-    if (status == DetectionStatus::UnsupportedHash)
-    {
-        ShowErrorAsync("MultiCAD couldn't identify game dll and doesn't fully support this version of Sudden Strike. The mod may not work correctly. \nTo add support, contact the author of the mod.");
-        return false;
-    }
-
-    if (status != DetectionStatus::Supported)
-    {
-        return false;
-    }
-
     ProfileFactory factory;
     auto profile = factory.create(version);
-    if (!profile)
+
+    switch (status)
     {
-        ShowErrorAsync("This is most likely a build error. MultiCAD identified game dll, but couldn't find relevant patches. Contact the author.");
+    case DetectionStatus::NotDetected:
+    {
+        ShowErrorAsync("MultiCAD couldn't detect game dll hash for some reason.");
+        Screen::UpdateToOrigSize();
         return false;
+    }
+    case DetectionStatus::NotCalculated:
+    {
+        ShowErrorAsync("MultiCAD couldn't calculate game dll hash for some reason.");
+        Screen::UpdateToOrigSize();
+        return false;
+    }
+    case DetectionStatus::Supported:
+    {
+        // I check profile version separately, because dll can be identified, but there can be no profile for this version
+        if (!profile->isUnknown())
+            break;
+        ShowErrorAsync("MultiCAD identified game dll, but doesn't have patches for it. The game will NOT work correctly. \nTo add support, contact the author of the mod.");
+        Screen::UpdateToOrigSize();
+        return false;
+    }
+    case DetectionStatus::UnsupportedHash:
+    {
+        ShowErrorAsync("MultiCAD couldn't identify game dll and doesn't try to patch it. The game will NOT work correctly. \nTo add support, contact the author of the mod.");
+        Screen::UpdateToOrigSize();
+        return false;
+    }
     }
 
     const auto& module = detector.GetModuleInfo(DllType::Game);
@@ -42,6 +57,7 @@ bool InstallGamePatches(TargetState& state, uintptr_t base, size_t size, const s
         state.patchEngine.reset();
 
         ShowErrorAsync("Couldn't patch game dll due to some error. Contact the author.");
+        Screen::UpdateToOrigSize();
         return false;
     }
 
@@ -69,23 +85,34 @@ bool InstallMenuPatches(TargetState& state, uintptr_t base, size_t size, const s
     GameVersion version = detector.GetOrDetectGameVersion(DllType::Menu, path, base, size);
     DetectionStatus status = detector.GetDetectionStatus(DllType::Menu);
 
-    if (status == DetectionStatus::UnsupportedHash)
-    {
-        ShowErrorAsync("MultiCAD couldn't identify menu dll and doesn't fully support this version of Sudden Strike. The mod may not work correctly. \nTo add support, contact the author of the mod.");
-        return false;
-    }
-
-    if (status != DetectionStatus::Supported)
-    {
-        return false;
-    }
-
     ProfileFactory factory;
     auto profile = factory.create(version);
-    if (!profile)
+
+    switch (status)
     {
-        ShowErrorAsync("This is most likely a build error. MultiCAD identified menu dll, but couldn't find relevant patches. Contact the author.");
+    case DetectionStatus::NotDetected:
+    {
+        ShowErrorAsync("MultiCAD couldn't detect menu dll hash for some reason.");
         return false;
+    }
+    case DetectionStatus::NotCalculated:
+    {
+        ShowErrorAsync("MultiCAD couldn't calculate menu dll hash for some reason.");
+        return false;
+    }
+    case DetectionStatus::Supported:
+    {
+        // I check profile version separately, because dll can be identified, but there can be no profile for this version
+        if (!profile->isUnknown())
+            break;
+        ShowErrorAsync("MultiCAD identified menu dll, but doesn't have patches for it. \nTo add support, contact the author of the mod.");
+        return false;
+    }
+    case DetectionStatus::UnsupportedHash:
+    {
+        ShowErrorAsync("MultiCAD couldn't identify menu dll and doesn't try to patch it. \nTo add support, contact the author of the mod.");
+        return false;
+    }
     }
 
     const auto& module = detector.GetModuleInfo(DllType::Menu);

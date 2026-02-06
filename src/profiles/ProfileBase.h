@@ -46,6 +46,8 @@ public:
 
     virtual const IPatchSpecSet& game() const = 0;
     virtual const IPatchSpecSet& menu() const = 0;
+
+    virtual bool isUnknown() const = 0;
 };
 
 template<GameVersion Ver,
@@ -61,6 +63,11 @@ public:
 
     using GameProfileT = PatchSpecSet<GameRelocs, GameHooks, GamePatches>;
     using MenuProfileT = PatchSpecSet<MenuRelocs, MenuHooks, MenuPatches>;
+
+    bool isUnknown() const
+    {
+        return version() == GameVersion::UNKNOWN;
+    }
 
 private:
     GameProfileT m_game{};

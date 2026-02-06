@@ -141,7 +141,7 @@ void* InitializeModule()
     }
     case GameVersion::UNKNOWN:
     {
-        ShowErrorNow("MultiCAD couldn't identify menu dll and doesn't fully support this version of Sudden Strike. The mod may not work correctly. \nTo add support, contact the author of the mod.");
+        ShowErrorNow("MultiCAD couldn't identify game version and uses default CAD dll. \nTo add support, contact the author of the mod.");
         [[fallthrough]];
     }
     case GameVersion::SS_V1_0:
