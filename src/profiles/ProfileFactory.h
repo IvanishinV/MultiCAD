@@ -24,6 +24,7 @@ public:
         case GameVersion::SS_2:       return std::make_unique<Profile_SS_2>();
         case GameVersion::SS_RW_V2_3: return std::make_unique<Profile_SS_RW_v2_3>();
         case GameVersion::SS_RW_V2_4: return std::make_unique<Profile_SS_RW_v2_4>();
+        case GameVersion::HS_2:       return std::make_unique<Profile_HS_2>();
         default:                      return std::make_unique<Profile_Empty>();
         }
     }
