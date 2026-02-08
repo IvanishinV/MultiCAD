@@ -8,13 +8,19 @@
 #include <functional>
 #include <queue>
 
-class DllMonitor;
-
 struct TargetState
 {
     std::optional<PatchEngine> patchEngine;
     PatchSession patchSession;
+
+    uintptr_t base{ 0 };
+    size_t size{ 0 };
+
+    std::wstring fullPath;
+
     bool active{ false };
+    bool packed{ false };
+    bool unpacked{ false };
 };
 
 struct TargetInfo
@@ -34,6 +40,7 @@ public:
     void Shutdown();
 
     void RegisterTarget(const TargetInfo& info);
+    void NotifyUnpacked();
 
 private:
     void HandleLoad(const std::wstring& matched, uintptr_t base, size_t size, const std::wstring& fullPath);

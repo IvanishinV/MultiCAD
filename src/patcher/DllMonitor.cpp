@@ -22,6 +22,141 @@
                       MemoryRelocator       CodePatcher
 * */
 
+struct EntryHook
+{
+    uint8_t original[5];
+    void* entry;
+    void* trampoline;
+    uintptr_t base;
+};
+
+EntryHook g_entryHook;
+void* g_originalReturn{ nullptr };
+std::atomic<bool> g_stopWatcher{ false };
+
+std::atomic<int> g_syncState{ 0 };  // 0 = wait, 1 = ready, 2 = done, 3 = shutdown
+
+void* GetDllEntryPoint(uintptr_t base)
+{
+    auto* dos = reinterpret_cast<IMAGE_DOS_HEADER*>(base);
+    if (dos->e_magic != IMAGE_DOS_SIGNATURE)
+        return nullptr;
+
+    auto* nt = reinterpret_cast<IMAGE_NT_HEADERS*>(base + dos->e_lfanew);
+    if (nt->Signature != IMAGE_NT_SIGNATURE)
+        return nullptr;
+
+    return reinterpret_cast<void*>(base + nt->OptionalHeader.AddressOfEntryPoint);
+}
+
+#pragma warning(push)
+#pragma warning(disable: 4740)
+__declspec(naked) void AfterEntryPoint()
+{
+    __asm
+    {
+        pushad
+        pushfd
+    }
+
+    g_syncState.store(1, std::memory_order_release);
+
+    while (g_syncState.load(std::memory_order_acquire) != 2)
+    {
+        if (g_stopWatcher.load(std::memory_order_acquire))
+            break;
+        _mm_pause();
+    }
+
+    __asm
+    {
+        popfd
+        popad
+
+        jmp g_originalReturn
+    }
+}
+#pragma warning(pop)
+
+__declspec(naked) void EntryPointThunk()
+{
+    __asm
+    {
+        // stack on input:
+        // [esp] = loader return address
+
+        pop eax                         // eax = loader retaddr
+        mov g_originalReturn, eax       // save it to global
+        push offset AfterEntryPoint     // swap return address
+
+        // call original entry point
+        jmp g_entryHook.trampoline
+    }
+}
+
+bool HookEntryPoint(void* entryPoint)
+{
+    g_entryHook.entry = entryPoint;
+
+    DWORD oldProt;
+    if (!VirtualProtect(entryPoint, 5, PAGE_EXECUTE_READWRITE, &oldProt))
+        return false;
+
+    memcpy(g_entryHook.original, entryPoint, 5);
+
+    uint8_t* tramp = (uint8_t*)VirtualAlloc(
+        nullptr,
+        16,
+        MEM_COMMIT | MEM_RESERVE,
+        PAGE_EXECUTE_READWRITE
+    );
+    if (!tramp)
+        return false;
+
+    g_entryHook.trampoline = tramp;
+
+    // Original bytes
+    memcpy(tramp, g_entryHook.original, 5);
+
+    // jmp back to EP+5
+    tramp[5] = 0xE9;
+    *(int32_t*)(tramp + 6) = (int32_t)((uint8_t*)entryPoint + 5 - (tramp + 10));
+
+    // Patch EP jmp EntryPointThunk
+    uint8_t patch[5];
+    patch[0] = 0xE9;
+    *(int32_t*)(patch + 1) = (int32_t)((uint8_t*)&EntryPointThunk - ((uint8_t*)entryPoint + 5));
+
+    memcpy(entryPoint, patch, 5);
+
+    VirtualProtect(entryPoint, 5, oldProt, &oldProt);
+    FlushInstructionCache(GetCurrentProcess(), entryPoint, 5);
+
+    return true;
+}
+
+
+bool IsPackedModule(uintptr_t base)
+{
+    auto* dos = (IMAGE_DOS_HEADER*)base;
+    if (dos->e_magic != IMAGE_DOS_SIGNATURE)
+        return false;
+
+    auto* nt = (IMAGE_NT_HEADERS*)(base + dos->e_lfanew);
+    auto* sec = IMAGE_FIRST_SECTION(nt);
+
+    for (int i = 0; i < nt->FileHeader.NumberOfSections; i++)
+    {
+        if (memcmp(sec[i].Name, ".petite", 7) == 0)
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+
 DllMonitor& GetDllMonitor()
 {
     static DllMonitor instance;
@@ -74,6 +209,25 @@ bool DllMonitor::Init()
         return false;
     }
 
+    std::thread([this]() {
+        while (!g_stopWatcher.load(std::memory_order_acquire))
+        {
+            // Wait signal from AfterEntryPoint
+            while (g_syncState.load(std::memory_order_acquire) != 1)
+            {
+                if (g_stopWatcher.load(std::memory_order_acquire))
+                    return; // Shutdown
+                _mm_pause();
+            }
+            
+            // Patch dll
+            NotifyUnpacked();
+
+            // Signal AfterEntryPoint to continue
+            g_syncState.store(2, std::memory_order_release);
+        }
+        }).detach();
+
     ScanLoadedModules();
 
     return true;
@@ -102,6 +256,8 @@ void DllMonitor::Shutdown()
         }
     }
     m_states.clear();
+
+    g_syncState.store(3, std::memory_order_release);
 }
 
 void DllMonitor::HandleLoad(const std::wstring& matched, uintptr_t base, size_t size, const std::wstring& fullPath)
@@ -113,11 +269,34 @@ void DllMonitor::HandleLoad(const std::wstring& matched, uintptr_t base, size_t 
     }
 
     TargetState st;
-    const bool ok = target.onLoaded ? target.onLoaded(st, base, size, fullPath) : false;
+    st.packed = IsPackedModule(base);
+    st.base = base;
+    st.size = size;
+    st.fullPath = fullPath;
 
-    if (ok)
+    bool shouldTrack{ false };
+    if (!st.packed)
     {
-        st.active = true;
+        st.unpacked = true;
+        if (target.onLoaded && target.onLoaded(st, base, size, fullPath))
+        {
+            st.active = true;
+            shouldTrack = true;
+        }
+    }
+    else
+    {
+        void* ep = GetDllEntryPoint(base);
+        if (ep)
+        {
+            g_entryHook.base = base;
+            HookEntryPoint(ep);
+            shouldTrack = true;
+        }
+    }
+
+    if (shouldTrack)
+    {
         std::lock_guard lk(m_statesMutex);
         m_states[matched] = std::move(st);
     }
@@ -143,11 +322,33 @@ void DllMonitor::HandleUnload(const std::wstring& matched)
     m_states.erase(it);
 }
 
+void DllMonitor::NotifyUnpacked()
+{
+    std::lock_guard lk(m_statesMutex);
+
+    for (auto& [key, st] : m_states)
+    {
+        if (st.base == g_entryHook.base && st.packed && !st.unpacked)
+        {
+            st.unpacked = true;
+
+            std::lock_guard lk2(m_targetsMutex);
+            auto it = m_targets.find(key);
+            if (it != m_targets.end() && it->second.onLoaded)
+            {
+                if (it->second.onLoaded(st, st.base, st.size, st.fullPath))
+                {
+                    st.active = true;
+
+                    return;
+                }
+            }
+        }
+    }
+}
+
 bool DllMonitor::TryMatchTargets(const std::wstring& moduleBaseName, std::wstring& outMatchedPart)
 {
-    std::string lowerMod;
-    lowerMod.reserve(moduleBaseName.size());
-
     std::wstring lowerW = moduleBaseName;
     std::transform(lowerW.begin(), lowerW.end(), lowerW.begin(), ::towlower);
 
@@ -216,29 +417,11 @@ void DllMonitor::ScanLoadedModules()
     {
         do
         {
-            const std::wstring baseName = me.szModule;
-            std::wstring matchedPart;
-            if (!TryMatchTargets(baseName, matchedPart))
+            std::wstring key;
+            if (!TryMatchTargets(me.szModule, key))
                 continue;
 
-            TargetInfo target;
-            {
-                std::lock_guard lk(m_targetsMutex);
-                target = m_targets.at(matchedPart);
-            }
-
-            TargetState state;
-            const bool ok = target.onLoaded ? target.onLoaded(state,
-                reinterpret_cast<uintptr_t>(me.modBaseAddr),
-                me.modBaseSize,
-                me.szExePath) : false;
-
-            if (ok)
-            {
-                state.active = true;
-                std::lock_guard lk(m_statesMutex);
-                m_states[matchedPart] = std::move(state);
-            }
+            HandleLoad(key, reinterpret_cast<uintptr_t>(me.modBaseAddr), me.modBaseSize, me.szExePath);
         } while (Module32NextW(snap, &me));
     }
 

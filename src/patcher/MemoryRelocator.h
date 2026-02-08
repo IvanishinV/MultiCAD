@@ -28,8 +28,13 @@ public:
 
         uintptr_t textBase = 0;
         size_t textSize = 0;
-        if (!getTextSection(mod, textBase, textSize) || textBase == 0 || textSize == 0)
+        if (!findCodeSection(mod, textBase, textSize) || textBase == 0 || textSize == 0)
+        {
+#ifdef _DEBUG
+            OutputDebugStringA("Couldn't find code section.\n");
+#endif
             return false;
+        }
 
         out.gaps.clear();
         out.gaps.reserve(gaps.size());
@@ -79,10 +84,14 @@ public:
             currentOffset += g.newSize;
         }
 
-        if (!patchByRelocs(mod, textBase, textSize, out))
+        // Exclude obviously invalid reloc section
+        if (mod.relocSize < 0x100 || !patchByRelocs(mod, textBase, textSize, out))
         {
-            revert(out);
-            return false;
+            if (!patchByScan(mod, textBase, textSize, out))
+            {
+                revert(out);
+                return false;
+            }
         }
 #ifdef _DEBUG
         OutputDebugStringA(std::format("Dll located on 0x{:x}\n", mod.base).c_str());
@@ -102,7 +111,7 @@ public:
     }
 
 private:
-    static bool getTextSection(const ModuleInfo& mod, uintptr_t& outBase, size_t& outSize)
+    static bool findCodeSection(const ModuleInfo& mod, uintptr_t& outBase, size_t& outSize)
     {
         if (!mod.base)
             return false;
@@ -118,7 +127,9 @@ private:
         auto sec = IMAGE_FIRST_SECTION(nt);
         for (int i = 0; i < nt->FileHeader.NumberOfSections; ++i)
         {
-            if (std::memcmp(sec[i].Name, ".text", 5) == 0)
+            // I'm looking for .text section or section with empty name which is packed by petite
+            if (std::memcmp(sec[i].Name, ".text", 5) == 0
+                || (std::memcmp(sec[i].Name, "\0\0\0\0\0\0\0\0", 8) == 0))
             {
                 outBase = mod.base + sec[i].VirtualAddress;
                 outSize = sec[i].Misc.VirtualSize;
@@ -148,11 +159,11 @@ private:
         return false;
     }
 
-    static bool patchByRelocs(const ModuleInfo& mod, uintptr_t textBase, size_t textSize, const RelocationHandle& h, bool textOnly = true)
+    static bool patchByRelocs(const ModuleInfo& mod, uintptr_t textBase, size_t textSize, const RelocationHandle& h)
     {
         size_t patched{ 0 };
         void* textPtr = reinterpret_cast<void*>(textBase);
-
+        
         DWORD oldProtect{};
         if (!VirtualProtect(textPtr, textSize, PAGE_EXECUTE_READWRITE, &oldProtect))
         {
@@ -201,7 +212,7 @@ private:
                     ).c_str());
 #endif
 
-                    * pVal = static_cast<uint32_t>(newPtr);
+                    *pVal = static_cast<uint32_t>(newPtr);
                     ++patched;
 
                     FlushInstructionCache(GetCurrentProcess(), pVal, sizeof(uint32_t));
@@ -218,5 +229,90 @@ private:
 #endif
 
         return true;
+    }
+
+    static bool patchByScan(const ModuleInfo& mod, uintptr_t textBase, size_t textSize, const RelocationHandle& h, bool textOnly = true)
+    {
+        size_t patched = 0;
+        uint8_t* cursor = reinterpret_cast<uint8_t*>(textBase);
+        uint8_t* end = cursor + textSize;
+
+        DWORD oldProtect{};
+        if (!VirtualProtect(cursor, textSize, PAGE_EXECUTE_READWRITE, &oldProtect))
+            return false;
+
+        while (cursor + sizeof(uint32_t) <= end)
+        {
+            uint32_t* pVal = reinterpret_cast<uint32_t*>(cursor);
+            uintptr_t oldPtr = *pVal;
+
+            if (oldPtr >= mod.base && oldPtr < mod.base + mod.imageSize && isPossibleVariablePattern((uint8_t*)pVal))
+            {
+                uintptr_t newPtr = 0;
+                size_t idx = 0;
+
+                if (inOldGap(oldPtr, mod.base, h, idx, newPtr))
+                {
+#ifdef _DEBUG
+                    OutputDebugStringA(std::format(
+                        "Global patch at +0x{:x}: 0x{:08x} -> 0x{:08x}\n",
+                        reinterpret_cast<uintptr_t>(pVal) - mod.base, oldPtr, (uint32_t)newPtr
+                    ).c_str());
+#endif
+
+                    *pVal = static_cast<uint32_t>(newPtr);
+                    FlushInstructionCache(GetCurrentProcess(), pVal, sizeof(uint32_t));
+                    ++patched;
+                    cursor += 4;
+                }
+            }
+
+            cursor += 1;
+        }
+
+        VirtualProtect(reinterpret_cast<void*>(textBase), textSize, oldProtect, &oldProtect);
+
+#ifdef _DEBUG
+        OutputDebugStringA(std::format("Patched {} globals by scanning.\n", patched).c_str());
+#endif
+
+        return true;
+    }
+
+    static bool isPossibleVariablePattern(const uint8_t* instr)
+    {
+        const uint8_t* opcode = instr - 2;
+        uint8_t b0 = opcode[0];
+        uint8_t b1 = opcode[1];
+
+        if (b1 == 0xB6 || b1 == 0xB9 || b1 == 0xBD || b1 == 0xA1 || b1 == 0xA3)
+            return true;
+
+        // This list should be expanded if needed
+        uint16_t pattern = (b0 << 8) | b1;
+        switch (pattern) {
+        case 0xC705:
+        case 0x8B0D:
+        case 0x890D:
+        case 0x8915:
+        case 0x8B15:
+        case 0x242C:
+        case 0x8C2E:
+        case 0x8935:
+        case 0x8B35:
+        case 0x0C95:
+        case 0x0495:
+        case 0x10BD:
+        case 0x57BD:
+        case 0x00BF:
+        case 0x80BF:
+        case 0xC0BF:
+        case 0x81C5:
+        case 0x81C6:
+        case 0x81FD:
+            return true;
+        default:
+            return false;
+        }
     }
 };
