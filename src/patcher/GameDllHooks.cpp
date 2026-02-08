@@ -4345,6 +4345,227 @@ void __declspec(noinline) __stdcall  GameDllHooks::sub_1006F120_rw()
     }
 }
 
+void __declspec(noinline) __stdcall  GameDllHooks::sub_1006F120_bg()
+{
+    auto* const g = globals_;
+
+    uint8_t* fog0 = g->getPtr<uint8_t>(0x631364);
+    uint8_t* fog1 = g->getPtr<uint8_t>(0x631563);
+    uint8_t* fog2 = g->getPtr<uint8_t>(0x631564);
+    uint8_t* fog3 = g->getPtr<uint8_t>(0x631565);
+    uint8_t* fog4 = g->getPtr<uint8_t>(0x631764);
+
+    const int mapHeight = g->getValue<int>(0x13154C);
+    const int mapWidth = g->getValue<int>(0x131550);
+
+    const auto cadPtr = reinterpret_cast<ModuleStateLong*>(g->getValue<uintptr_t>(0x109EC6C) - (offsetof(ModuleStateLong, windowRect) - offsetof(ModuleStateLong, fogSprites)));
+
+    const auto sub_10055E00 = g->getFn<void(__thiscall)(int*, int, int, int, int, int)>(0x789A0);
+
+    const int mapPosY = g->getValue<int>(0x10996B8);
+    const int mapPosX = g->getValue<int>(0x10996BC);
+    const int screenWidth = g->getValue<int>(0x10996B4);
+    const int screenHeight = g->getValue<int>(0x10996B0);
+
+    int* div16Ptr = g->getPtr<int>(0x106C498);
+    const uint8_t fogMask = g->getValue<uint8_t>(0x109E5F1);
+    uint8_t* fogBuf = g->getPtr<uint8_t>(0x109732C);
+    std::memset(fogBuf, 0x80, sizeof(((ModuleStateLong*)0)->fogSprites));
+
+    const int v54 = mapPosY >> 3;
+    const int v59 = mapPosX >> 4;
+
+    const int tmp = v54 - 3;
+    const int v0 = tmp & 1;
+    int v1 = (1 - 2 * (v0 ^ (tmp >> 1)) - (mapPosX >> 4)) & 3;
+
+    const int v2 = (mapPosX + 16 * (v1 - 3)) >> 1;
+    const int v3 = 8 * v0 - 24;
+
+    int v51 = (mapPosY + v3 - v2) >> 5;
+    int v8 = (mapPosY + v3 + v2) >> 5;
+
+    const int len_sar_4 = screenWidth >> 4;
+    const int v6 = (screenWidth >> 4) + 11;
+
+    const int v4 = screenHeight >> 3;
+    const int v5 = (screenHeight >> 3) + 11;
+
+    const int v7 = v0 + 5;
+
+    int v52 = v1;
+
+    // 1. Initialize buffer byte_1037C598
+    if (v7 <= v5)
+    {
+        uint8_t* row = &fogBuf[kFogLineByteSize * v7];
+        unsigned int count = (v5 - v7 + 2) >> 1;
+        int x = v1 + 5;
+
+        do
+        {
+            int tx = x;
+            int ty = v51;
+            int mx = v8;
+            if (x <= v6)
+            {
+                int idx = v51 << 9;
+                do
+                {
+                    if (mx >= 4
+                        && ty >= 4
+                        && mx < mapHeight - 4
+                        && ty < mapWidth - 4
+                        && (fogMask & fog2[idx + mx]) != 0)
+                    {
+                        if (row[tx] > 0x40u)
+                        {
+                            if (!(fogMask & fog4[idx + mx]) ||
+                                !(fogMask & fog3[idx + mx]) ||
+                                !(fogMask & fog0[idx + mx]) ||
+                                !(fogMask & fog1[idx + mx]))
+                            {
+                                row[tx] = 64;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        row[tx] = 0;
+                    }
+
+                    tx += 4;
+                    ++mx;
+                    --ty;
+                    idx -= 512;
+                } while (tx <= v6);
+            }
+
+            if (v52 < 2)
+            {
+                x += 2;
+                ++v8;
+            }
+            else
+            {
+                x -= 2;
+                ++v51;
+            }
+            v52 ^= 2;
+            row += kFogDoubleLineByteSize;
+        } while (--count);
+    }
+
+    // 2. Vertical antialiasing
+    int step;
+    if (v1 >= 2)
+    {
+        step = 2;
+    }
+    else
+    {
+        v1 += 4;
+        step = -2;
+    }
+
+    const int xEnd = v6 - 1;
+    const int yEnd = v5 - 1;
+    if (v0 + 7 < yEnd)
+    {
+        int x = v1 + 5;
+
+        const int v19 = v0 + 7;
+        uint8_t* p = &fogBuf[kFogLineByteSize * v19 - 2];
+        int cnt = (yEnd - v19 + 1) >> 1;
+
+        do
+        {
+            for (int xi = x; xi < xEnd;)
+            {
+                uint8_t a = p[xi - (kFogDoubleLineByteSize - 2)];
+                uint8_t b = p[xi + 4];
+                xi += 4;
+                p[xi - 2] = (p[xi + (kFogDoubleLineByteSize - 2)] + p[xi - 4] + b + a) >> 2;
+            }
+
+            x += step;
+            step = -step;
+            p += kFogDoubleLineByteSize;
+        } while (--cnt);
+    }
+
+    // 3. Horizontal antialiasing
+    const int yMax = yEnd - 2;
+    const int xMax = xEnd - 2;
+    const int startY = (v54 & 1) + 8;
+
+    if (startY <= yMax)
+    {
+        uint8_t* p = &fogBuf[kFogLineByteSize * startY + 1];
+        int cnt = (yMax - startY + 2) >> 1;
+        do
+        {
+            int start_i = ((v59 - 1) & 1) + 8;
+            for (int i = start_i; i <= xMax; i += 2)
+            {
+                p[i - 1] = (p[i] + p[i - 2]) >> 1;
+            }
+
+            p += kFogDoubleLineByteSize;
+        } while (--cnt);
+    }
+
+    // 4. Vertical smoothing
+    const int startY2 = ((v54 - 1) & 1) + 8;
+    if (startY2 <= yMax)
+    {
+        uint8_t* p = &fogBuf[kFogLineByteSize * (startY2 + 1)];
+        int cnt = (yMax - startY2 + 2) >> 1;
+
+        do
+        {
+            for (int j = 8; j <= xMax; ++j)
+            {
+                p[j - kFogLineByteSize] = (p[j] + p[j - kFogDoubleLineByteSize]) >> 1;
+            }
+            p += kFogDoubleLineByteSize;
+        } while (--cnt);
+    }
+
+    // 5. Update fogSprites
+    int width = len_sar_4 + 9;
+    if (v4 + 9 > 0)
+    {
+        int y = 0;
+        int screenY = -72;
+        int rows = v4 + 9;
+        do
+        {
+            if (width > 0)
+            {
+                int x = 0;
+                int screenX = -144;
+                do
+                {
+                    const uint8_t v = fogBuf[x + y * kFogLineByteSize];
+                    uint8_t* dst = &cadPtr->fogSprites[y].unk[x];
+                    if (v != *dst)
+                    {
+                        *dst = v;
+
+                        sub_10055E00(div16Ptr, 24, screenX, screenY, screenX + 31, screenY + 15);
+                        width = len_sar_4 + 9;
+                    }
+                    ++x;
+                    screenX += 16;
+                } while (x < width);
+            }
+            ++y;
+            screenY += 8;
+        } while (--rows);
+    }
+}
+
 void __declspec(noinline) __cdecl GameDllHooks::sub_10099E01(void* mem)
 {
     if (!mem)
@@ -4859,6 +5080,124 @@ void __declspec(noinline) __fastcall GameDllHooks::sub_100A8AF0_v2_4(MapData* se
     deinitHandle(miniMapFileHandle);
 }
 
+void __declspec(noinline) __fastcall GameDllHooks::sub_100A8AF0_bg(MapData* self)
+{
+    if (self->isMapLoaded)
+        return;
+
+    auto* const global = globals_;
+
+    const auto initHandle = global->getFn<void(__thiscall)(HANDLE*)>(0xC6180);
+    const auto createFile = global->getFn<bool(__thiscall)(HANDLE*, const char*, int)>(0xC6240);
+    const auto getFileSize = global->getFn<uint32_t(__thiscall)(HANDLE*)>(0xC6470);
+    const auto readFile = global->getFn<void(__thiscall)(HANDLE*, void*, uint32_t)>(0xC6380);
+    const auto closeHandle = global->getFn<void(__thiscall)(HANDLE*)>(0xC6360);
+    const auto deinitHandle = global->getFn<void(__thiscall)(HANDLE*)>(0xC61B0);
+
+    const char* aXchngTogameMis = global->getPtr<char>(0xECB28);
+    const auto cadPtr = reinterpret_cast<ModuleStateLong*>(global->getValue<uintptr_t>(0x109EC6C) - (offsetof(ModuleStateLong, windowRect) - offsetof(ModuleStateLong, fogSprites)));
+
+    HANDLE miniMapFileHandle[2];
+    initHandle(miniMapFileHandle);
+
+    int readStatus = 0;
+
+    if (createFile(miniMapFileHandle, aXchngTogameMis, 0) && getFileSize(miniMapFileHandle))
+    {
+        int mapWidth = 0, mapHeight = 0, mapExtraSize = 0;
+
+        readFile(miniMapFileHandle, &mapWidth, sizeof(mapWidth));
+        readFile(miniMapFileHandle, &mapHeight, sizeof(mapHeight));
+        readFile(miniMapFileHandle, &mapExtraSize, sizeof(mapExtraSize));
+
+        unsigned int mapBufferSize = 3 * mapWidth * mapHeight;  // 3 channels for pixel
+        uint8_t* mapBuffer = new uint8_t[mapBufferSize];
+        readFile(miniMapFileHandle, mapBuffer, mapBufferSize);
+
+        closeHandle(miniMapFileHandle);
+
+        const int screenWidth = cadPtr->surface.width;
+        const int screenHeight = cadPtr->surface.height;
+        self->screenSurfaceWidth = screenWidth;
+        self->screenSurfaceHeight = screenHeight;
+
+        double scaleX = static_cast<double>(mapWidth) / screenWidth;
+
+        // Calculate real strategic map height
+        int miniMapScreenHeight = static_cast<int>(mapHeight / scaleX);
+        if (miniMapScreenHeight > screenHeight)
+        {
+            // If height is too big, calculate it via Y
+            scaleX = static_cast<double>(mapHeight) / screenHeight;
+            miniMapScreenHeight = screenHeight;
+        }
+        double scaleY = static_cast<double>(mapHeight) / miniMapScreenHeight;
+
+        // Vertical offset from border
+        self->verticalCenterMargin = (screenHeight - miniMapScreenHeight) / 2;
+
+        // Buffer for future usage
+        self->srcBuf = new uint8_t[3 * screenWidth * screenHeight];
+        memset(self->srcBuf, 0, 3 * screenWidth * screenHeight);
+
+        // Bilinear interpolation
+        auto bilinearInterpolate = [&](double mapXScaled, double mapYScaled, uint8_t& rOut, uint8_t& gOut, uint8_t& bOut)
+            {
+                int mapX = std::min(static_cast<int>(mapXScaled), mapWidth - 2);
+                int mapY = std::min(static_cast<int>(mapYScaled), mapHeight - 2);
+
+                double fracX = mapXScaled - mapX;
+                double fracY = mapYScaled - mapY;
+                double invFracX = 1.0 - fracX;
+                double invFracY = 1.0 - fracY;
+
+                int idxTL = 3 * (mapY * mapWidth + mapX);
+                int idxTR = idxTL + 3;
+                int idxBL = 3 * ((mapY + 1) * mapWidth + mapX);
+                int idxBR = idxBL + 3;
+
+                double rTL = mapBuffer[idxTL + 0], gTL = mapBuffer[idxTL + 1], bTL = mapBuffer[idxTL + 2];
+                double rTR = mapBuffer[idxTR + 0], gTR = mapBuffer[idxTR + 1], bTR = mapBuffer[idxTR + 2];
+                double rBL = mapBuffer[idxBL + 0], gBL = mapBuffer[idxBL + 1], bBL = mapBuffer[idxBL + 2];
+                double rBR = mapBuffer[idxBR + 0], gBR = mapBuffer[idxBR + 1], bBR = mapBuffer[idxBR + 2];
+
+                double wTL = invFracX * invFracY;
+                double wTR = fracX * invFracY;
+                double wBL = invFracX * fracY;
+                double wBR = fracX * fracY;
+
+                rOut = static_cast<uint8_t>(rTL * wTL + rTR * wTR + rBL * wBL + rBR * wBR);
+                gOut = static_cast<uint8_t>(gTL * wTL + gTR * wTR + gBL * wBL + gBR * wBR);
+                bOut = static_cast<uint8_t>(bTL * wTL + bTR * wTR + bBL * wBL + bBR * wBR);
+            };
+
+        for (int screenY = 0; screenY < miniMapScreenHeight; ++screenY)
+        {
+            int targetY = screenY + self->verticalCenterMargin;
+            for (int screenX = 0; screenX < screenWidth; ++screenX)
+            {
+                double mapXScaled = screenX * scaleX;
+                double mapYScaled = screenY * scaleY;
+
+                uint8_t r, g, b;
+                bilinearInterpolate(mapXScaled, mapYScaled, r, g, b);
+
+                int screenIndex = screenX + targetY * screenWidth;
+                self->srcBuf[3 * screenIndex + 0] = r;
+                self->srcBuf[3 * screenIndex + 1] = g;
+                self->srcBuf[3 * screenIndex + 2] = b;
+            }
+        }
+
+        delete[] mapBuffer;
+
+        self->isMapLoaded = 1;
+    }
+
+    readStatus = -1;
+    deinitHandle(miniMapFileHandle);
+}
+
 void __declspec(noinline) __fastcall GameDllHooks::sub_100ACDE0(MapData* mapData)
 {
     auto* const g = globals_;
@@ -5149,6 +5488,151 @@ void __declspec(noinline) __fastcall GameDllHooks::sub_100A9060(MapData* mapData
     }
 }
 
+void __declspec(noinline) __fastcall GameDllHooks::sub_100A9060_bg(MapData* mapData)
+{
+    auto* const g = globals_;
+
+    const auto sub_10097740 = g->getFn<void(__cdecl)(int*, int, int, int, int)>(0x94A00);
+    const auto sub_100A1110 = g->getFn<void(__thiscall)(MapData*)>(0x9DBB0);
+    const auto draw_hor_line = g->getFn<void(__thiscall)(MapData*, int, int, int, int16_t)>(0xA89E0);
+    const auto draw_vert_line = g->getFn<void(__thiscall)(MapData*, int, int, int, int16_t)>(0xA8A50);
+    const auto sub_100C3420 = g->getFn<void(__stdcall)(int, int, int)>(0xBE2B0);
+
+    UnitData* dword_1010F258 = g->getValue<UnitData*>(0xFCE40);
+    const int16_t fogBorderColor = g->getValue<int16_t>(0x109E6B6);
+
+    const int mapHeight = g->getValue<int>(0x13154C);
+    const int mapWidth = g->getValue<int>(0x131550);
+    const int mapPosY = g->getValue<int>(0x10996B8);
+    const int mapPosX = g->getValue<int>(0x10996BC);
+
+    const uint8_t fogMask = g->getValue<uint8_t>(0x109E5F1);
+
+    const uint8_t* fog0 = g->getPtr<uint8_t>(0x631364);
+    const uint8_t* fog1 = g->getPtr<uint8_t>(0x631563);
+    const uint8_t* fog2 = g->getPtr<uint8_t>(0x631564);
+    const uint8_t* fog3 = g->getPtr<uint8_t>(0x631565);
+    const uint8_t* fog4 = g->getPtr<uint8_t>(0x6317B4);
+
+    const auto cadPtr = reinterpret_cast<ModuleStateLong*>(g->getValue<uintptr_t>(0x109EC6C) - (offsetof(ModuleStateLong, windowRect) - offsetof(ModuleStateLong, fogSprites)));
+
+    sub_100A1110(mapData);
+
+    int clip[4];
+    sub_10097740(clip, mapData->clipLeft, mapData->clipTop, mapData->clipRight, mapData->clipBottom);
+
+    clip[2] += 16;
+    clip[3] += 8;
+
+    // Calculate fog
+    const double scale = 64.0 * mapHeight / mapData->screenSurfaceWidth;
+    const double scale2 = scale / 32.0;
+
+    const auto getFogCount = [&](int index) -> int {
+        int cnt = 0;
+        if (fog4[index] & fogMask) ++cnt;
+        if (fog0[index] & fogMask) ++cnt;
+        if (fog3[index] & fogMask) ++cnt;
+        if (fog1[index] & fogMask) ++cnt;
+        return cnt;
+        };
+
+    const int halfScreenW = mapData->screenSurfaceWidth / 2;
+    const int screenH = mapData->screenSurfaceHeight;
+
+    for (int y = clip[1]; y < clip[3]; ++y)
+    {
+        for (int x = clip[0]; x < clip[2]; ++x)
+        {
+            const int dx = (x - halfScreenW) >> 1;
+            const int mapY1 = static_cast<int>((y + dx - mapData->verticalCenterMargin) * scale2);
+            const int mapY2 = static_cast<int>((y - dx - mapData->verticalCenterMargin) * scale2);
+
+            if (mapY1 < 1 || mapY2 < 1 || mapY1 >= mapHeight - 1 || mapY2 >= mapWidth - 1)
+                continue;
+
+            uint8_t* src = &mapData->srcBuf[3 * x + 3 * mapData->screenSurfaceWidth * (screenH - y - 1)];
+
+            int r = src[2];
+            int gCol = src[1];
+            int b = src[0];
+
+            const int fogIndex = mapY1 + (mapY2 << 9);
+
+            if ((fog2[fogIndex] & fogMask) == 0)
+            {
+                double brightness = (getFogCount(fogIndex) > 1) ? 0.8 : 0.5;
+                r = static_cast<int>(r * brightness);
+                gCol = static_cast<int>(gCol * brightness);
+                b = static_cast<int>(b * brightness);
+            }
+
+            const uint16_t gb =
+                (cadPtr->actualGreenMask & (gCol << 8 >> cadPtr->greenOffset)) |
+                (cadPtr->actualBlueMask & (b << 8 >> cadPtr->blueOffset));
+
+            mapData->dstBuf[x + y * mapData->stride] =
+                (cadPtr->actualRedMask & (r << 8 >> cadPtr->redOffset)) | gb;
+        }
+    }
+
+    // Draw screen rectangle
+    int rectWidth = static_cast<int>(mapData->screenSurfaceWidth / scale);
+    int rectHeight = static_cast<int>(mapData->screenSurfaceHeight / scale);
+
+    int left = static_cast<int>(mapData->screenSurfaceWidth / 2 + mapPosX / scale);
+    int right = left + rectWidth - 1;
+    int bottom = static_cast<int>(mapData->verticalCenterMargin + mapPosY / scale);
+    int top = bottom + rectHeight - 1;
+
+    const int w = right - left + 1;
+    const int h = top - bottom + 1;
+
+    draw_hor_line(mapData, left, bottom, w, fogBorderColor);
+    draw_hor_line(mapData, left, bottom + h - 1, w, fogBorderColor);
+    draw_vert_line(mapData, left, bottom, h, fogBorderColor);
+    draw_vert_line(mapData, left + w - 1, bottom, h, fogBorderColor);
+
+    sub_100C3420(
+        mapData->screenSurfaceWidth / 2,
+        mapData->verticalCenterMargin,
+        static_cast<int>(scale)
+    );
+
+    // This code always calls stubs
+    /* const int* dword_1106F69C = g->getValue<int*>(0x10AEA74);
+
+    const uintptr_t objAddr = static_cast<uintptr_t>(*dword_1106F69C);
+    const uintptr_t funcAddr = *reinterpret_cast<uintptr_t*>(objAddr + 56);
+
+    const uint64_t bits = *reinterpret_cast<const uint64_t*>(&scale2);
+    const uint32_t lo = static_cast<uint32_t>(bits & 0xFFFFFFFF);
+    const uint32_t hi = static_cast<uint32_t>(bits >> 32);
+
+    reinterpret_cast<void(__stdcall*)(int, int, uint32_t, uint32_t)>(funcAddr)(
+        mapData->screenSurfaceWidth / 2,
+        mapData->verticalCenterMargin,
+        lo,
+        hi
+        );*/
+
+        // Draw units points
+        // It also shows building occupied by enemy as red dot even if we don't know that the building is occupied by them
+    for (UnitData* obj = dword_1010F258; obj; obj = obj->next)
+    {
+        const int vx = static_cast<int>(((obj->subX >> 8) + 32.0 * obj->tileX) / scale);
+        const int vy = static_cast<int>(((obj->subY >> 8) + 32.0 * obj->tileY) / scale);
+
+        auto fn = reinterpret_cast<void(__thiscall*)(UnitData*, int, int)>(obj->vtable[113]);
+
+        fn(
+            obj,
+            vx + mapData->screenSurfaceWidth / 2 - vy,
+            mapData->verticalCenterMargin + ((vx + vy) >> 1)
+        );
+    }
+}
+
 void __declspec(noinline) __fastcall GameDllHooks::sub_100AD2C0(MapData* self, void* /*dummy*/, int offsetX, int offsetY)
 {
     auto* const g = globals_;
@@ -5193,6 +5677,40 @@ void __declspec(noinline) __fastcall GameDllHooks::sub_100A97C0(MapData* self, v
     const int mapHeight = g->getValue<int>(0x13139C);
     const int mapPosY = g->getValue<int>(0x10A9508);
     const int mapPosX = g->getValue<int>(0x10A950C);
+
+    sub_100A11E0(self, offsetX, offsetY);
+
+    auto drawRect = [&](int centerX, int centerY)
+        {
+            const int width = self->screenSurfaceWidth;
+
+            const double scale = 64.0 * mapHeight / width;
+
+            int rectWidth = static_cast<int>(self->screenSurfaceWidth / scale);
+            int rectHeight = static_cast<int>(self->screenSurfaceHeight / scale);
+
+            int left = static_cast<int>(self->screenSurfaceWidth / 2 + centerX / scale);
+            int right = left + rectWidth - 1;
+            int top = static_cast<int>(self->verticalCenterMargin + centerY / scale);
+            int bottom = top + rectHeight - 1;
+
+            sub_10099880(self, left, top, right, bottom);
+        };
+
+    drawRect(mapPosX, mapPosY);
+    drawRect(mapPosX + offsetX, mapPosY + offsetY);
+}
+
+void __declspec(noinline) __fastcall GameDllHooks::sub_100A97C0_bg(MapData* self, void* /*dummy*/, int offsetX, int offsetY)
+{
+    auto* const g = globals_;
+
+    const auto sub_100A11E0 = g->getFn<void(__thiscall)(MapData*, int, int)>(0x9DC80);
+    const auto sub_10099880 = g->getFn<void(__thiscall)(MapData*, int, int, int, int)>(0x969D0);
+
+    const int mapHeight = g->getValue<int>(0x13154C);
+    const int mapPosY = g->getValue<int>(0x10996B8);
+    const int mapPosX = g->getValue<int>(0x10996BC);
 
     sub_100A11E0(self, offsetX, offsetY);
 

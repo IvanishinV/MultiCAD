@@ -127,9 +127,10 @@ private:
         auto sec = IMAGE_FIRST_SECTION(nt);
         for (int i = 0; i < nt->FileHeader.NumberOfSections; ++i)
         {
-            // I'm looking for .text section or section with empty name which is packed by petite
+            // I'm looking for .text section or section with empty name which is packed
             if (std::memcmp(sec[i].Name, ".text", 5) == 0
-                || (std::memcmp(sec[i].Name, "\0\0\0\0\0\0\0\0", 8) == 0))
+                || (std::memcmp(sec[i].Name, "\0\0\0\0\0\0\0\0", 8) == 0)
+                || (std::memcmp(sec[i].Name, ".\0\0\0\0\0\0\0", 8) == 0))
             {
                 outBase = mod.base + sec[i].VirtualAddress;
                 outSize = sec[i].Misc.VirtualSize;
@@ -163,7 +164,7 @@ private:
     {
         size_t patched{ 0 };
         void* textPtr = reinterpret_cast<void*>(textBase);
-        
+
         DWORD oldProtect{};
         if (!VirtualProtect(textPtr, textSize, PAGE_EXECUTE_READWRITE, &oldProtect))
         {
@@ -212,7 +213,7 @@ private:
                     ).c_str());
 #endif
 
-                    *pVal = static_cast<uint32_t>(newPtr);
+                    * pVal = static_cast<uint32_t>(newPtr);
                     ++patched;
 
                     FlushInstructionCache(GetCurrentProcess(), pVal, sizeof(uint32_t));
@@ -247,25 +248,25 @@ private:
             uintptr_t oldPtr = *pVal;
 
             if (oldPtr >= mod.base && oldPtr < mod.base + mod.imageSize && isPossibleVariablePattern((uint8_t*)pVal))
-            {
-                uintptr_t newPtr = 0;
-                size_t idx = 0;
-
-                if (inOldGap(oldPtr, mod.base, h, idx, newPtr))
                 {
+                    uintptr_t newPtr = 0;
+                    size_t idx = 0;
+
+                    if (inOldGap(oldPtr, mod.base, h, idx, newPtr))
+                    {
 #ifdef _DEBUG
-                    OutputDebugStringA(std::format(
-                        "Global patch at +0x{:x}: 0x{:08x} -> 0x{:08x}\n",
-                        reinterpret_cast<uintptr_t>(pVal) - mod.base, oldPtr, (uint32_t)newPtr
-                    ).c_str());
+                        OutputDebugStringA(std::format(
+                            "Global patch at +0x{:x}: 0x{:08x} -> 0x{:08x}\n",
+                            reinterpret_cast<uintptr_t>(pVal) - mod.base, oldPtr, (uint32_t)newPtr
+                        ).c_str());
 #endif
 
-                    *pVal = static_cast<uint32_t>(newPtr);
-                    FlushInstructionCache(GetCurrentProcess(), pVal, sizeof(uint32_t));
-                    ++patched;
-                    cursor += 4;
+                        * pVal = static_cast<uint32_t>(newPtr);
+                        FlushInstructionCache(GetCurrentProcess(), pVal, sizeof(uint32_t));
+                        ++patched;
+                        cursor += 4;
+                    }
                 }
-            }
 
             cursor += 1;
         }

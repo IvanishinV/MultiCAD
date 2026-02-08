@@ -836,3 +836,89 @@ const std::array hooks_menu_hs_2
 {
     HookSpec{0x1AC60, reinterpret_cast<uintptr_t>(&MenuDllHooks::sub_1001AC60)},
 };
+
+
+constexpr std::array relocs_game_black_gold
+{
+    RelocateGapSpec{ 0x0106AC90, 0x0106C498, 8 + sizeof(uint32_t) * kRowStrideDwordSize * ((Graphics::kMaxHeight + 7) >> 3) },
+    RelocateGapSpec{ 0x0106C498, 0x0106DCA0, 8 + sizeof(uint32_t) * kRowStrideDwordSize * ((Graphics::kMaxHeight + 7) >> 3) },
+    RelocateGapSpec{ 0x01096314, 0x01097314, ARRAY_37B588_BYTE_SIZE },
+    RelocateGapSpec{ 0x01097314, 0x0109732A, 0x10 },
+    RelocateGapSpec{ 0x0109732A, 0x01099630, 2 + sizeof(((ModuleStateBase*)0)->fogSprites) },
+};
+
+const std::array hooks_game_black_gold
+{
+    HookSpec{0x785A0, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_10055A20)},
+    HookSpec{0x78960, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_10055DC0)},
+    HookSpec{0x789A0, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_10055E00)},
+    HookSpec{0x78A40, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_10055E90)},
+    HookSpec{0x78AF0, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_10055F40)},
+    HookSpec{0x78B80, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_10055FE0)},
+    HookSpec{0x78BC0, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_10056030)},
+    HookSpec{0x78D00, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_10056170)},
+    HookSpec{0x78F50, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_100563B0)},
+    //HookSpec{0x6AD20, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_1006AD20)},
+    //HookSpec{0x6AEA0, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_1006AEA0)},
+    //HookSpec{0x6B1C0, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_1006B1C0)},
+    //HookSpec{0x6B2C0, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_1006B2C0)},
+    //HookSpec{0x6D940, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_1006D940)},
+    //HookSpec{0x6F120, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_1006F120)},
+    HookSpec{0x95850, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_1006DC40)},
+    HookSpec{0x99DE0, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_1006F120_bg)},
+
+    // Fixes an original bug and a new one caused by changed resolution. See functions' description
+    HookSpec{0xA8AC0, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_100A8AF0_bg)},
+    HookSpec{0xA9030, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_100A9060_bg)},
+    HookSpec{0xA9790, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_100A97C0_bg)},
+};
+
+const std::array patches_game_black_gold
+{
+    // Fixes bug where enemies inside buildings were revealed by your supply trucks
+    // It seems that [esi+0Ah] contains flag if the building is taken by someone
+    // 0Ah means enemy, 09h means empty?
+    PatchSpec{0x25FF3, {0x74}},                 // je 25FFD
+    PatchSpec{0x25FF5,
+    {
+        0x80, 0x7E, 0x08, 0x0A,                 // cmp byte ptr [esi+08h], 0Ah
+        0x74, 0x06,                             // je 25FF1
+        0x90, 0x90                              // nop nop
+    }},
+
+    // Fixes new bug starting from SS2 caused by saving screenshot to .tga file by pressed PrintScreen button.
+    // It uses small stack for one pixel row (3072 bytes = 1024 pixels * 3 channels)
+    // which is not enough for increased resolution. So, I just disabled this function
+    PatchSpec{0x7D210, {0xC3}},
+
+    // Sets the screen height at which units are displayed
+    PatchSpec{0x97BE9, PatchSpec::to_bytes(SCREEN_HEIGHT_TO_SHOW_UNITS)},
+
+    // Fixes a building selection issue related to changes in CAD structure
+    PatchSpec{0x98A38, {kStencilPixelColorShift}},
+    PatchSpec{0x98A39, PatchSpec::concat(
+        {0x81, 0xEF}, kStencilPixelOffset       // sub edi, 800h
+    )},
+    PatchSpec{0x98A3F, {0xEB, 0x82}},           // jmp 9BA3F -> 989C3
+    PatchSpec{0x989C3, PatchSpec::concat(
+        {0x81, 0xE7}, kStencilPixelSmallMask,   // and edi, 7FFh
+        std::array<uint8_t, 2>{0xEB, 0x77}      // jmp 989C9 -> 98A42
+    )},
+
+    // Fixes due to changed array sizes
+    PatchSpec{0x98E52, PatchSpec::to_bytes(ARRAY_37B588_DWORD_SIZE)},
+    PatchSpec{0x98EA2, PatchSpec::to_bytes(ARRAY_37B588_DWORD_SIZE)},
+    PatchSpec{0x9C22E, PatchSpec::to_bytes(Graphics::kMaxHeight)},
+
+    // Fixes unit selection when double-clicking
+    PatchSpec{0xAF53B, {}, 0xAF53C, sizeof(uint32_t)},
+    PatchSpec{0xAF53A, {0xBA}},             // mov edx, offset yBottom
+    PatchSpec{0xAF53F, {0x3B, 0x4A, 0xFC}}, // cmp ecx, [edx-4]     // screen height
+    PatchSpec{0xAF544, {0x3B, 0x02}},       // cmp eax, [edx]       // screen width
+
+    // Fixes unknown double-clicking
+    PatchSpec{0xAF871, {}, 0xAF872, sizeof(uint32_t)},
+    PatchSpec{0xAF870, {0xB9}},             // mov ecx, offset yBottom
+    PatchSpec{0xAF875, {0x3B, 0x41, 0xFC}}, // cmp eax, [ecx-4]     // screen height
+    PatchSpec{0xAF87A, {0x3B, 0x39}},       // cmp edi, [ecx]       // screen width
+};

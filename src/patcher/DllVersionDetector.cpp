@@ -134,7 +134,8 @@ bool DllVersionDetector::AnalyzeDll(const std::wstring& path, std::array<uint8_t
     for (const auto& sec : sections)
     {
         if (std::strncmp(reinterpret_cast<const char*>(sec.Name), ".text", 5) != 0
-            && std::strncmp(reinterpret_cast<const char*>(sec.Name), ".petite", 7) != 0)
+            && std::strncmp(reinterpret_cast<const char*>(sec.Name), ".petite", 7) != 0
+            && std::strncmp(reinterpret_cast<const char*>(sec.Name), ".\0\0\0\0\0\0\0", 8) != 0)
             continue;
 
         if (sec.SizeOfRawData == 0)

@@ -72,6 +72,8 @@ enum class DllType
 {
     Game,
     Menu,
+    GameBlackGold,
+    MenuBlackGold,
     Unknown
 };
 
@@ -81,6 +83,8 @@ constexpr const wchar_t* ToDllName(DllType type)
     {
     case DllType::Game: return L"game";
     case DllType::Menu: return L"menu";
+    case DllType::GameBlackGold: return L"gwbggm";
+    case DllType::MenuBlackGold: return L"gwbgmn";
     default:            return L"";
     }
 }

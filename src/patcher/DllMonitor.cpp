@@ -147,7 +147,8 @@ bool IsPackedModule(uintptr_t base)
 
     for (int i = 0; i < nt->FileHeader.NumberOfSections; i++)
     {
-        if (memcmp(sec[i].Name, ".petite", 7) == 0)
+        if (memcmp(sec[i].Name, ".petite", 7) == 0
+            || (memcmp(sec[i].Name, ".\0\0\0\0\0\0\0", 8) == 0 && i == 0))
         {
             return true;
         }

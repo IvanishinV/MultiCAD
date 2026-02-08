@@ -152,3 +152,13 @@ using Profile_SS_RW_v2_4 = GameVersionProfile<
     hooks_menu_ss_rw_v2_4,
     patches_empty
 >;
+
+using Profile_SS_BLACK_GOLD = GameVersionProfile<
+    GameVersion::SS_BLACK_GOLD,
+    relocs_game_black_gold,
+    hooks_game_black_gold,
+    patches_game_black_gold,
+    relocs_empty,
+    hooks_menu_ss_rw_v2_3,
+    patches_empty
+>;

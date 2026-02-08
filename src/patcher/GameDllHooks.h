@@ -379,6 +379,7 @@ public:
     static void __declspec(noinline) __stdcall  sub_1006F120_hd_v1_1();
     static void __declspec(noinline) __stdcall  sub_1006F120_v2_2();    // SS 2
     static void __declspec(noinline) __stdcall  sub_1006F120_rw();      // SS:RW
+    static void __declspec(noinline) __stdcall  sub_1006F120_bg();      // Black Gold
     static void __declspec(noinline) __cdecl    sub_10099E01(void* mem);
     static void __declspec(noinline) __cdecl    sub_10099E01_de(void* mem);
     static void __declspec(noinline) __cdecl    sub_10099E01_fr(void* mem);
@@ -388,12 +389,15 @@ public:
     static void __declspec(noinline) __fastcall sub_100AC870(MapData* self);        // SS 2
     static void __declspec(noinline) __fastcall sub_100A8AF0_v2_3(MapData* self);   // SS:RW v2.3
     static void __declspec(noinline) __fastcall sub_100A8AF0_v2_4(MapData* self);   // SS:RW v2.4
+    static void __declspec(noinline) __fastcall sub_100A8AF0_bg(MapData* self);     // Black Gold
     // Fixes original bug with white rectangle in strategic view
     static void __declspec(noinline) __fastcall sub_100ACDE0(MapData* self);        // SS 2
     static void __declspec(noinline) __fastcall sub_100A9060(MapData* self);        // SS:RW
+    static void __declspec(noinline) __fastcall sub_100A9060_bg(MapData* self);     // Black Gold
     // Fixes the same original bug with copying rectangle in strategic view. Related to the previous one
     static void __declspec(noinline) __fastcall sub_100AD2C0(MapData* self, void* /*dummy*/, int offsetX, int offsetY);    // SS 2
     static void __declspec(noinline) __fastcall sub_100A97C0(MapData* self, void* /*dummy*/, int offsetX, int offsetY);    // SS:RW
+    static void __declspec(noinline) __fastcall sub_100A97C0_bg(MapData* self, void* /*dummy*/, int offsetX, int offsetY); // Black Gold
 
 private:
     static bool is_valid_ptr(void* p);

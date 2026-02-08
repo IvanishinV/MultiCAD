@@ -11,21 +11,22 @@ public:
     {
         switch (v)
         {
-        case GameVersion::SS_V1_0:    return std::make_unique<Profile_SS_v1_0>();
-        case GameVersion::SS_V1_2:    return std::make_unique<Profile_SS_v1_2>();
-        case GameVersion::SS_GOLD_EN: return std::make_unique<Profile_SS_GOLD_EN>();
-        case GameVersion::SS_GOLD_DE: return std::make_unique<Profile_SS_GOLD_DE>();
-        case GameVersion::SS_GOLD_FR: return std::make_unique<Profile_SS_GOLD_FR>();
-        case GameVersion::SS_GOLD_RU: return std::make_unique<Profile_SS_GOLD_RU>();
-        case GameVersion::SS_HD_V1_1_RU: return std::make_unique<Profile_SS_HD_v1_1_RU>();
-        case GameVersion::SS_HD_V1_1_EN: return std::make_unique<Profile_SS_HD_v1_1_EN>();
-        case GameVersion::SS_GOLD_HD_1_2_RU: return std::make_unique<Profile_SS_GOLD_HD_v1_2_RU>();
+        case GameVersion::SS_V1_0:            return std::make_unique<Profile_SS_v1_0>();
+        case GameVersion::SS_V1_2:            return std::make_unique<Profile_SS_v1_2>();
+        case GameVersion::SS_GOLD_EN:         return std::make_unique<Profile_SS_GOLD_EN>();
+        case GameVersion::SS_GOLD_DE:         return std::make_unique<Profile_SS_GOLD_DE>();
+        case GameVersion::SS_GOLD_FR:         return std::make_unique<Profile_SS_GOLD_FR>();
+        case GameVersion::SS_GOLD_RU:         return std::make_unique<Profile_SS_GOLD_RU>();
+        case GameVersion::SS_HD_V1_1_RU:      return std::make_unique<Profile_SS_HD_v1_1_RU>();
+        case GameVersion::SS_HD_V1_1_EN:      return std::make_unique<Profile_SS_HD_v1_1_EN>();
+        case GameVersion::SS_GOLD_HD_1_2_RU:  return std::make_unique<Profile_SS_GOLD_HD_v1_2_RU>();
         case GameVersion::SS_GOLD_HD_1_2_INT: return std::make_unique<Profile_SS_GOLD_HD_v1_2_INT>();
-        case GameVersion::SS_2:       return std::make_unique<Profile_SS_2>();
-        case GameVersion::SS_RW_V2_3: return std::make_unique<Profile_SS_RW_v2_3>();
-        case GameVersion::SS_RW_V2_4: return std::make_unique<Profile_SS_RW_v2_4>();
-        case GameVersion::HS_2:       return std::make_unique<Profile_HS_2>();
-        default:                      return std::make_unique<Profile_Empty>();
+        case GameVersion::SS_2:               return std::make_unique<Profile_SS_2>();
+        case GameVersion::SS_RW_V2_3:         return std::make_unique<Profile_SS_RW_v2_3>();
+        case GameVersion::SS_RW_V2_4:         return std::make_unique<Profile_SS_RW_v2_4>();
+        case GameVersion::HS_2:               return std::make_unique<Profile_HS_2>();
+        case GameVersion::SS_BLACK_GOLD:      return std::make_unique<Profile_SS_BLACK_GOLD>();
+        default:                              return std::make_unique<Profile_Empty>();
         }
     }
 };
