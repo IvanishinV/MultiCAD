@@ -169,11 +169,23 @@ std::vector<TargetInfo> CreatePatchTargets()
     gameTargetBlackGold.onUnloaded = UninstallGamePatches;
     targets.push_back(std::move(gameTargetBlackGold));
 
-    TargetInfo menuBlackGoldTarget;
-    menuBlackGoldTarget.namePart = ToDllName(DllType::MenuBlackGold);
-    menuBlackGoldTarget.onLoaded = InstallMenuPatches;
-    menuBlackGoldTarget.onUnloaded = UninstallMenuPatches;
-    targets.push_back(std::move(menuBlackGoldTarget));
+    TargetInfo menuTargetBlackGold;
+    menuTargetBlackGold.namePart = ToDllName(DllType::MenuBlackGold);
+    menuTargetBlackGold.onLoaded = InstallMenuPatches;
+    menuTargetBlackGold.onUnloaded = UninstallMenuPatches;
+    targets.push_back(std::move(menuTargetBlackGold));
+
+    TargetInfo gameTargetEurope2015;
+    gameTargetEurope2015.namePart = ToDllName(DllType::GameEurope2015);
+    gameTargetEurope2015.onLoaded = InstallGamePatches;
+    gameTargetEurope2015.onUnloaded = UninstallGamePatches;
+    targets.push_back(std::move(gameTargetEurope2015));
+
+    TargetInfo menuTargetEurope2015;
+    menuTargetEurope2015.namePart = ToDllName(DllType::MenuEurope2015);
+    menuTargetEurope2015.onLoaded = InstallMenuPatches;
+    menuTargetEurope2015.onUnloaded = UninstallMenuPatches;
+    targets.push_back(std::move(menuTargetEurope2015));
 
     return targets;
 }

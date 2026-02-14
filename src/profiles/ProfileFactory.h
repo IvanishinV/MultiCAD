@@ -26,6 +26,7 @@ public:
         case GameVersion::SS_RW_V2_4:         return std::make_unique<Profile_SS_RW_v2_4>();
         case GameVersion::HS_2:               return std::make_unique<Profile_HS_2>();
         case GameVersion::SS_BLACK_GOLD:      return std::make_unique<Profile_SS_BLACK_GOLD>();
+        case GameVersion::SS_EUROPE_2015:     return std::make_unique<Profile_SS_EUROPE_2015>();
         default:                              return std::make_unique<Profile_Empty>();
         }
     }

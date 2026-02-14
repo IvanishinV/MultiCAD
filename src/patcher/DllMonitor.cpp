@@ -148,12 +148,19 @@ bool IsPackedModule(uintptr_t base)
     for (int i = 0; i < nt->FileHeader.NumberOfSections; i++)
     {
         if (memcmp(sec[i].Name, ".petite", 7) == 0
-            || (memcmp(sec[i].Name, ".\0\0\0\0\0\0\0", 8) == 0 && i == 0))
+            || (memcmp(sec[i].Name, ".\0\0\0\0\0\0\0", 8) == 0 && i == 0)
+            || (memcmp(sec[i].Name, "\0\0\0\0\0\0\0\0", 8) == 0 && i == 0))
         {
+#ifdef _DEBUG
+            OutputDebugStringA("The DLL is packed.\n");
+#endif
             return true;
         }
     }
 
+#ifdef _DEBUG
+    OutputDebugStringA("The DLL is not packed.\n");
+#endif
     return false;
 }
 
@@ -263,6 +270,10 @@ void DllMonitor::Shutdown()
 
 void DllMonitor::HandleLoad(const std::wstring& matched, uintptr_t base, size_t size, const std::wstring& fullPath)
 {
+#ifdef _DEBUG
+    OutputDebugStringW(std::format(L"HandleLoad for {}", fullPath).c_str());
+#endif
+
     TargetInfo target;
     {
         std::lock_guard lk(m_targetsMutex);
@@ -305,6 +316,10 @@ void DllMonitor::HandleLoad(const std::wstring& matched, uintptr_t base, size_t 
 
 void DllMonitor::HandleUnload(const std::wstring& matched)
 {
+#ifdef _DEBUG
+    OutputDebugStringW(std::format(L"HandleUnload for {}", matched).c_str());
+#endif
+
     std::lock_guard lk(m_statesMutex);
     auto it = m_states.find(matched);
     if (it == m_states.end())

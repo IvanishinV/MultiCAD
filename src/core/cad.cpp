@@ -128,7 +128,10 @@ void* InitializeModule()
 
     bool res = detector.DetectFileDllVersion(DllType::Menu, ToDllName(DllType::Menu));
     if (!res)
-        detector.DetectFileDllVersion(DllType::Menu, ToDllName(DllType::MenuBlackGold));
+        res = detector.DetectFileDllVersion(DllType::Menu, ToDllName(DllType::MenuBlackGold));
+    if (!res)
+        res = detector.DetectFileDllVersion(DllType::Menu, ToDllName(DllType::MenuEurope2015));
+
     const GameVersion menuDllVersion = detector.GetGameVersion(DllType::Menu);
 
     switch (menuDllVersion)
@@ -154,6 +157,7 @@ void* InitializeModule()
     case GameVersion::SS_2:
     case GameVersion::SS_RW_V2_3:
     case GameVersion::SS_RW_V2_4:
+    case GameVersion::SS_EUROPE_2015:
     default:
         return InitModuleStateShort();
     }

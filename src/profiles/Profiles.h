@@ -162,3 +162,13 @@ using Profile_SS_BLACK_GOLD = GameVersionProfile<
     hooks_menu_ss_rw_v2_3,
     patches_empty
 >;
+
+using Profile_SS_EUROPE_2015 = GameVersionProfile<
+    GameVersion::SS_EUROPE_2015,
+    relocs_game_ss_rw_v2_4,
+    hooks_game_ss_rw_v2_4,
+    patches_game_ss_rw_v2_4,
+    relocs_empty,
+    hooks_menu_ss_europe_2015,
+    patches_empty
+>;

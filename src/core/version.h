@@ -57,6 +57,12 @@
 #define SS_RW_V2_4_VERSION_STR STR(SS_RW_V2_4_VERSION_MAJOR) "." STR(SS_RW_V2_4_VERSION_MINOR)
 #define SS_RW_V2_4_GAME_STR "Sudden Strike: Resource War v" SS_RW_V2_4_VERSION_STR
 
+// Confrontation: Europe 2015
+#define SS_EUROPE_2015_V1_0_VERSION_MAJOR 1
+#define SS_EUROPE_2015_V1_0_VERSION_MINOR 0
+#define SS_EUROPE_2015_V1_0_VERSION_STR STR(SS_EUROPE_2015_V1_0_VERSION_MAJOR) "." STR(SS_EUROPE_2015_V1_0_VERSION_MINOR)
+#define SS_EUROPE_2015_V1_0_GAME_STR "Confrontation: Europe 2015 v" SS_EUROPE_2015_V1_0_VERSION_STR
+
 // Contact info
 #define SS_HD_MOD_TG_LINK "tg: @ss_hd_mod"
 #define SS_HD_MOD_AUTHOR_EMAIL "ivanishin.vladislav@gmail.com"

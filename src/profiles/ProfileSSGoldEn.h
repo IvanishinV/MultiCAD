@@ -922,3 +922,9 @@ const std::array patches_game_black_gold
     PatchSpec{0xAF875, {0x3B, 0x41, 0xFC}}, // cmp eax, [ecx-4]     // screen height
     PatchSpec{0xAF87A, {0x3B, 0x39}},       // cmp edi, [ecx]       // screen width
 };
+
+
+const std::array hooks_menu_ss_europe_2015
+{
+    HookSpec{0x1AC60, reinterpret_cast<uintptr_t>(&MenuDllHooks::sub_1001AC60_eu_2015)},
+};

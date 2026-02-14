@@ -74,6 +74,8 @@ enum class DllType
     Menu,
     GameBlackGold,
     MenuBlackGold,
+    GameEurope2015,
+    MenuEurope2015,
     Unknown
 };
 
@@ -85,6 +87,8 @@ constexpr const wchar_t* ToDllName(DllType type)
     case DllType::Menu: return L"menu";
     case DllType::GameBlackGold: return L"gwbggm";
     case DllType::MenuBlackGold: return L"gwbgmn";
+    case DllType::GameEurope2015: return L"eugm";
+    case DllType::MenuEurope2015: return L"eumn";
     default:            return L"";
     }
 }

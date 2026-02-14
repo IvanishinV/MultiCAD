@@ -274,7 +274,10 @@ private:
         VirtualProtect(reinterpret_cast<void*>(textBase), textSize, oldProtect, &oldProtect);
 
 #ifdef _DEBUG
-        OutputDebugStringA(std::format("Patched {} globals by scanning.\n", patched).c_str());
+        if (patched)
+            OutputDebugStringA(std::format("Patched {} globals by scanning.\n", patched).c_str());
+        else
+            OutputDebugStringA("[Critical] Check that the DLL is identified as packed since there is 0 patched global variables. Check output of IsPackedModule method.\n");
 #endif
 
         return true;
