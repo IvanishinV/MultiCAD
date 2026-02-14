@@ -6124,6 +6124,9 @@ void drawMainSurfaceShadowSprite(S32 x, S32 y, const DoublePixel shadePixel, con
 // 0x10007928
 void drawBackSurfaceShadowSprite(S32 x, S32 y, const DoublePixel shadePixel, const ImagePaletteSprite* const sprite)
 {
+    // Fix an issue with the only map in Confrontation: Europe 2015 with sprite height of 5552 pixels
+    if (sprite->height > 768)
+        return;
     const U32 colorMask = ((U32)g_moduleState->actualGreenMask << 16) | g_moduleState->actualBlueMask | g_moduleState->actualRedMask;
     g_rendererState.sprite.colorMask = colorMask;
     g_rendererState.sprite.adjustedColorMask = colorMask | (colorMask << 1);
