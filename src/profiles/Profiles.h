@@ -169,6 +169,6 @@ using Profile_SS_EUROPE_2015 = GameVersionProfile<
     hooks_game_ss_rw_v2_4,
     patches_game_ss_rw_v2_4,
     relocs_empty,
-    hooks_menu_ss_europe_2015,
+    hooks_menu_ss_black_sea_europe_2015,
     patches_empty
 >;

@@ -187,5 +187,17 @@ std::vector<TargetInfo> CreatePatchTargets()
     menuTargetEurope2015.onUnloaded = UninstallMenuPatches;
     targets.push_back(std::move(menuTargetEurope2015));
 
+    TargetInfo gameTargetBlackSea;
+    gameTargetBlackSea.namePart = ToDllName(DllType::GameBlackSea);
+    gameTargetBlackSea.onLoaded = InstallGamePatches;
+    gameTargetBlackSea.onUnloaded = UninstallGamePatches;
+    targets.push_back(std::move(gameTargetBlackSea));
+
+    TargetInfo menuTargetBlackSea;
+    menuTargetBlackSea.namePart = ToDllName(DllType::MenuBlackSea);
+    menuTargetBlackSea.onLoaded = InstallMenuPatches;
+    menuTargetBlackSea.onUnloaded = UninstallMenuPatches;
+    targets.push_back(std::move(menuTargetBlackSea));
+
     return targets;
 }

@@ -131,9 +131,12 @@ void* InitializeModule()
         res = detector.DetectFileDllVersion(DllType::Menu, ToDllName(DllType::MenuBlackGold));
     if (!res)
         res = detector.DetectFileDllVersion(DllType::Menu, ToDllName(DllType::MenuEurope2015));
+    if (!res)
+        res = detector.DetectFileDllVersion(DllType::Menu, ToDllName(DllType::MenuBlackSea));
 
     const GameVersion menuDllVersion = detector.GetGameVersion(DllType::Menu);
 
+    // Add here menu dll versions from DllVersionDetector.h
     switch (menuDllVersion)
     {
     case GameVersion::SS_GOLD_EN:

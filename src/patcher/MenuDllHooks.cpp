@@ -202,7 +202,7 @@ void __fastcall MenuDllHooks::sub_1001AC60(void* self)
     SplashTextRenderer::Instance().render(splash);
 }
 
-void __fastcall MenuDllHooks::sub_1001AC60_eu_2015(void* self)
+void __fastcall MenuDllHooks::sub_1001AC60_bs_eu_2015(void* self)
 {
     auto* g = globals_;
 
@@ -228,12 +228,13 @@ void __fastcall MenuDllHooks::sub_1001AC60_eu_2015(void* self)
 
     sub_10002C00(dword_100B4B48, 0xAA, 0xAA, 0x55);
 
-    sub_10002FA0(dword_100B4B48, 780, 498, "Multi HD mod v" MULTICAD_VERSION_STR " for", 1);
-    sub_10002FA0(dword_100B4B48, 780, 511, SS_EUROPE_2015_V1_0_GAME_STR, 1);
+    sub_10002FA0(dword_100B4B48, 780, 485, "Multi HD mod v" MULTICAD_VERSION_STR " for", 1);
+    sub_10002FA0(dword_100B4B48, 780, 498, SS_EUROPE_2015_V1_0_GAME_STR, 1);
+    sub_10002FA0(dword_100B4B48, 780, 511, SS_BLACK_SEA_V1_2_GAME_STR, 1);
     sub_10002FA0(dword_100B4B48, 780, 537, SS_HD_MOD_TG_LINK, 1);
     sub_10002FA0(dword_100B4B48, 780, 550, SS_HD_MOD_AUTHOR_EMAIL, 1);
 
-    constexpr auto& splashCfg = g_splashTable[(int)SplashVariant::SS2];
+    constexpr auto& splashCfg = g_splashTable[(int)SplashVariant::SS_BS];
     const SplashTextRenderer::Params splash =
         SplashTextRenderer::MakeParams(splashCfg, sub_10002C00, sub_10002FA0, dword_100B4B48);
 
