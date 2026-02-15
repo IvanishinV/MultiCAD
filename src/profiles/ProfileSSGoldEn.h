@@ -924,7 +924,7 @@ const std::array patches_game_black_gold
 };
 
 
-const std::array hooks_menu_ss_europe_2015
+const std::array hooks_menu_ss_black_sea_europe_2015
 {
-    HookSpec{0x1AC60, reinterpret_cast<uintptr_t>(&MenuDllHooks::sub_1001AC60_eu_2015)},
+    HookSpec{0x1AC60, reinterpret_cast<uintptr_t>(&MenuDllHooks::sub_1001AC60_bs_eu_2015)},
 };

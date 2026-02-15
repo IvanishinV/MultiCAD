@@ -151,53 +151,80 @@ std::vector<TargetInfo> CreatePatchTargets()
 {
     std::vector<TargetInfo> targets;
     
-    TargetInfo gameTarget;
-    gameTarget.namePart = ToDllName(DllType::Game);
-    gameTarget.onLoaded = InstallGamePatches;
-    gameTarget.onUnloaded = UninstallGamePatches;
-    targets.push_back(std::move(gameTarget));
+    // Default Sudden Strike dll files with "game" and "menu" in its names
+    {
+        TargetInfo gameTarget;
+        gameTarget.namePart = ToDllName(DllType::Game);
+        gameTarget.onLoaded = InstallGamePatches;
+        gameTarget.onUnloaded = UninstallGamePatches;
+        targets.push_back(std::move(gameTarget));
 
-    TargetInfo menuTarget;
-    menuTarget.namePart = ToDllName(DllType::Menu);
-    menuTarget.onLoaded = InstallMenuPatches;
-    menuTarget.onUnloaded = UninstallMenuPatches;
-    targets.push_back(std::move(menuTarget));
+        TargetInfo menuTarget;
+        menuTarget.namePart = ToDllName(DllType::Menu);
+        menuTarget.onLoaded = InstallMenuPatches;
+        menuTarget.onUnloaded = UninstallMenuPatches;
+        targets.push_back(std::move(menuTarget));
+    }
 
-    TargetInfo gameTargetBlackGold;
-    gameTargetBlackGold.namePart = ToDllName(DllType::GameBlackGold);
-    gameTargetBlackGold.onLoaded = InstallGamePatches;
-    gameTargetBlackGold.onUnloaded = UninstallGamePatches;
-    targets.push_back(std::move(gameTargetBlackGold));
+    // Confrontation: Gulf War
+    {
+        TargetInfo gameTargetGulfWar;
+        gameTargetGulfWar.namePart = ToDllName(DllType::GameGulfWar);
+        gameTargetGulfWar.onLoaded = InstallGamePatches;
+        gameTargetGulfWar.onUnloaded = UninstallGamePatches;
+        targets.push_back(std::move(gameTargetGulfWar));
 
-    TargetInfo menuTargetBlackGold;
-    menuTargetBlackGold.namePart = ToDllName(DllType::MenuBlackGold);
-    menuTargetBlackGold.onLoaded = InstallMenuPatches;
-    menuTargetBlackGold.onUnloaded = UninstallMenuPatches;
-    targets.push_back(std::move(menuTargetBlackGold));
+        TargetInfo menuTargetGulfWar;
+        menuTargetGulfWar.namePart = ToDllName(DllType::MenuGulfWar);
+        menuTargetGulfWar.onLoaded = InstallMenuPatches;
+        menuTargetGulfWar.onUnloaded = UninstallMenuPatches;
+        targets.push_back(std::move(menuTargetGulfWar));
+    }
 
-    TargetInfo gameTargetEurope2015;
-    gameTargetEurope2015.namePart = ToDllName(DllType::GameEurope2015);
-    gameTargetEurope2015.onLoaded = InstallGamePatches;
-    gameTargetEurope2015.onUnloaded = UninstallGamePatches;
-    targets.push_back(std::move(gameTargetEurope2015));
+    // Confrontation: Black Gold
+    {
+        TargetInfo gameTargetBlackGold;
+        gameTargetBlackGold.namePart = ToDllName(DllType::GameBlackGold);
+        gameTargetBlackGold.onLoaded = InstallGamePatches;
+        gameTargetBlackGold.onUnloaded = UninstallGamePatches;
+        targets.push_back(std::move(gameTargetBlackGold));
 
-    TargetInfo menuTargetEurope2015;
-    menuTargetEurope2015.namePart = ToDllName(DllType::MenuEurope2015);
-    menuTargetEurope2015.onLoaded = InstallMenuPatches;
-    menuTargetEurope2015.onUnloaded = UninstallMenuPatches;
-    targets.push_back(std::move(menuTargetEurope2015));
+        TargetInfo menuTargetBlackGold;
+        menuTargetBlackGold.namePart = ToDllName(DllType::MenuBlackGold);
+        menuTargetBlackGold.onLoaded = InstallMenuPatches;
+        menuTargetBlackGold.onUnloaded = UninstallMenuPatches;
+        targets.push_back(std::move(menuTargetBlackGold));
+    }
 
-    TargetInfo gameTargetBlackSea;
-    gameTargetBlackSea.namePart = ToDllName(DllType::GameBlackSea);
-    gameTargetBlackSea.onLoaded = InstallGamePatches;
-    gameTargetBlackSea.onUnloaded = UninstallGamePatches;
-    targets.push_back(std::move(gameTargetBlackSea));
+    // Confrontation: Europe 2015
+    {
+        TargetInfo gameTargetEurope2015;
+        gameTargetEurope2015.namePart = ToDllName(DllType::GameEurope2015);
+        gameTargetEurope2015.onLoaded = InstallGamePatches;
+        gameTargetEurope2015.onUnloaded = UninstallGamePatches;
+        targets.push_back(std::move(gameTargetEurope2015));
 
-    TargetInfo menuTargetBlackSea;
-    menuTargetBlackSea.namePart = ToDllName(DllType::MenuBlackSea);
-    menuTargetBlackSea.onLoaded = InstallMenuPatches;
-    menuTargetBlackSea.onUnloaded = UninstallMenuPatches;
-    targets.push_back(std::move(menuTargetBlackSea));
+        TargetInfo menuTargetEurope2015;
+        menuTargetEurope2015.namePart = ToDllName(DllType::MenuEurope2015);
+        menuTargetEurope2015.onLoaded = InstallMenuPatches;
+        menuTargetEurope2015.onUnloaded = UninstallMenuPatches;
+        targets.push_back(std::move(menuTargetEurope2015));
+    }
+
+    // Confrontation: Black Sea
+    {
+        TargetInfo gameTargetBlackSea;
+        gameTargetBlackSea.namePart = ToDllName(DllType::GameBlackSea);
+        gameTargetBlackSea.onLoaded = InstallGamePatches;
+        gameTargetBlackSea.onUnloaded = UninstallGamePatches;
+        targets.push_back(std::move(gameTargetBlackSea));
+
+        TargetInfo menuTargetBlackSea;
+        menuTargetBlackSea.namePart = ToDllName(DllType::MenuBlackSea);
+        menuTargetBlackSea.onLoaded = InstallMenuPatches;
+        menuTargetBlackSea.onUnloaded = UninstallMenuPatches;
+        targets.push_back(std::move(menuTargetBlackSea));
+    }
 
     return targets;
 }

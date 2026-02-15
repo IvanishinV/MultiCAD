@@ -128,6 +128,8 @@ void* InitializeModule()
 
     bool res = detector.DetectFileDllVersion(DllType::Menu, ToDllName(DllType::Menu));
     if (!res)
+        res = detector.DetectFileDllVersion(DllType::Menu, ToDllName(DllType::MenuGulfWar));
+    if (!res)
         res = detector.DetectFileDllVersion(DllType::Menu, ToDllName(DllType::MenuBlackGold));
     if (!res)
         res = detector.DetectFileDllVersion(DllType::Menu, ToDllName(DllType::MenuEurope2015));
