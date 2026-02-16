@@ -309,11 +309,11 @@ private:
     {
         int* vtable;
         int var_04;
-        S16 var_08;
+        int16_t var_08;
         UnitData* next;
         int var_0E[3];
-        U16 flag_1A;
-        U8 teamId;
+        uint16_t flag_1A;
+        uint8_t teamId;
         bool var_1D;
         int var_1E[1];
         bool var_22;
@@ -322,18 +322,40 @@ private:
         bool var_25;
         int var_26[3];
         bool var_32;
-        S16 tileX;
-        S16 tileY;
-        S16 subX;
-        S16 subY;
+        int16_t tileX;
+        int16_t tileY;
+        int16_t subX;
+        int16_t subY;
         int var_3B[142];
-        S16 fogFlag;
+        int16_t fogFlag;
     };
 #pragma pack(pop)
 
     static_assert(offsetof(UnitData, teamId) == 0x1C, "teamId offset mismatch");
     static_assert(offsetof(UnitData, tileX) == 0x33, "tileX offset mismatch");
     static_assert(offsetof(UnitData, fogFlag) == 0x273, "fogFlag offset mismatch");
+
+#pragma pack(push, 1)
+    struct PlaneData
+    {
+        int* vtable;
+        int16_t** pivots;
+        PlaneData* next;
+        int teamId;
+        int var_010;
+        int var_014;
+        int16_t var_18;
+        float worldX;
+        float worldY;
+        float height;
+        float rotAngle;
+    };
+
+#pragma pack(pop)
+
+    static_assert(offsetof(PlaneData, worldX) == 0x1A, "worldX offset mismatch");
+    static_assert(offsetof(PlaneData, worldY) == 0x1E, "worldY offset mismatch");
+    static_assert(offsetof(PlaneData, height) == 0x22, "height offset mismatch");
 
 #pragma endregion Helper_Structs
 
@@ -398,7 +420,10 @@ public:
     static void __declspec(noinline) __fastcall sub_100AD2C0(MapData* self, void* /*dummy*/, int offsetX, int offsetY);    // SS 2
     static void __declspec(noinline) __fastcall sub_100A97C0(MapData* self, void* /*dummy*/, int offsetX, int offsetY);    // SS:RW
     static void __declspec(noinline) __fastcall sub_100A97C0_bg(MapData* self, void* /*dummy*/, int offsetX, int offsetY); // Black Gold
-
+    // Draws plane cross on strategic map. Originally it draws cross incorrectly since it doesn't use height
+    static void __declspec(noinline) __fastcall sub_100C3830(PlaneData* self, void* /*dummy*/, int halfScreenWidth, int vertCenterMargin, int scale);   // SS 2
+    static void __declspec(noinline) __fastcall sub_100BE6F0(PlaneData* self, void* /*dummy*/, int halfScreenWidth, int vertCenterMargin, int scale);   // SS:RW
+    static void __declspec(noinline) __fastcall sub_100BE6C0(PlaneData* self, void* /*dummy*/, int halfScreenWidth, int vertCenterMargin, int scale);   // Black Gold
 private:
     static bool is_valid_ptr(void* p);
 };

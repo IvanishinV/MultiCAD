@@ -5204,9 +5204,9 @@ void __declspec(noinline) __fastcall GameDllHooks::sub_100ACDE0(MapData* mapData
 
     const auto sub_10097740 = g->getFn<void(__cdecl)(int*, int, int, int, int)>(0x97740);
     const auto sub_100A1110 = g->getFn<void(__thiscall)(MapData*)>(0xA1110);
-    const auto sub_100AC790 = g->getFn<void(__thiscall)(MapData*, int, int, int, int16_t)>(0xAC790);
-    const auto sub_100AC800 = g->getFn<void(__thiscall)(MapData*, int, int, int, int16_t)>(0xAC800);
-    const auto sub_100C3420 = g->getFn<void(__stdcall)(int, int, int)>(0xC3420);
+    const auto drawHorLine = g->getFn<void(__thiscall)(MapData*, int, int, int, int16_t)>(0xAC790);
+    const auto drawVertLine = g->getFn<void(__thiscall)(MapData*, int, int, int, int16_t)>(0xAC800);
+    const auto drawPlaneCrosses = g->getFn<void(__stdcall)(int, int, int)>(0xC3420);
 
     UnitData* dword_1010F258 = g->getValue<UnitData*>(0x10F258);
     const int16_t fogBorderColor = g->getValue<int16_t>(0x106F12E);
@@ -5298,14 +5298,15 @@ void __declspec(noinline) __fastcall GameDllHooks::sub_100ACDE0(MapData* mapData
     const int w = right - left + 1;
     const int h = top - bottom + 1;
 
-    sub_100AC790(mapData, left, bottom, w, fogBorderColor);
-    sub_100AC790(mapData, left, bottom + h - 1, w, fogBorderColor);
-    sub_100AC800(mapData, left, bottom, h, fogBorderColor);
-    sub_100AC800(mapData, left + w - 1, bottom, h, fogBorderColor);
+    drawHorLine(mapData, left, bottom, w, fogBorderColor);
+    drawHorLine(mapData, left, bottom + h - 1, w, fogBorderColor);
+    drawVertLine(mapData, left, bottom, h, fogBorderColor);
+    drawVertLine(mapData, left + w - 1, bottom, h, fogBorderColor);
 
-    sub_100C3420(
+    // This value (1.2f) was found empirically
+    drawPlaneCrosses(
         mapData->screenSurfaceWidth / 2,
-        mapData->verticalCenterMargin,
+        static_cast<int>(mapData->verticalCenterMargin * 1.2f),
         static_cast<int>(scale)
     );
 
@@ -5349,9 +5350,9 @@ void __declspec(noinline) __fastcall GameDllHooks::sub_100A9060(MapData* mapData
 
     const auto sub_10097740 = g->getFn<void(__cdecl)(int*, int, int, int, int)>(0x94A30);
     const auto sub_100A1110 = g->getFn<void(__thiscall)(MapData*)>(0x9DBE0);
-    const auto sub_100AC790 = g->getFn<void(__thiscall)(MapData*, int, int, int, int16_t)>(0xA8A10);
-    const auto sub_100AC800 = g->getFn<void(__thiscall)(MapData*, int, int, int, int16_t)>(0xA8A80);
-    const auto sub_100C3420 = g->getFn<void(__stdcall)(int, int, int)>(0xBE2E0);
+    const auto drawHorLine = g->getFn<void(__thiscall)(MapData*, int, int, int, int16_t)>(0xA8A10);
+    const auto drawVertLine = g->getFn<void(__thiscall)(MapData*, int, int, int, int16_t)>(0xA8A80);
+    const auto drawPlaneCrosses = g->getFn<void(__stdcall)(int, int, int)>(0xBE2E0);
 
     UnitData* dword_1010F258 = g->getValue<UnitData*>(0xFCC90);
     const int16_t fogBorderColor = g->getValue<int16_t>(0x10AE506);
@@ -5443,14 +5444,15 @@ void __declspec(noinline) __fastcall GameDllHooks::sub_100A9060(MapData* mapData
     const int w = right - left + 1;
     const int h = top - bottom + 1;
 
-    sub_100AC790(mapData, left, bottom, w, fogBorderColor);
-    sub_100AC790(mapData, left, bottom + h - 1, w, fogBorderColor);
-    sub_100AC800(mapData, left, bottom, h, fogBorderColor);
-    sub_100AC800(mapData, left + w - 1, bottom, h, fogBorderColor);
+    drawHorLine(mapData, left, bottom, w, fogBorderColor);
+    drawHorLine(mapData, left, bottom + h - 1, w, fogBorderColor);
+    drawVertLine(mapData, left, bottom, h, fogBorderColor);
+    drawVertLine(mapData, left + w - 1, bottom, h, fogBorderColor);
 
-    sub_100C3420(
+    // This value (1.2f) was found empirically
+    drawPlaneCrosses(
         mapData->screenSurfaceWidth / 2,
-        mapData->verticalCenterMargin,
+        static_cast<int>(mapData->verticalCenterMargin * 1.2f),
         static_cast<int>(scale)
     );
 
@@ -5494,9 +5496,9 @@ void __declspec(noinline) __fastcall GameDllHooks::sub_100A9060_bg(MapData* mapD
 
     const auto sub_10097740 = g->getFn<void(__cdecl)(int*, int, int, int, int)>(0x94A00);
     const auto sub_100A1110 = g->getFn<void(__thiscall)(MapData*)>(0x9DBB0);
-    const auto draw_hor_line = g->getFn<void(__thiscall)(MapData*, int, int, int, int16_t)>(0xA89E0);
-    const auto draw_vert_line = g->getFn<void(__thiscall)(MapData*, int, int, int, int16_t)>(0xA8A50);
-    const auto sub_100C3420 = g->getFn<void(__stdcall)(int, int, int)>(0xBE2B0);
+    const auto drawHorLine = g->getFn<void(__thiscall)(MapData*, int, int, int, int16_t)>(0xA89E0);
+    const auto drawVertLine = g->getFn<void(__thiscall)(MapData*, int, int, int, int16_t)>(0xA8A50);
+    const auto drawPlaneCrosses = g->getFn<void(__stdcall)(int, int, int)>(0xBE2B0);
 
     UnitData* dword_1010F258 = g->getValue<UnitData*>(0xFCE40);
     const int16_t fogBorderColor = g->getValue<int16_t>(0x109E6B6);
@@ -5588,14 +5590,15 @@ void __declspec(noinline) __fastcall GameDllHooks::sub_100A9060_bg(MapData* mapD
     const int w = right - left + 1;
     const int h = top - bottom + 1;
 
-    draw_hor_line(mapData, left, bottom, w, fogBorderColor);
-    draw_hor_line(mapData, left, bottom + h - 1, w, fogBorderColor);
-    draw_vert_line(mapData, left, bottom, h, fogBorderColor);
-    draw_vert_line(mapData, left + w - 1, bottom, h, fogBorderColor);
+    drawHorLine(mapData, left, bottom, w, fogBorderColor);
+    drawHorLine(mapData, left, bottom + h - 1, w, fogBorderColor);
+    drawVertLine(mapData, left, bottom, h, fogBorderColor);
+    drawVertLine(mapData, left + w - 1, bottom, h, fogBorderColor);
 
-    sub_100C3420(
+    // This value (1.2f) was found empirically
+    drawPlaneCrosses(
         mapData->screenSurfaceWidth / 2,
-        mapData->verticalCenterMargin,
+        static_cast<int>(mapData->verticalCenterMargin * 1.2f),
         static_cast<int>(scale)
     );
 
@@ -5733,4 +5736,79 @@ void __declspec(noinline) __fastcall GameDllHooks::sub_100A97C0_bg(MapData* self
 
     drawRect(mapPosX, mapPosY);
     drawRect(mapPosX + offsetX, mapPosY + offsetY);
+}
+
+void __declspec(noinline) __fastcall GameDllHooks::sub_100C3830(PlaneData* self, void* /*dummy*/, int halfScreenWidth, int vertCenterMargin, int scale)
+{
+    auto* const g = globals_;
+
+    MapData* mapData = g->getPtr<MapData>(0x106EC18);
+    uint16_t* word_10AE4C4 = g->getPtr<uint16_t>(0x106F0EC);
+
+    const auto drawHorLine = g->getFn<void(__thiscall)(MapData*, int, int, int, int16_t)>(0xAC790);
+    const auto drawVertLine = g->getFn<void(__thiscall)(MapData*, int, int, int, int16_t)>(0xAC800);
+
+    const float x = self->worldX;
+    const float y = self->worldY;
+    const float h = self->height;
+
+    // These values were found empirically
+    float isoX = (x - y) / scale / 1.07f;
+    float isoY = ((x + y) * 0.5f - h) / scale / 1.1f;
+
+    int mapX = halfScreenWidth + static_cast<int>(isoX);
+    int mapY = vertCenterMargin + static_cast<int>(isoY);
+
+    drawHorLine(mapData, mapX - 2, mapY, 5, word_10AE4C4[self->teamId]);
+    drawVertLine(mapData, mapX, mapY - 2, 5, word_10AE4C4[self->teamId]);
+}
+
+void __declspec(noinline) __fastcall GameDllHooks::sub_100BE6F0(PlaneData* self, void* /*dummy*/, int halfScreenWidth, int vertCenterMargin, int scale)
+{
+    auto* const g = globals_;
+
+    MapData* mapData = g->getPtr<MapData>(0x10ADFF0);
+    uint16_t* word_10AE4C4 = g->getPtr<uint16_t>(0x10AE4C4);
+
+    const auto drawHorLine = g->getFn<void(__thiscall)(MapData*, int, int, int, int16_t)>(0xA8A10);
+    const auto drawVertLine = g->getFn<void(__thiscall)(MapData*, int, int, int, int16_t)>(0xA8A80);
+
+    const float x = self->worldX;
+    const float y = self->worldY;
+    const float h = self->height;
+
+    // These values were found empirically
+    float isoX = (x - y) / scale / 1.07f;
+    float isoY = ((x + y) * 0.5f - h) / scale / 1.1f;
+
+    int mapX = halfScreenWidth + static_cast<int>(isoX);
+    int mapY = vertCenterMargin + static_cast<int>(isoY);
+
+    drawHorLine(mapData, mapX - 2, mapY, 5, word_10AE4C4[self->teamId]);
+    drawVertLine(mapData, mapX, mapY - 2, 5, word_10AE4C4[self->teamId]);
+}
+
+void __declspec(noinline) __fastcall GameDllHooks::sub_100BE6C0(PlaneData* self, void* /*dummy*/, int halfScreenWidth, int vertCenterMargin, int scale)
+{
+    auto* const g = globals_;
+
+    MapData* mapData = g->getPtr<MapData>(0x109E1A0);
+    uint16_t* word_10AE4C4 = g->getPtr<uint16_t>(0x109E674);
+
+    const auto drawHorLine = g->getFn<void(__thiscall)(MapData*, int, int, int, int16_t)>(0xA89E0);
+    const auto drawVertLine = g->getFn<void(__thiscall)(MapData*, int, int, int, int16_t)>(0xA8A50);
+
+    const float x = self->worldX;
+    const float y = self->worldY;
+    const float h = self->height;
+
+    // These values were found empirically
+    float isoX = (x - y) / scale / 1.07f;
+    float isoY = ((x + y) * 0.5f - h) / scale / 1.1f;
+
+    int mapX = halfScreenWidth + static_cast<int>(isoX);
+    int mapY = vertCenterMargin + static_cast<int>(isoY);
+
+    drawHorLine(mapData, mapX - 2, mapY, 5, word_10AE4C4[self->teamId]);
+    drawVertLine(mapData, mapX, mapY - 2, 5, word_10AE4C4[self->teamId]);
 }
