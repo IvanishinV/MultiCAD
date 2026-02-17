@@ -32,7 +32,6 @@ struct EntryHook
 
 EntryHook g_entryHook;
 void* g_originalReturn{ nullptr };
-std::atomic<bool> g_stopWatcher{ false };
 
 std::atomic<int> g_syncState{ 0 };  // 0 = wait, 1 = ready, 2 = done, 3 = shutdown
 
@@ -63,7 +62,7 @@ __declspec(naked) void AfterEntryPoint()
 
     while (g_syncState.load(std::memory_order_acquire) != 2)
     {
-        if (g_stopWatcher.load(std::memory_order_acquire))
+        if (g_syncState.load(std::memory_order_acquire) == 3)
             break;
         _mm_pause();
     }
@@ -218,12 +217,12 @@ bool DllMonitor::Init()
     }
 
     std::thread([this]() {
-        while (!g_stopWatcher.load(std::memory_order_acquire))
+        while (g_syncState.load(std::memory_order_acquire) != 3)
         {
             // Wait signal from AfterEntryPoint
             while (g_syncState.load(std::memory_order_acquire) != 1)
             {
-                if (g_stopWatcher.load(std::memory_order_acquire))
+                if (g_syncState.load(std::memory_order_acquire) == 3)
                     return; // Shutdown
                 _mm_pause();
             }
@@ -243,6 +242,8 @@ bool DllMonitor::Init()
 
 void DllMonitor::Shutdown()
 {
+    g_syncState.store(3, std::memory_order_release);
+
     if (m_dllNotificationCookie && m_pLdrUnregisterDllNotification)
     {
         m_pLdrUnregisterDllNotification(m_dllNotificationCookie);
@@ -265,13 +266,16 @@ void DllMonitor::Shutdown()
     }
     m_states.clear();
 
-    g_syncState.store(3, std::memory_order_release);
+    {
+        std::lock_guard lkTargets(m_targetsMutex);
+        m_targets.clear();
+    }
 }
 
 void DllMonitor::HandleLoad(const std::wstring& matched, uintptr_t base, size_t size, const std::wstring& fullPath)
 {
 #ifdef _DEBUG
-    OutputDebugStringW(std::format(L"HandleLoad for {}", fullPath).c_str());
+    OutputDebugStringW(std::format(L"HandleLoad for {}\n", fullPath).c_str());
 #endif
 
     TargetInfo target;
@@ -317,7 +321,7 @@ void DllMonitor::HandleLoad(const std::wstring& matched, uintptr_t base, size_t 
 void DllMonitor::HandleUnload(const std::wstring& matched)
 {
 #ifdef _DEBUG
-    OutputDebugStringW(std::format(L"HandleUnload for {}", matched).c_str());
+    OutputDebugStringW(std::format(L"HandleUnload for {}\n", matched).c_str());
 #endif
 
     std::lock_guard lk(m_statesMutex);
