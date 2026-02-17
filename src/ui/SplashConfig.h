@@ -14,7 +14,7 @@ struct SplashStaticParams
 enum class SplashVariant : uint8_t
 {
     SS,
-    SS2,
+    SS_2,
     SS_BS
 };
 

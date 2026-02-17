@@ -109,8 +109,8 @@ private:
     DWORD lastShownTime = 0;
     std::mt19937 rng;
 
-    static constexpr std::array<const char*, 17> funPhrases = {
-        "Keep calm and play SS",
+    static constexpr std::array<const char*, 18> funPhrases = {
+        "Keep calm and play Sudden Strike",
         "Ultimate HD mode activated!",
         "Beware of sneaky tanks!",
         "Victory is near!",
@@ -125,8 +125,9 @@ private:
         "Dad taught me Sudden Strike!",
         "This mod has Dad's approval",
         "Dad's wisdom: always flank!",
-        "Dad would approve of this strategy",
-        "Minceraft!"
+        "Dad approves of this strategy!",
+        "Minceraft!",
+        "+1",
     };
 
     static_assert(funPhrases[funPhrases.size() - 1] != nullptr, "Last element of funPhrases is nullptr!");

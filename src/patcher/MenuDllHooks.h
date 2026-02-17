@@ -4,6 +4,7 @@
 #include "DllHooksBase.h"
 
 struct MenuTag {};
+struct SplashLayout;
 
 class MenuDllHooks : public DllHooksBase<MenuTag>
 {
@@ -25,6 +26,9 @@ public:
     // Sudden Strike 2
     static void __declspec(noinline) __fastcall sub_1001AC60(void* self);
 
+    // Hidden Stroke 2
+    static void __declspec(noinline) __fastcall sub_1001AC60_hs(void* self);
+
     // Confrontation: Europe 2015
     static void __declspec(noinline) __fastcall sub_1001AC60_bs_eu_2015(void* self);
 
@@ -35,6 +39,5 @@ public:
     static void __declspec(noinline) __fastcall sub_1001B380(void* self);
 
 private:
-    static void sub_10014B70_common(void* self, const char* versionStr, int x);
-    static void sub_1000E3D0_hd_common(void* self, int x);
+    static void renderGameVersion(void* self, const SplashLayout& layout);
 };

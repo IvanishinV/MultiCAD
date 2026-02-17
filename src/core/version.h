@@ -57,6 +57,9 @@
 #define SS_RW_V2_4_VERSION_STR STR(SS_RW_V2_4_VERSION_MAJOR) "." STR(SS_RW_V2_4_VERSION_MINOR)
 #define SS_RW_V2_4_GAME_STR "Sudden Strike: Resource War v" SS_RW_V2_4_VERSION_STR
 
+// Hidden Stroke game series
+#define SS_HS_GAME_STR "Hidden Stroke series"
+
 // Confrontation: Europe 2015
 #define SS_EUROPE_2015_V1_0_VERSION_MAJOR 1
 #define SS_EUROPE_2015_V1_0_VERSION_MINOR 0

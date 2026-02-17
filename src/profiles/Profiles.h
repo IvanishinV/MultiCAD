@@ -129,7 +129,7 @@ using Profile_HS_2 = GameVersionProfile<
     hooks_game_ss_2_v2_2,
     patches_game_ss_2_v2_2,
     relocs_empty,
-    hooks_menu_ss_2_v2_2,
+    hooks_menu_hs,
     patches_empty
 >;
 

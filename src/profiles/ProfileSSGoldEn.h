@@ -835,9 +835,9 @@ const std::array hooks_menu_ss_rw_v2_4
 };
 
 
-const std::array hooks_menu_hs_2
+const std::array hooks_menu_hs
 {
-    HookSpec{0x1AC60, reinterpret_cast<uintptr_t>(&MenuDllHooks::sub_1001AC60)},
+    HookSpec{0x1AC60, reinterpret_cast<uintptr_t>(&MenuDllHooks::sub_1001AC60_hs)},
 };
 
 
