@@ -1,7 +1,9 @@
 #pragma once
 
-#include <format>
 #include <span>
+#ifdef _DEBUG
+#include <format>
+#endif
 
 #include "PatchTypes.h"
 #include "util.h"

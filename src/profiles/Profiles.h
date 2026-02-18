@@ -1,7 +1,7 @@
 #pragma once
 
 #include "ProfileBase.h"
-#include "ProfileSSGoldEn.h"
+#include "ProfileSpecs.h"
 
 using Profile_Empty = GameVersionProfile<
     GameVersion::UNKNOWN,

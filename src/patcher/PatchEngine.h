@@ -7,7 +7,9 @@
 #include "GameDllHooks.h"
 
 #include <memory>
+#ifdef _DEBUG
 #include <format>
+#endif
 
 struct PatchSession
 {

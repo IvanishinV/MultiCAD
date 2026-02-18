@@ -4,7 +4,6 @@
 #include <mmdeviceapi.h>
 #include <audiopolicy.h>
 #include <atlbase.h>
-#include <format>
 
 class AudioHelper
 {

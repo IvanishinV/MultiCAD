@@ -111,7 +111,7 @@
     <ClInclude Include="profiles\ProfileBase.h" />
     <ClInclude Include="profiles\ProfileFactory.h" />
     <ClInclude Include="profiles\Profiles.h" />
-    <ClInclude Include="profiles\ProfileSSGoldEn.h" />
+    <ClInclude Include="profiles\ProfileSpecs.h" />
     <ClInclude Include="ui\ResolutionDialog.h" />
     <ClInclude Include="ui\ResolutionVerifier.h" />
     <ClInclude Include="ui\SplashConfig.h" />
