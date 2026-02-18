@@ -5,17 +5,54 @@ It supports **any custom screen resolution** from 640x480 up to 3440x1600  (note
 
 ## Supported Games
 
-| Game                           | Status | Versions / Languages      | Fixes       |
-|--------------------------------|--------|---------------------------|-------------|
-| **Sudden Strike**              |   ✔   | 1.0: de, ru, 1.2: en      | 2 bug fixes |
-| **Sudden Strike HD v1.1**      |   ✔   | en, ru                    | 2 bug fixes |
-| **Sudden Strike Forever**      |   ✔   | en, de, fr, ru, ch        | 7 bug fixes |
-| **Sudden Strike Gold**         |   ✔   | en, de, fr, ru            | 7 bug fixes |
-| **Sudden Strike Gold HD v1.2** |   ✔   | en, de, fr, ru            | 7 bug fixes |
-| **APRM**                       |   ✔   | 3.0, 3.1, 4.0             | 7 bug fixes |
-| **TWO**                        |   ✔   | en                        | 7 bug fixes |
-| **Sudden Strike 2**            |   ✔   | en, de, fr, ru            | 5 bug fixes |
-| **Sudden Strike: Resource War**|   ✔   | en, de, fr, ru            | 5 bug fixes |
+### Original Games
+
+| Game                             | Status | Versions / Languages  | Fixes       |
+|----------------------------------|--------|-----------------------|-------------|
+| **Sudden Strike**                |   ✔   | 1.0: de, ru, 1.2: en  | 2 bug fixes |
+| **Sudden Strike Forever**        |   ✔   | en, de, fr, ru, ch    | 7 bug fixes |
+| **Sudden Strike Gold**           |   ✔   | en, de, fr, ru        | 7 bug fixes |
+| **Sudden Strike 2**              |   ✔   | 2.2                   | 6 bug fixes |
+| **Sudden Strike: Resource War**  |   ✔   | 2.3, 2.4              | 6 bug fixes |
+
+### Red Ice Team Games
+
+| Game                             | Status | Fixes       |
+|----------------------------------|--------|-------------|
+| **Black Gold**                   |   ✔   | 6 bug fixes |
+| **Black Sea**                    |   ✔   | 6 bug fixes |
+| **Cold War Conflicts**           |   ✔   | 6 bug fixes |
+| **Europe 2015**                  |   ✔   | 6 bug fixes |
+| **Gulf War**                     |   ✔   | 6 bug fixes |
+
+### Mods
+
+| Game                             | Status | Versions / Languages  | Fixes       |
+|----------------------------------|--------|-----------------------|-------------|
+| **Sudden Strike HD v1.1**        |   ✔   | en, ru                | 2 bug fixes |
+| **Sudden Strike Gold HD v1.2**   |   ✔   | en, de, fr, ru        | 7 bug fixes |
+| **APRM**                         |   ✔   | 3.0, 3.1, 4.0         | 7 bug fixes |
+| **AXPRM**                        |   ✔   | 2.0                   | 7 bug fixes |
+| **TWO**                          |   ✔   | en                    | 7 bug fixes |
+| **Eastern Front Mod**            |   ✔   |                       | 6 bug fixes |
+| **Hidden Stroke 2 APRM**         |   ✔   |                       | 6 bug fixes |
+| **Hidden Stroke 2 Fusion**       |   ✔   |                       | 6 bug fixes |
+| **Hidden Stroke 2 Resource War** |   ✔   |                       | 6 bug fixes |
+| **Hidden Stroke 3**              |   ✔   |                       | 6 bug fixes |
+| **Hidden Stroke 4**              |   ✔   |                       | 6 bug fixes |
+| **Liberation Mod**               |   ✔   | 2.75, 5.1, 5.3        | 6 bug fixes |
+| **LRM**                          |   ✔   | 5.1                   | 6 bug fixes |
+| **MWM 3**                        |   ✔   |                       | 6 bug fixes |
+| **Neddus Stroke**                |   ✔   |                       | 6 bug fixes |
+| **PWM**                          |   ✔   | 2.0, 3.0              | 6 bug fixes |
+| **RCM**                          |   ✔   | 2.7                   | 6 bug fixes |
+| **RWM 6.x**                      |   ✔   | 6.5, 6.6, 6.71, 6.8   | 6 bug fixes |
+| **RWM 8.x**                      |   ✔   | 8.0, 8.5              | 6 bug fixes |
+| **RWG Truth of War**             |   ✔   | en, de, fr, ru        | 6 bug fixes |
+| **Vietnam Project**              |   ✔   | 1.0, 1.1, 1.2         | 6 bug fixes |
+| **Warzone 2**                    |   ✔   |                       | 6 bug fixes |
+| **World at War**                 |   ✔   | 0.5                   | 6 bug fixes |
+| **Warzone 2**                    |   ✔   |                       | 6 bug fixes |
 
 > 💡 Note: `Audio Mixer Zero-Volume Fix` restores the game volume in the audio mixer to full if it was set to zero. Applies to **all versions**.
 
