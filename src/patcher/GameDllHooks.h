@@ -359,6 +359,94 @@ private:
 
 #pragma endregion Helper_Structs
 
+#pragma region Common_Function_Structs
+    // Structures used in common patterns
+    struct SomeRandCalcData
+    {
+        UnkEntry* a1;
+        int a2;
+        int* a3;
+        int a4;
+
+        int(__thiscall* fn_2560)(UnkEntry*, int);
+        int& randSeed;
+    };
+
+    struct ReadStrategicMapData
+    {
+        void(__thiscall* initHandle)(HANDLE*);
+        bool(__thiscall* createFile)(HANDLE*, const char*, int);
+        uint32_t(__thiscall* getFileSize)(HANDLE*);
+        void(__thiscall* readFile)(HANDLE*, void*, uint32_t);
+        void(__thiscall* closeHandle)(HANDLE*);
+        void(__thiscall* deinitHandle)(HANDLE*);
+        char* xchngTogameMis;
+        ModuleStateBase* cadPtr;
+    };
+
+    struct FogDrawData
+    {
+        uint8_t* fogBase;
+        int mapHeight;
+        int mapWidth;
+        ModuleStateBase* cadPtr;
+
+        int mapPosY;
+        int mapPosX;
+        int screenWidth;
+        int screenHeight;
+
+        int* div16Ptr;
+        uint8_t fogMask;
+        uint8_t* fogBuf;
+    };
+
+    struct FogOnStrategicMap
+    {
+        void(__cdecl* fn_97740)(int*, int, int, int, int);
+        void(__thiscall* fn_A1110)(MapData*);
+
+        void(__thiscall* drawHorLine)(MapData*, int, int, int, int16_t);
+        void(__thiscall* drawVertLine)(MapData*, int, int, int, int16_t);
+        void(__stdcall* drawPlaneCrosses)(int, int, int);
+
+        UnitData* units;
+        int unitVtableOffset;
+        int16_t fogBorderColor;
+
+        int mapHeight;
+        int mapWidth;
+        int mapPosY;
+        int mapPosX;
+
+        uint8_t fogMask;
+        uint8_t* fogBase;
+
+        ModuleStateBase* cadPtr;
+    };
+
+    struct ScreenRectDrawData
+    {
+        void(__thiscall* fn1)(MapData*, int, int);
+        void(__thiscall* fn2)(MapData*, int, int, int, int);
+        int mapHeight;
+        int mapPosY;
+        int mapPosX;
+    };
+
+    struct PlaneMapDrawData
+    {
+        MapData* mapData;
+        uint16_t* colors;
+        void(__thiscall* drawHorLine)(MapData*, int, int, int, int16_t);
+        void(__thiscall* drawVertLine)(MapData*, int, int, int, int16_t);
+        int halfScreenWidth;
+        int vertCenterMargin;
+        int scale;
+    };
+
+#pragma endregion Common_Function_Structs
+
 public:
     static int  __declspec(noinline) __fastcall sub_1001D240(GameData5* self, void* /*dummy*/, int** a2);
     static void __declspec(noinline) __cdecl    sub_1003E7B0(UnkEntry* a1, int a2, int* a3, int a4);
@@ -426,4 +514,14 @@ public:
     static void __declspec(noinline) __fastcall sub_100BE6C0(PlaneData* self, void* /*dummy*/, int halfScreenWidth, int vertCenterMargin, int scale);   // Black Gold
 private:
     static bool is_valid_ptr(void* p);
+
+    static void someRandCalc(const SomeRandCalcData& data);
+
+    static void drawFogOnWorld(const FogDrawData& data);
+    static void drawFogOnWorld_v2(const FogDrawData& data);
+
+    static void readStrategicMapFromFile(MapData* mapData, const ReadStrategicMapData& data);
+    static void drawFogOnStrategicMap(MapData* mapData, const FogOnStrategicMap& data);
+    static void drawScreenRectOnStrategicMap(MapData* mapData, int offsetX, int offsetY, const ScreenRectDrawData& data);
+    static void drawPlaneCrossOnStrategicMap(PlaneData* mapData, const PlaneMapDrawData& data);
 };

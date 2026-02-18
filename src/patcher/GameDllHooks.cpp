@@ -31,164 +31,58 @@ int __declspec(noinline) __fastcall GameDllHooks::sub_1001D240(GameData5* self, 
     return 1;
 }
 
+
 void __declspec(noinline) __cdecl GameDllHooks::sub_1003E7B0(UnkEntry* a1, int a2, int* a3, int a4)
 {
     auto* const g = globals_;
 
-    const auto sub_10002560 = g->getFn<int(__thiscall)(UnkEntry*, int)>(0x2560);
-    int& randSeed = *g->getPtr<int>(0x295144);
-
-    auto randNext = [&randSeed]() {
-        randSeed = 0x41C64E6D * randSeed + 0x3039;
-        return HIWORD(randSeed) & 0x7FFF;
-        };
-
-    UnkEntry* structPtr = &a1[a2];
-    GameObject* objPtr = structPtr->objPtr;
-
-    if (objPtr == nullptr || structPtr->counter == 0)
-        return;
-
-    const int subVal = sub_10002560(structPtr, 0);
-
-    int tmp = randNext()
-        * (objPtr->param_173d + ((subVal * objPtr->param_1741) >> 15));
-    if (tmp < 0 || (tmp & 0xFFFF8000) == 0)
+    SomeRandCalcData data
     {
-        const int index = (a4 * randNext()) >> 15;
-        const int offset = a3[index];
+        a1,
+        a2,
+        a3,
+        a4,
+        g->getFn<int(__thiscall)(UnkEntry*, int)>(0x2560),
+        *g->getPtr<int>(0x295144)
+    };
 
-        UnkEntry* targetPtr = &a1[offset];
-        GameObject* targetObj = targetPtr->objPtr;
-
-        if (targetObj == nullptr)
-            return;
-
-        if (targetPtr->param_4 < targetObj->param_B8)
-        {
-            const int limit = targetObj->param_B8;
-            const int computed = targetPtr->param_4
-                + objPtr->param_1705
-                + ((subVal * objPtr->param_1709) >> 15);
-
-            targetPtr->param_4 = static_cast<uint16_t>(limit >= computed ? computed : limit);
-
-            --structPtr->counter;
-
-            int tmp2 = objPtr->param_1735
-                + ((subVal * objPtr->param_1739) >> 15);
-            const int v12 = std::min(tmp2 + subVal, 0x8000);
-
-            structPtr->value = static_cast<uint16_t>(v12);
-        }
-    }
+    someRandCalc(data);
 }
 
 void __declspec(noinline) __cdecl GameDllHooks::sub_1003E7B0_de(UnkEntry* a1, int a2, int* a3, int a4)
 {
     auto* const g = globals_;
 
-    const auto sub_10002560 = g->getFn<int(__thiscall)(UnkEntry*, int)>(0x2650);
-    int& randSeed = *g->getPtr<int>(0x295110);
-
-    auto randNext = [&randSeed]() {
-        randSeed = 0x41C64E6D * randSeed + 0x3039;
-        return HIWORD(randSeed) & 0x7FFF;
-        };
-
-    UnkEntry* structPtr = &a1[a2];
-    GameObject* objPtr = structPtr->objPtr;
-
-    if (objPtr == nullptr || structPtr->counter == 0)
-        return;
-
-    const int subVal = sub_10002560(structPtr, 0);
-
-    int tmp = randNext()
-        * (objPtr->param_173d + ((subVal * objPtr->param_1741) >> 15));
-    if (tmp < 0 || (tmp & 0xFFFF8000) == 0)
+    SomeRandCalcData data
     {
-        const int index = (a4 * randNext()) >> 15;
-        const int offset = a3[index];
+        a1,
+        a2,
+        a3,
+        a4,
+        g->getFn<int(__thiscall)(UnkEntry*, int)>(0x2650),
+        *g->getPtr<int>(0x295110)
+    };
 
-        UnkEntry* targetPtr = &a1[offset];
-        GameObject* targetObj = targetPtr->objPtr;
-
-        if (targetObj == nullptr)
-            return;
-
-        if (targetPtr->param_4 < targetObj->param_B8)
-        {
-            const int limit = targetObj->param_B8;
-            const int computed = targetPtr->param_4
-                + objPtr->param_1705
-                + ((subVal * objPtr->param_1709) >> 15);
-
-            targetPtr->param_4 = static_cast<uint16_t>(limit >= computed ? computed : limit);
-
-            --structPtr->counter;
-
-            int tmp2 = objPtr->param_1735
-                + ((subVal * objPtr->param_1739) >> 15);
-            const int v12 = std::min(tmp2 + subVal, 0x8000);
-
-            structPtr->value = static_cast<uint16_t>(v12);
-        }
-    }
+    someRandCalc(data);
 }
 
 void __declspec(noinline) __cdecl GameDllHooks::sub_1003E7B0_fr(UnkEntry* a1, int a2, int* a3, int a4)
 {
     auto* const g = globals_;
 
-    const auto sub_10002560 = g->getFn<int(__thiscall)(UnkEntry*, int)>(0x2650);
-    int& randSeed = *g->getPtr<int>(0x299130);
-
-    auto randNext = [&randSeed]() {
-        randSeed = 0x41C64E6D * randSeed + 0x3039;
-        return HIWORD(randSeed) & 0x7FFF;
-        };
-
-    UnkEntry* structPtr = &a1[a2];
-    GameObject* objPtr = structPtr->objPtr;
-
-    if (objPtr == nullptr || structPtr->counter == 0)
-        return;
-
-    const int subVal = sub_10002560(structPtr, 0);
-
-    int tmp = randNext()
-        * (objPtr->param_173d + ((subVal * objPtr->param_1741) >> 15));
-    if (tmp < 0 || (tmp & 0xFFFF8000) == 0)
+    SomeRandCalcData data
     {
-        const int index = (a4 * randNext()) >> 15;
-        const int offset = a3[index];
+        a1,
+        a2,
+        a3,
+        a4,
+        g->getFn<int(__thiscall)(UnkEntry*, int)>(0x2650),
+        *g->getPtr<int>(0x299130)
+    };
 
-        UnkEntry* targetPtr = &a1[offset];
-        GameObject* targetObj = targetPtr->objPtr;
-
-        if (targetObj == nullptr)
-            return;
-
-        if (targetPtr->param_4 < targetObj->param_B8)
-        {
-            const int limit = targetObj->param_B8;
-            const int computed = targetPtr->param_4
-                + objPtr->param_1705
-                + ((subVal * objPtr->param_1709) >> 15);
-
-            targetPtr->param_4 = static_cast<uint16_t>(limit >= computed ? computed : limit);
-
-            --structPtr->counter;
-
-            int tmp2 = objPtr->param_1735
-                + ((subVal * objPtr->param_1739) >> 15);
-            const int v12 = std::min(tmp2 + subVal, 0x8000);
-
-            structPtr->value = static_cast<uint16_t>(v12);
-        }
-    }
+    someRandCalc(data);
 }
+
 
 void __declspec(noinline) __fastcall GameDllHooks::sub_10055A20(uint32_t* buffer, void* /*dummy*/, int shiftX, int shiftY)
 {
@@ -2037,7 +1931,7 @@ void __declspec(noinline) __stdcall  GameDllHooks::sub_1006D940()
     auto sub_1004DDC0 = g->getFn<void()>(0x4DDC0);
 
 
-    ModuleStateLong* const cadPtr = reinterpret_cast<ModuleStateLong*>(g->getValue<uintptr_t>(0x384474) - (offsetof(ModuleStateLong, windowRect) - offsetof(ModuleStateLong, fogSprites)));
+    ModuleStateLong* const cadPtr = reinterpret_cast<ModuleStateLong*>(g->getValue<uintptr_t>(0x384474) - (offsetof(ModuleStateBase, windowRect) - offsetof(ModuleStateBase, fogSprites)));
     auto resetStencilSurface = cadPtr->actionsPostfix.resetStencilSurface;
 
     uint16_t paletteWord = g->getValue<uint16_t>(0x383EFE);
@@ -2146,7 +2040,7 @@ void __declspec(noinline) __stdcall  GameDllHooks::sub_1006D940_hd()
     auto sub_1004DDC0 = g->getFn<void()>(0x4DDC0);
 
 
-    ModuleStateLong* const cadPtr = reinterpret_cast<ModuleStateLong*>(g->getValue<uintptr_t>(0x384474) - (offsetof(ModuleStateLong, windowRect) - offsetof(ModuleStateLong, fogSprites)));
+    ModuleStateLong* const cadPtr = reinterpret_cast<ModuleStateLong*>(g->getValue<uintptr_t>(0x384474) - (offsetof(ModuleStateBase, windowRect) - offsetof(ModuleStateBase, fogSprites)));
     auto resetStencilSurface = cadPtr->actionsPostfix.resetStencilSurface;
 
     uint16_t paletteWord = g->getValue<uint16_t>(0x383EFE);
@@ -2272,2299 +2166,247 @@ void __declspec(noinline) __fastcall GameDllHooks::sub_1006DC40(int* self, void*
     }
 }
 
+
 void __declspec(noinline) __stdcall  GameDllHooks::sub_1006F120()
 {
     auto* const g = globals_;
 
-    uint8_t* byte_101C13FE = g->getPtr<uint8_t>(0x1C13FE);
-    uint8_t* byte_101C14FD = g->getPtr<uint8_t>(0x1C14FD);
-    uint8_t* byte_101C14FE = g->getPtr<uint8_t>(0x1C14FE);
-    uint8_t* byte_101C14FF = g->getPtr<uint8_t>(0x1C14FF);
-    uint8_t* byte_101C15FE = g->getPtr<uint8_t>(0x1C15FE);
-
-    const int map_length_probably = g->getValue<int>(0xC14EC);
-    const int map_width_probably = g->getValue<int>(0xC14F0);
-
-    const auto cadPtr = reinterpret_cast<ModuleStateLong*>(g->getValue<uintptr_t>(0x384474) - (offsetof(ModuleStateLong, windowRect) - offsetof(ModuleStateLong, fogSprites)));
-
-    const auto sub_10055E00 = g->getFn<void(__thiscall)(int*, int, int, int, int, int)>(0x55E00);
-
-    const int dword_1037E920 = g->getValue<int>(0x37E920);
-    const int dword_1037E924 = g->getValue<int>(0x37E924);
-    const int xRight = g->getValue<int>(0x37E91C);
-    const int yBottom = g->getValue<int>(0x37E918);
-
-    int* div16Ptr = g->getPtr<int>(0x351728);
-    const uint8_t byte_10383CB9 = g->getValue<uint8_t>(0x383CB9);
-    uint8_t* byte_1037C598 = g->getPtr<uint8_t>(0x37C598);
-    std::memset(byte_1037C598, 0x80, sizeof(((ModuleStateLong*)0)->fogSprites));
-
-    const int v54 = dword_1037E920 >> 3;
-
-    const int tmp = (dword_1037E920 >> 3) - 3;
-    const int v0 = (tmp & 1);
-    int v1 = (1 - 2 * (v0 ^ (tmp >> 1)) - (dword_1037E924 >> 4)) & 3;
-    const int v2 = (dword_1037E924 + 16 * (v1 - 3)) >> 1;
-    const int v57 = dword_1037E924 >> 4;
-    const int v3 = 8 * v0 - 24;
-    const int v4 = dword_1037E920 + v3 + v2;
-    int v51 = (dword_1037E920 + v3 - v2) >> 5;
-
-    const int v59 = yBottom >> 3;
-    const int v5 = (yBottom >> 3) + 11;
-    const int len_sar_4 = xRight >> 4;
-    const int v6 = (xRight >> 4) + 11;
-    const int v7 = v0 + 5;
-    int v8 = v4 >> 5;
-    int v52 = v1;
-
-    // 1. Initialize buffer byte_1037C598
-    if (v7 <= v5)
+    FogDrawData data
     {
-        uint8_t* v9 = &byte_1037C598[kFogLineByteSize * v7];
-        unsigned int big_counta = ((v5 - v7) >> 1) + 1;
-        int v47 = v1 + 5;
-        do
-        {
-            int v10 = v47;
-            int v50 = v51;
-            int v11 = v8;
-            if (v47 <= v6)
-            {
-                int v12 = v51 << 8;
-                do
-                {
-                    if (v11 >= 4
-                        && v50 >= 4
-                        && v11 < map_length_probably - 4
-                        && v50 < map_width_probably - 4
-                        && (byte_10383CB9 & byte_101C14FE[v12 + v11]) != 0)
-                    {
-                        if (v9[v10] > 0x40u)
-                        {
-                            if ((byte_10383CB9 & byte_101C15FE[v12 + v11]) != 0)
-                            {
-                                if ((byte_10383CB9 & byte_101C14FF[v12 + v11]) != 0)
-                                {
-                                    if ((byte_10383CB9 & byte_101C13FE[v12 + v11]) != 0)
-                                    {
-                                        if ((byte_10383CB9 & byte_101C14FD[v12 + v11]) == 0)
-                                            v9[v10] = 64;
-                                    }
-                                    else
-                                    {
-                                        v9[v10] = 64;
-                                    }
-                                }
-                                else
-                                {
-                                    v9[v10] = 64;
-                                }
-                            }
-                            else
-                            {
-                                v9[v10] = 64;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        v9[v10] = 0;
-                    }
+        g->getPtr<uint8_t>(0x1C13FE),
+        g->getValue<int>(0xC14EC),
+        g->getValue<int>(0xC14F0),
+        reinterpret_cast<ModuleStateBase*>(g->getValue<uintptr_t>(0x384474) - (offsetof(ModuleStateBase, windowRect) - offsetof(ModuleStateBase, fogSprites))),
 
-                    v10 += 4;
-                    ++v11;
-                    --v50;
-                    v12 -= 256;
-                } while (v10 <= v6);
-            }
+        g->getValue<int>(0x37E920),
+        g->getValue<int>(0x37E924),
+        g->getValue<int>(0x37E91C),
+        g->getValue<int>(0x37E918),
 
-            if (v52 < 2)
-            {
-                v47 = v47 + 2;
-                ++v8;
-            }
-            else
-            {
-                v47 = v47 - 2;
-                ++v51;
-            }
-            v52 ^= 2;
-            v9 += kFogDoubleLineByteSize;
-            --big_counta;
-        } while (big_counta != 0);
-    }
+        g->getPtr<int>(0x351728),
+        g->getValue<uint8_t>(0x383CB9),
+        g->getPtr<uint8_t>(0x37C598)
+    };
 
-    // 2. Intermediate antialiasing
-    int v15;
-    if (v1 >= 2)
-    {
-        v15 = 2;
-    }
-    else
-    {
-        v1 += 4;
-        v15 = -2;
-    }
-    const int v17 = v6 - 1;
-    const int v18 = v5 - 1;
-    if (v0 + 7 < v18)
-    {
-        int v16 = v1 + 5;
-        const int v19 = v0 + 7;
-        uint8_t* v20 = &byte_1037C598[kFogLineByteSize * v19 - 2];
-        int v21 = ((v18 - v19 - 1) >> 1) + 1;
-        do
-        {
-            if (v16 < v17)
-            {
-                int v22 = v16;
-                do
-                {
-                    uint8_t a = v20[v22 - (kFogDoubleLineByteSize - 2)];
-                    uint8_t b = v20[v22 + 4];
-                    v22 += 4;
-                    v20[v22 - 2] = (v20[v22 + (kFogDoubleLineByteSize - 2)] + v20[v22 - 4] + b + a) >> 2;
-                } while (v22 < v17);
-            }
-            v16 += v15;
-            v15 = -v15;
-            v20 += kFogDoubleLineByteSize;
-        } while (--v21);
-    }
-
-    // 3. Horizontal solid antialiasing
-    const int v25 = v18 - 2;
-    const int v26 = (v54 & 1) + 8;
-    const int v27 = v17 - 2;
-    if (v26 <= v25)
-    {
-        uint8_t* lp_array_1 = &byte_1037C598[kFogLineByteSize * v26 + 1];
-        int v29 = ((v25 - v26) >> 1) + 1;
-        do
-        {
-            int start_i = ((v57 - 1) & 1) + 8;
-            for (int i = start_i; i <= v27; i += 2)
-            {
-                uint8_t v31 = lp_array_1[i - 2];
-                uint8_t v32 = lp_array_1[i];
-                lp_array_1[i - 1] = (v32 + v31) >> 1;
-            }
-            lp_array_1 += kFogDoubleLineByteSize;
-        } while (--v29);
-    }
-
-    // 4. Vertical solid antialiasing
-    const int v33 = ((v54 - 1) & 1) + 8;
-    if (v33 <= v25)
-    {
-        uint8_t* v34 = &byte_1037C598[kFogLineByteSize + kFogLineByteSize * v33];
-        int v35 = ((v25 - v33) >> 1) + 1;
-        do
-        {
-            for (int j = 8; j <= v27; ++j)
-            {
-                v34[j - kFogLineByteSize] = (v34[j] + v34[j - kFogDoubleLineByteSize]) >> 1;
-            }
-            v34 += kFogDoubleLineByteSize;
-        } while (--v35);
-    }
-
-    // 5. Update fogSprites
-    int v37 = len_sar_4 + 9;
-    if (v59 + 9 > 0)
-    {
-        int v38 = 0;
-        int v39 = -72;
-        int v55_local = v59 + 9;
-        do
-        {
-            if (v37 > 0)
-            {
-                int v40 = 0;
-                int v41 = -144;
-                do
-                {
-                    uint8_t* v42 = &cadPtr->fogSprites[v38].unk[v40];
-                    uint8_t v43 = byte_1037C598[v40 + v38 * kFogLineByteSize];
-                    if (v43 != *v42)
-                    {
-                        *v42 = v43;
-
-                        sub_10055E00(div16Ptr, 24, v41, v39, v41 + 31, v39 + 15);
-                        v37 = len_sar_4 + 9;
-                    }
-                    ++v40;
-                    v41 += 16;
-                } while (v40 < v37);
-            }
-            ++v38;
-            v39 += 8;
-            --v55_local;
-        } while (v55_local);
-    }
+    drawFogOnWorld(data);
 }
 
 void __declspec(noinline) __stdcall  GameDllHooks::sub_1006F120_de()
 {
     auto* const g = globals_;
 
-    uint8_t* byte_101C13FE = g->getPtr<uint8_t>(0x1C13C6);
-    uint8_t* byte_101C14FD = g->getPtr<uint8_t>(0x1C14C5);
-    uint8_t* byte_101C14FE = g->getPtr<uint8_t>(0x1C14C6);
-    uint8_t* byte_101C14FF = g->getPtr<uint8_t>(0x1C14C7);
-    uint8_t* byte_101C15FE = g->getPtr<uint8_t>(0x1C15C6);
-
-    const int map_length_probably = g->getValue<int>(0xC14B4);
-    const int map_width_probably = g->getValue<int>(0xC14B8);
-
-    const auto cadPtr = reinterpret_cast<ModuleStateLong*>(g->getValue<uintptr_t>(0x38446C) - (offsetof(ModuleStateLong, windowRect) - offsetof(ModuleStateLong, fogSprites)));
-
-    const auto sub_10055E00 = g->getFn<void(__thiscall)(int*, int, int, int, int, int)>(0x58370);
-
-    const int dword_1037E920 = g->getValue<int>(0x37E8E0);
-    const int dword_1037E924 = g->getValue<int>(0x37E8E4);
-    const int xRight = g->getValue<int>(0x37E8DC);
-    const int yBottom = g->getValue<int>(0x37E8D8);
-
-    int* div16Ptr = g->getPtr<int>(0x3516E0);
-    const uint8_t byte_10383CB9 = g->getValue<uint8_t>(0x383C8D);
-    uint8_t* byte_1037C598 = g->getPtr<uint8_t>(0x37C554);
-    std::memset(byte_1037C598, 0x80, sizeof(((ModuleStateLong*)0)->fogSprites));
-
-    const int v54 = dword_1037E920 >> 3;
-
-    const int tmp = (dword_1037E920 >> 3) - 3;
-    const int v0 = (tmp & 1);
-    int v1 = (1 - 2 * (v0 ^ (tmp >> 1)) - (dword_1037E924 >> 4)) & 3;
-    const int v2 = (dword_1037E924 + 16 * (v1 - 3)) >> 1;
-    const int v57 = dword_1037E924 >> 4;
-    const int v3 = 8 * v0 - 24;
-    const int v4 = dword_1037E920 + v3 + v2;
-    int v51 = (dword_1037E920 + v3 - v2) >> 5;
-
-    const int v59 = yBottom >> 3;
-    const int v5 = (yBottom >> 3) + 11;
-    const int len_sar_4 = xRight >> 4;
-    const int v6 = (xRight >> 4) + 11;
-    const int v7 = v0 + 5;
-    int v8 = v4 >> 5;
-    int v52 = v1;
-
-    // 1. Initialize buffer byte_1037C598
-    if (v7 <= v5)
+    FogDrawData data
     {
-        uint8_t* v9 = &byte_1037C598[kFogLineByteSize * v7];
-        unsigned int big_counta = ((v5 - v7) >> 1) + 1;
-        int v47 = v1 + 5;
-        do
-        {
-            int v10 = v47;
-            int v50 = v51;
-            int v11 = v8;
-            if (v47 <= v6)
-            {
-                int v12 = v51 << 8;
-                do
-                {
-                    if (v11 >= 4
-                        && v50 >= 4
-                        && v11 < map_length_probably - 4
-                        && v50 < map_width_probably - 4
-                        && (byte_10383CB9 & byte_101C14FE[v12 + v11]) != 0)
-                    {
-                        if (v9[v10] > 0x40u)
-                        {
-                            if ((byte_10383CB9 & byte_101C15FE[v12 + v11]) != 0)
-                            {
-                                if ((byte_10383CB9 & byte_101C14FF[v12 + v11]) != 0)
-                                {
-                                    if ((byte_10383CB9 & byte_101C13FE[v12 + v11]) != 0)
-                                    {
-                                        if ((byte_10383CB9 & byte_101C14FD[v12 + v11]) == 0)
-                                            v9[v10] = 64;
-                                    }
-                                    else
-                                    {
-                                        v9[v10] = 64;
-                                    }
-                                }
-                                else
-                                {
-                                    v9[v10] = 64;
-                                }
-                            }
-                            else
-                            {
-                                v9[v10] = 64;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        v9[v10] = 0;
-                    }
+        g->getPtr<uint8_t>(0x1C13C6),
+        g->getValue<int>(0xC14B4),
+        g->getValue<int>(0xC14B8),
+        reinterpret_cast<ModuleStateBase*>(g->getValue<uintptr_t>(0x38446C) - (offsetof(ModuleStateBase, windowRect) - offsetof(ModuleStateBase, fogSprites))),
 
-                    v10 += 4;
-                    ++v11;
-                    --v50;
-                    v12 -= 256;
-                } while (v10 <= v6);
-            }
+        g->getValue<int>(0x37E8E0),
+        g->getValue<int>(0x37E8E4),
+        g->getValue<int>(0x37E8DC),
+        g->getValue<int>(0x37E8D8),
 
-            if (v52 < 2)
-            {
-                v47 = v47 + 2;
-                ++v8;
-            }
-            else
-            {
-                v47 = v47 - 2;
-                ++v51;
-            }
-            v52 ^= 2;
-            v9 += kFogDoubleLineByteSize;
-            --big_counta;
-        } while (big_counta != 0);
-    }
+        g->getPtr<int>(0x3516E0),
+        g->getValue<uint8_t>(0x383C8D),
+        g->getPtr<uint8_t>(0x37C554)
+    };
 
-    // 2. Intermediate antialiasing
-    int v15;
-    if (v1 >= 2)
-    {
-        v15 = 2;
-    }
-    else
-    {
-        v1 += 4;
-        v15 = -2;
-    }
-    const int v17 = v6 - 1;
-    const int v18 = v5 - 1;
-    if (v0 + 7 < v18)
-    {
-        int v16 = v1 + 5;
-        const int v19 = v0 + 7;
-        uint8_t* v20 = &byte_1037C598[kFogLineByteSize * v19 - 2];
-        int v21 = ((v18 - v19 - 1) >> 1) + 1;
-        do
-        {
-            if (v16 < v17)
-            {
-                int v22 = v16;
-                do
-                {
-                    uint8_t a = v20[v22 - (kFogDoubleLineByteSize - 2)];
-                    uint8_t b = v20[v22 + 4];
-                    v22 += 4;
-                    v20[v22 - 2] = (v20[v22 + (kFogDoubleLineByteSize - 2)] + v20[v22 - 4] + b + a) >> 2;
-                } while (v22 < v17);
-            }
-            v16 += v15;
-            v15 = -v15;
-            v20 += kFogDoubleLineByteSize;
-        } while (--v21);
-    }
-
-    // 3. Horizontal solid antialiasing
-    const int v25 = v18 - 2;
-    const int v26 = (v54 & 1) + 8;
-    const int v27 = v17 - 2;
-    if (v26 <= v25)
-    {
-        uint8_t* lp_array_1 = &byte_1037C598[kFogLineByteSize * v26 + 1];
-        int v29 = ((v25 - v26) >> 1) + 1;
-        do
-        {
-            int start_i = ((v57 - 1) & 1) + 8;
-            for (int i = start_i; i <= v27; i += 2)
-            {
-                uint8_t v31 = lp_array_1[i - 2];
-                uint8_t v32 = lp_array_1[i];
-                lp_array_1[i - 1] = (v32 + v31) >> 1;
-            }
-            lp_array_1 += kFogDoubleLineByteSize;
-        } while (--v29);
-    }
-
-    // 4. Vertical solid antialiasing
-    const int v33 = ((v54 - 1) & 1) + 8;
-    if (v33 <= v25)
-    {
-        uint8_t* v34 = &byte_1037C598[kFogLineByteSize + kFogLineByteSize * v33];
-        int v35 = ((v25 - v33) >> 1) + 1;
-        do
-        {
-            for (int j = 8; j <= v27; ++j)
-            {
-                v34[j - kFogLineByteSize] = (v34[j] + v34[j - kFogDoubleLineByteSize]) >> 1;
-            }
-            v34 += kFogDoubleLineByteSize;
-        } while (--v35);
-    }
-
-    // 5. Update fogSprites
-    int v37 = len_sar_4 + 9;
-    if (v59 + 9 > 0)
-    {
-        int v38 = 0;
-        int v39 = -72;
-        int v55_local = v59 + 9;
-        do
-        {
-            if (v37 > 0)
-            {
-                int v40 = 0;
-                int v41 = -144;
-                do
-                {
-                    uint8_t* v42 = &cadPtr->fogSprites[v38].unk[v40];
-                    uint8_t v43 = byte_1037C598[v40 + v38 * kFogLineByteSize];
-                    if (v43 != *v42)
-                    {
-                        *v42 = v43;
-
-                        sub_10055E00(div16Ptr, 24, v41, v39, v41 + 31, v39 + 15);
-                        v37 = len_sar_4 + 9;
-                    }
-                    ++v40;
-                    v41 += 16;
-                } while (v40 < v37);
-            }
-            ++v38;
-            v39 += 8;
-            --v55_local;
-        } while (v55_local);
-    }
+    drawFogOnWorld(data);
 }
 
 void __declspec(noinline) __stdcall  GameDllHooks::sub_1006F120_fr()
 {
     auto* const g = globals_;
 
-    uint8_t* byte_101C13FE = g->getPtr<uint8_t>(0x1C53E6);
-    uint8_t* byte_101C14FD = g->getPtr<uint8_t>(0x1C54E5);
-    uint8_t* byte_101C14FE = g->getPtr<uint8_t>(0x1C54E6);
-    uint8_t* byte_101C14FF = g->getPtr<uint8_t>(0x1C54E7);
-    uint8_t* byte_101C15FE = g->getPtr<uint8_t>(0x1C55E6);
-
-    const int map_length_probably = g->getValue<int>(0xC54D4);
-    const int map_width_probably = g->getValue<int>(0xC54D8);
-
-    const auto cadPtr = reinterpret_cast<ModuleStateLong*>(g->getValue<uintptr_t>(0x384598) - (offsetof(ModuleStateLong, windowRect) - offsetof(ModuleStateLong, fogSprites)));
-
-    const auto sub_10055E00 = g->getFn<void(__thiscall)(int*, int, int, int, int, int)>(0x582D0);
-
-    const int dword_1037E920 = g->getValue<int>(0x382900);
-    const int dword_1037E924 = g->getValue<int>(0x382904);
-    const int xRight = g->getValue<int>(0x3828FC);
-    const int yBottom = g->getValue<int>(0x3828F8);
-
-    int* div16Ptr = g->getPtr<int>(0x355700);
-    const uint8_t byte_10383CB9 = g->getValue<uint8_t>(0x387CAD);
-    uint8_t* byte_1037C598 = g->getPtr<uint8_t>(0x380574);
-    std::memset(byte_1037C598, 0x80, sizeof(((ModuleStateLong*)0)->fogSprites));
-
-    const int v54 = dword_1037E920 >> 3;
-
-    const int tmp = (dword_1037E920 >> 3) - 3;
-    const int v0 = (tmp & 1);
-    int v1 = (1 - 2 * (v0 ^ (tmp >> 1)) - (dword_1037E924 >> 4)) & 3;
-    const int v2 = (dword_1037E924 + 16 * (v1 - 3)) >> 1;
-    const int v57 = dword_1037E924 >> 4;
-    const int v3 = 8 * v0 - 24;
-    const int v4 = dword_1037E920 + v3 + v2;
-    int v51 = (dword_1037E920 + v3 - v2) >> 5;
-
-    const int v59 = yBottom >> 3;
-    const int v5 = (yBottom >> 3) + 11;
-    const int len_sar_4 = xRight >> 4;
-    const int v6 = (xRight >> 4) + 11;
-    const int v7 = v0 + 5;
-    int v8 = v4 >> 5;
-    int v52 = v1;
-
-    // 1. Initialize buffer byte_1037C598
-    if (v7 <= v5)
+    FogDrawData data
     {
-        uint8_t* v9 = &byte_1037C598[kFogLineByteSize * v7];
-        unsigned int big_counta = ((v5 - v7) >> 1) + 1;
-        int v47 = v1 + 5;
-        do
-        {
-            int v10 = v47;
-            int v50 = v51;
-            int v11 = v8;
-            if (v47 <= v6)
-            {
-                int v12 = v51 << 8;
-                do
-                {
-                    if (v11 >= 4
-                        && v50 >= 4
-                        && v11 < map_length_probably - 4
-                        && v50 < map_width_probably - 4
-                        && (byte_10383CB9 & byte_101C14FE[v12 + v11]) != 0)
-                    {
-                        if (v9[v10] > 0x40u)
-                        {
-                            if ((byte_10383CB9 & byte_101C15FE[v12 + v11]) != 0)
-                            {
-                                if ((byte_10383CB9 & byte_101C14FF[v12 + v11]) != 0)
-                                {
-                                    if ((byte_10383CB9 & byte_101C13FE[v12 + v11]) != 0)
-                                    {
-                                        if ((byte_10383CB9 & byte_101C14FD[v12 + v11]) == 0)
-                                            v9[v10] = 64;
-                                    }
-                                    else
-                                    {
-                                        v9[v10] = 64;
-                                    }
-                                }
-                                else
-                                {
-                                    v9[v10] = 64;
-                                }
-                            }
-                            else
-                            {
-                                v9[v10] = 64;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        v9[v10] = 0;
-                    }
+        g->getPtr<uint8_t>(0x1C53E6),
+        g->getValue<int>(0xC54D4),
+        g->getValue<int>(0xC54D8),
+        reinterpret_cast<ModuleStateBase*>(g->getValue<uintptr_t>(0x384598) - (offsetof(ModuleStateBase, windowRect) - offsetof(ModuleStateBase, fogSprites))),
 
-                    v10 += 4;
-                    ++v11;
-                    --v50;
-                    v12 -= 256;
-                } while (v10 <= v6);
-            }
+        g->getValue<int>(0x382900),
+        g->getValue<int>(0x382904),
+        g->getValue<int>(0x3828FC),
+        g->getValue<int>(0x3828F8),
 
-            if (v52 < 2)
-            {
-                v47 = v47 + 2;
-                ++v8;
-            }
-            else
-            {
-                v47 = v47 - 2;
-                ++v51;
-            }
-            v52 ^= 2;
-            v9 += kFogDoubleLineByteSize;
-            --big_counta;
-        } while (big_counta != 0);
-    }
+        g->getPtr<int>(0x355700),
+        g->getValue<uint8_t>(0x387CAD),
+        g->getPtr<uint8_t>(0x380574)
+    };
 
-    // 2. Intermediate antialiasing
-    int v15;
-    if (v1 >= 2)
-    {
-        v15 = 2;
-    }
-    else
-    {
-        v1 += 4;
-        v15 = -2;
-    }
-    const int v17 = v6 - 1;
-    const int v18 = v5 - 1;
-    if (v0 + 7 < v18)
-    {
-        int v16 = v1 + 5;
-        const int v19 = v0 + 7;
-        uint8_t* v20 = &byte_1037C598[kFogLineByteSize * v19 - 2];
-        int v21 = ((v18 - v19 - 1) >> 1) + 1;
-        do
-        {
-            if (v16 < v17)
-            {
-                int v22 = v16;
-                do
-                {
-                    uint8_t a = v20[v22 - (kFogDoubleLineByteSize - 2)];
-                    uint8_t b = v20[v22 + 4];
-                    v22 += 4;
-                    v20[v22 - 2] = (v20[v22 + (kFogDoubleLineByteSize - 2)] + v20[v22 - 4] + b + a) >> 2;
-                } while (v22 < v17);
-            }
-            v16 += v15;
-            v15 = -v15;
-            v20 += kFogDoubleLineByteSize;
-        } while (--v21);
-    }
-
-    // 3. Horizontal solid antialiasing
-    const int v25 = v18 - 2;
-    const int v26 = (v54 & 1) + 8;
-    const int v27 = v17 - 2;
-    if (v26 <= v25)
-    {
-        uint8_t* lp_array_1 = &byte_1037C598[kFogLineByteSize * v26 + 1];
-        int v29 = ((v25 - v26) >> 1) + 1;
-        do
-        {
-            int start_i = ((v57 - 1) & 1) + 8;
-            for (int i = start_i; i <= v27; i += 2)
-            {
-                uint8_t v31 = lp_array_1[i - 2];
-                uint8_t v32 = lp_array_1[i];
-                lp_array_1[i - 1] = (v32 + v31) >> 1;
-            }
-            lp_array_1 += kFogDoubleLineByteSize;
-        } while (--v29);
-    }
-
-    // 4. Vertical solid antialiasing
-    const int v33 = ((v54 - 1) & 1) + 8;
-    if (v33 <= v25)
-    {
-        uint8_t* v34 = &byte_1037C598[kFogLineByteSize + kFogLineByteSize * v33];
-        int v35 = ((v25 - v33) >> 1) + 1;
-        do
-        {
-            for (int j = 8; j <= v27; ++j)
-            {
-                v34[j - kFogLineByteSize] = (v34[j] + v34[j - kFogDoubleLineByteSize]) >> 1;
-            }
-            v34 += kFogDoubleLineByteSize;
-        } while (--v35);
-    }
-
-    // 5. Update fogSprites
-    int v37 = len_sar_4 + 9;
-    if (v59 + 9 > 0)
-    {
-        int v38 = 0;
-        int v39 = -72;
-        int v55_local = v59 + 9;
-        do
-        {
-            if (v37 > 0)
-            {
-                int v40 = 0;
-                int v41 = -144;
-                do
-                {
-                    uint8_t* v42 = &cadPtr->fogSprites[v38].unk[v40];
-                    uint8_t v43 = byte_1037C598[v40 + v38 * kFogLineByteSize];
-                    if (v43 != *v42)
-                    {
-                        *v42 = v43;
-
-                        sub_10055E00(div16Ptr, 24, v41, v39, v41 + 31, v39 + 15);
-                        v37 = len_sar_4 + 9;
-                    }
-                    ++v40;
-                    v41 += 16;
-                } while (v40 < v37);
-            }
-            ++v38;
-            v39 += 8;
-            --v55_local;
-        } while (v55_local);
-    }
+    drawFogOnWorld(data);
 }
 
 void __declspec(noinline) __stdcall  GameDllHooks::sub_1006F120_hd_v1_2()
 {
     auto* const g = globals_;
 
-    uint8_t* byte_101C13FE = g->getPtr<uint8_t>(0x1C13FE);
-    uint8_t* byte_101C14FD = g->getPtr<uint8_t>(0x1C14FD);
-    uint8_t* byte_101C14FE = g->getPtr<uint8_t>(0x1C14FE);
-    uint8_t* byte_101C14FF = g->getPtr<uint8_t>(0x1C14FF);
-    uint8_t* byte_101C15FE = g->getPtr<uint8_t>(0x1C15FE);
-
-    const int map_length_probably = g->getValue<int>(0xC14EC);
-    const int map_width_probably = g->getValue<int>(0xC14F0);
-
-    const auto cadPtr = reinterpret_cast<ModuleStateLong*>(g->getValue<uintptr_t>(0x384474) - (offsetof(ModuleStateLong, windowRect) - offsetof(ModuleStateLong, fogSprites)));
-
-    const auto sub_10055E00 = g->getFn<void(__thiscall)(int*, int, int, int, int, int)>(0x55E00);
-
-    const int dword_1037E920 = g->getValue<int>(0x37E920);
-    const int dword_1037E924 = g->getValue<int>(0x37E924);
-    const int xRight = g->getValue<int>(0x37E91C);
-    const int yBottom = g->getValue<int>(0x37E918);
-
-    int* div16Ptr = g->getPtr<int>(0x3AD000);
-    const uint8_t byte_10383CB9 = g->getValue<uint8_t>(0x383CB9);
-    uint8_t* byte_1037C598 = g->getPtr<uint8_t>(0x3B2002);
-    std::memset(byte_1037C598, 0x80, sizeof(((ModuleStateLong*)0)->fogSprites));
-
-    const int v54 = dword_1037E920 >> 3;
-
-    const int tmp = (dword_1037E920 >> 3) - 3;
-    const int v0 = (tmp & 1);
-    int v1 = (1 - 2 * (v0 ^ (tmp >> 1)) - (dword_1037E924 >> 4)) & 3;
-    const int v2 = (dword_1037E924 + 16 * (v1 - 3)) >> 1;
-    const int v57 = dword_1037E924 >> 4;
-    const int v3 = 8 * v0 - 24;
-    const int v4 = dword_1037E920 + v3 + v2;
-    int v51 = (dword_1037E920 + v3 - v2) >> 5;
-
-    const int v59 = yBottom >> 3;
-    const int v5 = (yBottom >> 3) + 11;
-    const int len_sar_4 = xRight >> 4;
-    const int v6 = (xRight >> 4) + 11;
-    const int v7 = v0 + 5;
-    int v8 = v4 >> 5;
-    int v52 = v1;
-
-    // 1. Initialize buffer byte_1037C598
-    if (v7 <= v5)
+    FogDrawData data
     {
-        uint8_t* v9 = &byte_1037C598[kFogLineByteSize * v7];
-        unsigned int big_counta = ((v5 - v7) >> 1) + 1;
-        int v47 = v1 + 5;
-        do
-        {
-            int v10 = v47;
-            int v50 = v51;
-            int v11 = v8;
-            if (v47 <= v6)
-            {
-                int v12 = v51 << 8;
-                do
-                {
-                    if (v11 >= 4
-                        && v50 >= 4
-                        && v11 < map_length_probably - 4
-                        && v50 < map_width_probably - 4
-                        && (byte_10383CB9 & byte_101C14FE[v12 + v11]) != 0)
-                    {
-                        if (v9[v10] > 0x40u)
-                        {
-                            if ((byte_10383CB9 & byte_101C15FE[v12 + v11]) != 0)
-                            {
-                                if ((byte_10383CB9 & byte_101C14FF[v12 + v11]) != 0)
-                                {
-                                    if ((byte_10383CB9 & byte_101C13FE[v12 + v11]) != 0)
-                                    {
-                                        if ((byte_10383CB9 & byte_101C14FD[v12 + v11]) == 0)
-                                            v9[v10] = 64;
-                                    }
-                                    else
-                                    {
-                                        v9[v10] = 64;
-                                    }
-                                }
-                                else
-                                {
-                                    v9[v10] = 64;
-                                }
-                            }
-                            else
-                            {
-                                v9[v10] = 64;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        v9[v10] = 0;
-                    }
+        g->getPtr<uint8_t>(0x1C13FE),
+        g->getValue<int>(0xC14EC),
+        g->getValue<int>(0xC14F0),
+        reinterpret_cast<ModuleStateBase*>(g->getValue<uintptr_t>(0x384474) - (offsetof(ModuleStateBase, windowRect) - offsetof(ModuleStateBase, fogSprites))),
 
-                    v10 += 4;
-                    ++v11;
-                    --v50;
-                    v12 -= 256;
-                } while (v10 <= v6);
-            }
+        g->getValue<int>(0x37E920),
+        g->getValue<int>(0x37E924),
+        g->getValue<int>(0x37E91C),
+        g->getValue<int>(0x37E918),
 
-            if (v52 < 2)
-            {
-                v47 = v47 + 2;
-                ++v8;
-            }
-            else
-            {
-                v47 = v47 - 2;
-                ++v51;
-            }
-            v52 ^= 2;
-            v9 += kFogDoubleLineByteSize;
-            --big_counta;
-        } while (big_counta != 0);
-    }
+        g->getPtr<int>(0x3AD000),
+        g->getValue<uint8_t>(0x383CB9),
+        g->getPtr<uint8_t>(0x3B2002)
+    };
 
-    // 2. Intermediate antialiasing
-    int v15;
-    if (v1 >= 2)
-    {
-        v15 = 2;
-    }
-    else
-    {
-        v1 += 4;
-        v15 = -2;
-    }
-    const int v17 = v6 - 1;
-    const int v18 = v5 - 1;
-    if (v0 + 7 < v18)
-    {
-        int v16 = v1 + 5;
-        const int v19 = v0 + 7;
-        uint8_t* v20 = &byte_1037C598[kFogLineByteSize * v19 - 2];
-        int v21 = ((v18 - v19 - 1) >> 1) + 1;
-        do
-        {
-            if (v16 < v17)
-            {
-                int v22 = v16;
-                do
-                {
-                    uint8_t a = v20[v22 - (kFogDoubleLineByteSize - 2)];
-                    uint8_t b = v20[v22 + 4];
-                    v22 += 4;
-                    v20[v22 - 2] = (v20[v22 + (kFogDoubleLineByteSize - 2)] + v20[v22 - 4] + b + a) >> 2;
-                } while (v22 < v17);
-            }
-            v16 += v15;
-            v15 = -v15;
-            v20 += kFogDoubleLineByteSize;
-        } while (--v21);
-    }
-
-    // 3. Horizontal solid antialiasing
-    const int v25 = v18 - 2;
-    const int v26 = (v54 & 1) + 8;
-    const int v27 = v17 - 2;
-    if (v26 <= v25)
-    {
-        uint8_t* lp_array_1 = &byte_1037C598[kFogLineByteSize * v26 + 1];
-        int v29 = ((v25 - v26) >> 1) + 1;
-        do
-        {
-            int start_i = ((v57 - 1) & 1) + 8;
-            for (int i = start_i; i <= v27; i += 2)
-            {
-                uint8_t v31 = lp_array_1[i - 2];
-                uint8_t v32 = lp_array_1[i];
-                lp_array_1[i - 1] = (v32 + v31) >> 1;
-            }
-            lp_array_1 += kFogDoubleLineByteSize;
-        } while (--v29);
-    }
-
-    // 4. Vertical solid antialiasing
-    const int v33 = ((v54 - 1) & 1) + 8;
-    if (v33 <= v25)
-    {
-        uint8_t* v34 = &byte_1037C598[kFogLineByteSize + kFogLineByteSize * v33];
-        int v35 = ((v25 - v33) >> 1) + 1;
-        do
-        {
-            for (int j = 8; j <= v27; ++j)
-            {
-                v34[j - kFogLineByteSize] = (v34[j] + v34[j - kFogDoubleLineByteSize]) >> 1;
-            }
-            v34 += kFogDoubleLineByteSize;
-        } while (--v35);
-    }
-
-    // 5. Update fogSprites
-    int v37 = len_sar_4 + 9;
-    if (v59 + 9 > 0)
-    {
-        int v38 = 0;
-        int v39 = -72;
-        int v55_local = v59 + 9;
-        do
-        {
-            if (v37 > 0)
-            {
-                int v40 = 0;
-                int v41 = -144;
-                do
-                {
-                    uint8_t* v42 = &cadPtr->fogSprites[v38].unk[v40];
-                    uint8_t v43 = byte_1037C598[v40 + v38 * kFogLineByteSize];
-                    if (v43 != *v42)
-                    {
-                        *v42 = v43;
-
-                        sub_10055E00(div16Ptr, 24, v41, v39, v41 + 31, v39 + 15);
-                        v37 = len_sar_4 + 9;
-                    }
-                    ++v40;
-                    v41 += 16;
-                } while (v40 < v37);
-            }
-            ++v38;
-            v39 += 8;
-            --v55_local;
-        } while (v55_local);
-    }
+    drawFogOnWorld(data);
 }
 
 void __declspec(noinline) __stdcall  GameDllHooks::sub_1006F120_v1_0_ru()
 {
     auto* const g = globals_;
 
-    uint8_t* byte_101C13FE = g->getPtr<uint8_t>(0x1AEF4E);
-    uint8_t* byte_101C14FD = g->getPtr<uint8_t>(0x1AF04D);
-    uint8_t* byte_101C14FE = g->getPtr<uint8_t>(0x1AF04E);
-    uint8_t* byte_101C14FF = g->getPtr<uint8_t>(0x1AF04F);
-    uint8_t* byte_101C15FE = g->getPtr<uint8_t>(0x1AF14E);
-
-    const int map_length_probably = g->getValue<int>(0xAF03C);
-    const int map_width_probably = g->getValue<int>(0xAF040);
-
-    const auto cadPtr = reinterpret_cast<ModuleStateLong*>(g->getValue<uintptr_t>(0x370EE4) - (offsetof(ModuleStateLong, windowRect) - offsetof(ModuleStateLong, fogSprites)));
-
-    const auto sub_10055E00 = g->getFn<void(__thiscall)(int*, int, int, int, int, int)>(0x49CA0);
-
-    const int dword_1037E920 = g->getValue<int>(0x36C020);
-    const int dword_1037E924 = g->getValue<int>(0x36C024);
-    const int xRight = g->getValue<int>(0x36C01C);
-    const int yBottom = g->getValue<int>(0x36C018);
-
-    int* div16Ptr = g->getPtr<int>(0x33EE20);
-    const uint8_t byte_10383CB9 = g->getValue<uint8_t>(0x37099D);
-    uint8_t* byte_1037C598 = g->getPtr<uint8_t>(0x369C94);
-    std::memset(byte_1037C598, 0x80, sizeof(((ModuleStateLong*)0)->fogSprites));
-
-    const int v54 = dword_1037E920 >> 3;
-
-    const int tmp = (dword_1037E920 >> 3) - 3;
-    const int v0 = (tmp & 1);
-    int v1 = (1 - 2 * (v0 ^ (tmp >> 1)) - (dword_1037E924 >> 4)) & 3;
-    const int v2 = (dword_1037E924 + 16 * (v1 - 3)) >> 1;
-    const int v57 = dword_1037E924 >> 4;
-    const int v3 = 8 * v0 - 24;
-    const int v4 = dword_1037E920 + v3 + v2;
-    int v51 = (dword_1037E920 + v3 - v2) >> 5;
-
-    const int v59 = yBottom >> 3;
-    const int v5 = (yBottom >> 3) + 11;
-    const int len_sar_4 = xRight >> 4;
-    const int v6 = (xRight >> 4) + 11;
-    const int v7 = v0 + 5;
-    int v8 = v4 >> 5;
-    int v52 = v1;
-
-    // 1. Initialize buffer byte_1037C598
-    if (v7 <= v5)
+    FogDrawData data
     {
-        uint8_t* v9 = &byte_1037C598[kFogLineByteSize * v7];
-        unsigned int big_counta = ((v5 - v7) >> 1) + 1;
-        int v47 = v1 + 5;
-        do
-        {
-            int v10 = v47;
-            int v50 = v51;
-            int v11 = v8;
-            if (v47 <= v6)
-            {
-                int v12 = v51 << 8;
-                do
-                {
-                    if (v11 >= 4
-                        && v50 >= 4
-                        && v11 < map_length_probably - 4
-                        && v50 < map_width_probably - 4
-                        && (byte_10383CB9 & byte_101C14FE[v12 + v11]) != 0)
-                    {
-                        if (v9[v10] > 0x40u)
-                        {
-                            if ((byte_10383CB9 & byte_101C15FE[v12 + v11]) != 0)
-                            {
-                                if ((byte_10383CB9 & byte_101C14FF[v12 + v11]) != 0)
-                                {
-                                    if ((byte_10383CB9 & byte_101C13FE[v12 + v11]) != 0)
-                                    {
-                                        if ((byte_10383CB9 & byte_101C14FD[v12 + v11]) == 0)
-                                            v9[v10] = 64;
-                                    }
-                                    else
-                                    {
-                                        v9[v10] = 64;
-                                    }
-                                }
-                                else
-                                {
-                                    v9[v10] = 64;
-                                }
-                            }
-                            else
-                            {
-                                v9[v10] = 64;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        v9[v10] = 0;
-                    }
+        g->getPtr<uint8_t>(0x1AEF4E),
+        g->getValue<int>(0xAF03C),
+        g->getValue<int>(0xAF040),
+        reinterpret_cast<ModuleStateBase*>(g->getValue<uintptr_t>(0x370EE4) - (offsetof(ModuleStateBase, windowRect) - offsetof(ModuleStateBase, fogSprites))),
 
-                    v10 += 4;
-                    ++v11;
-                    --v50;
-                    v12 -= 256;
-                } while (v10 <= v6);
-            }
+        g->getValue<int>(0x36C020),
+        g->getValue<int>(0x36C024),
+        g->getValue<int>(0x36C01C),
+        g->getValue<int>(0x36C018),
 
-            if (v52 < 2)
-            {
-                v47 = v47 + 2;
-                ++v8;
-            }
-            else
-            {
-                v47 = v47 - 2;
-                ++v51;
-            }
-            v52 ^= 2;
-            v9 += kFogDoubleLineByteSize;
-            --big_counta;
-        } while (big_counta != 0);
-    }
+        g->getPtr<int>(0x33EE20),
+        g->getValue<uint8_t>(0x37099D),
+        g->getPtr<uint8_t>(0x369C94)
+    };
 
-    // 2. Intermediate antialiasing
-    int v15;
-    if (v1 >= 2)
-    {
-        v15 = 2;
-    }
-    else
-    {
-        v1 += 4;
-        v15 = -2;
-    }
-    const int v17 = v6 - 1;
-    const int v18 = v5 - 1;
-    if (v0 + 7 < v18)
-    {
-        int v16 = v1 + 5;
-        const int v19 = v0 + 7;
-        uint8_t* v20 = &byte_1037C598[kFogLineByteSize * v19 - 2];
-        int v21 = ((v18 - v19 - 1) >> 1) + 1;
-        do
-        {
-            if (v16 < v17)
-            {
-                int v22 = v16;
-                do
-                {
-                    uint8_t a = v20[v22 - (kFogDoubleLineByteSize - 2)];
-                    uint8_t b = v20[v22 + 4];
-                    v22 += 4;
-                    v20[v22 - 2] = (v20[v22 + (kFogDoubleLineByteSize - 2)] + v20[v22 - 4] + b + a) >> 2;
-                } while (v22 < v17);
-            }
-            v16 += v15;
-            v15 = -v15;
-            v20 += kFogDoubleLineByteSize;
-        } while (--v21);
-    }
-
-    // 3. Horizontal solid antialiasing
-    const int v25 = v18 - 2;
-    const int v26 = (v54 & 1) + 8;
-    const int v27 = v17 - 2;
-    if (v26 <= v25)
-    {
-        uint8_t* lp_array_1 = &byte_1037C598[kFogLineByteSize * v26 + 1];
-        int v29 = ((v25 - v26) >> 1) + 1;
-        do
-        {
-            int start_i = ((v57 - 1) & 1) + 8;
-            for (int i = start_i; i <= v27; i += 2)
-            {
-                uint8_t v31 = lp_array_1[i - 2];
-                uint8_t v32 = lp_array_1[i];
-                lp_array_1[i - 1] = (v32 + v31) >> 1;
-            }
-            lp_array_1 += kFogDoubleLineByteSize;
-        } while (--v29);
-    }
-
-    // 4. Vertical solid antialiasing
-    const int v33 = ((v54 - 1) & 1) + 8;
-    if (v33 <= v25)
-    {
-        uint8_t* v34 = &byte_1037C598[kFogLineByteSize + kFogLineByteSize * v33];
-        int v35 = ((v25 - v33) >> 1) + 1;
-        do
-        {
-            for (int j = 8; j <= v27; ++j)
-            {
-                v34[j - kFogLineByteSize] = (v34[j] + v34[j - kFogDoubleLineByteSize]) >> 1;
-            }
-            v34 += kFogDoubleLineByteSize;
-        } while (--v35);
-    }
-
-    // 5. Update fogSprites
-    int v37 = len_sar_4 + 9;
-    if (v59 + 9 > 0)
-    {
-        int v38 = 0;
-        int v39 = -72;
-        int v55_local = v59 + 9;
-        do
-        {
-            if (v37 > 0)
-            {
-                int v40 = 0;
-                int v41 = -144;
-                do
-                {
-                    uint8_t* v42 = &cadPtr->fogSprites[v38].unk[v40];
-                    uint8_t v43 = byte_1037C598[v40 + v38 * kFogLineByteSize];
-                    if (v43 != *v42)
-                    {
-                        *v42 = v43;
-
-                        sub_10055E00(div16Ptr, 24, v41, v39, v41 + 31, v39 + 15);
-                        v37 = len_sar_4 + 9;
-                    }
-                    ++v40;
-                    v41 += 16;
-                } while (v40 < v37);
-            }
-            ++v38;
-            v39 += 8;
-            --v55_local;
-        } while (v55_local);
-    }
+    drawFogOnWorld(data);
 }
 
 void __declspec(noinline) __stdcall  GameDllHooks::sub_1006F120_v1_2_en()
 {
     auto* const g = globals_;
 
-    uint8_t* byte_101C13FE = g->getPtr<uint8_t>(0x1C1436);
-    uint8_t* byte_101C14FD = g->getPtr<uint8_t>(0x1C1535);
-    uint8_t* byte_101C14FE = g->getPtr<uint8_t>(0x1C1536);
-    uint8_t* byte_101C14FF = g->getPtr<uint8_t>(0x1C1537);
-    uint8_t* byte_101C15FE = g->getPtr<uint8_t>(0x1C1636);
-
-    const int map_length_probably = g->getValue<int>(0xC1524);
-    const int map_width_probably = g->getValue<int>(0xC1528);
-
-    const auto cadPtr = reinterpret_cast<ModuleStateLong*>(g->getValue<uintptr_t>(0x3844FC) - (offsetof(ModuleStateLong, windowRect) - offsetof(ModuleStateLong, fogSprites)));
-
-    const auto sub_10055E00 = g->getFn<void(__thiscall)(int*, int, int, int, int, int)>(0x58080);
-
-    const int dword_1037E920 = g->getValue<int>(0x37E978);
-    const int dword_1037E924 = g->getValue<int>(0x37E97C);
-    const int xRight = g->getValue<int>(0x37E974);
-    const int yBottom = g->getValue<int>(0x37E970);
-
-    int* div16Ptr = g->getPtr<int>(0x351778);
-    const uint8_t byte_10383CB9 = g->getValue<uint8_t>(0x383D1D);
-    uint8_t* byte_1037C598 = g->getPtr<uint8_t>(0x37C5EC);
-    std::memset(byte_1037C598, 0x80, sizeof(((ModuleStateLong*)0)->fogSprites));
-
-    const int v54 = dword_1037E920 >> 3;
-
-    const int tmp = (dword_1037E920 >> 3) - 3;
-    const int v0 = (tmp & 1);
-    int v1 = (1 - 2 * (v0 ^ (tmp >> 1)) - (dword_1037E924 >> 4)) & 3;
-    const int v2 = (dword_1037E924 + 16 * (v1 - 3)) >> 1;
-    const int v57 = dword_1037E924 >> 4;
-    const int v3 = 8 * v0 - 24;
-    const int v4 = dword_1037E920 + v3 + v2;
-    int v51 = (dword_1037E920 + v3 - v2) >> 5;
-
-    const int v59 = yBottom >> 3;
-    const int v5 = (yBottom >> 3) + 11;
-    const int len_sar_4 = xRight >> 4;
-    const int v6 = (xRight >> 4) + 11;
-    const int v7 = v0 + 5;
-    int v8 = v4 >> 5;
-    int v52 = v1;
-
-    // 1. Initialize buffer byte_1037C598
-    if (v7 <= v5)
+    FogDrawData data
     {
-        uint8_t* v9 = &byte_1037C598[kFogLineByteSize * v7];
-        unsigned int big_counta = ((v5 - v7) >> 1) + 1;
-        int v47 = v1 + 5;
-        do
-        {
-            int v10 = v47;
-            int v50 = v51;
-            int v11 = v8;
-            if (v47 <= v6)
-            {
-                int v12 = v51 << 8;
-                do
-                {
-                    if (v11 >= 4
-                        && v50 >= 4
-                        && v11 < map_length_probably - 4
-                        && v50 < map_width_probably - 4
-                        && (byte_10383CB9 & byte_101C14FE[v12 + v11]) != 0)
-                    {
-                        if (v9[v10] > 0x40u)
-                        {
-                            if ((byte_10383CB9 & byte_101C15FE[v12 + v11]) != 0)
-                            {
-                                if ((byte_10383CB9 & byte_101C14FF[v12 + v11]) != 0)
-                                {
-                                    if ((byte_10383CB9 & byte_101C13FE[v12 + v11]) != 0)
-                                    {
-                                        if ((byte_10383CB9 & byte_101C14FD[v12 + v11]) == 0)
-                                            v9[v10] = 64;
-                                    }
-                                    else
-                                    {
-                                        v9[v10] = 64;
-                                    }
-                                }
-                                else
-                                {
-                                    v9[v10] = 64;
-                                }
-                            }
-                            else
-                            {
-                                v9[v10] = 64;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        v9[v10] = 0;
-                    }
+        g->getPtr<uint8_t>(0x1C1436),
+        g->getValue<int>(0xC1524),
+        g->getValue<int>(0xC1528),
+        reinterpret_cast<ModuleStateBase*>(g->getValue<uintptr_t>(0x3844FC) - (offsetof(ModuleStateBase, windowRect) - offsetof(ModuleStateBase, fogSprites))),
 
-                    v10 += 4;
-                    ++v11;
-                    --v50;
-                    v12 -= 256;
-                } while (v10 <= v6);
-            }
+        g->getValue<int>(0x37E978),
+        g->getValue<int>(0x37E97C),
+        g->getValue<int>(0x37E974),
+        g->getValue<int>(0x37E970),
 
-            if (v52 < 2)
-            {
-                v47 = v47 + 2;
-                ++v8;
-            }
-            else
-            {
-                v47 = v47 - 2;
-                ++v51;
-            }
-            v52 ^= 2;
-            v9 += kFogDoubleLineByteSize;
-            --big_counta;
-        } while (big_counta != 0);
-    }
+        g->getPtr<int>(0x351778),
+        g->getValue<uint8_t>(0x383D1D),
+        g->getPtr<uint8_t>(0x37C5EC)
+    };
 
-    // 2. Intermediate antialiasing
-    int v15;
-    if (v1 >= 2)
-    {
-        v15 = 2;
-    }
-    else
-    {
-        v1 += 4;
-        v15 = -2;
-    }
-    const int v17 = v6 - 1;
-    const int v18 = v5 - 1;
-    if (v0 + 7 < v18)
-    {
-        int v16 = v1 + 5;
-        const int v19 = v0 + 7;
-        uint8_t* v20 = &byte_1037C598[kFogLineByteSize * v19 - 2];
-        int v21 = ((v18 - v19 - 1) >> 1) + 1;
-        do
-        {
-            if (v16 < v17)
-            {
-                int v22 = v16;
-                do
-                {
-                    uint8_t a = v20[v22 - (kFogDoubleLineByteSize - 2)];
-                    uint8_t b = v20[v22 + 4];
-                    v22 += 4;
-                    v20[v22 - 2] = (v20[v22 + (kFogDoubleLineByteSize - 2)] + v20[v22 - 4] + b + a) >> 2;
-                } while (v22 < v17);
-            }
-            v16 += v15;
-            v15 = -v15;
-            v20 += kFogDoubleLineByteSize;
-        } while (--v21);
-    }
-
-    // 3. Horizontal solid antialiasing
-    const int v25 = v18 - 2;
-    const int v26 = (v54 & 1) + 8;
-    const int v27 = v17 - 2;
-    if (v26 <= v25)
-    {
-        uint8_t* lp_array_1 = &byte_1037C598[kFogLineByteSize * v26 + 1];
-        int v29 = ((v25 - v26) >> 1) + 1;
-        do
-        {
-            int start_i = ((v57 - 1) & 1) + 8;
-            for (int i = start_i; i <= v27; i += 2)
-            {
-                uint8_t v31 = lp_array_1[i - 2];
-                uint8_t v32 = lp_array_1[i];
-                lp_array_1[i - 1] = (v32 + v31) >> 1;
-            }
-            lp_array_1 += kFogDoubleLineByteSize;
-        } while (--v29);
-    }
-
-    // 4. Vertical solid antialiasing
-    const int v33 = ((v54 - 1) & 1) + 8;
-    if (v33 <= v25)
-    {
-        uint8_t* v34 = &byte_1037C598[kFogLineByteSize + kFogLineByteSize * v33];
-        int v35 = ((v25 - v33) >> 1) + 1;
-        do
-        {
-            for (int j = 8; j <= v27; ++j)
-            {
-                v34[j - kFogLineByteSize] = (v34[j] + v34[j - kFogDoubleLineByteSize]) >> 1;
-            }
-            v34 += kFogDoubleLineByteSize;
-        } while (--v35);
-    }
-
-    // 5. Update fogSprites
-    int v37 = len_sar_4 + 9;
-    if (v59 + 9 > 0)
-    {
-        int v38 = 0;
-        int v39 = -72;
-        int v55_local = v59 + 9;
-        do
-        {
-            if (v37 > 0)
-            {
-                int v40 = 0;
-                int v41 = -144;
-                do
-                {
-                    uint8_t* v42 = &cadPtr->fogSprites[v38].unk[v40];
-                    uint8_t v43 = byte_1037C598[v40 + v38 * kFogLineByteSize];
-                    if (v43 != *v42)
-                    {
-                        *v42 = v43;
-
-                        sub_10055E00(div16Ptr, 24, v41, v39, v41 + 31, v39 + 15);
-                        v37 = len_sar_4 + 9;
-                    }
-                    ++v40;
-                    v41 += 16;
-                } while (v40 < v37);
-            }
-            ++v38;
-            v39 += 8;
-            --v55_local;
-        } while (v55_local);
-    }
+    drawFogOnWorld(data);
 }
 
 void __declspec(noinline) __stdcall  GameDllHooks::sub_1006F120_hd_v1_1()
 {
     auto* const g = globals_;
 
-    uint8_t* byte_101C13FE = g->getPtr<uint8_t>(0x1AEF4E);
-    uint8_t* byte_101C14FD = g->getPtr<uint8_t>(0x1AF04D);
-    uint8_t* byte_101C14FE = g->getPtr<uint8_t>(0x1AF04E);
-    uint8_t* byte_101C14FF = g->getPtr<uint8_t>(0x1AF04F);
-    uint8_t* byte_101C15FE = g->getPtr<uint8_t>(0x1AF14E);
-
-    const int map_length_probably = g->getValue<int>(0xAF03C);
-    const int map_width_probably = g->getValue<int>(0xAF040);
-
-    const auto cadPtr = reinterpret_cast<ModuleStateLong*>(g->getValue<uintptr_t>(0x370EE4) - (offsetof(ModuleStateLong, windowRect) - offsetof(ModuleStateLong, fogSprites)));
-
-    const auto sub_10055E00 = g->getFn<void(__thiscall)(int*, int, int, int, int, int)>(0x49CA0);
-
-    const int dword_1037E920 = g->getValue<int>(0x36C020);
-    const int dword_1037E924 = g->getValue<int>(0x36C024);
-    const int xRight = g->getValue<int>(0x36C01C);
-    const int yBottom = g->getValue<int>(0x36C018);
-
-    int* div16Ptr = g->getPtr<int>(0x39A000);
-    const uint8_t byte_10383CB9 = g->getValue<uint8_t>(0x37099D);
-    uint8_t* byte_1037C598 = g->getPtr<uint8_t>(0x39F002);
-    std::memset(byte_1037C598, 0x80, sizeof(((ModuleStateLong*)0)->fogSprites));
-
-    const int v54 = dword_1037E920 >> 3;
-
-    const int tmp = (dword_1037E920 >> 3) - 3;
-    const int v0 = (tmp & 1);
-    int v1 = (1 - 2 * (v0 ^ (tmp >> 1)) - (dword_1037E924 >> 4)) & 3;
-    const int v2 = (dword_1037E924 + 16 * (v1 - 3)) >> 1;
-    const int v57 = dword_1037E924 >> 4;
-    const int v3 = 8 * v0 - 24;
-    const int v4 = dword_1037E920 + v3 + v2;
-    int v51 = (dword_1037E920 + v3 - v2) >> 5;
-
-    const int v59 = yBottom >> 3;
-    const int v5 = (yBottom >> 3) + 11;
-    const int len_sar_4 = xRight >> 4;
-    const int v6 = (xRight >> 4) + 11;
-    const int v7 = v0 + 5;
-    int v8 = v4 >> 5;
-    int v52 = v1;
-
-    // 1. Initialize buffer byte_1037C598
-    if (v7 <= v5)
+    FogDrawData data
     {
-        uint8_t* v9 = &byte_1037C598[kFogLineByteSize * v7];
-        unsigned int big_counta = ((v5 - v7) >> 1) + 1;
-        int v47 = v1 + 5;
-        do
-        {
-            int v10 = v47;
-            int v50 = v51;
-            int v11 = v8;
-            if (v47 <= v6)
-            {
-                int v12 = v51 << 8;
-                do
-                {
-                    if (v11 >= 4
-                        && v50 >= 4
-                        && v11 < map_length_probably - 4
-                        && v50 < map_width_probably - 4
-                        && (byte_10383CB9 & byte_101C14FE[v12 + v11]) != 0)
-                    {
-                        if (v9[v10] > 0x40u)
-                        {
-                            if ((byte_10383CB9 & byte_101C15FE[v12 + v11]) != 0)
-                            {
-                                if ((byte_10383CB9 & byte_101C14FF[v12 + v11]) != 0)
-                                {
-                                    if ((byte_10383CB9 & byte_101C13FE[v12 + v11]) != 0)
-                                    {
-                                        if ((byte_10383CB9 & byte_101C14FD[v12 + v11]) == 0)
-                                            v9[v10] = 64;
-                                    }
-                                    else
-                                    {
-                                        v9[v10] = 64;
-                                    }
-                                }
-                                else
-                                {
-                                    v9[v10] = 64;
-                                }
-                            }
-                            else
-                            {
-                                v9[v10] = 64;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        v9[v10] = 0;
-                    }
+        g->getPtr<uint8_t>(0x1AEF4E),
+        g->getValue<int>(0xAF03C),
+        g->getValue<int>(0xAF040),
+        reinterpret_cast<ModuleStateBase*>(g->getValue<uintptr_t>(0x370EE4) - (offsetof(ModuleStateBase, windowRect) - offsetof(ModuleStateBase, fogSprites))),
 
-                    v10 += 4;
-                    ++v11;
-                    --v50;
-                    v12 -= 256;
-                } while (v10 <= v6);
-            }
+        g->getValue<int>(0x36C020),
+        g->getValue<int>(0x36C024),
+        g->getValue<int>(0x36C01C),
+        g->getValue<int>(0x36C018),
 
-            if (v52 < 2)
-            {
-                v47 = v47 + 2;
-                ++v8;
-            }
-            else
-            {
-                v47 = v47 - 2;
-                ++v51;
-            }
-            v52 ^= 2;
-            v9 += kFogDoubleLineByteSize;
-            --big_counta;
-        } while (big_counta != 0);
-    }
+        g->getPtr<int>(0x39A000),
+        g->getValue<uint8_t>(0x37099D),
+        g->getPtr<uint8_t>(0x39F002)
+    };
 
-    // 2. Intermediate antialiasing
-    int v15;
-    if (v1 >= 2)
-    {
-        v15 = 2;
-    }
-    else
-    {
-        v1 += 4;
-        v15 = -2;
-    }
-    const int v17 = v6 - 1;
-    const int v18 = v5 - 1;
-    if (v0 + 7 < v18)
-    {
-        int v16 = v1 + 5;
-        const int v19 = v0 + 7;
-        uint8_t* v20 = &byte_1037C598[kFogLineByteSize * v19 - 2];
-        int v21 = ((v18 - v19 - 1) >> 1) + 1;
-        do
-        {
-            if (v16 < v17)
-            {
-                int v22 = v16;
-                do
-                {
-                    uint8_t a = v20[v22 - (kFogDoubleLineByteSize - 2)];
-                    uint8_t b = v20[v22 + 4];
-                    v22 += 4;
-                    v20[v22 - 2] = (v20[v22 + (kFogDoubleLineByteSize - 2)] + v20[v22 - 4] + b + a) >> 2;
-                } while (v22 < v17);
-            }
-            v16 += v15;
-            v15 = -v15;
-            v20 += kFogDoubleLineByteSize;
-        } while (--v21);
-    }
-
-    // 3. Horizontal solid antialiasing
-    const int v25 = v18 - 2;
-    const int v26 = (v54 & 1) + 8;
-    const int v27 = v17 - 2;
-    if (v26 <= v25)
-    {
-        uint8_t* lp_array_1 = &byte_1037C598[kFogLineByteSize * v26 + 1];
-        int v29 = ((v25 - v26) >> 1) + 1;
-        do
-        {
-            int start_i = ((v57 - 1) & 1) + 8;
-            for (int i = start_i; i <= v27; i += 2)
-            {
-                uint8_t v31 = lp_array_1[i - 2];
-                uint8_t v32 = lp_array_1[i];
-                lp_array_1[i - 1] = (v32 + v31) >> 1;
-            }
-            lp_array_1 += kFogDoubleLineByteSize;
-        } while (--v29);
-    }
-
-    // 4. Vertical solid antialiasing
-    const int v33 = ((v54 - 1) & 1) + 8;
-    if (v33 <= v25)
-    {
-        uint8_t* v34 = &byte_1037C598[kFogLineByteSize + kFogLineByteSize * v33];
-        int v35 = ((v25 - v33) >> 1) + 1;
-        do
-        {
-            for (int j = 8; j <= v27; ++j)
-            {
-                v34[j - kFogLineByteSize] = (v34[j] + v34[j - kFogDoubleLineByteSize]) >> 1;
-            }
-            v34 += kFogDoubleLineByteSize;
-        } while (--v35);
-    }
-
-    // 5. Update fogSprites
-    int v37 = len_sar_4 + 9;
-    if (v59 + 9 > 0)
-    {
-        int v38 = 0;
-        int v39 = -72;
-        int v55_local = v59 + 9;
-        do
-        {
-            if (v37 > 0)
-            {
-                int v40 = 0;
-                int v41 = -144;
-                do
-                {
-                    uint8_t* v42 = &cadPtr->fogSprites[v38].unk[v40];
-                    uint8_t v43 = byte_1037C598[v40 + v38 * kFogLineByteSize];
-                    if (v43 != *v42)
-                    {
-                        *v42 = v43;
-
-                        sub_10055E00(div16Ptr, 24, v41, v39, v41 + 31, v39 + 15);
-                        v37 = len_sar_4 + 9;
-                    }
-                    ++v40;
-                    v41 += 16;
-                } while (v40 < v37);
-            }
-            ++v38;
-            v39 += 8;
-            --v55_local;
-        } while (v55_local);
-    }
+    drawFogOnWorld(data);
 }
 
 void __declspec(noinline) __stdcall  GameDllHooks::sub_1006F120_v2_2()
 {
     auto* const g = globals_;
 
-    uint8_t* byte_101C13FE = g->getPtr<uint8_t>(0x64219C);
-    uint8_t* byte_101C14FD = g->getPtr<uint8_t>(0x64239B);
-    uint8_t* byte_101C14FE = g->getPtr<uint8_t>(0x64239C);
-    uint8_t* byte_101C14FF = g->getPtr<uint8_t>(0x64239D);
-    uint8_t* byte_101C15FE = g->getPtr<uint8_t>(0x64259C);
-
-    const int map_length = g->getValue<int>(0x142384);
-    const int map_width = g->getValue<int>(0x142388);
-
-    const auto cadPtr = reinterpret_cast<ModuleStateLong*>(g->getValue<uintptr_t>(0x106F6E4) - (offsetof(ModuleStateLong, windowRect) - offsetof(ModuleStateLong, fogSprites)));
-
-    const auto sub_10055E00 = g->getFn<void(__thiscall)(int*, int, int, int, int, int)>(0x79360);
-
-    const int dword_1037E920 = g->getValue<int>(0x106A130);
-    const int dword_1037E924 = g->getValue<int>(0x106A134);
-    const int xRight = g->getValue<int>(0x106A12C);
-    const int yBottom = g->getValue<int>(0x106A128);
-
-    int* div16Ptr = g->getPtr<int>(0x103CF10);
-    const uint8_t byte_10383CB9 = g->getValue<uint8_t>(0x106F069);
-    uint8_t* fogBuf = g->getPtr<uint8_t>(0x1067DA4);
-    std::memset(fogBuf, 0x80, sizeof(((ModuleStateLong*)0)->fogSprites));
-
-    const int v54 = dword_1037E920 >> 3;
-    const int v59 = dword_1037E924 >> 4;
-
-    const int tmp = v54 - 3;
-    const int v0 = tmp & 1;
-    int v1 = (1 - 2 * (v0 ^ (tmp >> 1)) - (dword_1037E924 >> 4)) & 3;
-
-    const int v2 = (dword_1037E924 + 16 * (v1 - 3)) >> 1;
-    const int v3 = 8 * v0 - 24;
-
-    int v51 = (dword_1037E920 + v3 - v2) >> 5;
-    int v8 = (dword_1037E920 + v3 + v2) >> 5;
-
-    const int len_sar_4 = xRight >> 4;
-    const int v6 = (xRight >> 4) + 11;
-
-    const int v4 = yBottom >> 3;
-    const int v5 = (yBottom >> 3) + 11;
-
-    const int v7 = v0 + 5;
-
-    int v52 = v1;
-
-    // 1. Initialize buffer byte_1037C598
-    if (v7 <= v5)
+    FogDrawData data
     {
-        uint8_t* row = &fogBuf[kFogLineByteSize * v7];
-        unsigned int count = (v5 - v7 + 2) >> 1;
-        int x = v1 + 5;
+        g->getPtr<uint8_t>(0x64219C),
+        g->getValue<int>(0x142384),
+        g->getValue<int>(0x142388),
+        reinterpret_cast<ModuleStateBase*>(g->getValue<uintptr_t>(0x106F6E4) - (offsetof(ModuleStateBase, windowRect) - offsetof(ModuleStateBase, fogSprites))),
 
-        do
-        {
-            int tx = x;
-            int ty = v51;
-            int mx = v8;
-            if (x <= v6)
-            {
-                int idx = v51 << 9;
-                do
-                {
-                    if (mx >= 4
-                        && ty >= 4
-                        && mx < map_length - 4
-                        && ty < map_width - 4
-                        && (byte_10383CB9 & byte_101C14FE[idx + mx]) != 0)
-                    {
-                        if (row[tx] > 0x40u)
-                        {
-                            if (!(byte_10383CB9 & byte_101C15FE[idx + mx]) ||
-                                !(byte_10383CB9 & byte_101C14FF[idx + mx]) ||
-                                !(byte_10383CB9 & byte_101C13FE[idx + mx]) ||
-                                !(byte_10383CB9 & byte_101C14FD[idx + mx]))
-                            {
-                                row[tx] = 64;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        row[tx] = 0;
-                    }
+        g->getValue<int>(0x106A130),
+        g->getValue<int>(0x106A134),
+        g->getValue<int>(0x106A12C),
+        g->getValue<int>(0x106A128),
 
-                    tx += 4;
-                    ++mx;
-                    --ty;
-                    idx -= 512;
-                } while (tx <= v6);
-            }
+        g->getPtr<int>(0x103CF10),
+        g->getValue<uint8_t>(0x106F069),
+        g->getPtr<uint8_t>(0x1067DA4)
+    };
 
-            if (v52 < 2)
-            {
-                x += 2;
-                ++v8;
-            }
-            else
-            {
-                x -= 2;
-                ++v51;
-            }
-            v52 ^= 2;
-            row += kFogDoubleLineByteSize;
-        } while (--count);
-    }
-
-    // 2. Vertical antialiasing
-    int step;
-    if (v1 >= 2)
-    {
-        step = 2;
-    }
-    else
-    {
-        v1 += 4;
-        step = -2;
-    }
-
-    const int xEnd = v6 - 1;
-    const int yEnd = v5 - 1;
-    if (v0 + 7 < yEnd)
-    {
-        int x = v1 + 5;
-
-        const int v19 = v0 + 7;
-        uint8_t* p = &fogBuf[kFogLineByteSize * v19 - 2];
-        int cnt = (yEnd - v19 + 1) >> 1;
-
-        do
-        {
-            for (int xi = x; xi < xEnd;)
-            {
-                uint8_t a = p[xi - (kFogDoubleLineByteSize - 2)];
-                uint8_t b = p[xi + 4];
-                xi += 4;
-                p[xi - 2] = (p[xi + (kFogDoubleLineByteSize - 2)] + p[xi - 4] + b + a) >> 2;
-            }
-
-            x += step;
-            step = -step;
-            p += kFogDoubleLineByteSize;
-        } while (--cnt);
-    }
-
-    // 3. Horizontal antialiasing
-    const int yMax = yEnd - 2;
-    const int xMax = xEnd - 2;
-    const int startY = (v54 & 1) + 8;
-
-    if (startY <= yMax)
-    {
-        uint8_t* p = &fogBuf[kFogLineByteSize * startY + 1];
-        int cnt = (yMax - startY + 2) >> 1;
-        do
-        {
-            int start_i = ((v59 - 1) & 1) + 8;
-            for (int i = start_i; i <= xMax; i += 2)
-            {
-                p[i - 1] = (p[i] + p[i - 2]) >> 1;
-            }
-
-            p += kFogDoubleLineByteSize;
-        } while (--cnt);
-    }
-
-    // 4. Vertical smoothing
-    const int startY2 = ((v54 - 1) & 1) + 8;
-    if (startY2 <= yMax)
-    {
-        uint8_t* p = &fogBuf[kFogLineByteSize * (startY2 + 1)];
-        int cnt = (yMax - startY2 + 2) >> 1;
-
-        do
-        {
-            for (int j = 8; j <= xMax; ++j)
-            {
-                p[j - kFogLineByteSize] = (p[j] + p[j - kFogDoubleLineByteSize]) >> 1;
-            }
-            p += kFogDoubleLineByteSize;
-        } while (--cnt);
-    }
-
-    // 5. Update fogSprites
-    int width = len_sar_4 + 9;
-    if (v4 + 9 > 0)
-    {
-        int y = 0;
-        int screenY = -72;
-        int rows = v4 + 9;
-        do
-        {
-            if (width > 0)
-            {
-                int x = 0;
-                int screenX = -144;
-                do
-                {
-                    const uint8_t v = fogBuf[x + y * kFogLineByteSize];
-                    uint8_t* dst = &cadPtr->fogSprites[y].unk[x];
-                    if (v != *dst)
-                    {
-                        *dst = v;
-
-                        sub_10055E00(div16Ptr, 24, screenX, screenY, screenX + 31, screenY + 15);
-                        width = len_sar_4 + 9;
-                    }
-                    ++x;
-                    screenX += 16;
-                } while (x < width);
-            }
-            ++y;
-            screenY += 8;
-        } while (--rows);
-    }
+    drawFogOnWorld_v2(data);
 }
 
 void __declspec(noinline) __stdcall  GameDllHooks::sub_1006F120_rw()
 {
     auto* const g = globals_;
 
-    uint8_t* byte_101C13FE = g->getPtr<uint8_t>(0x6311B4);
-    uint8_t* byte_101C14FD = g->getPtr<uint8_t>(0x6313B3);
-    uint8_t* byte_101C14FE = g->getPtr<uint8_t>(0x6313B4);
-    uint8_t* byte_101C14FF = g->getPtr<uint8_t>(0x6313B5);
-    uint8_t* byte_101C15FE = g->getPtr<uint8_t>(0x6315B4);
-
-    const int map_length = g->getValue<int>(0x13139C);
-    const int map_width = g->getValue<int>(0x1313A0);
-
-    const auto cadPtr = reinterpret_cast<ModuleStateLong*>(g->getValue<uintptr_t>(0x10AEABC) - (offsetof(ModuleStateLong, windowRect) - offsetof(ModuleStateLong, fogSprites)));
-
-    const auto sub_10055E00 = g->getFn<void(__thiscall)(int*, int, int, int, int, int)>(0x789C0);
-
-    const int mapPosY = g->getValue<int>(0x10A9508);
-    const int mapPosX = g->getValue<int>(0x10A950C);
-    const int screenWidth = g->getValue<int>(0x10A9504);
-    const int screenHeight = g->getValue<int>(0x10A9500);
-
-    int* div16Ptr = g->getPtr<int>(0x107C2E8);
-    const uint8_t fogMask = g->getValue<uint8_t>(0x10AE441);
-    uint8_t* fogBuf = g->getPtr<uint8_t>(0x10A717C);
-    std::memset(fogBuf, 0x80, sizeof(((ModuleStateLong*)0)->fogSprites));
-
-    const int v54 = mapPosY >> 3;
-    const int v59 = mapPosX >> 4;
-
-    const int tmp = v54 - 3;
-    const int v0 = tmp & 1;
-    int v1 = (1 - 2 * (v0 ^ (tmp >> 1)) - (mapPosX >> 4)) & 3;
-
-    const int v2 = (mapPosX + 16 * (v1 - 3)) >> 1;
-    const int v3 = 8 * v0 - 24;
-
-    int v51 = (mapPosY + v3 - v2) >> 5;
-    int v8 = (mapPosY + v3 + v2) >> 5;
-
-    const int len_sar_4 = screenWidth >> 4;
-    const int v6 = (screenWidth >> 4) + 11;
-
-    const int v4 = screenHeight >> 3;
-    const int v5 = (screenHeight >> 3) + 11;
-
-    const int v7 = v0 + 5;
-
-    int v52 = v1;
-
-    // 1. Initialize buffer byte_1037C598
-    if (v7 <= v5)
+    FogDrawData data
     {
-        uint8_t* row = &fogBuf[kFogLineByteSize * v7];
-        unsigned int count = (v5 - v7 + 2) >> 1;
-        int x = v1 + 5;
+        g->getPtr<uint8_t>(0x6311B4),
+        g->getValue<int>(0x13139C),
+        g->getValue<int>(0x1313A0),
+        reinterpret_cast<ModuleStateBase*>(g->getValue<uintptr_t>(0x10AEABC) - (offsetof(ModuleStateBase, windowRect) - offsetof(ModuleStateBase, fogSprites))),
 
-        do
-        {
-            int tx = x;
-            int ty = v51;
-            int mx = v8;
-            if (x <= v6)
-            {
-                int idx = v51 << 9;
-                do
-                {
-                    if (mx >= 4
-                        && ty >= 4
-                        && mx < map_length - 4
-                        && ty < map_width - 4
-                        && (fogMask & byte_101C14FE[idx + mx]) != 0)
-                    {
-                        if (row[tx] > 0x40u)
-                        {
-                            if (!(fogMask & byte_101C15FE[idx + mx]) ||
-                                !(fogMask & byte_101C14FF[idx + mx]) ||
-                                !(fogMask & byte_101C13FE[idx + mx]) ||
-                                !(fogMask & byte_101C14FD[idx + mx]))
-                            {
-                                row[tx] = 64;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        row[tx] = 0;
-                    }
+        g->getValue<int>(0x10A9508),
+        g->getValue<int>(0x10A950C),
+        g->getValue<int>(0x10A9504),
+        g->getValue<int>(0x10A9500),
 
-                    tx += 4;
-                    ++mx;
-                    --ty;
-                    idx -= 512;
-                } while (tx <= v6);
-            }
+        g->getPtr<int>(0x107C2E8),
+        g->getValue<uint8_t>(0x10AE441),
+        g->getPtr<uint8_t>(0x10A717C)
+    };
 
-            if (v52 < 2)
-            {
-                x += 2;
-                ++v8;
-            }
-            else
-            {
-                x -= 2;
-                ++v51;
-            }
-            v52 ^= 2;
-            row += kFogDoubleLineByteSize;
-        } while (--count);
-    }
-
-    // 2. Vertical antialiasing
-    int step;
-    if (v1 >= 2)
-    {
-        step = 2;
-    }
-    else
-    {
-        v1 += 4;
-        step = -2;
-    }
-
-    const int xEnd = v6 - 1;
-    const int yEnd = v5 - 1;
-    if (v0 + 7 < yEnd)
-    {
-        int x = v1 + 5;
-
-        const int v19 = v0 + 7;
-        uint8_t* p = &fogBuf[kFogLineByteSize * v19 - 2];
-        int cnt = (yEnd - v19 + 1) >> 1;
-
-        do
-        {
-            for (int xi = x; xi < xEnd;)
-            {
-                uint8_t a = p[xi - (kFogDoubleLineByteSize - 2)];
-                uint8_t b = p[xi + 4];
-                xi += 4;
-                p[xi - 2] = (p[xi + (kFogDoubleLineByteSize - 2)] + p[xi - 4] + b + a) >> 2;
-            }
-
-            x += step;
-            step = -step;
-            p += kFogDoubleLineByteSize;
-        } while (--cnt);
-    }
-
-    // 3. Horizontal antialiasing
-    const int yMax = yEnd - 2;
-    const int xMax = xEnd - 2;
-    const int startY = (v54 & 1) + 8;
-
-    if (startY <= yMax)
-    {
-        uint8_t* p = &fogBuf[kFogLineByteSize * startY + 1];
-        int cnt = (yMax - startY + 2) >> 1;
-        do
-        {
-            int start_i = ((v59 - 1) & 1) + 8;
-            for (int i = start_i; i <= xMax; i += 2)
-            {
-                p[i - 1] = (p[i] + p[i - 2]) >> 1;
-            }
-
-            p += kFogDoubleLineByteSize;
-        } while (--cnt);
-    }
-
-    // 4. Vertical smoothing
-    const int startY2 = ((v54 - 1) & 1) + 8;
-    if (startY2 <= yMax)
-    {
-        uint8_t* p = &fogBuf[kFogLineByteSize * (startY2 + 1)];
-        int cnt = (yMax - startY2 + 2) >> 1;
-
-        do
-        {
-            for (int j = 8; j <= xMax; ++j)
-            {
-                p[j - kFogLineByteSize] = (p[j] + p[j - kFogDoubleLineByteSize]) >> 1;
-            }
-            p += kFogDoubleLineByteSize;
-        } while (--cnt);
-    }
-
-    // 5. Update fogSprites
-    int width = len_sar_4 + 9;
-    if (v4 + 9 > 0)
-    {
-        int y = 0;
-        int screenY = -72;
-        int rows = v4 + 9;
-        do
-        {
-            if (width > 0)
-            {
-                int x = 0;
-                int screenX = -144;
-                do
-                {
-                    const uint8_t v = fogBuf[x + y * kFogLineByteSize];
-                    uint8_t* dst = &cadPtr->fogSprites[y].unk[x];
-                    if (v != *dst)
-                    {
-                        *dst = v;
-
-                        sub_10055E00(div16Ptr, 24, screenX, screenY, screenX + 31, screenY + 15);
-                        width = len_sar_4 + 9;
-                    }
-                    ++x;
-                    screenX += 16;
-                } while (x < width);
-            }
-            ++y;
-            screenY += 8;
-        } while (--rows);
-    }
+    drawFogOnWorld_v2(data);
 }
 
 void __declspec(noinline) __stdcall  GameDllHooks::sub_1006F120_bg()
 {
     auto* const g = globals_;
 
-    uint8_t* fog0 = g->getPtr<uint8_t>(0x631364);
-    uint8_t* fog1 = g->getPtr<uint8_t>(0x631563);
-    uint8_t* fog2 = g->getPtr<uint8_t>(0x631564);
-    uint8_t* fog3 = g->getPtr<uint8_t>(0x631565);
-    uint8_t* fog4 = g->getPtr<uint8_t>(0x631764);
-
-    const int mapHeight = g->getValue<int>(0x13154C);
-    const int mapWidth = g->getValue<int>(0x131550);
-
-    const auto cadPtr = reinterpret_cast<ModuleStateLong*>(g->getValue<uintptr_t>(0x109EC6C) - (offsetof(ModuleStateLong, windowRect) - offsetof(ModuleStateLong, fogSprites)));
-
-    const auto sub_10055E00 = g->getFn<void(__thiscall)(int*, int, int, int, int, int)>(0x789A0);
-
-    const int mapPosY = g->getValue<int>(0x10996B8);
-    const int mapPosX = g->getValue<int>(0x10996BC);
-    const int screenWidth = g->getValue<int>(0x10996B4);
-    const int screenHeight = g->getValue<int>(0x10996B0);
-
-    int* div16Ptr = g->getPtr<int>(0x106C498);
-    const uint8_t fogMask = g->getValue<uint8_t>(0x109E5F1);
-    uint8_t* fogBuf = g->getPtr<uint8_t>(0x109732C);
-    std::memset(fogBuf, 0x80, sizeof(((ModuleStateLong*)0)->fogSprites));
-
-    const int v54 = mapPosY >> 3;
-    const int v59 = mapPosX >> 4;
-
-    const int tmp = v54 - 3;
-    const int v0 = tmp & 1;
-    int v1 = (1 - 2 * (v0 ^ (tmp >> 1)) - (mapPosX >> 4)) & 3;
-
-    const int v2 = (mapPosX + 16 * (v1 - 3)) >> 1;
-    const int v3 = 8 * v0 - 24;
-
-    int v51 = (mapPosY + v3 - v2) >> 5;
-    int v8 = (mapPosY + v3 + v2) >> 5;
-
-    const int len_sar_4 = screenWidth >> 4;
-    const int v6 = (screenWidth >> 4) + 11;
-
-    const int v4 = screenHeight >> 3;
-    const int v5 = (screenHeight >> 3) + 11;
-
-    const int v7 = v0 + 5;
-
-    int v52 = v1;
-
-    // 1. Initialize buffer byte_1037C598
-    if (v7 <= v5)
+    FogDrawData data
     {
-        uint8_t* row = &fogBuf[kFogLineByteSize * v7];
-        unsigned int count = (v5 - v7 + 2) >> 1;
-        int x = v1 + 5;
+        g->getPtr<uint8_t>(0x631364),
+        g->getValue<int>(0x13154C),
+        g->getValue<int>(0x131550),
+        reinterpret_cast<ModuleStateBase*>(g->getValue<uintptr_t>(0x109EC6C) - (offsetof(ModuleStateBase, windowRect) - offsetof(ModuleStateBase, fogSprites))),
 
-        do
-        {
-            int tx = x;
-            int ty = v51;
-            int mx = v8;
-            if (x <= v6)
-            {
-                int idx = v51 << 9;
-                do
-                {
-                    if (mx >= 4
-                        && ty >= 4
-                        && mx < mapHeight - 4
-                        && ty < mapWidth - 4
-                        && (fogMask & fog2[idx + mx]) != 0)
-                    {
-                        if (row[tx] > 0x40u)
-                        {
-                            if (!(fogMask & fog4[idx + mx]) ||
-                                !(fogMask & fog3[idx + mx]) ||
-                                !(fogMask & fog0[idx + mx]) ||
-                                !(fogMask & fog1[idx + mx]))
-                            {
-                                row[tx] = 64;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        row[tx] = 0;
-                    }
+        g->getValue<int>(0x10996B8),
+        g->getValue<int>(0x10996BC),
+        g->getValue<int>(0x10996B4),
+        g->getValue<int>(0x10996B0),
 
-                    tx += 4;
-                    ++mx;
-                    --ty;
-                    idx -= 512;
-                } while (tx <= v6);
-            }
+        g->getPtr<int>(0x106C498),
+        g->getValue<uint8_t>(0x109E5F1),
+        g->getPtr<uint8_t>(0x109732C)
+    };
 
-            if (v52 < 2)
-            {
-                x += 2;
-                ++v8;
-            }
-            else
-            {
-                x -= 2;
-                ++v51;
-            }
-            v52 ^= 2;
-            row += kFogDoubleLineByteSize;
-        } while (--count);
-    }
-
-    // 2. Vertical antialiasing
-    int step;
-    if (v1 >= 2)
-    {
-        step = 2;
-    }
-    else
-    {
-        v1 += 4;
-        step = -2;
-    }
-
-    const int xEnd = v6 - 1;
-    const int yEnd = v5 - 1;
-    if (v0 + 7 < yEnd)
-    {
-        int x = v1 + 5;
-
-        const int v19 = v0 + 7;
-        uint8_t* p = &fogBuf[kFogLineByteSize * v19 - 2];
-        int cnt = (yEnd - v19 + 1) >> 1;
-
-        do
-        {
-            for (int xi = x; xi < xEnd;)
-            {
-                uint8_t a = p[xi - (kFogDoubleLineByteSize - 2)];
-                uint8_t b = p[xi + 4];
-                xi += 4;
-                p[xi - 2] = (p[xi + (kFogDoubleLineByteSize - 2)] + p[xi - 4] + b + a) >> 2;
-            }
-
-            x += step;
-            step = -step;
-            p += kFogDoubleLineByteSize;
-        } while (--cnt);
-    }
-
-    // 3. Horizontal antialiasing
-    const int yMax = yEnd - 2;
-    const int xMax = xEnd - 2;
-    const int startY = (v54 & 1) + 8;
-
-    if (startY <= yMax)
-    {
-        uint8_t* p = &fogBuf[kFogLineByteSize * startY + 1];
-        int cnt = (yMax - startY + 2) >> 1;
-        do
-        {
-            int start_i = ((v59 - 1) & 1) + 8;
-            for (int i = start_i; i <= xMax; i += 2)
-            {
-                p[i - 1] = (p[i] + p[i - 2]) >> 1;
-            }
-
-            p += kFogDoubleLineByteSize;
-        } while (--cnt);
-    }
-
-    // 4. Vertical smoothing
-    const int startY2 = ((v54 - 1) & 1) + 8;
-    if (startY2 <= yMax)
-    {
-        uint8_t* p = &fogBuf[kFogLineByteSize * (startY2 + 1)];
-        int cnt = (yMax - startY2 + 2) >> 1;
-
-        do
-        {
-            for (int j = 8; j <= xMax; ++j)
-            {
-                p[j - kFogLineByteSize] = (p[j] + p[j - kFogDoubleLineByteSize]) >> 1;
-            }
-            p += kFogDoubleLineByteSize;
-        } while (--cnt);
-    }
-
-    // 5. Update fogSprites
-    int width = len_sar_4 + 9;
-    if (v4 + 9 > 0)
-    {
-        int y = 0;
-        int screenY = -72;
-        int rows = v4 + 9;
-        do
-        {
-            if (width > 0)
-            {
-                int x = 0;
-                int screenX = -144;
-                do
-                {
-                    const uint8_t v = fogBuf[x + y * kFogLineByteSize];
-                    uint8_t* dst = &cadPtr->fogSprites[y].unk[x];
-                    if (v != *dst)
-                    {
-                        *dst = v;
-
-                        sub_10055E00(div16Ptr, 24, screenX, screenY, screenX + 31, screenY + 15);
-                        width = len_sar_4 + 9;
-                    }
-                    ++x;
-                    screenX += 16;
-                } while (x < width);
-            }
-            ++y;
-            screenY += 8;
-        } while (--rows);
-    }
+    drawFogOnWorld_v2(data);
 }
+
 
 void __declspec(noinline) __cdecl GameDllHooks::sub_10099E01(void* mem)
 {
@@ -4726,816 +2568,864 @@ bool GameDllHooks::is_valid_ptr(void* p)
     return true;
 }
 
-void __declspec(noinline) __fastcall GameDllHooks::sub_100AC870(MapData* self)
+
+void __declspec(noinline) __fastcall GameDllHooks::sub_100AC870(MapData* mapData)
 {
-    if (self->isMapLoaded)
-        return;
+    auto* const g = globals_;
 
-    auto* const global = globals_;
-
-    const auto initHandle = global->getFn<void(__thiscall)(HANDLE*)>(0xCBF50);
-    const auto createFile = global->getFn<bool(__thiscall)(HANDLE*, const char*, int)>(0xCC010);
-    const auto getFileSize = global->getFn<uint32_t(__thiscall)(HANDLE*)>(0xCC240);
-    const auto readFile = global->getFn<void(__thiscall)(HANDLE*, void*, uint32_t)>(0xCC150);
-    const auto closeHandle = global->getFn<void(__thiscall)(HANDLE*)>(0xCC130);
-    const auto deinitHandle = global->getFn<void(__thiscall)(HANDLE*)>(0xCBF80);
-
-    const char* aXchngTogameMis = global->getPtr<char>(0xFC714);
-    const auto cadPtr = reinterpret_cast<ModuleStateLong*>(global->getValue<uintptr_t>(0x106F6E4) - (offsetof(ModuleStateLong, windowRect) - offsetof(ModuleStateLong, fogSprites)));
-
-    HANDLE miniMapFileHandle[2];
-    initHandle(miniMapFileHandle);
-
-    int readStatus = 0;
-
-    if (createFile(miniMapFileHandle, aXchngTogameMis, 0) && getFileSize(miniMapFileHandle))
+    ReadStrategicMapData data
     {
-        int mapWidth = 0, mapHeight = 0, mapExtraSize = 0;
+        g->getFn<void(__thiscall)(HANDLE*)>(0xCBF50),
+        g->getFn<bool(__thiscall)(HANDLE*, const char*, int)>(0xCC010),
+        g->getFn<uint32_t(__thiscall)(HANDLE*)>(0xCC240),
+        g->getFn<void(__thiscall)(HANDLE*, void*, uint32_t)>(0xCC150),
+        g->getFn<void(__thiscall)(HANDLE*)>(0xCC130),
+        g->getFn<void(__thiscall)(HANDLE*)>(0xCBF80),
+        g->getPtr<char>(0xFC714),
+        reinterpret_cast<ModuleStateBase*>(g->getValue<uintptr_t>(0x106F6E4) - (offsetof(ModuleStateBase, windowRect) - offsetof(ModuleStateBase, fogSprites)))
+    };
 
-        readFile(miniMapFileHandle, &mapWidth, sizeof(mapWidth));
-        readFile(miniMapFileHandle, &mapHeight, sizeof(mapHeight));
-        readFile(miniMapFileHandle, &mapExtraSize, sizeof(mapExtraSize));
-
-        unsigned int mapBufferSize = 3 * mapWidth * mapHeight;  // 3 channels for pixel
-        uint8_t* mapBuffer = new uint8_t[mapBufferSize];
-        readFile(miniMapFileHandle, mapBuffer, mapBufferSize);
-
-        closeHandle(miniMapFileHandle);
-
-        const int screenWidth = cadPtr->surface.width;
-        const int screenHeight = cadPtr->surface.height;
-        self->screenSurfaceWidth = screenWidth;
-        self->screenSurfaceHeight = screenHeight;
-
-        double scaleX = static_cast<double>(mapWidth) / screenWidth;
-
-        // Calculate real strategic map height
-        int miniMapScreenHeight = static_cast<int>(mapHeight / scaleX);
-        if (miniMapScreenHeight > screenHeight)
-        {
-            // If height is too big, calculate it via Y
-            scaleX = static_cast<double>(mapHeight) / screenHeight;
-            miniMapScreenHeight = screenHeight;
-        }
-        double scaleY = static_cast<double>(mapHeight) / miniMapScreenHeight;
-
-        // Vertical offset from border
-        self->verticalCenterMargin = (screenHeight - miniMapScreenHeight) / 2;
-
-        // Buffer for future usage
-        self->srcBuf = new uint8_t[3 * screenWidth * screenHeight];
-        memset(self->srcBuf, 0, 3 * screenWidth * screenHeight);
-
-        // Bilinear interpolation
-        auto bilinearInterpolate = [&](double mapXScaled, double mapYScaled, uint8_t& rOut, uint8_t& gOut, uint8_t& bOut)
-            {
-                int mapX = std::min(static_cast<int>(mapXScaled), mapWidth - 2);
-                int mapY = std::min(static_cast<int>(mapYScaled), mapHeight - 2);
-
-                double fracX = mapXScaled - mapX;
-                double fracY = mapYScaled - mapY;
-                double invFracX = 1.0 - fracX;
-                double invFracY = 1.0 - fracY;
-
-                int idxTL = 3 * (mapY * mapWidth + mapX);
-                int idxTR = idxTL + 3;
-                int idxBL = 3 * ((mapY + 1) * mapWidth + mapX);
-                int idxBR = idxBL + 3;
-
-                double rTL = mapBuffer[idxTL + 0], gTL = mapBuffer[idxTL + 1], bTL = mapBuffer[idxTL + 2];
-                double rTR = mapBuffer[idxTR + 0], gTR = mapBuffer[idxTR + 1], bTR = mapBuffer[idxTR + 2];
-                double rBL = mapBuffer[idxBL + 0], gBL = mapBuffer[idxBL + 1], bBL = mapBuffer[idxBL + 2];
-                double rBR = mapBuffer[idxBR + 0], gBR = mapBuffer[idxBR + 1], bBR = mapBuffer[idxBR + 2];
-
-                double wTL = invFracX * invFracY;
-                double wTR = fracX * invFracY;
-                double wBL = invFracX * fracY;
-                double wBR = fracX * fracY;
-
-                rOut = static_cast<uint8_t>(rTL * wTL + rTR * wTR + rBL * wBL + rBR * wBR);
-                gOut = static_cast<uint8_t>(gTL * wTL + gTR * wTR + gBL * wBL + gBR * wBR);
-                bOut = static_cast<uint8_t>(bTL * wTL + bTR * wTR + bBL * wBL + bBR * wBR);
-            };
-
-        for (int screenY = 0; screenY < miniMapScreenHeight; ++screenY)
-        {
-            int targetY = screenY + self->verticalCenterMargin;
-            for (int screenX = 0; screenX < screenWidth; ++screenX)
-            {
-                double mapXScaled = screenX * scaleX;
-                double mapYScaled = screenY * scaleY;
-
-                uint8_t r, g, b;
-                bilinearInterpolate(mapXScaled, mapYScaled, r, g, b);
-
-                int screenIndex = screenX + targetY * screenWidth;
-                self->srcBuf[3 * screenIndex + 0] = r;
-                self->srcBuf[3 * screenIndex + 1] = g;
-                self->srcBuf[3 * screenIndex + 2] = b;
-            }
-        }
-
-        delete[] mapBuffer;
-
-        self->isMapLoaded = 1;
-    }
-
-    readStatus = -1;
-    deinitHandle(miniMapFileHandle);
+    readStrategicMapFromFile(mapData, data);
 }
 
-void __declspec(noinline) __fastcall GameDllHooks::sub_100A8AF0_v2_3(MapData* self)
+void __declspec(noinline) __fastcall GameDllHooks::sub_100A8AF0_v2_3(MapData* mapData)
 {
-    if (self->isMapLoaded)
-        return;
+    auto* const g = globals_;
 
-    auto* const global = globals_;
-
-    const auto initHandle = global->getFn<void(__thiscall)(HANDLE*)>(0xC6320);
-    const auto createFile = global->getFn<bool(__thiscall)(HANDLE*, const char*, int)>(0xC63E0);
-    const auto getFileSize = global->getFn<uint32_t(__thiscall)(HANDLE*)>(0xC6610);
-    const auto readFile = global->getFn<void(__thiscall)(HANDLE*, void*, uint32_t)>(0xC6520);
-    const auto closeHandle = global->getFn<void(__thiscall)(HANDLE*)>(0xC6500);
-    const auto deinitHandle = global->getFn<void(__thiscall)(HANDLE*)>(0xC6350);
-
-    const char* aXchngTogameMis = global->getPtr<char>(0xEC908);
-    const auto cadPtr = reinterpret_cast<ModuleStateLong*>(global->getValue<uintptr_t>(0x10AEABC) - (offsetof(ModuleStateLong, windowRect) - offsetof(ModuleStateLong, fogSprites)));
-
-    HANDLE miniMapFileHandle[2];
-    initHandle(miniMapFileHandle);
-
-    int readStatus = 0;
-
-    if (createFile(miniMapFileHandle, aXchngTogameMis, 0) && getFileSize(miniMapFileHandle))
+    ReadStrategicMapData data
     {
-        int mapWidth = 0, mapHeight = 0, mapExtraSize = 0;
+        g->getFn<void(__thiscall)(HANDLE*)>(0xC6320),
+        g->getFn<bool(__thiscall)(HANDLE*, const char*, int)>(0xC63E0),
+        g->getFn<uint32_t(__thiscall)(HANDLE*)>(0xC6610),
+        g->getFn<void(__thiscall)(HANDLE*, void*, uint32_t)>(0xC6520),
+        g->getFn<void(__thiscall)(HANDLE*)>(0xC6500),
+        g->getFn<void(__thiscall)(HANDLE*)>(0xC6350),
+        g->getPtr<char>(0xEC908),
+        reinterpret_cast<ModuleStateBase*>(g->getValue<uintptr_t>(0x10AEABC) - (offsetof(ModuleStateBase, windowRect) - offsetof(ModuleStateBase, fogSprites)))
+    };
 
-        readFile(miniMapFileHandle, &mapWidth, sizeof(mapWidth));
-        readFile(miniMapFileHandle, &mapHeight, sizeof(mapHeight));
-        readFile(miniMapFileHandle, &mapExtraSize, sizeof(mapExtraSize));
-
-        unsigned int mapBufferSize = 3 * mapWidth * mapHeight;  // 3 channels for pixel
-        uint8_t* mapBuffer = new uint8_t[mapBufferSize];
-        readFile(miniMapFileHandle, mapBuffer, mapBufferSize);
-
-        closeHandle(miniMapFileHandle);
-
-        const int screenWidth = cadPtr->surface.width;
-        const int screenHeight = cadPtr->surface.height;
-        self->screenSurfaceWidth = screenWidth;
-        self->screenSurfaceHeight = screenHeight;
-
-        double scaleX = static_cast<double>(mapWidth) / screenWidth;
-
-        // Calculate real strategic map height
-        int miniMapScreenHeight = static_cast<int>(mapHeight / scaleX);
-        if (miniMapScreenHeight > screenHeight)
-        {
-            // If height is too big, calculate it via Y
-            scaleX = static_cast<double>(mapHeight) / screenHeight;
-            miniMapScreenHeight = screenHeight;
-        }
-        double scaleY = static_cast<double>(mapHeight) / miniMapScreenHeight;
-
-        // Vertical offset from border
-        self->verticalCenterMargin = (screenHeight - miniMapScreenHeight) / 2;
-
-        // Buffer for future usage
-        self->srcBuf = new uint8_t[3 * screenWidth * screenHeight];
-        memset(self->srcBuf, 0, 3 * screenWidth * screenHeight);
-
-        // Bilinear interpolation
-        auto bilinearInterpolate = [&](double mapXScaled, double mapYScaled, uint8_t& rOut, uint8_t& gOut, uint8_t& bOut)
-            {
-                int mapX = std::min(static_cast<int>(mapXScaled), mapWidth - 2);
-                int mapY = std::min(static_cast<int>(mapYScaled), mapHeight - 2);
-
-                double fracX = mapXScaled - mapX;
-                double fracY = mapYScaled - mapY;
-                double invFracX = 1.0 - fracX;
-                double invFracY = 1.0 - fracY;
-
-                int idxTL = 3 * (mapY * mapWidth + mapX);
-                int idxTR = idxTL + 3;
-                int idxBL = 3 * ((mapY + 1) * mapWidth + mapX);
-                int idxBR = idxBL + 3;
-
-                double rTL = mapBuffer[idxTL + 0], gTL = mapBuffer[idxTL + 1], bTL = mapBuffer[idxTL + 2];
-                double rTR = mapBuffer[idxTR + 0], gTR = mapBuffer[idxTR + 1], bTR = mapBuffer[idxTR + 2];
-                double rBL = mapBuffer[idxBL + 0], gBL = mapBuffer[idxBL + 1], bBL = mapBuffer[idxBL + 2];
-                double rBR = mapBuffer[idxBR + 0], gBR = mapBuffer[idxBR + 1], bBR = mapBuffer[idxBR + 2];
-
-                double wTL = invFracX * invFracY;
-                double wTR = fracX * invFracY;
-                double wBL = invFracX * fracY;
-                double wBR = fracX * fracY;
-
-                rOut = static_cast<uint8_t>(rTL * wTL + rTR * wTR + rBL * wBL + rBR * wBR);
-                gOut = static_cast<uint8_t>(gTL * wTL + gTR * wTR + gBL * wBL + gBR * wBR);
-                bOut = static_cast<uint8_t>(bTL * wTL + bTR * wTR + bBL * wBL + bBR * wBR);
-            };
-
-        for (int screenY = 0; screenY < miniMapScreenHeight; ++screenY)
-        {
-            int targetY = screenY + self->verticalCenterMargin;
-            for (int screenX = 0; screenX < screenWidth; ++screenX)
-            {
-                double mapXScaled = screenX * scaleX;
-                double mapYScaled = screenY * scaleY;
-
-                uint8_t r, g, b;
-                bilinearInterpolate(mapXScaled, mapYScaled, r, g, b);
-
-                int screenIndex = screenX + targetY * screenWidth;
-                self->srcBuf[3 * screenIndex + 0] = r;
-                self->srcBuf[3 * screenIndex + 1] = g;
-                self->srcBuf[3 * screenIndex + 2] = b;
-            }
-        }
-
-        delete[] mapBuffer;
-
-        self->isMapLoaded = 1;
-    }
-
-    readStatus = -1;
-    deinitHandle(miniMapFileHandle);
+    readStrategicMapFromFile(mapData, data);
 }
 
-void __declspec(noinline) __fastcall GameDllHooks::sub_100A8AF0_v2_4(MapData* self)
+void __declspec(noinline) __fastcall GameDllHooks::sub_100A8AF0_v2_4(MapData* mapData)
 {
-    if (self->isMapLoaded)
-        return;
+    auto* const g = globals_;
 
-    auto* const global = globals_;
-
-    const auto initHandle = global->getFn<void(__thiscall)(HANDLE*)>(0xC6330);
-    const auto createFile = global->getFn<bool(__thiscall)(HANDLE*, const char*, int)>(0xC63F0);
-    const auto getFileSize = global->getFn<uint32_t(__thiscall)(HANDLE*)>(0xC6620);
-    const auto readFile = global->getFn<void(__thiscall)(HANDLE*, void*, uint32_t)>(0xC6530);
-    const auto closeHandle = global->getFn<void(__thiscall)(HANDLE*)>(0xC6510);
-    const auto deinitHandle = global->getFn<void(__thiscall)(HANDLE*)>(0xC6360);
-
-    const char* aXchngTogameMis = global->getPtr<char>(0xEC908);
-    const auto cadPtr = reinterpret_cast<ModuleStateLong*>(global->getValue<uintptr_t>(0x10AEABC) - (offsetof(ModuleStateLong, windowRect) - offsetof(ModuleStateLong, fogSprites)));
-
-    HANDLE miniMapFileHandle[2];
-    initHandle(miniMapFileHandle);
-
-    int readStatus = 0;
-
-    if (createFile(miniMapFileHandle, aXchngTogameMis, 0) && getFileSize(miniMapFileHandle))
+    ReadStrategicMapData data
     {
-        int mapWidth = 0, mapHeight = 0, mapExtraSize = 0;
+        g->getFn<void(__thiscall)(HANDLE*)>(0xC6330),
+        g->getFn<bool(__thiscall)(HANDLE*, const char*, int)>(0xC63F0),
+        g->getFn<uint32_t(__thiscall)(HANDLE*)>(0xC6620),
+        g->getFn<void(__thiscall)(HANDLE*, void*, uint32_t)>(0xC6530),
+        g->getFn<void(__thiscall)(HANDLE*)>(0xC6510),
+        g->getFn<void(__thiscall)(HANDLE*)>(0xC6360),
+        g->getPtr<char>(0xEC908),
+        reinterpret_cast<ModuleStateBase*>(g->getValue<uintptr_t>(0x10AEABC) - (offsetof(ModuleStateBase, windowRect) - offsetof(ModuleStateBase, fogSprites)))
+    };
 
-        readFile(miniMapFileHandle, &mapWidth, sizeof(mapWidth));
-        readFile(miniMapFileHandle, &mapHeight, sizeof(mapHeight));
-        readFile(miniMapFileHandle, &mapExtraSize, sizeof(mapExtraSize));
-
-        unsigned int mapBufferSize = 3 * mapWidth * mapHeight;  // 3 channels for pixel
-        uint8_t* mapBuffer = new uint8_t[mapBufferSize];
-        readFile(miniMapFileHandle, mapBuffer, mapBufferSize);
-
-        closeHandle(miniMapFileHandle);
-
-        const int screenWidth = cadPtr->surface.width;
-        const int screenHeight = cadPtr->surface.height;
-        self->screenSurfaceWidth = screenWidth;
-        self->screenSurfaceHeight = screenHeight;
-
-        double scaleX = static_cast<double>(mapWidth) / screenWidth;
-
-        // Calculate real strategic map height
-        int miniMapScreenHeight = static_cast<int>(mapHeight / scaleX);
-        if (miniMapScreenHeight > screenHeight)
-        {
-            // If height is too big, calculate it via Y
-            scaleX = static_cast<double>(mapHeight) / screenHeight;
-            miniMapScreenHeight = screenHeight;
-        }
-        double scaleY = static_cast<double>(mapHeight) / miniMapScreenHeight;
-
-        // Vertical offset from border
-        self->verticalCenterMargin = (screenHeight - miniMapScreenHeight) / 2;
-
-        // Buffer for future usage
-        self->srcBuf = new uint8_t[3 * screenWidth * screenHeight];
-        memset(self->srcBuf, 0, 3 * screenWidth * screenHeight);
-
-        // Bilinear interpolation
-        auto bilinearInterpolate = [&](double mapXScaled, double mapYScaled, uint8_t& rOut, uint8_t& gOut, uint8_t& bOut)
-            {
-                int mapX = std::min(static_cast<int>(mapXScaled), mapWidth - 2);
-                int mapY = std::min(static_cast<int>(mapYScaled), mapHeight - 2);
-
-                double fracX = mapXScaled - mapX;
-                double fracY = mapYScaled - mapY;
-                double invFracX = 1.0 - fracX;
-                double invFracY = 1.0 - fracY;
-
-                int idxTL = 3 * (mapY * mapWidth + mapX);
-                int idxTR = idxTL + 3;
-                int idxBL = 3 * ((mapY + 1) * mapWidth + mapX);
-                int idxBR = idxBL + 3;
-
-                double rTL = mapBuffer[idxTL + 0], gTL = mapBuffer[idxTL + 1], bTL = mapBuffer[idxTL + 2];
-                double rTR = mapBuffer[idxTR + 0], gTR = mapBuffer[idxTR + 1], bTR = mapBuffer[idxTR + 2];
-                double rBL = mapBuffer[idxBL + 0], gBL = mapBuffer[idxBL + 1], bBL = mapBuffer[idxBL + 2];
-                double rBR = mapBuffer[idxBR + 0], gBR = mapBuffer[idxBR + 1], bBR = mapBuffer[idxBR + 2];
-
-                double wTL = invFracX * invFracY;
-                double wTR = fracX * invFracY;
-                double wBL = invFracX * fracY;
-                double wBR = fracX * fracY;
-
-                rOut = static_cast<uint8_t>(rTL * wTL + rTR * wTR + rBL * wBL + rBR * wBR);
-                gOut = static_cast<uint8_t>(gTL * wTL + gTR * wTR + gBL * wBL + gBR * wBR);
-                bOut = static_cast<uint8_t>(bTL * wTL + bTR * wTR + bBL * wBL + bBR * wBR);
-            };
-
-        for (int screenY = 0; screenY < miniMapScreenHeight; ++screenY)
-        {
-            int targetY = screenY + self->verticalCenterMargin;
-            for (int screenX = 0; screenX < screenWidth; ++screenX)
-            {
-                double mapXScaled = screenX * scaleX;
-                double mapYScaled = screenY * scaleY;
-
-                uint8_t r, g, b;
-                bilinearInterpolate(mapXScaled, mapYScaled, r, g, b);
-
-                int screenIndex = screenX + targetY * screenWidth;
-                self->srcBuf[3 * screenIndex + 0] = r;
-                self->srcBuf[3 * screenIndex + 1] = g;
-                self->srcBuf[3 * screenIndex + 2] = b;
-            }
-        }
-
-        delete[] mapBuffer;
-
-        self->isMapLoaded = 1;
-    }
-
-    readStatus = -1;
-    deinitHandle(miniMapFileHandle);
+    readStrategicMapFromFile(mapData, data);
 }
 
-void __declspec(noinline) __fastcall GameDllHooks::sub_100A8AF0_bg(MapData* self)
+void __declspec(noinline) __fastcall GameDllHooks::sub_100A8AF0_bg(MapData* mapData)
 {
-    if (self->isMapLoaded)
-        return;
+    auto* const g = globals_;
 
-    auto* const global = globals_;
-
-    const auto initHandle = global->getFn<void(__thiscall)(HANDLE*)>(0xC6180);
-    const auto createFile = global->getFn<bool(__thiscall)(HANDLE*, const char*, int)>(0xC6240);
-    const auto getFileSize = global->getFn<uint32_t(__thiscall)(HANDLE*)>(0xC6470);
-    const auto readFile = global->getFn<void(__thiscall)(HANDLE*, void*, uint32_t)>(0xC6380);
-    const auto closeHandle = global->getFn<void(__thiscall)(HANDLE*)>(0xC6360);
-    const auto deinitHandle = global->getFn<void(__thiscall)(HANDLE*)>(0xC61B0);
-
-    const char* aXchngTogameMis = global->getPtr<char>(0xECB28);
-    const auto cadPtr = reinterpret_cast<ModuleStateLong*>(global->getValue<uintptr_t>(0x109EC6C) - (offsetof(ModuleStateLong, windowRect) - offsetof(ModuleStateLong, fogSprites)));
-
-    HANDLE miniMapFileHandle[2];
-    initHandle(miniMapFileHandle);
-
-    int readStatus = 0;
-
-    if (createFile(miniMapFileHandle, aXchngTogameMis, 0) && getFileSize(miniMapFileHandle))
+    ReadStrategicMapData data
     {
-        int mapWidth = 0, mapHeight = 0, mapExtraSize = 0;
+        g->getFn<void(__thiscall)(HANDLE*)>(0xC6180),
+        g->getFn<bool(__thiscall)(HANDLE*, const char*, int)>(0xC6240),
+        g->getFn<uint32_t(__thiscall)(HANDLE*)>(0xC6470),
+        g->getFn<void(__thiscall)(HANDLE*, void*, uint32_t)>(0xC6380),
+        g->getFn<void(__thiscall)(HANDLE*)>(0xC6360),
+        g->getFn<void(__thiscall)(HANDLE*)>(0xC61B0),
+        g->getPtr<char>(0xECB28),
+        reinterpret_cast<ModuleStateBase*>(g->getValue<uintptr_t>(0x109EC6C) - (offsetof(ModuleStateBase, windowRect) - offsetof(ModuleStateBase, fogSprites)))
+    };
 
-        readFile(miniMapFileHandle, &mapWidth, sizeof(mapWidth));
-        readFile(miniMapFileHandle, &mapHeight, sizeof(mapHeight));
-        readFile(miniMapFileHandle, &mapExtraSize, sizeof(mapExtraSize));
-
-        unsigned int mapBufferSize = 3 * mapWidth * mapHeight;  // 3 channels for pixel
-        uint8_t* mapBuffer = new uint8_t[mapBufferSize];
-        readFile(miniMapFileHandle, mapBuffer, mapBufferSize);
-
-        closeHandle(miniMapFileHandle);
-
-        const int screenWidth = cadPtr->surface.width;
-        const int screenHeight = cadPtr->surface.height;
-        self->screenSurfaceWidth = screenWidth;
-        self->screenSurfaceHeight = screenHeight;
-
-        double scaleX = static_cast<double>(mapWidth) / screenWidth;
-
-        // Calculate real strategic map height
-        int miniMapScreenHeight = static_cast<int>(mapHeight / scaleX);
-        if (miniMapScreenHeight > screenHeight)
-        {
-            // If height is too big, calculate it via Y
-            scaleX = static_cast<double>(mapHeight) / screenHeight;
-            miniMapScreenHeight = screenHeight;
-        }
-        double scaleY = static_cast<double>(mapHeight) / miniMapScreenHeight;
-
-        // Vertical offset from border
-        self->verticalCenterMargin = (screenHeight - miniMapScreenHeight) / 2;
-
-        // Buffer for future usage
-        self->srcBuf = new uint8_t[3 * screenWidth * screenHeight];
-        memset(self->srcBuf, 0, 3 * screenWidth * screenHeight);
-
-        // Bilinear interpolation
-        auto bilinearInterpolate = [&](double mapXScaled, double mapYScaled, uint8_t& rOut, uint8_t& gOut, uint8_t& bOut)
-            {
-                int mapX = std::min(static_cast<int>(mapXScaled), mapWidth - 2);
-                int mapY = std::min(static_cast<int>(mapYScaled), mapHeight - 2);
-
-                double fracX = mapXScaled - mapX;
-                double fracY = mapYScaled - mapY;
-                double invFracX = 1.0 - fracX;
-                double invFracY = 1.0 - fracY;
-
-                int idxTL = 3 * (mapY * mapWidth + mapX);
-                int idxTR = idxTL + 3;
-                int idxBL = 3 * ((mapY + 1) * mapWidth + mapX);
-                int idxBR = idxBL + 3;
-
-                double rTL = mapBuffer[idxTL + 0], gTL = mapBuffer[idxTL + 1], bTL = mapBuffer[idxTL + 2];
-                double rTR = mapBuffer[idxTR + 0], gTR = mapBuffer[idxTR + 1], bTR = mapBuffer[idxTR + 2];
-                double rBL = mapBuffer[idxBL + 0], gBL = mapBuffer[idxBL + 1], bBL = mapBuffer[idxBL + 2];
-                double rBR = mapBuffer[idxBR + 0], gBR = mapBuffer[idxBR + 1], bBR = mapBuffer[idxBR + 2];
-
-                double wTL = invFracX * invFracY;
-                double wTR = fracX * invFracY;
-                double wBL = invFracX * fracY;
-                double wBR = fracX * fracY;
-
-                rOut = static_cast<uint8_t>(rTL * wTL + rTR * wTR + rBL * wBL + rBR * wBR);
-                gOut = static_cast<uint8_t>(gTL * wTL + gTR * wTR + gBL * wBL + gBR * wBR);
-                bOut = static_cast<uint8_t>(bTL * wTL + bTR * wTR + bBL * wBL + bBR * wBR);
-            };
-
-        for (int screenY = 0; screenY < miniMapScreenHeight; ++screenY)
-        {
-            int targetY = screenY + self->verticalCenterMargin;
-            for (int screenX = 0; screenX < screenWidth; ++screenX)
-            {
-                double mapXScaled = screenX * scaleX;
-                double mapYScaled = screenY * scaleY;
-
-                uint8_t r, g, b;
-                bilinearInterpolate(mapXScaled, mapYScaled, r, g, b);
-
-                int screenIndex = screenX + targetY * screenWidth;
-                self->srcBuf[3 * screenIndex + 0] = r;
-                self->srcBuf[3 * screenIndex + 1] = g;
-                self->srcBuf[3 * screenIndex + 2] = b;
-            }
-        }
-
-        delete[] mapBuffer;
-
-        self->isMapLoaded = 1;
-    }
-
-    readStatus = -1;
-    deinitHandle(miniMapFileHandle);
+    readStrategicMapFromFile(mapData, data);
 }
+
 
 void __declspec(noinline) __fastcall GameDllHooks::sub_100ACDE0(MapData* mapData)
 {
     auto* const g = globals_;
 
-    const auto sub_10097740 = g->getFn<void(__cdecl)(int*, int, int, int, int)>(0x97740);
-    const auto sub_100A1110 = g->getFn<void(__thiscall)(MapData*)>(0xA1110);
-    const auto drawHorLine = g->getFn<void(__thiscall)(MapData*, int, int, int, int16_t)>(0xAC790);
-    const auto drawVertLine = g->getFn<void(__thiscall)(MapData*, int, int, int, int16_t)>(0xAC800);
-    const auto drawPlaneCrosses = g->getFn<void(__stdcall)(int, int, int)>(0xC3420);
-
-    UnitData* dword_1010F258 = g->getValue<UnitData*>(0x10F258);
-    const int16_t fogBorderColor = g->getValue<int16_t>(0x106F12E);
-
-    const int mapHeight = g->getValue<int>(0x142384);
-    const int mapWidth = g->getValue<int>(0x142388);
-    const int mapPosY = g->getValue<int>(0x106A130);
-    const int mapPosX = g->getValue<int>(0x106A134);
-
-    const uint8_t fogMask = g->getValue<uint8_t>(0x106F069);
-
-    const uint8_t* fog0 = g->getPtr<uint8_t>(0x64219C);
-    const uint8_t* fog1 = g->getPtr<uint8_t>(0x64239B);
-    const uint8_t* fog2 = g->getPtr<uint8_t>(0x64239C);
-    const uint8_t* fog3 = g->getPtr<uint8_t>(0x64239D);
-    const uint8_t* fog4 = g->getPtr<uint8_t>(0x64259C);
-
-    const auto cadPtr = reinterpret_cast<ModuleStateLong*>(g->getValue<uintptr_t>(0x106F6E4) - (offsetof(ModuleStateLong, windowRect) - offsetof(ModuleStateLong, fogSprites)));
-
-    sub_100A1110(mapData);
-
-    int clip[4];
-    sub_10097740(clip, mapData->clipLeft, mapData->clipTop, mapData->clipRight, mapData->clipBottom);
-
-    clip[2] += 16;
-    clip[3] += 8;
-
-    // Calculate fog
-    const double scale = 64.0 * mapHeight / mapData->screenSurfaceWidth;
-    const double scale2 = scale / 32.0;
-
-    const auto getFogCount = [&](int index) -> int {
-        int cnt = 0;
-        if (fog4[index] & fogMask) ++cnt;
-        if (fog0[index] & fogMask) ++cnt;
-        if (fog3[index] & fogMask) ++cnt;
-        if (fog1[index] & fogMask) ++cnt;
-        return cnt;
-        };
-
-    const int halfScreenW = mapData->screenSurfaceWidth / 2;
-    const int screenH = mapData->screenSurfaceHeight;
-
-    for (int y = clip[1]; y < clip[3]; ++y)
+    FogOnStrategicMap data
     {
-        for (int x = clip[0]; x < clip[2]; ++x)
-        {
-            const int dx = (x - halfScreenW) >> 1;
-            const int mapY1 = static_cast<int>((y + dx - mapData->verticalCenterMargin) * scale2);
-            const int mapY2 = static_cast<int>((y - dx - mapData->verticalCenterMargin) * scale2);
+        g->getFn<void(__cdecl)(int*, int, int, int, int)>(0x97740),
+        g->getFn<void(__thiscall)(MapData*)>(0xA1110),
+        g->getFn<void(__thiscall)(MapData*, int, int, int, int16_t)>(0xAC790),
+        g->getFn<void(__thiscall)(MapData*, int, int, int, int16_t)>(0xAC800),
+        g->getFn<void(__stdcall)(int, int, int)>(0xC3420),
+        g->getValue<UnitData*>(0x10F258),
+        105,
+        g->getValue<int16_t>(0x106F12E),
+        g->getValue<int>(0x142384),
+        g->getValue<int>(0x142388),
+        g->getValue<int>(0x106A130),
+        g->getValue<int>(0x106A134),
+        g->getValue<uint8_t>(0x106F069),
+        g->getPtr<uint8_t>(0x64219C),
+        reinterpret_cast<ModuleStateBase*>(g->getValue<uintptr_t>(0x106F6E4) - (offsetof(ModuleStateBase, windowRect) - offsetof(ModuleStateBase, fogSprites)))
+    };
 
-            if (mapY1 < 1 || mapY2 < 1 || mapY1 >= mapHeight - 1 || mapY2 >= mapWidth - 1)
-                continue;
-
-            uint8_t* src = &mapData->srcBuf[3 * x + 3 * mapData->screenSurfaceWidth * (screenH - y - 1)];
-
-            int r = src[2];
-            int gCol = src[1];
-            int b = src[0];
-
-            const int fogIndex = mapY1 + (mapY2 << 9);
-
-            if ((fog2[fogIndex] & fogMask) == 0)
-            {
-                double brightness = (getFogCount(fogIndex) > 1) ? 0.8 : 0.5;
-                r = static_cast<int>(r * brightness);
-                gCol = static_cast<int>(gCol * brightness);
-                b = static_cast<int>(b * brightness);
-            }
-
-            const uint16_t gb =
-                (cadPtr->actualGreenMask & (gCol << 8 >> cadPtr->greenOffset)) |
-                (cadPtr->actualBlueMask & (b << 8 >> cadPtr->blueOffset));
-
-            mapData->dstBuf[x + y * mapData->stride] =
-                (cadPtr->actualRedMask & (r << 8 >> cadPtr->redOffset)) | gb;
-        }
-    }
-
-    // Draw screen rectangle
-    int rectWidth = static_cast<int>(mapData->screenSurfaceWidth / scale);
-    int rectHeight = static_cast<int>(mapData->screenSurfaceHeight / scale);
-
-    int left = static_cast<int>(mapData->screenSurfaceWidth / 2 + mapPosX / scale);
-    int right = left + rectWidth - 1;
-    int bottom = static_cast<int>(mapData->verticalCenterMargin + mapPosY / scale);
-    int top = bottom + rectHeight - 1;
-
-    const int w = right - left + 1;
-    const int h = top - bottom + 1;
-
-    drawHorLine(mapData, left, bottom, w, fogBorderColor);
-    drawHorLine(mapData, left, bottom + h - 1, w, fogBorderColor);
-    drawVertLine(mapData, left, bottom, h, fogBorderColor);
-    drawVertLine(mapData, left + w - 1, bottom, h, fogBorderColor);
-
-    // This value (1.2f) was found empirically
-    drawPlaneCrosses(
-        mapData->screenSurfaceWidth / 2,
-        static_cast<int>(mapData->verticalCenterMargin * 1.2f),
-        static_cast<int>(scale)
-    );
-
-    // This code always calls stubs
-    /* const int* dword_1106F69C = g->getValue<int*>(0x106F69C);
-    
-    const uintptr_t objAddr = static_cast<uintptr_t>(*dword_1106F69C);
-    const uintptr_t funcAddr = *reinterpret_cast<uintptr_t*>(objAddr + 56);
-
-    const uint64_t bits = *reinterpret_cast<const uint64_t*>(&scale2);
-    const uint32_t lo = static_cast<uint32_t>(bits & 0xFFFFFFFF);
-    const uint32_t hi = static_cast<uint32_t>(bits >> 32);
-
-    reinterpret_cast<void(__stdcall*)(int, int, uint32_t, uint32_t)>(funcAddr)(
-        mapData->screenSurfaceWidth / 2,
-        mapData->verticalCenterMargin,
-        lo,
-        hi
-        );*/
-
-    // Draw units points
-    // It also shows building occupied by enemy as red dot even if we don't know that the building is occupied by them
-    for (UnitData* obj = dword_1010F258; obj; obj = obj->next)
-    {
-        const int vx = static_cast<int>(((obj->subX >> 8) + 32.0 * obj->tileX) / scale);
-        const int vy = static_cast<int>(((obj->subY >> 8) + 32.0 * obj->tileY) / scale);
-
-        auto fn = reinterpret_cast<void(__thiscall*)(UnitData*, int, int)>(obj->vtable[105]);
-
-        fn(
-            obj,
-            vx + mapData->screenSurfaceWidth / 2 - vy,
-            mapData->verticalCenterMargin + ((vx + vy) >> 1)
-        );
-    }
+    drawFogOnStrategicMap(mapData, data);
 }
 
 void __declspec(noinline) __fastcall GameDllHooks::sub_100A9060(MapData* mapData)
 {
     auto* const g = globals_;
 
-    const auto sub_10097740 = g->getFn<void(__cdecl)(int*, int, int, int, int)>(0x94A30);
-    const auto sub_100A1110 = g->getFn<void(__thiscall)(MapData*)>(0x9DBE0);
-    const auto drawHorLine = g->getFn<void(__thiscall)(MapData*, int, int, int, int16_t)>(0xA8A10);
-    const auto drawVertLine = g->getFn<void(__thiscall)(MapData*, int, int, int, int16_t)>(0xA8A80);
-    const auto drawPlaneCrosses = g->getFn<void(__stdcall)(int, int, int)>(0xBE2E0);
-
-    UnitData* dword_1010F258 = g->getValue<UnitData*>(0xFCC90);
-    const int16_t fogBorderColor = g->getValue<int16_t>(0x10AE506);
-
-    const int mapHeight = g->getValue<int>(0x13139C);
-    const int mapWidth = g->getValue<int>(0x1313A0);
-    const int mapPosY = g->getValue<int>(0x10A9508);
-    const int mapPosX = g->getValue<int>(0x10A950C);
-
-    const uint8_t fogMask = g->getValue<uint8_t>(0x10AE441);
-
-    const uint8_t* fog0 = g->getPtr<uint8_t>(0x6311B4);
-    const uint8_t* fog1 = g->getPtr<uint8_t>(0x6313B3);
-    const uint8_t* fog2 = g->getPtr<uint8_t>(0x6313B4);
-    const uint8_t* fog3 = g->getPtr<uint8_t>(0x6313B5);
-    const uint8_t* fog4 = g->getPtr<uint8_t>(0x6315B4);
-
-    const auto cadPtr = reinterpret_cast<ModuleStateLong*>(g->getValue<uintptr_t>(0x10AEABC) - (offsetof(ModuleStateLong, windowRect) - offsetof(ModuleStateLong, fogSprites)));
-
-    sub_100A1110(mapData);
-
-    int clip[4];
-    sub_10097740(clip, mapData->clipLeft, mapData->clipTop, mapData->clipRight, mapData->clipBottom);
-
-    clip[2] += 16;
-    clip[3] += 8;
-
-    // Calculate fog
-    const double scale = 64.0 * mapHeight / mapData->screenSurfaceWidth;
-    const double scale2 = scale / 32.0;
-
-    const auto getFogCount = [&](int index) -> int {
-        int cnt = 0;
-        if (fog4[index] & fogMask) ++cnt;
-        if (fog0[index] & fogMask) ++cnt;
-        if (fog3[index] & fogMask) ++cnt;
-        if (fog1[index] & fogMask) ++cnt;
-        return cnt;
-        };
-
-    const int halfScreenW = mapData->screenSurfaceWidth / 2;
-    const int screenH = mapData->screenSurfaceHeight;
-
-    for (int y = clip[1]; y < clip[3]; ++y)
+    FogOnStrategicMap data
     {
-        for (int x = clip[0]; x < clip[2]; ++x)
-        {
-            const int dx = (x - halfScreenW) >> 1;
-            const int mapY1 = static_cast<int>((y + dx - mapData->verticalCenterMargin) * scale2);
-            const int mapY2 = static_cast<int>((y - dx - mapData->verticalCenterMargin) * scale2);
+        g->getFn<void(__cdecl)(int*, int, int, int, int)>(0x94A30),
+        g->getFn<void(__thiscall)(MapData*)>(0x9DBE0),
+        g->getFn<void(__thiscall)(MapData*, int, int, int, int16_t)>(0xA8A10),
+        g->getFn<void(__thiscall)(MapData*, int, int, int, int16_t)>(0xA8A80),
+        g->getFn<void(__stdcall)(int, int, int)>(0xBE2E0),
+        g->getValue<UnitData*>(0xFCC90),
+        113,
+        g->getValue<int16_t>(0x10AE506),
+        g->getValue<int>(0x13139C),
+        g->getValue<int>(0x1313A0),
+        g->getValue<int>(0x10A9508),
+        g->getValue<int>(0x10A950C),
+        g->getValue<uint8_t>(0x10AE441),
+        g->getPtr<uint8_t>(0x6311B4),
+        reinterpret_cast<ModuleStateBase*>(g->getValue<uintptr_t>(0x10AEABC) - (offsetof(ModuleStateBase, windowRect) - offsetof(ModuleStateBase, fogSprites)))
+    };
 
-            if (mapY1 < 1 || mapY2 < 1 || mapY1 >= mapHeight - 1 || mapY2 >= mapWidth - 1)
-                continue;
-
-            uint8_t* src = &mapData->srcBuf[3 * x + 3 * mapData->screenSurfaceWidth * (screenH - y - 1)];
-
-            int r = src[2];
-            int gCol = src[1];
-            int b = src[0];
-
-            const int fogIndex = mapY1 + (mapY2 << 9);
-
-            if ((fog2[fogIndex] & fogMask) == 0)
-            {
-                double brightness = (getFogCount(fogIndex) > 1) ? 0.8 : 0.5;
-                r = static_cast<int>(r * brightness);
-                gCol = static_cast<int>(gCol * brightness);
-                b = static_cast<int>(b * brightness);
-            }
-
-            const uint16_t gb =
-                (cadPtr->actualGreenMask & (gCol << 8 >> cadPtr->greenOffset)) |
-                (cadPtr->actualBlueMask & (b << 8 >> cadPtr->blueOffset));
-
-            mapData->dstBuf[x + y * mapData->stride] =
-                (cadPtr->actualRedMask & (r << 8 >> cadPtr->redOffset)) | gb;
-        }
-    }
-
-    // Draw screen rectangle
-    int rectWidth = static_cast<int>(mapData->screenSurfaceWidth / scale);
-    int rectHeight = static_cast<int>(mapData->screenSurfaceHeight / scale);
-
-    int left = static_cast<int>(mapData->screenSurfaceWidth / 2 + mapPosX / scale);
-    int right = left + rectWidth - 1;
-    int bottom = static_cast<int>(mapData->verticalCenterMargin + mapPosY / scale);
-    int top = bottom + rectHeight - 1;
-
-    const int w = right - left + 1;
-    const int h = top - bottom + 1;
-
-    drawHorLine(mapData, left, bottom, w, fogBorderColor);
-    drawHorLine(mapData, left, bottom + h - 1, w, fogBorderColor);
-    drawVertLine(mapData, left, bottom, h, fogBorderColor);
-    drawVertLine(mapData, left + w - 1, bottom, h, fogBorderColor);
-
-    // This value (1.2f) was found empirically
-    drawPlaneCrosses(
-        mapData->screenSurfaceWidth / 2,
-        static_cast<int>(mapData->verticalCenterMargin * 1.2f),
-        static_cast<int>(scale)
-    );
-
-    // This code always calls stubs
-    /* const int* dword_1106F69C = g->getValue<int*>(0x10AEA74);
-
-    const uintptr_t objAddr = static_cast<uintptr_t>(*dword_1106F69C);
-    const uintptr_t funcAddr = *reinterpret_cast<uintptr_t*>(objAddr + 56);
-
-    const uint64_t bits = *reinterpret_cast<const uint64_t*>(&scale2);
-    const uint32_t lo = static_cast<uint32_t>(bits & 0xFFFFFFFF);
-    const uint32_t hi = static_cast<uint32_t>(bits >> 32);
-
-    reinterpret_cast<void(__stdcall*)(int, int, uint32_t, uint32_t)>(funcAddr)(
-        mapData->screenSurfaceWidth / 2,
-        mapData->verticalCenterMargin,
-        lo,
-        hi
-        );*/
-
-    // Draw units points
-    // It also shows building occupied by enemy as red dot even if we don't know that the building is occupied by them
-    for (UnitData* obj = dword_1010F258; obj; obj = obj->next)
-    {
-        const int vx = static_cast<int>(((obj->subX >> 8) + 32.0 * obj->tileX) / scale);
-        const int vy = static_cast<int>(((obj->subY >> 8) + 32.0 * obj->tileY) / scale);
-
-        auto fn = reinterpret_cast<void(__thiscall*)(UnitData*, int, int)>(obj->vtable[113]);
-
-        fn(
-            obj,
-            vx + mapData->screenSurfaceWidth / 2 - vy,
-            mapData->verticalCenterMargin + ((vx + vy) >> 1)
-        );
-    }
+    drawFogOnStrategicMap(mapData, data);
 }
 
 void __declspec(noinline) __fastcall GameDllHooks::sub_100A9060_bg(MapData* mapData)
 {
     auto* const g = globals_;
 
-    const auto sub_10097740 = g->getFn<void(__cdecl)(int*, int, int, int, int)>(0x94A00);
-    const auto sub_100A1110 = g->getFn<void(__thiscall)(MapData*)>(0x9DBB0);
-    const auto drawHorLine = g->getFn<void(__thiscall)(MapData*, int, int, int, int16_t)>(0xA89E0);
-    const auto drawVertLine = g->getFn<void(__thiscall)(MapData*, int, int, int, int16_t)>(0xA8A50);
-    const auto drawPlaneCrosses = g->getFn<void(__stdcall)(int, int, int)>(0xBE2B0);
+    FogOnStrategicMap data
+    {
+        g->getFn<void(__cdecl)(int*, int, int, int, int)>(0x94A00),
+        g->getFn<void(__thiscall)(MapData*)>(0x9DBB0),
+        g->getFn<void(__thiscall)(MapData*, int, int, int, int16_t)>(0xA89E0),
+        g->getFn<void(__thiscall)(MapData*, int, int, int, int16_t)>(0xA8A50),
+        g->getFn<void(__stdcall)(int, int, int)>(0xBE2B0),
+        g->getValue<UnitData*>(0xFCE40),
+        113,
+        g->getValue<int16_t>(0x109E6B6),
+        g->getValue<int>(0x13154C),
+        g->getValue<int>(0x131550),
+        g->getValue<int>(0x10996B8),
+        g->getValue<int>(0x10996BC),
+        g->getValue<uint8_t>(0x109E5F1),
+        g->getPtr<uint8_t>(0x631364),
+        reinterpret_cast<ModuleStateBase*>(g->getValue<uintptr_t>(0x109EC6C) - (offsetof(ModuleStateBase, windowRect) - offsetof(ModuleStateBase, fogSprites)))
+    };
 
-    UnitData* dword_1010F258 = g->getValue<UnitData*>(0xFCE40);
-    const int16_t fogBorderColor = g->getValue<int16_t>(0x109E6B6);
+    drawFogOnStrategicMap(mapData, data);
+}
 
-    const int mapHeight = g->getValue<int>(0x13154C);
-    const int mapWidth = g->getValue<int>(0x131550);
-    const int mapPosY = g->getValue<int>(0x10996B8);
-    const int mapPosX = g->getValue<int>(0x10996BC);
 
-    const uint8_t fogMask = g->getValue<uint8_t>(0x109E5F1);
+void __declspec(noinline) __fastcall GameDllHooks::sub_100AD2C0(MapData* self, void* /*dummy*/, int offsetX, int offsetY)
+{
+    auto* const g = globals_;
 
-    const uint8_t* fog0 = g->getPtr<uint8_t>(0x631364);
-    const uint8_t* fog1 = g->getPtr<uint8_t>(0x631563);
-    const uint8_t* fog2 = g->getPtr<uint8_t>(0x631564);
-    const uint8_t* fog3 = g->getPtr<uint8_t>(0x631565);
-    const uint8_t* fog4 = g->getPtr<uint8_t>(0x6317B4);
+    ScreenRectDrawData data
+    {
+        g->getFn<void(__thiscall)(MapData*, int, int)>(0xA11E0),
+        g->getFn<void(__thiscall)(MapData*, int, int, int, int)>(0x99880),
+        g->getValue<int>(0x142384),
+        g->getValue<int>(0x106A130),
+        g->getValue<int>(0x106A134)
+    };
 
-    const auto cadPtr = reinterpret_cast<ModuleStateLong*>(g->getValue<uintptr_t>(0x109EC6C) - (offsetof(ModuleStateLong, windowRect) - offsetof(ModuleStateLong, fogSprites)));
+    drawScreenRectOnStrategicMap(self, offsetX, offsetY, data);
+}
 
-    sub_100A1110(mapData);
+void __declspec(noinline) __fastcall GameDllHooks::sub_100A97C0(MapData* self, void* /*dummy*/, int offsetX, int offsetY)
+{
+    auto* const g = globals_;
+
+    ScreenRectDrawData data
+    {
+        g->getFn<void(__thiscall)(MapData*, int, int)>(0x9DCB0),
+        g->getFn<void(__thiscall)(MapData*, int, int, int, int)>(0x96A00),
+        g->getValue<int>(0x13139C),
+        g->getValue<int>(0x10A9508),
+        g->getValue<int>(0x10A950C)
+    };
+
+    drawScreenRectOnStrategicMap(self, offsetX, offsetY, data);
+}
+
+void __declspec(noinline) __fastcall GameDllHooks::sub_100A97C0_bg(MapData* self, void* /*dummy*/, int offsetX, int offsetY)
+{
+    auto* const g = globals_;
+
+    ScreenRectDrawData data
+    {
+        g->getFn<void(__thiscall)(MapData*, int, int)>(0x9DC80),
+        g->getFn<void(__thiscall)(MapData*, int, int, int, int)>(0x969D0),
+        g->getValue<int>(0x13154C),
+        g->getValue<int>(0x10996B8),
+        g->getValue<int>(0x10996BC)
+    };
+
+    drawScreenRectOnStrategicMap(self, offsetX, offsetY, data);
+}
+
+
+void __declspec(noinline) __fastcall GameDllHooks::sub_100C3830(PlaneData* self, void* /*dummy*/, int halfScreenWidth, int vertCenterMargin, int scale)
+{
+    auto* const g = globals_;
+
+    PlaneMapDrawData data
+    {
+        g->getPtr<MapData>(0x106EC18),
+        g->getPtr<uint16_t>(0x106F0EC),
+        g->getFn<void(__thiscall)(MapData*, int, int, int, int16_t)>(0xAC790),
+        g->getFn<void(__thiscall)(MapData*, int, int, int, int16_t)>(0xAC800),
+        halfScreenWidth,
+        vertCenterMargin,
+        scale
+    };
+
+    drawPlaneCrossOnStrategicMap(self, data);
+}
+
+void __declspec(noinline) __fastcall GameDllHooks::sub_100BE6F0(PlaneData* self, void* /*dummy*/, int halfScreenWidth, int vertCenterMargin, int scale)
+{
+    auto* const g = globals_;
+
+    PlaneMapDrawData data
+    {
+        g->getPtr<MapData>(0x10ADFF0),
+        g->getPtr<uint16_t>(0x10AE4C4),
+        g->getFn<void(__thiscall)(MapData*, int, int, int, int16_t)>(0xA8A10),
+        g->getFn<void(__thiscall)(MapData*, int, int, int, int16_t)>(0xA8A80),
+        halfScreenWidth,
+        vertCenterMargin,
+        scale
+    };
+
+    drawPlaneCrossOnStrategicMap(self, data);
+}
+
+void __declspec(noinline) __fastcall GameDllHooks::sub_100BE6C0(PlaneData* self, void* /*dummy*/, int halfScreenWidth, int vertCenterMargin, int scale)
+{
+    auto* const g = globals_;
+
+    PlaneMapDrawData data
+    {
+        g->getPtr<MapData>(0x109E1A0),
+        g->getPtr<uint16_t>(0x109E674),
+        g->getFn<void(__thiscall)(MapData*, int, int, int, int16_t)>(0xA89E0),
+        g->getFn<void(__thiscall)(MapData*, int, int, int, int16_t)>(0xA8A50),
+        halfScreenWidth,
+        vertCenterMargin,
+        scale
+    };
+
+    drawPlaneCrossOnStrategicMap(self, data);
+}
+
+
+void GameDllHooks::someRandCalc(const SomeRandCalcData& data)
+{
+    int& randSeed = data.randSeed;
+
+    auto randNext = [&randSeed]() {
+        randSeed = 0x41C64E6D * randSeed + 0x3039;
+        return HIWORD(randSeed) & 0x7FFF;
+        };
+
+    UnkEntry* structPtr = &data.a1[data.a2];
+    GameObject* objPtr = structPtr->objPtr;
+
+    if (objPtr == nullptr || structPtr->counter == 0)
+        return;
+
+    const int subVal = data.fn_2560(structPtr, 0);
+
+    int tmp = randNext()
+        * (objPtr->param_173d + ((subVal * objPtr->param_1741) >> 15));
+    if (tmp < 0 || (tmp & 0xFFFF8000) == 0)
+    {
+        const int index = (data.a4 * randNext()) >> 15;
+        const int offset = data.a3[index];
+
+        UnkEntry* targetPtr = &data.a1[offset];
+        GameObject* targetObj = targetPtr->objPtr;
+
+        if (targetObj == nullptr)
+            return;
+
+        if (targetPtr->param_4 < targetObj->param_B8)
+        {
+            const int limit = targetObj->param_B8;
+            const int computed = targetPtr->param_4
+                + objPtr->param_1705
+                + ((subVal * objPtr->param_1709) >> 15);
+
+            targetPtr->param_4 = static_cast<uint16_t>(limit >= computed ? computed : limit);
+
+            --structPtr->counter;
+
+            int tmp2 = objPtr->param_1735
+                + ((subVal * objPtr->param_1739) >> 15);
+            const int v12 = std::min(tmp2 + subVal, 0x8000);
+
+            structPtr->value = static_cast<uint16_t>(v12);
+        }
+    }
+}
+
+void GameDllHooks::drawFogOnWorld(const FogDrawData& data)
+{
+    uint8_t* const fog0 = data.fogBase;
+    uint8_t* const fog1 = fog0 + 0xFF;
+    uint8_t* const fog2 = fog0 + 0x100;
+    uint8_t* const fog3 = fog0 + 0x101;
+    uint8_t* const fog4 = fog0 + 0x200;
+
+    const int offsetPow = 8;
+    const int offset = 1 << offsetPow;
+
+    std::memset(data.fogBuf, 0x80, sizeof(((ModuleStateBase*)0)->fogSprites));
+
+    const int v54 = data.mapPosY >> 3;
+    const int v59 = data.mapPosX >> 4;
+
+    const int tmp = v54 - 3;
+    const int v0 = tmp & 1;
+    int v1 = (1 - 2 * (v0 ^ (tmp >> 1)) - (data.mapPosX >> 4)) & 3;
+
+    const int v2 = (data.mapPosX + 16 * (v1 - 3)) >> 1;
+    const int v3 = 8 * v0 - 24;
+
+    int v51 = (data.mapPosY + v3 - v2) >> 5;
+    int v8 = (data.mapPosY + v3 + v2) >> 5;
+
+    const int len_sar_4 = data.screenWidth >> 4;
+    const int v6 = (data.screenWidth >> 4) + 11;
+
+    const int v4 = data.screenHeight >> 3;
+    const int v5 = (data.screenHeight >> 3) + 11;
+
+    const int v7 = v0 + 5;
+
+    int v52 = v1;
+
+    // 1. Initialize buffer byte_1037C598
+    if (v7 <= v5)
+    {
+        uint8_t* row = &data.fogBuf[kFogLineByteSize * v7];
+        unsigned int count = (v5 - v7 + 2) >> 1;
+        int x = v1 + 5;
+
+        do
+        {
+            int tx = x;
+            int ty = v51;
+            int mx = v8;
+            if (x <= v6)
+            {
+                int idx = v51 << offsetPow;
+                do
+                {
+                    if (mx >= 4
+                        && ty >= 4
+                        && mx < data.mapHeight - 4
+                        && ty < data.mapWidth - 4
+                        && (data.fogMask & fog2[idx + mx]) != 0)
+                    {
+                        if (row[tx] > 0x40)
+                        {
+                            if (!(data.fogMask & fog4[idx + mx]) ||
+                                !(data.fogMask & fog3[idx + mx]) ||
+                                !(data.fogMask & fog0[idx + mx]) ||
+                                !(data.fogMask & fog1[idx + mx]))
+                            {
+                                row[tx] = 0x40;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        row[tx] = 0;
+                    }
+
+                    tx += 4;
+                    ++mx;
+                    --ty;
+                    idx -= offset;
+                } while (tx <= v6);
+            }
+
+            if (v52 < 2)
+            {
+                x += 2;
+                ++v8;
+            }
+            else
+            {
+                x -= 2;
+                ++v51;
+            }
+            v52 ^= 2;
+            row += kFogDoubleLineByteSize;
+        } while (--count);
+    }
+
+    // 2. Vertical antialiasing
+    int step;
+    if (v1 >= 2)
+    {
+        step = 2;
+    }
+    else
+    {
+        v1 += 4;
+        step = -2;
+    }
+
+    const int xEnd = v6 - 1;
+    const int yEnd = v5 - 1;
+    if (v0 + 7 < yEnd)
+    {
+        int x = v1 + 5;
+
+        const int v19 = v0 + 7;
+        uint8_t* p = &data.fogBuf[kFogLineByteSize * v19 - 2];
+        int cnt = (yEnd - v19 + 1) >> 1;
+
+        do
+        {
+            for (int xi = x; xi < xEnd;)
+            {
+                uint8_t a = p[xi - (kFogDoubleLineByteSize - 2)];
+                uint8_t b = p[xi + 4];
+                xi += 4;
+                p[xi - 2] = (p[xi + (kFogDoubleLineByteSize - 2)] + p[xi - 4] + b + a) >> 2;
+            }
+
+            x += step;
+            step = -step;
+            p += kFogDoubleLineByteSize;
+        } while (--cnt);
+    }
+
+    // 3. Horizontal antialiasing
+    const int yMax = yEnd - 2;
+    const int xMax = xEnd - 2;
+    const int startY = (v54 & 1) + 8;
+
+    if (startY <= yMax)
+    {
+        uint8_t* p = &data.fogBuf[kFogLineByteSize * startY + 1];
+        int cnt = (yMax - startY + 2) >> 1;
+        do
+        {
+            int start_i = ((v59 - 1) & 1) + 8;
+            for (int i = start_i; i <= xMax; i += 2)
+            {
+                p[i - 1] = (p[i] + p[i - 2]) >> 1;
+            }
+
+            p += kFogDoubleLineByteSize;
+        } while (--cnt);
+    }
+
+    // 4. Vertical smoothing
+    const int startY2 = ((v54 - 1) & 1) + 8;
+    if (startY2 <= yMax)
+    {
+        uint8_t* p = &data.fogBuf[kFogLineByteSize * (startY2 + 1)];
+        int cnt = (yMax - startY2 + 2) >> 1;
+
+        do
+        {
+            for (int j = 8; j <= xMax; ++j)
+            {
+                p[j - kFogLineByteSize] = (p[j] + p[j - kFogDoubleLineByteSize]) >> 1;
+            }
+            p += kFogDoubleLineByteSize;
+        } while (--cnt);
+    }
+
+    // 5. Update fogSprites
+    int width = len_sar_4 + 9;
+    if (v4 + 9 > 0)
+    {
+        int y = 0;
+        int screenY = -72;
+        int rows = v4 + 9;
+        do
+        {
+            if (width > 0)
+            {
+                int x = 0;
+                int screenX = -144;
+                do
+                {
+                    const uint8_t v = data.fogBuf[x + y * kFogLineByteSize];
+                    uint8_t* dst = &data.cadPtr->fogSprites[y].unk[x];
+                    if (v != *dst)
+                    {
+                        *dst = v;
+
+                        sub_10055E00(data.div16Ptr, nullptr, 24, screenX, screenY, screenX + 31, screenY + 15);
+                        width = len_sar_4 + 9;
+                    }
+                    ++x;
+                    screenX += 16;
+                } while (x < width);
+            }
+            ++y;
+            screenY += 8;
+        } while (--rows);
+    }
+}
+
+void GameDllHooks::drawFogOnWorld_v2(const FogDrawData& data)
+{
+    uint8_t* const fog0 = data.fogBase;
+    uint8_t* const fog1 = fog0 + 0x1FF;
+    uint8_t* const fog2 = fog0 + 0x200;
+    uint8_t* const fog3 = fog0 + 0x201;
+    uint8_t* const fog4 = fog0 + 0x400;
+
+    const int offsetPow = 9;
+    const int offset = 1 << offsetPow;
+
+    std::memset(data.fogBuf, 0x80, sizeof(((ModuleStateBase*)0)->fogSprites));
+
+    const int v54 = data.mapPosY >> 3;
+    const int v59 = data.mapPosX >> 4;
+
+    const int tmp = v54 - 3;
+    const int v0 = tmp & 1;
+    int v1 = (1 - 2 * (v0 ^ (tmp >> 1)) - (data.mapPosX >> 4)) & 3;
+
+    const int v2 = (data.mapPosX + 16 * (v1 - 3)) >> 1;
+    const int v3 = 8 * v0 - 24;
+
+    int v51 = (data.mapPosY + v3 - v2) >> 5;
+    int v8 = (data.mapPosY + v3 + v2) >> 5;
+
+    const int len_sar_4 = data.screenWidth >> 4;
+    const int v6 = (data.screenWidth >> 4) + 11;
+
+    const int v4 = data.screenHeight >> 3;
+    const int v5 = (data.screenHeight >> 3) + 11;
+
+    const int v7 = v0 + 5;
+
+    int v52 = v1;
+
+    // 1. Initialize buffer byte_1037C598
+    if (v7 <= v5)
+    {
+        uint8_t* row = &data.fogBuf[kFogLineByteSize * v7];
+        unsigned int count = (v5 - v7 + 2) >> 1;
+        int x = v1 + 5;
+
+        do
+        {
+            int tx = x;
+            int ty = v51;
+            int mx = v8;
+            if (x <= v6)
+            {
+                int idx = v51 << offsetPow;
+                do
+                {
+                    if (mx >= 4
+                        && ty >= 4
+                        && mx < data.mapHeight - 4
+                        && ty < data.mapWidth - 4
+                        && (data.fogMask & fog2[idx + mx]) != 0)
+                    {
+                        if (row[tx] > 0x40)
+                        {
+                            if (!(data.fogMask & fog4[idx + mx]) ||
+                                !(data.fogMask & fog3[idx + mx]) ||
+                                !(data.fogMask & fog0[idx + mx]) ||
+                                !(data.fogMask & fog1[idx + mx]))
+                            {
+                                row[tx] = 0x40;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        row[tx] = 0;
+                    }
+
+                    tx += 4;
+                    ++mx;
+                    --ty;
+                    idx -= offset;
+                } while (tx <= v6);
+            }
+
+            if (v52 < 2)
+            {
+                x += 2;
+                ++v8;
+            }
+            else
+            {
+                x -= 2;
+                ++v51;
+            }
+            v52 ^= 2;
+            row += kFogDoubleLineByteSize;
+        } while (--count);
+    }
+
+    // 2. Vertical antialiasing
+    int step;
+    if (v1 >= 2)
+    {
+        step = 2;
+    }
+    else
+    {
+        v1 += 4;
+        step = -2;
+    }
+
+    const int xEnd = v6 - 1;
+    const int yEnd = v5 - 1;
+    if (v0 + 7 < yEnd)
+    {
+        int x = v1 + 5;
+
+        const int v19 = v0 + 7;
+        uint8_t* p = &data.fogBuf[kFogLineByteSize * v19 - 2];
+        int cnt = (yEnd - v19 + 1) >> 1;
+
+        do
+        {
+            for (int xi = x; xi < xEnd;)
+            {
+                uint8_t a = p[xi - (kFogDoubleLineByteSize - 2)];
+                uint8_t b = p[xi + 4];
+                xi += 4;
+                p[xi - 2] = (p[xi + (kFogDoubleLineByteSize - 2)] + p[xi - 4] + b + a) >> 2;
+            }
+
+            x += step;
+            step = -step;
+            p += kFogDoubleLineByteSize;
+        } while (--cnt);
+    }
+
+    // 3. Horizontal antialiasing
+    const int yMax = yEnd - 2;
+    const int xMax = xEnd - 2;
+    const int startY = (v54 & 1) + 8;
+
+    if (startY <= yMax)
+    {
+        uint8_t* p = &data.fogBuf[kFogLineByteSize * startY + 1];
+        int cnt = (yMax - startY + 2) >> 1;
+        do
+        {
+            int start_i = ((v59 - 1) & 1) + 8;
+            for (int i = start_i; i <= xMax; i += 2)
+            {
+                p[i - 1] = (p[i] + p[i - 2]) >> 1;
+            }
+
+            p += kFogDoubleLineByteSize;
+        } while (--cnt);
+    }
+
+    // 4. Vertical smoothing
+    const int startY2 = ((v54 - 1) & 1) + 8;
+    if (startY2 <= yMax)
+    {
+        uint8_t* p = &data.fogBuf[kFogLineByteSize * (startY2 + 1)];
+        int cnt = (yMax - startY2 + 2) >> 1;
+
+        do
+        {
+            for (int j = 8; j <= xMax; ++j)
+            {
+                p[j - kFogLineByteSize] = (p[j] + p[j - kFogDoubleLineByteSize]) >> 1;
+            }
+            p += kFogDoubleLineByteSize;
+        } while (--cnt);
+    }
+
+    // 5. Update fogSprites
+    int width = len_sar_4 + 9;
+    if (v4 + 9 > 0)
+    {
+        int y = 0;
+        int screenY = -72;
+        int rows = v4 + 9;
+        do
+        {
+            if (width > 0)
+            {
+                int x = 0;
+                int screenX = -144;
+                do
+                {
+                    const uint8_t v = data.fogBuf[x + y * kFogLineByteSize];
+                    uint8_t* dst = &data.cadPtr->fogSprites[y].unk[x];
+                    if (v != *dst)
+                    {
+                        *dst = v;
+
+                        sub_10055E00(data.div16Ptr, nullptr, 24, screenX, screenY, screenX + 31, screenY + 15);
+                        width = len_sar_4 + 9;
+                    }
+                    ++x;
+                    screenX += 16;
+                } while (x < width);
+            }
+            ++y;
+            screenY += 8;
+        } while (--rows);
+    }
+}
+
+
+void GameDllHooks::readStrategicMapFromFile(MapData* mapData, const ReadStrategicMapData& data)
+{
+    if (mapData->isMapLoaded)
+        return;
+
+    HANDLE miniMapFileHandle[2];
+    data.initHandle(miniMapFileHandle);
+
+    int readStatus = 0;
+
+    if (data.createFile(miniMapFileHandle, data.xchngTogameMis, 0) && data.getFileSize(miniMapFileHandle))
+    {
+        int mapWidth = 0, mapHeight = 0, mapExtraSize = 0;
+
+        data.readFile(miniMapFileHandle, &mapWidth, sizeof(mapWidth));
+        data.readFile(miniMapFileHandle, &mapHeight, sizeof(mapHeight));
+        data.readFile(miniMapFileHandle, &mapExtraSize, sizeof(mapExtraSize));
+
+        unsigned int mapBufferSize = 3 * mapWidth * mapHeight;  // 3 channels for pixel
+        uint8_t* mapBuffer = new uint8_t[mapBufferSize];
+        data.readFile(miniMapFileHandle, mapBuffer, mapBufferSize);
+
+        data.closeHandle(miniMapFileHandle);
+
+        const int screenWidth = data.cadPtr->surface.width;
+        const int screenHeight = data.cadPtr->surface.height;
+        mapData->screenSurfaceWidth = screenWidth;
+        mapData->screenSurfaceHeight = screenHeight;
+
+        double scaleX = static_cast<double>(mapWidth) / screenWidth;
+
+        // Calculate real strategic map height
+        int miniMapScreenHeight = static_cast<int>(mapHeight / scaleX);
+        if (miniMapScreenHeight > screenHeight)
+        {
+            // If height is too big, calculate it via Y
+            scaleX = static_cast<double>(mapHeight) / screenHeight;
+            miniMapScreenHeight = screenHeight;
+        }
+        double scaleY = static_cast<double>(mapHeight) / miniMapScreenHeight;
+
+        // Vertical offset from border
+        mapData->verticalCenterMargin = (screenHeight - miniMapScreenHeight) / 2;
+
+        // Buffer for future usage
+        mapData->srcBuf = new uint8_t[3 * screenWidth * screenHeight];
+        memset(mapData->srcBuf, 0, 3 * screenWidth * screenHeight);
+
+        // Bilinear interpolation
+        auto bilinearInterpolate = [&](double mapXScaled, double mapYScaled, uint8_t& rOut, uint8_t& gOut, uint8_t& bOut)
+            {
+                int mapX = std::min(static_cast<int>(mapXScaled), mapWidth - 2);
+                int mapY = std::min(static_cast<int>(mapYScaled), mapHeight - 2);
+
+                double fracX = mapXScaled - mapX;
+                double fracY = mapYScaled - mapY;
+                double invFracX = 1.0 - fracX;
+                double invFracY = 1.0 - fracY;
+
+                int idxTL = 3 * (mapY * mapWidth + mapX);
+                int idxTR = idxTL + 3;
+                int idxBL = 3 * ((mapY + 1) * mapWidth + mapX);
+                int idxBR = idxBL + 3;
+
+                double rTL = mapBuffer[idxTL + 0], gTL = mapBuffer[idxTL + 1], bTL = mapBuffer[idxTL + 2];
+                double rTR = mapBuffer[idxTR + 0], gTR = mapBuffer[idxTR + 1], bTR = mapBuffer[idxTR + 2];
+                double rBL = mapBuffer[idxBL + 0], gBL = mapBuffer[idxBL + 1], bBL = mapBuffer[idxBL + 2];
+                double rBR = mapBuffer[idxBR + 0], gBR = mapBuffer[idxBR + 1], bBR = mapBuffer[idxBR + 2];
+
+                double wTL = invFracX * invFracY;
+                double wTR = fracX * invFracY;
+                double wBL = invFracX * fracY;
+                double wBR = fracX * fracY;
+
+                rOut = static_cast<uint8_t>(rTL * wTL + rTR * wTR + rBL * wBL + rBR * wBR);
+                gOut = static_cast<uint8_t>(gTL * wTL + gTR * wTR + gBL * wBL + gBR * wBR);
+                bOut = static_cast<uint8_t>(bTL * wTL + bTR * wTR + bBL * wBL + bBR * wBR);
+            };
+
+        for (int screenY = 0; screenY < miniMapScreenHeight; ++screenY)
+        {
+            int targetY = screenY + mapData->verticalCenterMargin;
+            for (int screenX = 0; screenX < screenWidth; ++screenX)
+            {
+                double mapXScaled = screenX * scaleX;
+                double mapYScaled = screenY * scaleY;
+
+                uint8_t r, g, b;
+                bilinearInterpolate(mapXScaled, mapYScaled, r, g, b);
+
+                int screenIndex = screenX + targetY * screenWidth;
+                mapData->srcBuf[3 * screenIndex + 0] = r;
+                mapData->srcBuf[3 * screenIndex + 1] = g;
+                mapData->srcBuf[3 * screenIndex + 2] = b;
+            }
+        }
+
+        delete[] mapBuffer;
+
+        mapData->isMapLoaded = 1;
+    }
+
+    readStatus = -1;
+    data.deinitHandle(miniMapFileHandle);
+}
+
+void GameDllHooks::drawFogOnStrategicMap(MapData* mapData, const FogOnStrategicMap& data)
+{
+    const uint8_t* fog0 = data.fogBase;
+    const uint8_t* fog1 = fog0 + 0x1FF;
+    const uint8_t* fog2 = fog0 + 0x200;
+    const uint8_t* fog3 = fog0 + 0x201;
+    const uint8_t* fog4 = fog0 + 0x400;
+
+    data.fn_A1110(mapData);
 
     int clip[4];
-    sub_10097740(clip, mapData->clipLeft, mapData->clipTop, mapData->clipRight, mapData->clipBottom);
+    data.fn_97740(clip, mapData->clipLeft, mapData->clipTop, mapData->clipRight, mapData->clipBottom);
 
     clip[2] += 16;
     clip[3] += 8;
 
     // Calculate fog
-    const double scale = 64.0 * mapHeight / mapData->screenSurfaceWidth;
+    const double scale = 64.0 * data.mapHeight / mapData->screenSurfaceWidth;
     const double scale2 = scale / 32.0;
 
     const auto getFogCount = [&](int index) -> int {
         int cnt = 0;
-        if (fog4[index] & fogMask) ++cnt;
-        if (fog0[index] & fogMask) ++cnt;
-        if (fog3[index] & fogMask) ++cnt;
-        if (fog1[index] & fogMask) ++cnt;
+        if (fog4[index] & data.fogMask) ++cnt;
+        if (fog0[index] & data.fogMask) ++cnt;
+        if (fog3[index] & data.fogMask) ++cnt;
+        if (fog1[index] & data.fogMask) ++cnt;
         return cnt;
         };
 
@@ -5550,7 +3440,7 @@ void __declspec(noinline) __fastcall GameDllHooks::sub_100A9060_bg(MapData* mapD
             const int mapY1 = static_cast<int>((y + dx - mapData->verticalCenterMargin) * scale2);
             const int mapY2 = static_cast<int>((y - dx - mapData->verticalCenterMargin) * scale2);
 
-            if (mapY1 < 1 || mapY2 < 1 || mapY1 >= mapHeight - 1 || mapY2 >= mapWidth - 1)
+            if (mapY1 < 1 || mapY2 < 1 || mapY1 >= data.mapHeight - 1 || mapY2 >= data.mapWidth - 1)
                 continue;
 
             uint8_t* src = &mapData->srcBuf[3 * x + 3 * mapData->screenSurfaceWidth * (screenH - y - 1)];
@@ -5561,7 +3451,7 @@ void __declspec(noinline) __fastcall GameDllHooks::sub_100A9060_bg(MapData* mapD
 
             const int fogIndex = mapY1 + (mapY2 << 9);
 
-            if ((fog2[fogIndex] & fogMask) == 0)
+            if ((fog2[fogIndex] & data.fogMask) == 0)
             {
                 double brightness = (getFogCount(fogIndex) > 1) ? 0.8 : 0.5;
                 r = static_cast<int>(r * brightness);
@@ -5570,11 +3460,11 @@ void __declspec(noinline) __fastcall GameDllHooks::sub_100A9060_bg(MapData* mapD
             }
 
             const uint16_t gb =
-                (cadPtr->actualGreenMask & (gCol << 8 >> cadPtr->greenOffset)) |
-                (cadPtr->actualBlueMask & (b << 8 >> cadPtr->blueOffset));
+                (data.cadPtr->actualGreenMask & (gCol << 8 >> data.cadPtr->greenOffset)) |
+                (data.cadPtr->actualBlueMask & (b << 8 >> data.cadPtr->blueOffset));
 
             mapData->dstBuf[x + y * mapData->stride] =
-                (cadPtr->actualRedMask & (r << 8 >> cadPtr->redOffset)) | gb;
+                (data.cadPtr->actualRedMask & (r << 8 >> data.cadPtr->redOffset)) | gb;
         }
     }
 
@@ -5582,28 +3472,29 @@ void __declspec(noinline) __fastcall GameDllHooks::sub_100A9060_bg(MapData* mapD
     int rectWidth = static_cast<int>(mapData->screenSurfaceWidth / scale);
     int rectHeight = static_cast<int>(mapData->screenSurfaceHeight / scale);
 
-    int left = static_cast<int>(mapData->screenSurfaceWidth / 2 + mapPosX / scale);
+    int left = static_cast<int>(mapData->screenSurfaceWidth / 2 + data.mapPosX / scale);
     int right = left + rectWidth - 1;
-    int bottom = static_cast<int>(mapData->verticalCenterMargin + mapPosY / scale);
+    int bottom = static_cast<int>(mapData->verticalCenterMargin + data.mapPosY / scale);
     int top = bottom + rectHeight - 1;
 
     const int w = right - left + 1;
     const int h = top - bottom + 1;
 
-    drawHorLine(mapData, left, bottom, w, fogBorderColor);
-    drawHorLine(mapData, left, bottom + h - 1, w, fogBorderColor);
-    drawVertLine(mapData, left, bottom, h, fogBorderColor);
-    drawVertLine(mapData, left + w - 1, bottom, h, fogBorderColor);
+    data.drawHorLine(mapData, left, bottom, w, data.fogBorderColor);
+    data.drawHorLine(mapData, left, bottom + h - 1, w, data.fogBorderColor);
+    data.drawVertLine(mapData, left, bottom, h, data.fogBorderColor);
+    data.drawVertLine(mapData, left + w - 1, bottom, h, data.fogBorderColor);
 
     // This value (1.2f) was found empirically
-    drawPlaneCrosses(
+    data.drawPlaneCrosses(
         mapData->screenSurfaceWidth / 2,
         static_cast<int>(mapData->verticalCenterMargin * 1.2f),
         static_cast<int>(scale)
     );
 
     // This code always calls stubs
-    /* const int* dword_1106F69C = g->getValue<int*>(0x10AEA74);
+    /*
+    const int* dword_1106F69C = g->getValue<int*>(0x106F69C);
 
     const uintptr_t objAddr = static_cast<uintptr_t>(*dword_1106F69C);
     const uintptr_t funcAddr = *reinterpret_cast<uintptr_t*>(objAddr + 56);
@@ -5617,16 +3508,17 @@ void __declspec(noinline) __fastcall GameDllHooks::sub_100A9060_bg(MapData* mapD
         mapData->verticalCenterMargin,
         lo,
         hi
-        );*/
+        );
+    */
 
-        // Draw units points
-        // It also shows building occupied by enemy as red dot even if we don't know that the building is occupied by them
-    for (UnitData* obj = dword_1010F258; obj; obj = obj->next)
+    // Draw units points
+    // It also shows building occupied by enemy as red dot even if we don't know that the building is occupied by them
+    for (UnitData* obj = data.units; obj; obj = obj->next)
     {
         const int vx = static_cast<int>(((obj->subX >> 8) + 32.0 * obj->tileX) / scale);
         const int vy = static_cast<int>(((obj->subY >> 8) + 32.0 * obj->tileY) / scale);
 
-        auto fn = reinterpret_cast<void(__thiscall*)(UnitData*, int, int)>(obj->vtable[113]);
+        auto fn = reinterpret_cast<void(__thiscall*)(UnitData*, int, int)>(obj->vtable[data.unitVtableOffset]);
 
         fn(
             obj,
@@ -5636,179 +3528,43 @@ void __declspec(noinline) __fastcall GameDllHooks::sub_100A9060_bg(MapData* mapD
     }
 }
 
-void __declspec(noinline) __fastcall GameDllHooks::sub_100AD2C0(MapData* self, void* /*dummy*/, int offsetX, int offsetY)
+void GameDllHooks::drawScreenRectOnStrategicMap(MapData* mapData, int offsetX, int offsetY, const ScreenRectDrawData& data)
 {
-    auto* const g = globals_;
-
-    const auto sub_100A11E0 = g->getFn<void(__thiscall)(MapData*, int, int)>(0xA11E0);
-    const auto sub_10099880 = g->getFn<void(__thiscall)(MapData*, int, int, int, int)>(0x99880);
-
-    const int mapHeight = g->getValue<int>(0x142384);
-    const int mapPosY = g->getValue<int>(0x106A130);
-    const int mapPosX = g->getValue<int>(0x106A134);
-
-    sub_100A11E0(self, offsetX, offsetY);
+    data.fn1(mapData, offsetX, offsetY);
 
     auto drawRect = [&](int centerX, int centerY)
         {
-            const int width = self->screenSurfaceWidth;
+            const int width = mapData->screenSurfaceWidth;
+            const double scale = 64.0 * data.mapHeight / width;
 
-            const double scale = 64.0 * mapHeight / width;
+            int rectWidth = static_cast<int>(width / scale);
+            int rectHeight = static_cast<int>(mapData->screenSurfaceHeight / scale);
 
-            int rectWidth = static_cast<int>(self->screenSurfaceWidth / scale);
-            int rectHeight = static_cast<int>(self->screenSurfaceHeight / scale);
-
-            int left = static_cast<int>(self->screenSurfaceWidth / 2 + centerX / scale);
+            int left = static_cast<int>(width / 2 + centerX / scale);
             int right = left + rectWidth - 1;
-            int top = static_cast<int>(self->verticalCenterMargin + centerY / scale);
+            int top = static_cast<int>(mapData->verticalCenterMargin + centerY / scale);
             int bottom = top + rectHeight - 1;
 
-            sub_10099880(self, left, top, right, bottom);
+            data.fn2(mapData, left, top, right, bottom);
         };
 
-    drawRect(mapPosX, mapPosY);
-    drawRect(mapPosX + offsetX, mapPosY + offsetY);
+    drawRect(data.mapPosX, data.mapPosY);
+    drawRect(data.mapPosX + offsetX, data.mapPosY + offsetY);
 }
 
-void __declspec(noinline) __fastcall GameDllHooks::sub_100A97C0(MapData* self, void* /*dummy*/, int offsetX, int offsetY)
+void GameDllHooks::drawPlaneCrossOnStrategicMap(PlaneData* mapData, const PlaneMapDrawData& data)
 {
-    auto* const g = globals_;
+    const float x = mapData->worldX;
+    const float y = mapData->worldY;
+    const float h = mapData->height;
 
-    const auto sub_100A11E0 = g->getFn<void(__thiscall)(MapData*, int, int)>(0x9DCB0);
-    const auto sub_10099880 = g->getFn<void(__thiscall)(MapData*, int, int, int, int)>(0x96A00);
+    // These float values were found empirically
+    float isoX = (x - y) / data.scale / 1.07f;
+    float isoY = ((x + y) * 0.5f - h) / data.scale / 1.1f;
 
-    const int mapHeight = g->getValue<int>(0x13139C);
-    const int mapPosY = g->getValue<int>(0x10A9508);
-    const int mapPosX = g->getValue<int>(0x10A950C);
+    int mapX = data.halfScreenWidth + static_cast<int>(isoX);
+    int mapY = data.vertCenterMargin + static_cast<int>(isoY);
 
-    sub_100A11E0(self, offsetX, offsetY);
-
-    auto drawRect = [&](int centerX, int centerY)
-        {
-            const int width = self->screenSurfaceWidth;
-
-            const double scale = 64.0 * mapHeight / width;
-
-            int rectWidth = static_cast<int>(self->screenSurfaceWidth / scale);
-            int rectHeight = static_cast<int>(self->screenSurfaceHeight / scale);
-
-            int left = static_cast<int>(self->screenSurfaceWidth / 2 + centerX / scale);
-            int right = left + rectWidth - 1;
-            int top = static_cast<int>(self->verticalCenterMargin + centerY / scale);
-            int bottom = top + rectHeight - 1;
-
-            sub_10099880(self, left, top, right, bottom);
-        };
-
-    drawRect(mapPosX, mapPosY);
-    drawRect(mapPosX + offsetX, mapPosY + offsetY);
-}
-
-void __declspec(noinline) __fastcall GameDllHooks::sub_100A97C0_bg(MapData* self, void* /*dummy*/, int offsetX, int offsetY)
-{
-    auto* const g = globals_;
-
-    const auto sub_100A11E0 = g->getFn<void(__thiscall)(MapData*, int, int)>(0x9DC80);
-    const auto sub_10099880 = g->getFn<void(__thiscall)(MapData*, int, int, int, int)>(0x969D0);
-
-    const int mapHeight = g->getValue<int>(0x13154C);
-    const int mapPosY = g->getValue<int>(0x10996B8);
-    const int mapPosX = g->getValue<int>(0x10996BC);
-
-    sub_100A11E0(self, offsetX, offsetY);
-
-    auto drawRect = [&](int centerX, int centerY)
-        {
-            const int width = self->screenSurfaceWidth;
-
-            const double scale = 64.0 * mapHeight / width;
-
-            int rectWidth = static_cast<int>(self->screenSurfaceWidth / scale);
-            int rectHeight = static_cast<int>(self->screenSurfaceHeight / scale);
-
-            int left = static_cast<int>(self->screenSurfaceWidth / 2 + centerX / scale);
-            int right = left + rectWidth - 1;
-            int top = static_cast<int>(self->verticalCenterMargin + centerY / scale);
-            int bottom = top + rectHeight - 1;
-
-            sub_10099880(self, left, top, right, bottom);
-        };
-
-    drawRect(mapPosX, mapPosY);
-    drawRect(mapPosX + offsetX, mapPosY + offsetY);
-}
-
-void __declspec(noinline) __fastcall GameDllHooks::sub_100C3830(PlaneData* self, void* /*dummy*/, int halfScreenWidth, int vertCenterMargin, int scale)
-{
-    auto* const g = globals_;
-
-    MapData* mapData = g->getPtr<MapData>(0x106EC18);
-    uint16_t* word_10AE4C4 = g->getPtr<uint16_t>(0x106F0EC);
-
-    const auto drawHorLine = g->getFn<void(__thiscall)(MapData*, int, int, int, int16_t)>(0xAC790);
-    const auto drawVertLine = g->getFn<void(__thiscall)(MapData*, int, int, int, int16_t)>(0xAC800);
-
-    const float x = self->worldX;
-    const float y = self->worldY;
-    const float h = self->height;
-
-    // These values were found empirically
-    float isoX = (x - y) / scale / 1.07f;
-    float isoY = ((x + y) * 0.5f - h) / scale / 1.1f;
-
-    int mapX = halfScreenWidth + static_cast<int>(isoX);
-    int mapY = vertCenterMargin + static_cast<int>(isoY);
-
-    drawHorLine(mapData, mapX - 2, mapY, 5, word_10AE4C4[self->teamId]);
-    drawVertLine(mapData, mapX, mapY - 2, 5, word_10AE4C4[self->teamId]);
-}
-
-void __declspec(noinline) __fastcall GameDllHooks::sub_100BE6F0(PlaneData* self, void* /*dummy*/, int halfScreenWidth, int vertCenterMargin, int scale)
-{
-    auto* const g = globals_;
-
-    MapData* mapData = g->getPtr<MapData>(0x10ADFF0);
-    uint16_t* word_10AE4C4 = g->getPtr<uint16_t>(0x10AE4C4);
-
-    const auto drawHorLine = g->getFn<void(__thiscall)(MapData*, int, int, int, int16_t)>(0xA8A10);
-    const auto drawVertLine = g->getFn<void(__thiscall)(MapData*, int, int, int, int16_t)>(0xA8A80);
-
-    const float x = self->worldX;
-    const float y = self->worldY;
-    const float h = self->height;
-
-    // These values were found empirically
-    float isoX = (x - y) / scale / 1.07f;
-    float isoY = ((x + y) * 0.5f - h) / scale / 1.1f;
-
-    int mapX = halfScreenWidth + static_cast<int>(isoX);
-    int mapY = vertCenterMargin + static_cast<int>(isoY);
-
-    drawHorLine(mapData, mapX - 2, mapY, 5, word_10AE4C4[self->teamId]);
-    drawVertLine(mapData, mapX, mapY - 2, 5, word_10AE4C4[self->teamId]);
-}
-
-void __declspec(noinline) __fastcall GameDllHooks::sub_100BE6C0(PlaneData* self, void* /*dummy*/, int halfScreenWidth, int vertCenterMargin, int scale)
-{
-    auto* const g = globals_;
-
-    MapData* mapData = g->getPtr<MapData>(0x109E1A0);
-    uint16_t* word_10AE4C4 = g->getPtr<uint16_t>(0x109E674);
-
-    const auto drawHorLine = g->getFn<void(__thiscall)(MapData*, int, int, int, int16_t)>(0xA89E0);
-    const auto drawVertLine = g->getFn<void(__thiscall)(MapData*, int, int, int, int16_t)>(0xA8A50);
-
-    const float x = self->worldX;
-    const float y = self->worldY;
-    const float h = self->height;
-
-    // These values were found empirically
-    float isoX = (x - y) / scale / 1.07f;
-    float isoY = ((x + y) * 0.5f - h) / scale / 1.1f;
-
-    int mapX = halfScreenWidth + static_cast<int>(isoX);
-    int mapY = vertCenterMargin + static_cast<int>(isoY);
-
-    drawHorLine(mapData, mapX - 2, mapY, 5, word_10AE4C4[self->teamId]);
-    drawVertLine(mapData, mapX, mapY - 2, 5, word_10AE4C4[self->teamId]);
+    data.drawHorLine(data.mapData, mapX - 2, mapY, 5, data.colors[mapData->teamId]);
+    data.drawVertLine(data.mapData, mapX, mapY - 2, 5, data.colors[mapData->teamId]);
 }
