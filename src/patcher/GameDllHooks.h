@@ -382,6 +382,7 @@ private:
         void(__thiscall* deinitHandle)(HANDLE*);
         char* xchngTogameMis;
         ModuleStateBase* cadPtr;
+        void* (__cdecl* fnNew)(size_t);
     };
 
     struct FogDrawData

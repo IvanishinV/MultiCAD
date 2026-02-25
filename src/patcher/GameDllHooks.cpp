@@ -2582,7 +2582,8 @@ void __declspec(noinline) __fastcall GameDllHooks::sub_100AC870(MapData* mapData
         g->getFn<void(__thiscall)(HANDLE*)>(0xCC130),
         g->getFn<void(__thiscall)(HANDLE*)>(0xCBF80),
         g->getPtr<char>(0xFC714),
-        reinterpret_cast<ModuleStateBase*>(g->getValue<uintptr_t>(0x106F6E4) - (offsetof(ModuleStateBase, windowRect) - offsetof(ModuleStateBase, fogSprites)))
+        reinterpret_cast<ModuleStateBase*>(g->getValue<uintptr_t>(0x106F6E4) - (offsetof(ModuleStateBase, windowRect) - offsetof(ModuleStateBase, fogSprites))),
+        g->getPtr<void* (__cdecl)(size_t)>(0xD9409)
     };
 
     readStrategicMapFromFile(mapData, data);
@@ -2601,7 +2602,8 @@ void __declspec(noinline) __fastcall GameDllHooks::sub_100A8AF0_v2_3(MapData* ma
         g->getFn<void(__thiscall)(HANDLE*)>(0xC6500),
         g->getFn<void(__thiscall)(HANDLE*)>(0xC6350),
         g->getPtr<char>(0xEC908),
-        reinterpret_cast<ModuleStateBase*>(g->getValue<uintptr_t>(0x10AEABC) - (offsetof(ModuleStateBase, windowRect) - offsetof(ModuleStateBase, fogSprites)))
+        reinterpret_cast<ModuleStateBase*>(g->getValue<uintptr_t>(0x10AEABC) - (offsetof(ModuleStateBase, windowRect) - offsetof(ModuleStateBase, fogSprites))),
+        g->getPtr<void* (__cdecl)(size_t)>(0xD1829)
     };
 
     readStrategicMapFromFile(mapData, data);
@@ -2620,7 +2622,8 @@ void __declspec(noinline) __fastcall GameDllHooks::sub_100A8AF0_v2_4(MapData* ma
         g->getFn<void(__thiscall)(HANDLE*)>(0xC6510),
         g->getFn<void(__thiscall)(HANDLE*)>(0xC6360),
         g->getPtr<char>(0xEC908),
-        reinterpret_cast<ModuleStateBase*>(g->getValue<uintptr_t>(0x10AEABC) - (offsetof(ModuleStateBase, windowRect) - offsetof(ModuleStateBase, fogSprites)))
+        reinterpret_cast<ModuleStateBase*>(g->getValue<uintptr_t>(0x10AEABC) - (offsetof(ModuleStateBase, windowRect) - offsetof(ModuleStateBase, fogSprites))),
+        g->getPtr<void* (__cdecl)(size_t)>(0xD1839)
     };
 
     readStrategicMapFromFile(mapData, data);
@@ -2639,7 +2642,8 @@ void __declspec(noinline) __fastcall GameDllHooks::sub_100A8AF0_bg(MapData* mapD
         g->getFn<void(__thiscall)(HANDLE*)>(0xC6360),
         g->getFn<void(__thiscall)(HANDLE*)>(0xC61B0),
         g->getPtr<char>(0xECB28),
-        reinterpret_cast<ModuleStateBase*>(g->getValue<uintptr_t>(0x109EC6C) - (offsetof(ModuleStateBase, windowRect) - offsetof(ModuleStateBase, fogSprites)))
+        reinterpret_cast<ModuleStateBase*>(g->getValue<uintptr_t>(0x109EC6C) - (offsetof(ModuleStateBase, windowRect) - offsetof(ModuleStateBase, fogSprites))),
+        g->getPtr<void* (__cdecl)(size_t)>(0xD1689)
     };
 
     readStrategicMapFromFile(mapData, data);
@@ -3339,7 +3343,7 @@ void GameDllHooks::readStrategicMapFromFile(MapData* mapData, const ReadStrategi
         mapData->verticalCenterMargin = (screenHeight - miniMapScreenHeight) / 2;
 
         // Buffer for future usage
-        mapData->srcBuf = new uint8_t[3 * screenWidth * screenHeight];
+        mapData->srcBuf = (uint8_t*)data.fnNew(3 * screenWidth * screenHeight);
         memset(mapData->srcBuf, 0, 3 * screenWidth * screenHeight);
 
         // Bilinear interpolation
