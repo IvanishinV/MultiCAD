@@ -261,41 +261,11 @@ private:
         unsigned char param_17A;
         char param_17B;
     };
-
 #pragma pack(pop)
 
     static_assert(sizeof(GameData4) == 0x37, "GameData4 size mismatch");
     static_assert(sizeof(GameData5) == 0x17C, "GameData5 size mismatch");
 
-#pragma pack(push, 1)
-    struct MapData
-    {
-        int* vtable;
-        int var_004[4];
-        int width_minus_1;
-        int height_minus_1;
-        int var_1C[6];
-        int stride;
-        int clipLeft;
-        int clipTop;
-        int clipRight;
-        int clipBottom;
-        uint16_t* dstBuf;
-        int var_4C[5];
-        bool var_060;
-        bool isMapLoaded;
-        int screenSurfaceWidth;
-        int screenSurfaceHeight;
-        int verticalCenterMargin;
-        bool var_06E;
-        uint8_t* srcBuf;
-    };
-#pragma pack(pop)
-
-    static_assert(sizeof(MapData) == 0x73, "GameData4 size mismatch");
-    static_assert(offsetof(MapData, dstBuf) == 0x48, "dstBuf offset mismatch");
-    static_assert(offsetof(MapData, isMapLoaded) == 0x61, "isMapLoaded offset mismatch");
-    static_assert(offsetof(MapData, srcBuf) == 0x6F, "srcBuf offset mismatch");
 
     enum class TeamType : uint8_t
     {
@@ -359,6 +329,228 @@ private:
 
 #pragma endregion Helper_Structs
 
+#pragma region UI_Helper_Structs
+    // Structures used in UI hooks
+    struct UiEvent
+    {
+        int eventTag;
+        int flags;
+        int x;
+        int y;
+    };
+
+
+    struct ZoneHandler;
+
+    struct ZoneHandlerVtable
+    {
+        void(__thiscall* fn1)(ZoneHandler*, int);
+        void(__thiscall* fn2)(ZoneHandler*, int);
+        void(__thiscall* fn3)(ZoneHandler*);
+        void(__thiscall* fn4)(ZoneHandler*, int, int);
+        void(__thiscall* fn5)(ZoneHandler*);
+        void*            fn6;
+        void(__thiscall* onMouseEvent)(ZoneHandler*, UiEvent*);
+        int(__thiscall*  fn8)(ZoneHandler*, int);
+        int(__thiscall*  fn9)(ZoneHandler*, ZoneHandler*);
+        void(__thiscall* fn10)(ZoneHandler*, ZoneHandler*);
+        void(__thiscall* fn11)(ZoneHandler*, ZoneHandler*);
+        void(__thiscall* calculateCursorType)(ZoneHandler*, int, int, int*);
+        int(__thiscall*  fn13)(ZoneHandler*, int, int, int);
+        int(__thiscall*  fn14)(ZoneHandler*, int, int, int, int);
+        void*            fn15;
+    };
+
+    struct ZoneHandler
+    {
+        ZoneHandlerVtable* vtable;
+        int var1;
+        ZoneHandler* next;
+        uint8_t zoneId;
+    };
+
+
+    struct UiElementBase;
+
+    struct UiElementVtable
+    {
+        void(__thiscall* fn1)(UiElementBase*, int, int);
+        void(__thiscall* fn2)(UiElementBase*);
+        void(__thiscall* onAdd)(UiElementBase*);
+        void(__thiscall* onRemoveFn)(UiElementBase*);
+        void(__thiscall* handleCursorClick)(UiElementBase*, UiEvent*);
+        int(__thiscall*  fn6)(UiElementBase*, int, int, int, int);
+        int(__thiscall*  handlePressButton)(UiElementBase*, UiEvent*);
+        void(__thiscall* onLoseFocus)(UiElementBase*);
+        void(__thiscall* fn9)(UiElementBase*);
+        void(__thiscall* fn_A1000)(UiElementBase*);
+        void(__thiscall* drawUiElement)(UiElementBase*);
+        void(__thiscall* fn10)(UiElementBase*);
+        void(__thiscall* fn11)(UiElementBase*);
+        void(__thiscall* fn12)(UiElementBase*, int, int);
+        void(__thiscall* calculateClosedArea)(UiElementBase*);
+        int(__thiscall*  calculateCursorType)(UiElementBase*, int, int, int*);
+        int(__thiscall*  fn13)(UiElementBase*, int, int, char*);
+        void(__thiscall* addCtlEventToRingBuffer)(UiElementBase*, int, int, int);
+        void(__thiscall* addCtlEventToRingBuffer_2)(UiElementBase*, int, int, int);
+        void(__thiscall* addEventToRingBuffer)(UiElementBase*, int, Rect*, int, int, int);
+        void(__thiscall* removeUiElement)(UiElementBase*);
+    };
+
+    static_assert(offsetof(UiElementVtable, onAdd) == 0x8, "onAdd offset mismatch");
+    static_assert(offsetof(UiElementVtable, handleCursorClick) == 0x10, "handleCursorClick offset mismatch");
+    static_assert(offsetof(UiElementVtable, onLoseFocus) == 0x1C, "onLoseFocus offset mismatch");
+
+
+    struct UiEventArea
+    {
+        int tag;
+        int x;
+        int y;
+        int width;
+        int height;
+        int flags;
+        int flags_2;
+        UiEventArea* next;
+    };
+
+    static_assert(offsetof(UiEventArea, next) == 0x1C, "next offset mismatch");
+
+
+    struct UiElementBase
+    {
+        UiElementVtable* vtable;
+        UiElementBase* next;
+        UiElementBase* prev;
+        int leftX;
+        int topY;
+        int rightX;
+        int bottomY;
+        UiEventArea* uiEventArea;
+        int type;
+        int var_24;
+        int mouseFlags;
+        int var_2C;
+        Pixel* sprites;
+        int stride;
+        int clipLeft;
+        int clipTop;
+        int clipRight;
+        int clipBottom;
+        uint16_t* dstBuf;
+        uint8_t* zoneBuffer;
+        ZoneHandler* zoneList;
+        ZoneHandler* var_54;
+        ZoneHandler* forced;
+        ZoneHandler* current;
+    };
+
+    static_assert(offsetof(UiElementBase, uiEventArea) == 0x1C, "uiEventArea offset mismatch");
+    static_assert(offsetof(UiElementBase, type) == 0x20, "type offset mismatch");
+    static_assert(offsetof(UiElementBase, sprites) == 0x30, "sprites offset mismatch");
+    static_assert(offsetof(UiElementBase, stride) == 0x34, "stride offset mismatch");
+    static_assert(offsetof(UiElementBase, zoneBuffer) == 0x4C, "zoneBuffer offset mismatch");
+    static_assert(offsetof(UiElementBase, zoneList) == 0x50, "zoneList offset mismatch");
+    static_assert(offsetof(UiElementBase, forced) == 0x58, "forced offset mismatch");
+    static_assert(offsetof(UiElementBase, current) == 0x5C, "isLoaded offset mismatch");
+
+
+    enum UiEventFlags
+    {
+        UI_MOUSE_MOVE = 0x1,
+        UI_MOUSE_ENTER = 0x2,
+        UI_MOUSE_LEAVE = 0x4,
+        UI_DISABLED = 0x200,
+        UI_STOP_PROPAGATION = 0x400
+    };
+
+
+#pragma pack(push, 1)
+    struct UiStrategicMapElement : UiElementBase
+    {
+        bool var_060;
+        bool isMapLoaded;
+        int screenSurfaceWidth;
+        int screenSurfaceHeight;
+        int verticalCenterMargin;
+        bool var_06E;
+        uint8_t* srcBuf;
+    };
+#pragma pack(pop)
+
+    static_assert(sizeof(UiStrategicMapElement) == 0x73, "UiStrategicMapElement size mismatch");
+    static_assert(offsetof(UiStrategicMapElement, dstBuf) == 0x48, "dstBuf offset mismatch");
+    static_assert(offsetof(UiStrategicMapElement, isMapLoaded) == 0x61, "isMapLoaded offset mismatch");
+    static_assert(offsetof(UiStrategicMapElement, srcBuf) == 0x6F, "srcBuf offset mismatch");
+#pragma endregion
+
+#pragma region UI_Common_Function_Structs
+    struct AddUiElementData
+    {
+        int type;
+        UiElementBase** pointed;
+        int* updatedUiFlag;
+        int screenHeight;
+        int screenWidth;
+    };
+
+    struct DrawUiElementData
+    {
+        int* dword_103B708;
+        int(__thiscall* fn_79900)(int*, GameData*);
+        int(__thiscall* fn_79950)(int*, GameData*);
+        void(__cdecl* fn_98410)(int, int, int, int, int, int, void*);
+    };
+
+    struct CalculateClosedAreaData
+    {
+        int* dword_103CF10;
+        void(__thiscall*fn_794B0)(int*, char, int, int, int, int);
+    };
+
+    struct DispatchMouseButtonEventData
+    {
+        int eventTag;
+        int mouseX;
+        int mouseY;
+        UiEventArea* uiEventAreas;
+        int(__cdecl* writeEventToRingBuffer)(int, int, int, int);
+    };
+
+    struct DispatchMouseMoveEventData
+    {
+        int prevMouseX;
+        int prevMouseY;
+        int mouseX;
+        int mouseY;
+        UiEventArea* uiEventAreas;
+        int(__cdecl* writeEventToRingBuffer)(int, int, int, int);
+    };
+
+    struct DispatchWndMessageData
+    {
+        int a2;
+        int a3;
+        int a4;
+        int* dword_1106F6F0;
+
+        int(__cdecl* dispatchMouseButtonEvent)(int);
+        int(__cdecl* dispatchMouseMoveEvent)(int, int, int, int);
+        int(__cdecl* writeEventToRingBuffer)(int, int, int, int);
+        int(__cdecl* multiByteToWideCharOr)(int);
+
+        int screenHeight;
+        int screenWidth;
+
+        int(__cdecl* addUiEventArea)(UiEventArea*);
+        int(__cdecl* removeUiEventAreaSafe)(UiEventArea*);
+        void(__cdecl* addUiElement)(UiElementBase*, int);
+        void(__thiscall* removeUiElement)(UiElementBase*);
+
+        UiElementVtable* strategicMapUiVtable;
+    };
+#pragma endregion
+
 #pragma region Common_Function_Structs
     // Structures used in common patterns
     struct SomeRandCalcData
@@ -405,10 +597,10 @@ private:
     struct FogOnStrategicMap
     {
         void(__cdecl* fn_97740)(int*, int, int, int, int);
-        void(__thiscall* fn_A1110)(MapData*);
+        void(__thiscall* fn_A1110)(UiStrategicMapElement*);
 
-        void(__thiscall* drawHorLine)(MapData*, int, int, int, int16_t);
-        void(__thiscall* drawVertLine)(MapData*, int, int, int, int16_t);
+        void(__thiscall* drawHorLine)(UiElementBase*, int, int, int, int16_t);
+        void(__thiscall* drawVertLine)(UiElementBase*, int, int, int, int16_t);
         void(__stdcall* drawPlaneCrosses)(int, int, int);
 
         UnitData* units;
@@ -428,8 +620,8 @@ private:
 
     struct ScreenRectDrawData
     {
-        void(__thiscall* fn1)(MapData*, int, int);
-        void(__thiscall* fn2)(MapData*, int, int, int, int);
+        void(__thiscall* fn1)(UiElementBase*, int, int);
+        void(__thiscall* fn2)(UiElementBase*, int, int, int, int);
         int mapHeight;
         int mapPosY;
         int mapPosX;
@@ -437,10 +629,10 @@ private:
 
     struct PlaneMapDrawData
     {
-        MapData* mapData;
+        UiElementBase* mapData;
         uint16_t* colors;
-        void(__thiscall* drawHorLine)(MapData*, int, int, int, int16_t);
-        void(__thiscall* drawVertLine)(MapData*, int, int, int, int16_t);
+        void(__thiscall* drawHorLine)(UiElementBase*, int, int, int, int16_t);
+        void(__thiscall* drawVertLine)(UiElementBase*, int, int, int, int16_t);
         int halfScreenWidth;
         int vertCenterMargin;
         int scale;
@@ -497,22 +689,34 @@ public:
 
     // These methods are related to strategic map view and exist only in SS2 and SS:RW
     // Fixes strategic map loading from mis_mini file
-    static void __declspec(noinline) __fastcall sub_100AC870(MapData* self);        // SS 2
-    static void __declspec(noinline) __fastcall sub_100A8AF0_v2_3(MapData* self);   // SS:RW v2.3
-    static void __declspec(noinline) __fastcall sub_100A8AF0_v2_4(MapData* self);   // SS:RW v2.4
-    static void __declspec(noinline) __fastcall sub_100A8AF0_bg(MapData* self);     // Black Gold
+    static void __declspec(noinline) __fastcall sub_100AC870(UiStrategicMapElement* self);        // SS 2
+    static void __declspec(noinline) __fastcall sub_100A8AF0_v2_3(UiStrategicMapElement* self);   // SS:RW v2.3
+    static void __declspec(noinline) __fastcall sub_100A8AF0_v2_4(UiStrategicMapElement* self);   // SS:RW v2.4
+    static void __declspec(noinline) __fastcall sub_100A8AF0_bg(UiStrategicMapElement* self);     // Black Gold
     // Fixes original bug with white rectangle in strategic view
-    static void __declspec(noinline) __fastcall sub_100ACDE0(MapData* self);        // SS 2
-    static void __declspec(noinline) __fastcall sub_100A9060(MapData* self);        // SS:RW
-    static void __declspec(noinline) __fastcall sub_100A9060_bg(MapData* self);     // Black Gold
+    static void __declspec(noinline) __fastcall sub_100ACDE0(UiStrategicMapElement* self);        // SS 2
+    static void __declspec(noinline) __fastcall sub_100A9060(UiStrategicMapElement* self);        // SS:RW
+    static void __declspec(noinline) __fastcall sub_100A9060_bg(UiStrategicMapElement* self);     // Black Gold
     // Fixes the same original bug with copying rectangle in strategic view. Related to the previous one
-    static void __declspec(noinline) __fastcall sub_100AD2C0(MapData* self, void* /*dummy*/, int offsetX, int offsetY);    // SS 2
-    static void __declspec(noinline) __fastcall sub_100A97C0(MapData* self, void* /*dummy*/, int offsetX, int offsetY);    // SS:RW
-    static void __declspec(noinline) __fastcall sub_100A97C0_bg(MapData* self, void* /*dummy*/, int offsetX, int offsetY); // Black Gold
+    static void __declspec(noinline) __fastcall sub_100AD2C0(UiStrategicMapElement* self, void* /*dummy*/, int offsetX, int offsetY);    // SS 2
+    static void __declspec(noinline) __fastcall sub_100A97C0(UiStrategicMapElement* self, void* /*dummy*/, int offsetX, int offsetY);    // SS:RW
+    static void __declspec(noinline) __fastcall sub_100A97C0_bg(UiStrategicMapElement* self, void* /*dummy*/, int offsetX, int offsetY); // Black Gold
     // Draws plane cross on strategic map. Originally it draws cross incorrectly since it doesn't use height
     static void __declspec(noinline) __fastcall sub_100C3830(PlaneData* self, void* /*dummy*/, int halfScreenWidth, int vertCenterMargin, int scale);   // SS 2
     static void __declspec(noinline) __fastcall sub_100BE6F0(PlaneData* self, void* /*dummy*/, int halfScreenWidth, int vertCenterMargin, int scale);   // SS:RW
     static void __declspec(noinline) __fastcall sub_100BE6C0(PlaneData* self, void* /*dummy*/, int halfScreenWidth, int vertCenterMargin, int scale);   // Black Gold
+
+    // These methods are used to add opportunity to disable/enable in-game UI
+
+    // SS 2
+    static void __declspec(noinline) __cdecl    addUiElement_v2_2(UiElementBase* self, int type);
+    static void __declspec(noinline) __fastcall drawUiElement_v2_2(UiElementBase* self);
+    static void __declspec(noinline) __fastcall calculateClosedArea_v2_2(UiElementBase* self);
+    static int  __declspec(noinline) __fastcall calculateCursorType_v2_2(UiElementBase* self, void* /*dummy*/, int x, int y, int* a4);
+    static void __declspec(noinline) __cdecl    dispatchMouseButtonEvent_v2_2(int eventTag);
+    static void __declspec(noinline) __cdecl    dispatchMouseMoveEvent_v2_2(int prevMouseX, int prevMouseY, int mouseX, int mouseY);
+    static int  __declspec(noinline) __cdecl    dispatchWndMessage_v2_2(int a1, int a2, int a3, int a4);
+
 private:
     static bool is_valid_ptr(void* p);
 
@@ -521,8 +725,18 @@ private:
     static void drawFogOnWorld(const FogDrawData& data);
     static void drawFogOnWorld_v2(const FogDrawData& data);
 
-    static void readStrategicMapFromFile(MapData* mapData, const ReadStrategicMapData& data);
-    static void drawFogOnStrategicMap(MapData* mapData, const FogOnStrategicMap& data);
-    static void drawScreenRectOnStrategicMap(MapData* mapData, int offsetX, int offsetY, const ScreenRectDrawData& data);
+    // Common functions to process strategic map
+    static void readStrategicMapFromFile(UiStrategicMapElement* mapData, const ReadStrategicMapData& data);
+    static void drawFogOnStrategicMap(UiStrategicMapElement* mapData, const FogOnStrategicMap& data);
+    static void drawScreenRectOnStrategicMap(UiStrategicMapElement* mapData, int offsetX, int offsetY, const ScreenRectDrawData& data);
     static void drawPlaneCrossOnStrategicMap(PlaneData* mapData, const PlaneMapDrawData& data);
+
+    // Common functions to disable/enable in-game UI
+    static void addUiElement(UiElementBase* elem, const AddUiElementData& data);
+    static void drawUiElement(UiElementBase* self, const DrawUiElementData& data);
+    static void calculateClosedArea(UiElementBase* self, const CalculateClosedAreaData& data);
+    static int  calculateCursorType(UiElementBase* self, int x, int y, int* a4);
+    static void dispatchMouseButtonEvent(const DispatchMouseButtonEventData& data);
+    static void dispatchMouseMoveEvent(const DispatchMouseMoveEventData& data);
+    static int  dispatchWndMessage(const DispatchWndMessageData& data);
 };

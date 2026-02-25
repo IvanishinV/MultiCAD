@@ -948,7 +948,7 @@ void drawMainSurfaceAnimationSpriteStencil(S32 x, S32 y, U16 level, const Animat
 
 // 0x10006ef8
 /**
- * Draws a sprite on main surface to foreground before static objects via specified stencil level . Draws any units, earth explosion, splash of water.
+ * Draws a sprite on main surface to foreground before static objects via specified stencil level. Draws any units, earth explosion, splash of water.
  * All such objects are considered background within a certain radius from the cursor.
  * 
  * Created by IVA 16.07.2025.

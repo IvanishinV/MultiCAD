@@ -112,6 +112,7 @@
     <ClInclude Include="profiles\ProfileFactory.h" />
     <ClInclude Include="profiles\Profiles.h" />
     <ClInclude Include="profiles\ProfileSpecs.h" />
+    <ClInclude Include="ui\UIFilter.h" />
     <ClInclude Include="ui\ResolutionDialog.h" />
     <ClInclude Include="ui\ResolutionVerifier.h" />
     <ClInclude Include="ui\SplashConfig.h" />
@@ -131,6 +132,7 @@
     <ClCompile Include="patcher\GameDllHooks.cpp" />
     <ClCompile Include="patcher\MenuDllHooks.cpp" />
     <ClCompile Include="patcher\PatchInstallers.cpp" />
+    <ClCompile Include="ui\UIFilter.cpp" />
     <ClCompile Include="ui\ResolutionDialog.cpp" />
     <ClCompile Include="ui\ResolutionVerifier.cpp" />
   </ItemGroup>

@@ -651,6 +651,15 @@ const std::array hooks_game_ss_2_v2_2
     HookSpec{0xACDE0, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_100ACDE0)},
     HookSpec{0xAD2C0, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_100AD2C0)},
     HookSpec{0xC3830, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_100C3830)},
+
+    // Hooks for disabling UI via shortcut
+    HookSpec{0x988C0, reinterpret_cast<uintptr_t>(&GameDllHooks::addUiElement_v2_2)},
+    HookSpec{0xA1130, reinterpret_cast<uintptr_t>(&GameDllHooks::drawUiElement_v2_2)},
+    HookSpec{0xA1200, reinterpret_cast<uintptr_t>(&GameDllHooks::calculateClosedArea_v2_2)},
+    HookSpec{0xA1220, reinterpret_cast<uintptr_t>(&GameDllHooks::calculateCursorType_v2_2)},
+    HookSpec{0xCACD0, reinterpret_cast<uintptr_t>(&GameDllHooks::dispatchMouseButtonEvent_v2_2)},
+    HookSpec{0xCAD50, reinterpret_cast<uintptr_t>(&GameDllHooks::dispatchMouseMoveEvent_v2_2)},
+    HookSpec{0xCAF30, reinterpret_cast<uintptr_t>(&GameDllHooks::dispatchWndMessage_v2_2)},
 };
 
 const std::array patches_game_ss_2_v2_2

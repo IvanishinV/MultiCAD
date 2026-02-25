@@ -66,6 +66,9 @@
     <ClInclude Include="core\types.h">
       <Filter>Header Files\Core</Filter>
     </ClInclude>
+    <ClInclude Include="ui\UIFilter.h">
+      <Filter>Header Files\UI</Filter>
+    </ClInclude>
     <ClInclude Include="ui\ResolutionVerifier.h">
       <Filter>Header Files\UI</Filter>
     </ClInclude>
@@ -145,6 +148,9 @@
     </ClCompile>
     <ClCompile Include="core\renderer.cpp">
       <Filter>Source Files\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\UIFilter.cpp">
+      <Filter>Source Files\UI</Filter>
     </ClCompile>
     <ClCompile Include="ui\ResolutionDialog.cpp">
       <Filter>Source Files\UI</Filter>

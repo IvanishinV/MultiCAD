@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "GameDllHooks.h"
+#include "UiFilter.h"
 
 int __declspec(noinline) __fastcall GameDllHooks::sub_1001D240(GameData5* self, void* /*dummy*/, int** a2)
 {
@@ -2569,7 +2570,7 @@ bool GameDllHooks::is_valid_ptr(void* p)
 }
 
 
-void __declspec(noinline) __fastcall GameDllHooks::sub_100AC870(MapData* mapData)
+void __declspec(noinline) __fastcall GameDllHooks::sub_100AC870(UiStrategicMapElement* mapData)
 {
     auto* const g = globals_;
 
@@ -2589,7 +2590,7 @@ void __declspec(noinline) __fastcall GameDllHooks::sub_100AC870(MapData* mapData
     readStrategicMapFromFile(mapData, data);
 }
 
-void __declspec(noinline) __fastcall GameDllHooks::sub_100A8AF0_v2_3(MapData* mapData)
+void __declspec(noinline) __fastcall GameDllHooks::sub_100A8AF0_v2_3(UiStrategicMapElement* mapData)
 {
     auto* const g = globals_;
 
@@ -2609,7 +2610,7 @@ void __declspec(noinline) __fastcall GameDllHooks::sub_100A8AF0_v2_3(MapData* ma
     readStrategicMapFromFile(mapData, data);
 }
 
-void __declspec(noinline) __fastcall GameDllHooks::sub_100A8AF0_v2_4(MapData* mapData)
+void __declspec(noinline) __fastcall GameDllHooks::sub_100A8AF0_v2_4(UiStrategicMapElement* mapData)
 {
     auto* const g = globals_;
 
@@ -2629,7 +2630,7 @@ void __declspec(noinline) __fastcall GameDllHooks::sub_100A8AF0_v2_4(MapData* ma
     readStrategicMapFromFile(mapData, data);
 }
 
-void __declspec(noinline) __fastcall GameDllHooks::sub_100A8AF0_bg(MapData* mapData)
+void __declspec(noinline) __fastcall GameDllHooks::sub_100A8AF0_bg(UiStrategicMapElement* mapData)
 {
     auto* const g = globals_;
 
@@ -2650,16 +2651,16 @@ void __declspec(noinline) __fastcall GameDllHooks::sub_100A8AF0_bg(MapData* mapD
 }
 
 
-void __declspec(noinline) __fastcall GameDllHooks::sub_100ACDE0(MapData* mapData)
+void __declspec(noinline) __fastcall GameDllHooks::sub_100ACDE0(UiStrategicMapElement* mapData)
 {
     auto* const g = globals_;
 
     FogOnStrategicMap data
     {
         g->getFn<void(__cdecl)(int*, int, int, int, int)>(0x97740),
-        g->getFn<void(__thiscall)(MapData*)>(0xA1110),
-        g->getFn<void(__thiscall)(MapData*, int, int, int, int16_t)>(0xAC790),
-        g->getFn<void(__thiscall)(MapData*, int, int, int, int16_t)>(0xAC800),
+        g->getFn<void(__thiscall)(UiStrategicMapElement*)>(0xA1110),
+        g->getFn<void(__thiscall)(UiElementBase*, int, int, int, int16_t)>(0xAC790),
+        g->getFn<void(__thiscall)(UiElementBase*, int, int, int, int16_t)>(0xAC800),
         g->getFn<void(__stdcall)(int, int, int)>(0xC3420),
         g->getValue<UnitData*>(0x10F258),
         105,
@@ -2676,24 +2677,28 @@ void __declspec(noinline) __fastcall GameDllHooks::sub_100ACDE0(MapData* mapData
     drawFogOnStrategicMap(mapData, data);
 }
 
-void __declspec(noinline) __fastcall GameDllHooks::sub_100A9060(MapData* mapData)
+void __declspec(noinline) __fastcall GameDllHooks::sub_100A9060(UiStrategicMapElement* mapData)
 {
     auto* const g = globals_;
 
     FogOnStrategicMap data
     {
         g->getFn<void(__cdecl)(int*, int, int, int, int)>(0x94A30),
-        g->getFn<void(__thiscall)(MapData*)>(0x9DBE0),
-        g->getFn<void(__thiscall)(MapData*, int, int, int, int16_t)>(0xA8A10),
-        g->getFn<void(__thiscall)(MapData*, int, int, int, int16_t)>(0xA8A80),
+        g->getFn<void(__thiscall)(UiStrategicMapElement*)>(0x9DBE0),
+
+        g->getFn<void(__thiscall)(UiElementBase*, int, int, int, int16_t)>(0xA8A10),
+        g->getFn<void(__thiscall)(UiElementBase*, int, int, int, int16_t)>(0xA8A80),
         g->getFn<void(__stdcall)(int, int, int)>(0xBE2E0),
+
         g->getValue<UnitData*>(0xFCC90),
         113,
         g->getValue<int16_t>(0x10AE506),
+
         g->getValue<int>(0x13139C),
         g->getValue<int>(0x1313A0),
         g->getValue<int>(0x10A9508),
         g->getValue<int>(0x10A950C),
+
         g->getValue<uint8_t>(0x10AE441),
         g->getPtr<uint8_t>(0x6311B4),
         reinterpret_cast<ModuleStateBase*>(g->getValue<uintptr_t>(0x10AEABC) - (offsetof(ModuleStateBase, windowRect) - offsetof(ModuleStateBase, fogSprites)))
@@ -2702,16 +2707,16 @@ void __declspec(noinline) __fastcall GameDllHooks::sub_100A9060(MapData* mapData
     drawFogOnStrategicMap(mapData, data);
 }
 
-void __declspec(noinline) __fastcall GameDllHooks::sub_100A9060_bg(MapData* mapData)
+void __declspec(noinline) __fastcall GameDllHooks::sub_100A9060_bg(UiStrategicMapElement* mapData)
 {
     auto* const g = globals_;
 
     FogOnStrategicMap data
     {
         g->getFn<void(__cdecl)(int*, int, int, int, int)>(0x94A00),
-        g->getFn<void(__thiscall)(MapData*)>(0x9DBB0),
-        g->getFn<void(__thiscall)(MapData*, int, int, int, int16_t)>(0xA89E0),
-        g->getFn<void(__thiscall)(MapData*, int, int, int, int16_t)>(0xA8A50),
+        g->getFn<void(__thiscall)(UiStrategicMapElement*)>(0x9DBB0),
+        g->getFn<void(__thiscall)(UiElementBase*, int, int, int, int16_t)>(0xA89E0),
+        g->getFn<void(__thiscall)(UiElementBase*, int, int, int, int16_t)>(0xA8A50),
         g->getFn<void(__stdcall)(int, int, int)>(0xBE2B0),
         g->getValue<UnitData*>(0xFCE40),
         113,
@@ -2729,14 +2734,14 @@ void __declspec(noinline) __fastcall GameDllHooks::sub_100A9060_bg(MapData* mapD
 }
 
 
-void __declspec(noinline) __fastcall GameDllHooks::sub_100AD2C0(MapData* self, void* /*dummy*/, int offsetX, int offsetY)
+void __declspec(noinline) __fastcall GameDllHooks::sub_100AD2C0(UiStrategicMapElement* self, void* /*dummy*/, int offsetX, int offsetY)
 {
     auto* const g = globals_;
 
     ScreenRectDrawData data
     {
-        g->getFn<void(__thiscall)(MapData*, int, int)>(0xA11E0),
-        g->getFn<void(__thiscall)(MapData*, int, int, int, int)>(0x99880),
+        g->getFn<void(__thiscall)(UiElementBase*, int, int)>(0xA11E0),
+        g->getFn<void(__thiscall)(UiElementBase*, int, int, int, int)>(0x99880),
         g->getValue<int>(0x142384),
         g->getValue<int>(0x106A130),
         g->getValue<int>(0x106A134)
@@ -2745,14 +2750,14 @@ void __declspec(noinline) __fastcall GameDllHooks::sub_100AD2C0(MapData* self, v
     drawScreenRectOnStrategicMap(self, offsetX, offsetY, data);
 }
 
-void __declspec(noinline) __fastcall GameDllHooks::sub_100A97C0(MapData* self, void* /*dummy*/, int offsetX, int offsetY)
+void __declspec(noinline) __fastcall GameDllHooks::sub_100A97C0(UiStrategicMapElement* self, void* /*dummy*/, int offsetX, int offsetY)
 {
     auto* const g = globals_;
 
     ScreenRectDrawData data
     {
-        g->getFn<void(__thiscall)(MapData*, int, int)>(0x9DCB0),
-        g->getFn<void(__thiscall)(MapData*, int, int, int, int)>(0x96A00),
+        g->getFn<void(__thiscall)(UiElementBase*, int, int)>(0x9DCB0),
+        g->getFn<void(__thiscall)(UiElementBase*, int, int, int, int)>(0x96A00),
         g->getValue<int>(0x13139C),
         g->getValue<int>(0x10A9508),
         g->getValue<int>(0x10A950C)
@@ -2761,14 +2766,14 @@ void __declspec(noinline) __fastcall GameDllHooks::sub_100A97C0(MapData* self, v
     drawScreenRectOnStrategicMap(self, offsetX, offsetY, data);
 }
 
-void __declspec(noinline) __fastcall GameDllHooks::sub_100A97C0_bg(MapData* self, void* /*dummy*/, int offsetX, int offsetY)
+void __declspec(noinline) __fastcall GameDllHooks::sub_100A97C0_bg(UiStrategicMapElement* self, void* /*dummy*/, int offsetX, int offsetY)
 {
     auto* const g = globals_;
 
     ScreenRectDrawData data
     {
-        g->getFn<void(__thiscall)(MapData*, int, int)>(0x9DC80),
-        g->getFn<void(__thiscall)(MapData*, int, int, int, int)>(0x969D0),
+        g->getFn<void(__thiscall)(UiElementBase*, int, int)>(0x9DC80),
+        g->getFn<void(__thiscall)(UiElementBase*, int, int, int, int)>(0x969D0),
         g->getValue<int>(0x13154C),
         g->getValue<int>(0x10996B8),
         g->getValue<int>(0x10996BC)
@@ -2784,10 +2789,10 @@ void __declspec(noinline) __fastcall GameDllHooks::sub_100C3830(PlaneData* self,
 
     PlaneMapDrawData data
     {
-        g->getPtr<MapData>(0x106EC18),
+        g->getPtr<UiStrategicMapElement>(0x106EC18),
         g->getPtr<uint16_t>(0x106F0EC),
-        g->getFn<void(__thiscall)(MapData*, int, int, int, int16_t)>(0xAC790),
-        g->getFn<void(__thiscall)(MapData*, int, int, int, int16_t)>(0xAC800),
+        g->getFn<void(__thiscall)(UiElementBase*, int, int, int, int16_t)>(0xAC790),
+        g->getFn<void(__thiscall)(UiElementBase*, int, int, int, int16_t)>(0xAC800),
         halfScreenWidth,
         vertCenterMargin,
         scale
@@ -2802,10 +2807,10 @@ void __declspec(noinline) __fastcall GameDllHooks::sub_100BE6F0(PlaneData* self,
 
     PlaneMapDrawData data
     {
-        g->getPtr<MapData>(0x10ADFF0),
+        g->getPtr<UiStrategicMapElement>(0x10ADFF0),
         g->getPtr<uint16_t>(0x10AE4C4),
-        g->getFn<void(__thiscall)(MapData*, int, int, int, int16_t)>(0xA8A10),
-        g->getFn<void(__thiscall)(MapData*, int, int, int, int16_t)>(0xA8A80),
+        g->getFn<void(__thiscall)(UiElementBase*, int, int, int, int16_t)>(0xA8A10),
+        g->getFn<void(__thiscall)(UiElementBase*, int, int, int, int16_t)>(0xA8A80),
         halfScreenWidth,
         vertCenterMargin,
         scale
@@ -2820,10 +2825,10 @@ void __declspec(noinline) __fastcall GameDllHooks::sub_100BE6C0(PlaneData* self,
 
     PlaneMapDrawData data
     {
-        g->getPtr<MapData>(0x109E1A0),
+        g->getPtr<UiStrategicMapElement>(0x109E1A0),
         g->getPtr<uint16_t>(0x109E674),
-        g->getFn<void(__thiscall)(MapData*, int, int, int, int16_t)>(0xA89E0),
-        g->getFn<void(__thiscall)(MapData*, int, int, int, int16_t)>(0xA8A50),
+        g->getFn<void(__thiscall)(UiElementBase*, int, int, int, int16_t)>(0xA89E0),
+        g->getFn<void(__thiscall)(UiElementBase*, int, int, int, int16_t)>(0xA8A50),
         halfScreenWidth,
         vertCenterMargin,
         scale
@@ -3298,7 +3303,7 @@ void GameDllHooks::drawFogOnWorld_v2(const FogDrawData& data)
 }
 
 
-void GameDllHooks::readStrategicMapFromFile(MapData* mapData, const ReadStrategicMapData& data)
+void GameDllHooks::readStrategicMapFromFile(UiStrategicMapElement* mapData, const ReadStrategicMapData& data)
 {
     if (mapData->isMapLoaded)
         return;
@@ -3404,7 +3409,7 @@ void GameDllHooks::readStrategicMapFromFile(MapData* mapData, const ReadStrategi
     data.deinitHandle(miniMapFileHandle);
 }
 
-void GameDllHooks::drawFogOnStrategicMap(MapData* mapData, const FogOnStrategicMap& data)
+void GameDllHooks::drawFogOnStrategicMap(UiStrategicMapElement* mapData, const FogOnStrategicMap& data)
 {
     const uint8_t* fog0 = data.fogBase;
     const uint8_t* fog1 = fog0 + 0x1FF;
@@ -3532,7 +3537,7 @@ void GameDllHooks::drawFogOnStrategicMap(MapData* mapData, const FogOnStrategicM
     }
 }
 
-void GameDllHooks::drawScreenRectOnStrategicMap(MapData* mapData, int offsetX, int offsetY, const ScreenRectDrawData& data)
+void GameDllHooks::drawScreenRectOnStrategicMap(UiStrategicMapElement* mapData, int offsetX, int offsetY, const ScreenRectDrawData& data)
 {
     data.fn1(mapData, offsetX, offsetY);
 
@@ -3571,4 +3576,642 @@ void GameDllHooks::drawPlaneCrossOnStrategicMap(PlaneData* mapData, const PlaneM
 
     data.drawHorLine(data.mapData, mapX - 2, mapY, 5, data.colors[mapData->teamId]);
     data.drawVertLine(data.mapData, mapX, mapY - 2, 5, data.colors[mapData->teamId]);
+}
+
+
+void __declspec(noinline) __cdecl    GameDllHooks::addUiElement_v2_2(UiElementBase* self, int type)
+{
+    auto* const g = globals_;
+
+    AddUiElementData data
+    {
+        type,
+        g->getPtr<UiElementBase*>(0x103B6E0),
+        g->getPtr<int>(0x103B6D4),
+        g->getValue<int>(0x106A128),
+        g->getValue<int>(0x106A12C)
+    };
+
+    addUiElement(self, data);
+}
+
+void __declspec(noinline) __fastcall GameDllHooks::drawUiElement_v2_2(UiElementBase* self)
+{
+    auto* const g = globals_;
+
+    DrawUiElementData data
+    {
+        g->getPtr<int>(0x103B708),
+        g->getFn<int(__thiscall)(int*, GameData*)>(0x79900),
+        g->getFn<int(__thiscall)(int*, GameData*)>(0x79950),
+        g->getFn<void(__cdecl)(int, int, int, int, int, int, void*)>(0x98410)
+    };
+
+    drawUiElement(self, data);
+}
+
+void __declspec(noinline) __fastcall GameDllHooks::calculateClosedArea_v2_2(UiElementBase* self)
+{
+    auto* const g = globals_;
+
+    CalculateClosedAreaData data
+    {
+        g->getPtr<int>(0x103CF10),
+        g->getFn<void(__thiscall)(int*, char, int, int, int, int)>(0x794B0)
+    };
+
+    calculateClosedArea(self, data);
+}
+
+int __declspec(noinline) __fastcall  GameDllHooks::calculateCursorType_v2_2(UiElementBase* self, void* /*dummy*/, int x, int y, int* a4)
+{
+    return calculateCursorType(self, x, y, a4);
+}
+
+void __declspec(noinline) __cdecl    GameDllHooks::dispatchMouseButtonEvent_v2_2(int eventTag)
+{
+    auto* const g = globals_;
+
+    DispatchMouseButtonEventData data
+    {
+        eventTag,
+        g->getValue<int>(0x106F6F4),
+        g->getValue<int>(0x106F6F8),
+        g->getValue<UiEventArea*>(0x107070C),
+        g->getFn<int(__cdecl)(int, int, int, int)>(0xCAAE0)
+    };
+
+    dispatchMouseButtonEvent(data);
+}
+
+void __declspec(noinline) __cdecl    GameDllHooks::dispatchMouseMoveEvent_v2_2(int prevMouseX, int prevMouseY, int mouseX, int mouseY)
+{
+    auto* const g = globals_;
+
+    DispatchMouseMoveEventData data
+    {
+        prevMouseX,
+        prevMouseY,
+        mouseX,
+        mouseY,
+        g->getValue<UiEventArea*>(0x107070C),
+        g->getFn<int(__cdecl)(int, int, int, int)>(0xCAAE0)
+    };
+
+    dispatchMouseMoveEvent(data);
+}
+
+int __declspec(noinline) __cdecl     GameDllHooks::dispatchWndMessage_v2_2(int a1, int a2, int a3, int a4)
+{
+    auto* const g = globals_;
+
+    DispatchWndMessageData data
+    {
+        a2,
+        a3,
+        a4,
+        g->getPtr<int>(0x106F6F0),
+        g->getFn<int(__cdecl)(int)>(0xCACD0),
+        g->getFn<int(__cdecl)(int, int, int, int)>(0xCAD50),
+        g->getFn<int(__cdecl)(int, int, int, int)>(0xCAAE0),
+        g->getFn<int(__cdecl)(int)>(0xCB5E0),
+        g->getValue<int>(0x106A128),
+        g->getValue<int>(0x106A12C),
+        g->getFn<int(__cdecl)(UiEventArea*)>(0xCA810),
+        g->getFn<int(__cdecl)(UiEventArea*)>(0xCA850),
+        g->getFn<void(__cdecl)(UiElementBase*, int)>(0x988C0),
+        g->getFn<void(__thiscall)(UiElementBase*)>(0xA0DF0),
+        g->getPtr<UiElementVtable>(0xEFF2C)
+    };
+
+    return dispatchWndMessage(data);
+}
+
+
+void GameDllHooks::addUiElement(UiElementBase* elem, const AddUiElementData& data)
+{
+    UiElementBase** pointed = data.pointed;
+    UiElementBase** head = pointed + 1;
+    UiElementBase** tail = pointed + 2;
+    int* dword_1103B6D4 = data.updatedUiFlag;
+
+    // Even with all the added UI filter checks, the crew/passenger UI is still processed elsewhere, which still affects the correct display.
+    // There is a bug that the ground isn't copied in place of this disabled UI when selecting a unit. So I simply move it off-screen
+    if (GetUIFilter().shouldIgnore(data.type) && GetUIFilter().isCrewUi(data.type))
+    {
+        elem->leftX += data.screenWidth;
+        elem->rightX += data.screenWidth;
+        elem->topY += data.screenHeight;
+        elem->bottomY += data.screenHeight;
+    }
+
+    elem->type = data.type;
+
+    UiElementBase* it;
+    for (it = *tail; it; it = it->prev)
+    {
+        if (it->type <= data.type)
+            break;
+    }
+
+    elem->prev = it;
+    if (it)
+    {
+        elem->next = it->next;
+        it->next = elem;
+    }
+    else
+    {
+        elem->next = *head;
+        *head = elem;
+    }
+
+    if (elem->next)
+        elem->next->prev = elem;
+    else
+        *tail = elem;
+
+    if (elem->var_2C && *pointed)
+    {
+        (*pointed)->vtable->onLoseFocus(*pointed);
+        *pointed = nullptr;
+    }
+
+    elem->vtable->onAdd(elem);
+
+    *dword_1103B6D4 = 1;
+}
+
+void GameDllHooks::drawUiElement(UiElementBase* self, const DrawUiElementData& data)
+{
+    if (GetUIFilter().shouldIgnore(self->type))
+        return;
+
+    int* const dword_103B708 = data.dword_103B708;
+    auto const sub_79900 = data.fn_79900;
+    auto const sub_79950 = data.fn_79950;
+    auto const sub_98410 = data.fn_98410;
+
+    GameData v6{};
+
+    v6.mask = 0xFF;
+    v6.maskValue = 0xFE;
+
+    int tileX = self->leftX >> 4;
+    int tileY = self->topY >> 3;
+    int length = self->rightX - self->leftX;
+    int height = self->bottomY - self->topY;
+
+    v6.maxX = tileX + ((length + 1) >> 4);
+    v6.maxY = tileY + ((height + 1) >> 3);
+    v6.x = tileX;
+    v6.y = tileY;
+
+    if (sub_79900(dword_103B708, &v6))
+    {
+        do
+        {
+            sub_98410(v6.alignX - self->leftX, v6.alignY - self->topY, v6.allowX - v6.alignX + 1, v6.allowY - v6.alignY + 1, self->leftX, self->topY, &self->sprites);
+        } while (sub_79950(dword_103B708, &v6));
+    }
+}
+
+void GameDllHooks::calculateClosedArea(UiElementBase* self, const CalculateClosedAreaData& data)
+{
+    if (GetUIFilter().shouldIgnore(self->type))
+        return;
+
+    data.fn_794B0(data.dword_103CF10, 30, self->leftX, self->topY, self->rightX, self->bottomY);
+}
+
+int GameDllHooks::calculateCursorType(UiElementBase* self, int x, int y, int* a4)
+{
+    if (GetUIFilter().shouldIgnore(self->type))
+        return 0;
+
+    if (self->forced)
+    {
+        a4[0] = 0;
+        a4[1] = 0;
+        a4[2] = 0;
+
+        self->forced->vtable->calculateCursorType(self->forced, x, y, a4);
+        return 1;
+    }
+
+    if (x < 0 || x >= self->rightX - self->leftX + 1 ||
+        y < 0 || y >= self->bottomY - self->topY + 1)
+    {
+        return 0;
+    }
+
+    a4[0] = 0;
+    a4[1] = 0;
+    a4[2] = 0;
+
+    uint8_t* buffer = self->zoneBuffer;
+    ZoneHandler* z = self->zoneList;
+    uint8_t zoneId = buffer[y * self->stride + x];
+
+    if (z)
+    {
+        while (z->zoneId != zoneId)
+        {
+            z = z->next;
+            if (!z)
+                return 1;
+        }
+
+        z->vtable->calculateCursorType(z, x, y, a4);
+    }
+
+    return 1;
+}
+
+void GameDllHooks::dispatchMouseButtonEvent(const DispatchMouseButtonEventData& data)
+{
+    const int mouseX = data.mouseX;
+    const int mouseY = data.mouseY;
+    UiEventArea* const uiEventAreas = data.uiEventAreas;
+    auto const writeEventToRingBuffer = data.writeEventToRingBuffer;
+
+    for (UiEventArea* area = uiEventAreas; area; area = area->next)
+    {
+        if (area->flags & UI_DISABLED)
+            continue;
+
+        if (GetUIFilter().shouldIgnoreByTag(area->tag))
+            continue;
+
+        int left = area->x;
+        int top = area->y;
+        int right = left + area->width;
+        int bottom = top + area->height;
+
+        bool isInside =
+            mouseX >= left &&
+            mouseY >= top &&
+            mouseX < right &&
+            mouseY < bottom;
+
+        if (!isInside)
+            continue;
+
+        if (area->flags & data.eventTag)
+        {
+            writeEventToRingBuffer(
+                area->tag,
+                data.eventTag,
+                mouseX - left,
+                mouseY - top);
+
+            // Stop propagation
+            if (area->flags & UI_STOP_PROPAGATION)
+                return;
+        }
+    }
+}
+
+void GameDllHooks::dispatchMouseMoveEvent(const DispatchMouseMoveEventData& data)
+{
+    UiEventArea* const uiEventAreas = data.uiEventAreas;
+    auto const writeEventToRingBuffer = data.writeEventToRingBuffer;
+
+    // MouseLeave
+    for (UiEventArea* area = data.uiEventAreas; area; area = area->next)
+    {
+        if (area->flags & UI_DISABLED)
+            continue;
+
+        if (GetUIFilter().shouldIgnoreByTag(area->tag))
+            continue;
+
+        int left = area->x;
+        int top = area->y;
+        int right = left + area->width;
+        int bottom = top + area->height;
+
+        bool wasInside =
+            data.prevMouseX >= left &&
+            data.prevMouseY >= top &&
+            data.prevMouseX < right &&
+            data.prevMouseY < bottom;
+
+        bool isInside =
+            data.mouseX >= left &&
+            data.mouseY >= top &&
+            data.mouseX < right &&
+            data.mouseY < bottom;
+
+        if (wasInside && !isInside && (area->flags & UI_MOUSE_LEAVE))
+        {
+            writeEventToRingBuffer(
+                area->tag,
+                UI_MOUSE_LEAVE,
+                data.mouseX - left,
+                data.mouseY - top);
+        }
+    }
+
+
+    // MouseEnter + MouseMove
+    bool propagateMove = true;
+
+    for (UiEventArea* area = uiEventAreas; area; area = area->next)
+    {
+        if (area->flags & UI_DISABLED)
+            continue;
+
+        if (GetUIFilter().shouldIgnoreByTag(area->tag))
+            continue;
+
+        int left = area->x;
+        int top = area->y;
+        int right = left + area->width;
+        int bottom = top + area->height;
+
+        bool wasInside =
+            data.prevMouseX >= left &&
+            data.prevMouseY >= top &&
+            data.prevMouseX < right &&
+            data.prevMouseY < bottom;
+
+        bool isInside =
+            data.mouseX >= left &&
+            data.mouseY >= top &&
+            data.mouseX < right &&
+            data.mouseY < bottom;
+
+        if (!isInside)
+            continue;
+
+        // MouseEnter
+        if (!wasInside && (area->flags & UI_MOUSE_ENTER))
+        {
+            writeEventToRingBuffer(
+                area->tag,
+                UI_MOUSE_ENTER,
+                data.mouseX - left,
+                data.mouseY - top);
+        }
+
+        // MouseMove / Hover
+        if (propagateMove)
+        {
+            if (area->flags & UI_MOUSE_MOVE)
+            {
+                writeEventToRingBuffer(
+                    area->tag,
+                    UI_MOUSE_MOVE,
+                    data.mouseX - left,
+                    data.mouseY - top);
+            }
+
+            if (area->flags & UI_STOP_PROPAGATION)
+            {
+                propagateMove = false;
+            }
+        }
+    }
+}
+
+int __declspec(noinline) __cdecl     GameDllHooks::dispatchWndMessage(const DispatchWndMessageData& data)
+{
+    const int a2 = data.a2;
+    const int a3 = data.a3;
+    const int a4 = data.a4;
+
+    int* const dword_1106F6F0 = data.dword_1106F6F0;
+    int* const mouseX = dword_1106F6F0 + 1;
+    int* const mouseY = dword_1106F6F0 + 2;
+    int* const dword_1106F6FC = dword_1106F6F0 + 3;
+    int* const dword_1106F700 = dword_1106F6F0 + 4;
+    int* const dword_11070710 = dword_1106F6F0 + 8;
+    int* const dword_11070714 = dword_1106F6F0 + 9;
+    int* const dword_11070718 = dword_1106F6F0 + 10;
+    int* const dword_1107071C = dword_1106F6F0 + 11;
+    int* const dword_11070720 = dword_1106F6F0 + 12;
+    int* const dword_11070724 = dword_1106F6F0 + 13;
+    int* const dword_11070728 = dword_1106F6F0 + 14;
+
+    auto const dispatchMouseButtonEvent = data.dispatchMouseButtonEvent;
+    auto const dispatchMouseMoveEvent = data.dispatchMouseMoveEvent;
+    auto const writeEventToRingBuffer = data.writeEventToRingBuffer;
+    auto const multiByteToWideCharOr = data.multiByteToWideCharOr;
+
+    static bool altPressed = false;
+
+    DWORD tick;
+    int v5, v6;
+
+    // Mouse
+    if ((*dword_1106F6F0 & 1) != 0)
+    {
+        tick = *dword_11070710 ? GetTickCount() : data.a3;
+
+        switch (a2)
+        {
+        case WM_MOUSEMOVE:
+        {
+            int prevY = *mouseY;
+            int prevX = *mouseX;
+
+            *mouseX = (unsigned short)a4;
+            *mouseY = HIWORD(a4);
+
+            dispatchMouseMoveEvent(prevX, prevY, *mouseX, *mouseY);
+
+            *dword_1106F6FC = a3 & 1;
+            *dword_1106F700 = (a3 >> 1) & 1;
+            break;
+        }
+
+        case WM_LBUTTONDOWN:
+        {
+            dispatchMouseButtonEvent(8);
+
+            if (*dword_11070710)
+            {
+                if (tick - *dword_11070714 < GetDoubleClickTime() &&
+                    abs(*mouseX - *dword_11070718) < 4 &&
+                    abs(*mouseY - *dword_1107071C) < 4)
+                {
+                    dispatchMouseButtonEvent(128);
+                }
+
+                *dword_1107071C = *mouseY;
+                *dword_11070714 = tick;
+                *dword_11070718 = *mouseX;
+                *dword_11070720 = -1000000;
+                *dword_11070724 = -1000000;
+            }
+
+            *dword_1106F6FC = a3 & 1;
+            *dword_1106F700 = (a3 >> 1) & 1;
+            break;
+        }
+
+        case WM_LBUTTONUP:
+            dispatchMouseButtonEvent(16);
+            break;
+
+        case WM_LBUTTONDBLCLK:
+            dispatchMouseButtonEvent(128);
+            break;
+
+        case WM_RBUTTONDOWN:
+        {
+            dispatchMouseButtonEvent(32);
+
+            if (*dword_11070710)
+            {
+                if (tick - *dword_11070714 < GetDoubleClickTime() &&
+                    abs(*mouseX - *dword_11070720) < 4 &&
+                    abs(*mouseY - *dword_11070724) < 4)
+                {
+                    dispatchMouseButtonEvent(256);
+                }
+
+                *dword_11070724 = *mouseY;
+                *dword_11070714 = tick;
+                *dword_11070720 = *mouseX;
+                *dword_11070718 = -1000000;
+                *dword_1107071C = -1000000;
+            }
+            break;
+        }
+
+        case WM_RBUTTONUP:
+            dispatchMouseButtonEvent(64);
+            break;
+
+        case WM_RBUTTONDBLCLK:
+            dispatchMouseButtonEvent(256);
+            break;
+
+        default:
+            break;
+        }
+    }
+
+    // Keyboard
+    if ((*dword_1106F6F0 & 2) != 0)
+    {
+        switch (a2)
+        {
+        case WM_KEYDOWN:
+        case WM_SYSKEYDOWN:
+        {
+            writeEventToRingBuffer('/KBD', a3 + 256, *mouseX, *mouseY);
+            writeEventToRingBuffer('/UTF', a3 + 0x1000000, *mouseX, *mouseY);
+
+            // ALT + E toggle UI
+            if (a3 == VK_MENU)
+                altPressed = true;
+
+            if (altPressed && a3 == 'Y')
+            {
+                bool newState = !GetUIFilter().isEnabled();
+                GetUIFilter().setEnabled(newState);
+
+                const int screenHeight = data.screenHeight;
+                const int screenWidth = data.screenWidth;
+
+                auto const addUiEventArea = data.addUiEventArea;
+                auto const removeUiEventAreaSafe = data.removeUiEventAreaSafe;
+                auto const addUiElement = data.addUiElement;
+                auto const removeUiElement = data.removeUiElement;
+
+                UiEventArea* area = new UiEventArea();
+                area->tag = UIFilter::getCustomTag();
+                area->x = 0;
+                area->y = 0;
+                area->width = screenWidth;
+                area->height = screenHeight;
+                area->flags = 0x85FF;
+                area->flags_2 = 0x8020;
+                addUiEventArea(area);
+
+                UiStrategicMapElement* fake = new UiStrategicMapElement();
+                memset(fake, 0, sizeof(*fake));
+                fake->vtable = data.strategicMapUiVtable;
+                fake->rightX = screenWidth - 1;
+                fake->bottomY = screenHeight - 1;
+                fake->uiEventArea = area;
+                fake->var_24 = -1;
+                fake->sprites = new uint16_t[screenWidth * screenHeight];
+                fake->stride = screenWidth;
+                fake->clipRight = screenWidth - 1;
+                fake->clipBottom = screenHeight - 1;
+                fake->dstBuf = fake->sprites;
+                // Need to save pointer into a separate variable since the field will be zeroed before deleting memory
+                uint8_t* const zoneBuffer = new uint8_t[screenWidth * screenHeight * 2];
+                fake->zoneBuffer = zoneBuffer;
+                fake->isMapLoaded = true;
+                fake->type = UIFilter::getCustomType();
+                addUiElement(fake, fake->type);
+
+                removeUiEventAreaSafe(area);
+                removeUiElement(fake);
+
+                delete[] fake->sprites;
+                delete[] zoneBuffer;
+                delete area;
+                delete fake;
+            }
+
+            break;
+        }
+
+        case WM_KEYUP:
+        case WM_SYSKEYUP:
+        {
+            writeEventToRingBuffer('/KBD', a3 + 512, *mouseX, *mouseY);
+            writeEventToRingBuffer('/UTF', a3 + 0x2000000, *mouseX, *mouseY);
+
+            if (a3 == VK_MENU)
+                altPressed = false;
+
+            break;
+        }
+
+        case WM_CHAR:
+        case WM_SYSCHAR:
+        {
+            writeEventToRingBuffer('/KBD', a3, *mouseX, *mouseY);
+
+            if (IsDBCSLeadByte((BYTE)a3))
+            {
+                *dword_11070728 = (unsigned char)a3;
+            }
+            else
+            {
+                int mx = *mouseX;
+                int my = *mouseY;
+
+                if (*dword_11070728)
+                {
+                    v5 = multiByteToWideCharOr(*dword_11070728);
+                    writeEventToRingBuffer('/UTF', v5, mx, my);
+                    *dword_11070728 = 0;
+                }
+                else
+                {
+                    v6 = multiByteToWideCharOr(a3);
+                    writeEventToRingBuffer('/UTF', v6, mx, my);
+                }
+            }
+            break;
+        }
+
+        default:
+            break;
+        }
+    }
+
+    // Timer
+    if ((*dword_1106F6F0 & 4) != 0 && a2 == 275)
+        writeEventToRingBuffer('/TIM', a3, *mouseX, *mouseY);
+
+    return 1;
 }
