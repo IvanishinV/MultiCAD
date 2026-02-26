@@ -741,9 +741,9 @@ const std::array hooks_game_ss_rw_v2_3
 
     // Fixes an original bug and a new one caused by changed resolution. See functions' description
     HookSpec{0xA8AF0, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_100A8AF0_v2_3)},
-    HookSpec{0xA9060, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_100A9060)},
+    HookSpec{0xA9060, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_100A9060_v2_3)},
     HookSpec{0xA97C0, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_100A97C0)},
-    HookSpec{0xBE6F0, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_100BE6F0)},
+    HookSpec{0xBE6E0, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_100BE6F0)},
 };
 
 const std::array hooks_menu_ss_rw_v2_3
@@ -783,7 +783,7 @@ const std::array hooks_game_ss_rw_v2_4
 
     // Fixes an original bug and a new one caused by changed resolution. See functions' description
     HookSpec{0xA8AF0, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_100A8AF0_v2_4)},
-    HookSpec{0xA9060, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_100A9060)},
+    HookSpec{0xA9060, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_100A9060_v2_4)},
     HookSpec{0xA97C0, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_100A97C0)},
     HookSpec{0xBE6F0, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_100BE6F0)},
 };

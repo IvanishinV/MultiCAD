@@ -695,7 +695,8 @@ public:
     static void __declspec(noinline) __fastcall sub_100A8AF0_bg(UiStrategicMapElement* self);     // Black Gold
     // Fixes original bug with white rectangle in strategic view
     static void __declspec(noinline) __fastcall sub_100ACDE0(UiStrategicMapElement* self);        // SS 2
-    static void __declspec(noinline) __fastcall sub_100A9060(UiStrategicMapElement* self);        // SS:RW
+    static void __declspec(noinline) __fastcall sub_100A9060_v2_3(UiStrategicMapElement* self);   // SS:RW v2.3
+    static void __declspec(noinline) __fastcall sub_100A9060_v2_4(UiStrategicMapElement* self);   // SS:RW v2.4
     static void __declspec(noinline) __fastcall sub_100A9060_bg(UiStrategicMapElement* self);     // Black Gold
     // Fixes the same original bug with copying rectangle in strategic view. Related to the previous one
     static void __declspec(noinline) __fastcall sub_100AD2C0(UiStrategicMapElement* self, void* /*dummy*/, int offsetX, int offsetY);    // SS 2

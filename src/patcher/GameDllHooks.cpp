@@ -2677,7 +2677,37 @@ void __declspec(noinline) __fastcall GameDllHooks::sub_100ACDE0(UiStrategicMapEl
     drawFogOnStrategicMap(mapData, data);
 }
 
-void __declspec(noinline) __fastcall GameDllHooks::sub_100A9060(UiStrategicMapElement* mapData)
+void __declspec(noinline) __fastcall GameDllHooks::sub_100A9060_v2_3(UiStrategicMapElement* mapData)
+{
+    auto* const g = globals_;
+
+    FogOnStrategicMap data
+    {
+        g->getFn<void(__cdecl)(int*, int, int, int, int)>(0x94A30),
+        g->getFn<void(__thiscall)(UiStrategicMapElement*)>(0x9DBE0),
+
+        g->getFn<void(__thiscall)(UiElementBase*, int, int, int, int16_t)>(0xA8A10),
+        g->getFn<void(__thiscall)(UiElementBase*, int, int, int, int16_t)>(0xA8A80),
+        g->getFn<void(__stdcall)(int, int, int)>(0xBE2D0),
+
+        g->getValue<UnitData*>(0xFCC90),
+        113,
+        g->getValue<int16_t>(0x10AE506),
+
+        g->getValue<int>(0x13139C),
+        g->getValue<int>(0x1313A0),
+        g->getValue<int>(0x10A9508),
+        g->getValue<int>(0x10A950C),
+
+        g->getValue<uint8_t>(0x10AE441),
+        g->getPtr<uint8_t>(0x6311B4),
+        reinterpret_cast<ModuleStateBase*>(g->getValue<uintptr_t>(0x10AEABC) - (offsetof(ModuleStateBase, windowRect) - offsetof(ModuleStateBase, fogSprites)))
+    };
+
+    drawFogOnStrategicMap(mapData, data);
+}
+
+void __declspec(noinline) __fastcall GameDllHooks::sub_100A9060_v2_4(UiStrategicMapElement* mapData)
 {
     auto* const g = globals_;
 
