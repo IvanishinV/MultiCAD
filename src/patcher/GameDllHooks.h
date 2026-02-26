@@ -713,11 +713,24 @@ public:
     static void __declspec(noinline) __cdecl    addUiElement_v2_2(UiElementBase* self, int type);
     static void __declspec(noinline) __fastcall drawUiElement_v2_2(UiElementBase* self);
     static void __declspec(noinline) __fastcall calculateClosedArea_v2_2(UiElementBase* self);
-    static int  __declspec(noinline) __fastcall calculateCursorType_v2_2(UiElementBase* self, void* /*dummy*/, int x, int y, int* a4);
     static void __declspec(noinline) __cdecl    dispatchMouseButtonEvent_v2_2(int eventTag);
     static void __declspec(noinline) __cdecl    dispatchMouseMoveEvent_v2_2(int prevMouseX, int prevMouseY, int mouseX, int mouseY);
     static int  __declspec(noinline) __cdecl    dispatchWndMessage_v2_2(int a1, int a2, int a3, int a4);
 
+    // SS:RW v2.3/v2.4
+    static void __declspec(noinline) __cdecl    addUiElement_rw(UiElementBase* self, int type);
+    static void __declspec(noinline) __fastcall drawUiElement_rw(UiElementBase* self);
+    static void __declspec(noinline) __fastcall calculateClosedArea_rw(UiElementBase* self);
+
+    static void __declspec(noinline) __cdecl    dispatchMouseButtonEvent_rw_v2_3(int eventTag);
+    static void __declspec(noinline) __cdecl    dispatchMouseButtonEvent_rw_v2_4(int eventTag);
+    static void __declspec(noinline) __cdecl    dispatchMouseMoveEvent_rw_v2_3(int prevMouseX, int prevMouseY, int mouseX, int mouseY);
+    static void __declspec(noinline) __cdecl    dispatchMouseMoveEvent_rw_v2_4(int prevMouseX, int prevMouseY, int mouseX, int mouseY);
+    static int  __declspec(noinline) __cdecl    dispatchWndMessage_rw_v2_3(int a1, int a2, int a3, int a4);
+    static int  __declspec(noinline) __cdecl    dispatchWndMessage_rw_v2_4(int a1, int a2, int a3, int a4);
+
+    // Common function to disable/enable in-game UI
+    static int  __declspec(noinline) __fastcall calculateCursorType(UiElementBase* self, void* /*dummy*/, int x, int y, int* a4);
 private:
     static bool is_valid_ptr(void* p);
 
@@ -736,7 +749,6 @@ private:
     static void addUiElement(UiElementBase* elem, const AddUiElementData& data);
     static void drawUiElement(UiElementBase* self, const DrawUiElementData& data);
     static void calculateClosedArea(UiElementBase* self, const CalculateClosedAreaData& data);
-    static int  calculateCursorType(UiElementBase* self, int x, int y, int* a4);
     static void dispatchMouseButtonEvent(const DispatchMouseButtonEventData& data);
     static void dispatchMouseMoveEvent(const DispatchMouseMoveEventData& data);
     static int  dispatchWndMessage(const DispatchWndMessageData& data);
