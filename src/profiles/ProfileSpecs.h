@@ -901,6 +901,15 @@ const std::array hooks_game_black_gold
     HookSpec{0xA9030, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_100A9060_bg)},
     HookSpec{0xA9790, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_100A97C0_bg)},
     HookSpec{0xBE6C0, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_100BE6C0)},
+
+    // Hooks for disabling UI via shortcut
+    HookSpec{0x95A70, reinterpret_cast<uintptr_t>(&GameDllHooks::addUiElement_bg)},
+    HookSpec{0x9DBD0, reinterpret_cast<uintptr_t>(&GameDllHooks::drawUiElement_bg)},
+    HookSpec{0x9DCA0, reinterpret_cast<uintptr_t>(&GameDllHooks::calculateClosedArea_bg)},
+    HookSpec{0x9DCC0, reinterpret_cast<uintptr_t>(&GameDllHooks::calculateCursorType)},
+    HookSpec{0xC5530, reinterpret_cast<uintptr_t>(&GameDllHooks::dispatchMouseButtonEvent_bg)},
+    HookSpec{0xC55B0, reinterpret_cast<uintptr_t>(&GameDllHooks::dispatchMouseMoveEvent_bg)},
+    HookSpec{0xC5750, reinterpret_cast<uintptr_t>(&GameDllHooks::dispatchWndMessage_bg)},
 };
 
 const std::array patches_game_black_gold

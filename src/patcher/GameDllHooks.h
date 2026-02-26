@@ -729,6 +729,14 @@ public:
     static int  __declspec(noinline) __cdecl    dispatchWndMessage_rw_v2_3(int a1, int a2, int a3, int a4);
     static int  __declspec(noinline) __cdecl    dispatchWndMessage_rw_v2_4(int a1, int a2, int a3, int a4);
 
+    // Black Gold
+    static void __declspec(noinline) __cdecl    addUiElement_bg(UiElementBase* self, int type);
+    static void __declspec(noinline) __fastcall drawUiElement_bg(UiElementBase* self);
+    static void __declspec(noinline) __fastcall calculateClosedArea_bg(UiElementBase* self);
+    static void __declspec(noinline) __cdecl    dispatchMouseButtonEvent_bg(int eventTag);
+    static void __declspec(noinline) __cdecl    dispatchMouseMoveEvent_bg(int prevMouseX, int prevMouseY, int mouseX, int mouseY);
+    static int  __declspec(noinline) __cdecl    dispatchWndMessage_bg(int a1, int a2, int a3, int a4);
+
     // Common function to disable/enable in-game UI
     static int  __declspec(noinline) __fastcall calculateCursorType(UiElementBase* self, void* /*dummy*/, int x, int y, int* a4);
 private:
