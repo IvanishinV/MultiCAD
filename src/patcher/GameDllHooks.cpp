@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "GameDllHooks.h"
 #include "UiFilter.h"
+#include "types.h"
 
 int __declspec(noinline) __fastcall GameDllHooks::sub_1001D240(GameData5* self, void* /*dummy*/, int** a2)
 {
@@ -1172,15 +1173,12 @@ void __declspec(noinline) __stdcall  GameDllHooks::sub_1006AD20()
 {
     auto* const g = globals_;
 
-    struct GameObject
+    auto* obj = g->getValue<UIRenderElement*>(0x34FF04);
+    for (; obj; obj = obj->prev)
     {
-        void** vtable;
-        GameObject* next;
-    };
-    auto* obj = g->getValue<GameObject*>(0x34FF04);
-    for (; obj; obj = obj->next)
-    {
-        using Fn = void(__thiscall*)(GameObject*);
+        if (GetUIFilter().shouldIgnoreDecor(obj->type))
+            continue;
+        using Fn = void(__thiscall*)(UIRenderElement*);
         Fn fn = reinterpret_cast<Fn>(obj->vtable[1]);
         fn(obj);
     }
@@ -1248,15 +1246,12 @@ void __declspec(noinline) __stdcall  GameDllHooks::sub_1006AD20_de()
 {
     auto* const g = globals_;
 
-    struct GameObject
-    {
-        void** vtable;
-        GameObject* next;
-    };
-    auto* obj = g->getValue<GameObject*>(0x34FEBC);
+    auto* obj = g->getValue<UIRenderElement*>(0x34FEBC);
     for (; obj; obj = obj->next)
     {
-        using Fn = void(__thiscall*)(GameObject*);
+        if (GetUIFilter().shouldIgnoreDecor(obj->type))
+            continue;
+        using Fn = void(__thiscall*)(UIRenderElement*);
         Fn fn = reinterpret_cast<Fn>(obj->vtable[1]);
         fn(obj);
     }
@@ -1324,15 +1319,12 @@ void __declspec(noinline) __stdcall  GameDllHooks::sub_1006AD20_hd()
 {
     auto* const g = globals_;
 
-    struct GameObject
+    auto* obj = g->getValue<UIRenderElement*>(0x34FF04);
+    for (; obj; obj = obj->prev)
     {
-        void** vtable;
-        GameObject* next;
-    };
-    auto* obj = g->getValue<GameObject*>(0x34FF04);
-    for (; obj; obj = obj->next)
-    {
-        using Fn = void(__thiscall*)(GameObject*);
+        if (GetUIFilter().shouldIgnoreDecor(obj->type))
+            continue;
+        using Fn = void(__thiscall*)(UIRenderElement*);
         Fn fn = reinterpret_cast<Fn>(obj->vtable[1]);
         fn(obj);
     }
@@ -3447,10 +3439,10 @@ void GameDllHooks::drawFogOnStrategicMap(UiStrategicMapElement* mapData, const F
     const uint8_t* fog3 = fog0 + 0x201;
     const uint8_t* fog4 = fog0 + 0x400;
 
-    data.fn_A1110(mapData);
+    data.fnResetUiImage(mapData);
 
     int clip[4];
-    data.fn_97740(clip, mapData->clipLeft, mapData->clipTop, mapData->clipRight, mapData->clipBottom);
+    data.fnWriteClipRect(clip, mapData->clipLeft, mapData->clipTop, mapData->clipRight, mapData->clipBottom);
 
     clip[2] += 16;
     clip[3] += 8;
@@ -3607,391 +3599,6 @@ void GameDllHooks::drawPlaneCrossOnStrategicMap(PlaneData* mapData, const PlaneM
     data.drawHorLine(data.mapData, mapX - 2, mapY, 5, data.colors[mapData->teamId]);
     data.drawVertLine(data.mapData, mapX, mapY - 2, 5, data.colors[mapData->teamId]);
 }
-
-
-void __declspec(noinline) __cdecl    GameDllHooks::addUiElement_v2_2(UiElementBase* self, int type)
-{
-    auto* const g = globals_;
-
-    AddUiElementData data
-    {
-        type,
-        g->getPtr<UiElementBase*>(0x103B6E0),
-        g->getPtr<int>(0x103B6D4),
-        g->getValue<int>(0x106A128),
-        g->getValue<int>(0x106A12C)
-    };
-
-    addUiElement(self, data);
-}
-
-void __declspec(noinline) __fastcall GameDllHooks::drawUiElement_v2_2(UiElementBase* self)
-{
-    auto* const g = globals_;
-
-    DrawUiElementData data
-    {
-        g->getPtr<int>(0x103B708),
-        g->getFn<int(__thiscall)(int*, GameData*)>(0x79900),
-        g->getFn<int(__thiscall)(int*, GameData*)>(0x79950),
-        g->getFn<void(__cdecl)(int, int, int, int, int, int, void*)>(0x98410)
-    };
-
-    drawUiElement(self, data);
-}
-
-void __declspec(noinline) __fastcall GameDllHooks::calculateClosedArea_v2_2(UiElementBase* self)
-{
-    auto* const g = globals_;
-
-    CalculateClosedAreaData data
-    {
-        g->getPtr<int>(0x103CF10),
-        g->getFn<void(__thiscall)(int*, char, int, int, int, int)>(0x794B0)
-    };
-
-    calculateClosedArea(self, data);
-}
-
-void __declspec(noinline) __cdecl    GameDllHooks::dispatchMouseButtonEvent_v2_2(int eventTag)
-{
-    auto* const g = globals_;
-
-    DispatchMouseButtonEventData data
-    {
-        eventTag,
-        g->getValue<int>(0x106F6F4),
-        g->getValue<int>(0x106F6F8),
-        g->getValue<UiEventArea*>(0x107070C),
-        g->getFn<int(__cdecl)(int, int, int, int)>(0xCAAE0)
-    };
-
-    dispatchMouseButtonEvent(data);
-}
-
-void __declspec(noinline) __cdecl    GameDllHooks::dispatchMouseMoveEvent_v2_2(int prevMouseX, int prevMouseY, int mouseX, int mouseY)
-{
-    auto* const g = globals_;
-
-    DispatchMouseMoveEventData data
-    {
-        prevMouseX,
-        prevMouseY,
-        mouseX,
-        mouseY,
-        g->getValue<UiEventArea*>(0x107070C),
-        g->getFn<int(__cdecl)(int, int, int, int)>(0xCAAE0)
-    };
-
-    dispatchMouseMoveEvent(data);
-}
-
-int __declspec(noinline) __cdecl     GameDllHooks::dispatchWndMessage_v2_2(int a1, int a2, int a3, int a4)
-{
-    auto* const g = globals_;
-
-    DispatchWndMessageData data
-    {
-        a2,
-        a3,
-        a4,
-        g->getPtr<int>(0x106F6F0),
-        g->getFn<int(__cdecl)(int)>(0xCACD0),
-        g->getFn<int(__cdecl)(int, int, int, int)>(0xCAD50),
-        g->getFn<int(__cdecl)(int, int, int, int)>(0xCAAE0),
-        g->getFn<int(__cdecl)(int)>(0xCB5E0),
-        g->getValue<int>(0x106A128),
-        g->getValue<int>(0x106A12C),
-        g->getFn<int(__cdecl)(UiEventArea*)>(0xCA810),
-        g->getFn<int(__cdecl)(UiEventArea*)>(0xCA850),
-        g->getFn<void(__cdecl)(UiElementBase*, int)>(0x988C0),
-        g->getFn<void(__thiscall)(UiElementBase*)>(0xA0DF0),
-        g->getPtr<UiElementVtable>(0xEFF2C)
-    };
-
-    return dispatchWndMessage(data);
-}
-
-
-void __declspec(noinline) __cdecl    GameDllHooks::addUiElement_rw(UiElementBase* self, int type)
-{
-    auto* const g = globals_;
-
-    AddUiElementData data
-    {
-        type,
-        g->getPtr<UiElementBase*>(0x107AAB8),
-        g->getPtr<int>(0x107AAAC),
-        g->getValue<int>(0x10A9500),
-        g->getValue<int>(0x10A9504),
-    };
-
-    addUiElement(self, data);
-}
-
-void __declspec(noinline) __fastcall GameDllHooks::drawUiElement_rw(UiElementBase* self)
-{
-    auto* const g = globals_;
-
-    DrawUiElementData data
-    {
-        g->getPtr<int>(0x107AAE0),
-        g->getFn<int(__thiscall)(int*, GameData*)>(0x78E90),
-        g->getFn<int(__thiscall)(int*, GameData*)>(0x78EE0),
-        g->getFn<void(__cdecl)(int, int, int, int, int, int, void*)>(0x955F0)
-    };
-
-    drawUiElement(self, data);
-}
-
-void __declspec(noinline) __fastcall GameDllHooks::calculateClosedArea_rw(UiElementBase* self)
-{
-    auto* const g = globals_;
-
-    CalculateClosedAreaData data
-    {
-        g->getPtr<int>(0x107C2E8),
-        g->getFn<void(__thiscall)(int*, char, int, int, int, int)>(0x78B10)
-    };
-
-    calculateClosedArea(self, data);
-}
-
-void __declspec(noinline) __cdecl    GameDllHooks::dispatchMouseButtonEvent_rw_v2_3(int eventTag)
-{
-    auto* const g = globals_;
-
-    DispatchMouseButtonEventData data
-    {
-        eventTag,
-        g->getValue<int>(0x10AEACC),
-        g->getValue<int>(0x10AEAD0),
-        g->getValue<UiEventArea*>(0x10AFAE4),
-        g->getFn<int(__cdecl)(int, int, int, int)>(0xC5500)
-    };
-
-    dispatchMouseButtonEvent(data);
-}
-
-void __declspec(noinline) __cdecl    GameDllHooks::dispatchMouseButtonEvent_rw_v2_4(int eventTag)
-{
-    auto* const g = globals_;
-
-    DispatchMouseButtonEventData data
-    {
-        eventTag,
-        g->getValue<int>(0x10AEACC),
-        g->getValue<int>(0x10AEAD0),
-        g->getValue<UiEventArea*>(0x10AFAE4),
-        g->getFn<int(__cdecl)(int, int, int, int)>(0xC5510)
-    };
-
-    dispatchMouseButtonEvent(data);
-}
-
-void __declspec(noinline) __cdecl    GameDllHooks::dispatchMouseMoveEvent_rw_v2_3(int prevMouseX, int prevMouseY, int mouseX, int mouseY)
-{
-    auto* const g = globals_;
-
-    DispatchMouseMoveEventData data
-    {
-        prevMouseX,
-        prevMouseY,
-        mouseX,
-        mouseY,
-        g->getValue<UiEventArea*>(0x10AFAE4),
-        g->getFn<int(__cdecl)(int, int, int, int)>(0xC5500)
-    };
-
-    dispatchMouseMoveEvent(data);
-}
-
-void __declspec(noinline) __cdecl    GameDllHooks::dispatchMouseMoveEvent_rw_v2_4(int prevMouseX, int prevMouseY, int mouseX, int mouseY)
-{
-    auto* const g = globals_;
-
-    DispatchMouseMoveEventData data
-    {
-        prevMouseX,
-        prevMouseY,
-        mouseX,
-        mouseY,
-        g->getValue<UiEventArea*>(0x10AFAE4),
-        g->getFn<int(__cdecl)(int, int, int, int)>(0xC5510)
-    };
-
-    dispatchMouseMoveEvent(data);
-}
-
-int __declspec(noinline) __cdecl     GameDllHooks::dispatchWndMessage_rw_v2_3(int a1, int a2, int a3, int a4)
-{
-    auto* const g = globals_;
-
-    DispatchWndMessageData data
-    {
-        a2,
-        a3,
-        a4,
-        g->getPtr<int>(0x10AEAC8),
-
-        g->getFn<int(__cdecl)(int)>(0xC5600),
-        g->getFn<int(__cdecl)(int, int, int, int)>(0xC5680),
-        g->getFn<int(__cdecl)(int, int, int, int)>(0xC5500),
-        g->getFn<int(__cdecl)(int)>(0xC5F70),
-
-        g->getValue<int>(0x10A9500),
-        g->getValue<int>(0x10A9504),
-
-        g->getFn<int(__cdecl)(UiEventArea*)>(0xC5390),
-        g->getFn<int(__cdecl)(UiEventArea*)>(0xC53D0),
-        g->getFn<void(__cdecl)(UiElementBase*, int)>(0x95AA0),
-        g->getFn<void(__thiscall)(UiElementBase*)>(0x9D8C0),
-
-        g->getPtr<UiElementVtable>(0xE2FAC)
-    };
-
-    return dispatchWndMessage(data);
-}
-
-int __declspec(noinline) __cdecl     GameDllHooks::dispatchWndMessage_rw_v2_4(int a1, int a2, int a3, int a4)
-{
-    auto* const g = globals_;
-
-    DispatchWndMessageData data
-    {
-        a2,
-        a3,
-        a4,
-        g->getPtr<int>(0x10AEAC8),
-
-        g->getFn<int(__cdecl)(int)>(0xC5610),
-        g->getFn<int(__cdecl)(int, int, int, int)>(0xC5690),
-        g->getFn<int(__cdecl)(int, int, int, int)>(0xC5510),
-        g->getFn<int(__cdecl)(int)>(0xC5F80),
-
-        g->getValue<int>(0x10A9500),
-        g->getValue<int>(0x10A9504),
-
-        g->getFn<int(__cdecl)(UiEventArea*)>(0xC53A0),
-        g->getFn<int(__cdecl)(UiEventArea*)>(0xC53E0),
-        g->getFn<void(__cdecl)(UiElementBase*, int)>(0x95AA0),
-        g->getFn<void(__thiscall)(UiElementBase*)>(0x9D8C0),
-
-        g->getPtr<UiElementVtable>(0xE2FAC)
-    };
-
-    return dispatchWndMessage(data);
-}
-
-
-void __declspec(noinline) __cdecl    GameDllHooks::addUiElement_bg(UiElementBase* self, int type)
-{
-    auto* const g = globals_;
-
-    AddUiElementData data
-    {
-        type,
-        g->getPtr<UiElementBase*>(0x106AC68),
-        g->getPtr<int>(0x106AC5C),
-        g->getValue<int>(0x10996B0),
-        g->getValue<int>(0x10996B4),
-    };
-
-    addUiElement(self, data);
-}
-
-void __declspec(noinline) __fastcall GameDllHooks::drawUiElement_bg(UiElementBase* self)
-{
-    auto* const g = globals_;
-
-    DrawUiElementData data
-    {
-        g->getPtr<int>(0x106AC90),
-        g->getFn<int(__thiscall)(int*, GameData*)>(0x78E70),
-        g->getFn<int(__thiscall)(int*, GameData*)>(0x78EC0),
-        g->getFn<void(__cdecl)(int, int, int, int, int, int, void*)>(0x955C0)
-    };
-
-    drawUiElement(self, data);
-}
-
-void __declspec(noinline) __fastcall GameDllHooks::calculateClosedArea_bg(UiElementBase* self)
-{
-    auto* const g = globals_;
-
-    CalculateClosedAreaData data
-    {
-        g->getPtr<int>(0x106C498),
-        g->getFn<void(__thiscall)(int*, char, int, int, int, int)>(0x78AF0)
-    };
-
-    calculateClosedArea(self, data);
-}
-
-void __declspec(noinline) __cdecl    GameDllHooks::dispatchMouseButtonEvent_bg(int eventTag)
-{
-    auto* const g = globals_;
-
-    DispatchMouseButtonEventData data
-    {
-        eventTag,
-        g->getValue<int>(0x109EC7C),
-        g->getValue<int>(0x109EC80),
-        g->getValue<UiEventArea*>(0x109FC94),
-        g->getFn<int(__cdecl)(int, int, int, int)>(0xC5430)
-    };
-
-    dispatchMouseButtonEvent(data);
-}
-
-void __declspec(noinline) __cdecl    GameDllHooks::dispatchMouseMoveEvent_bg(int prevMouseX, int prevMouseY, int mouseX, int mouseY)
-{
-    auto* const g = globals_;
-
-    DispatchMouseMoveEventData data
-    {
-        prevMouseX,
-        prevMouseY,
-        mouseX,
-        mouseY,
-        g->getValue<UiEventArea*>(0x109FC94),
-        g->getFn<int(__cdecl)(int, int, int, int)>(0xC5430)
-    };
-
-    dispatchMouseMoveEvent(data);
-}
-
-int __declspec(noinline) __cdecl     GameDllHooks::dispatchWndMessage_bg(int a1, int a2, int a3, int a4)
-{
-    auto* const g = globals_;
-
-    DispatchWndMessageData data
-    {
-        a2,
-        a3,
-        a4,
-        g->getPtr<int>(0x109EC78),
-
-        g->getFn<int(__cdecl)(int)>(0xC5530),
-        g->getFn<int(__cdecl)(int, int, int, int)>(0xC55B0),
-        g->getFn<int(__cdecl)(int, int, int, int)>(0xC5430),
-        g->getFn<int(__cdecl)(int)>(0xC5DD0),
-
-        g->getValue<int>(0x10996B0),
-        g->getValue<int>(0x10996B4),
-
-        g->getFn<int(__cdecl)(UiEventArea*)>(0xC52C0),
-        g->getFn<int(__cdecl)(UiEventArea*)>(0xC5300),
-        g->getFn<void(__cdecl)(UiElementBase*, int)>(0x95A70),
-        g->getFn<void(__thiscall)(UiElementBase*)>(0x9D890),
-
-        g->getPtr<UiElementVtable>(0xE2FAC)
-    };
-
-    return dispatchWndMessage(data);
-}
-
-
 
 void GameDllHooks::addUiElement(UiElementBase* elem, const AddUiElementData& data)
 {
@@ -4307,7 +3914,6 @@ int __declspec(noinline) __cdecl     GameDllHooks::dispatchWndMessage(const Disp
     static bool altPressed = false;
 
     DWORD tick;
-    int v5, v6;
 
     // Mouse
     if ((*dword_1106F6F0 & 1) != 0)
@@ -4456,6 +4062,8 @@ int __declspec(noinline) __cdecl     GameDllHooks::dispatchWndMessage(const Disp
                 fake->type = UIFilter::getCustomType();
                 addUiElement(fake, fake->type);
 
+                fake->zoneBuffer = nullptr;
+                fake->dstBuf = nullptr;
                 removeUiEventAreaSafe(area);
                 removeUiElement(fake);
 
@@ -4491,20 +4099,10 @@ int __declspec(noinline) __cdecl     GameDllHooks::dispatchWndMessage(const Disp
             }
             else
             {
-                int mx = *mouseX;
-                int my = *mouseY;
-
+                const int ch = multiByteToWideCharOr(*dword_11070728 ? *dword_11070728 : a3);
+                writeEventToRingBuffer('/UTF', ch, *mouseX, *mouseY);
                 if (*dword_11070728)
-                {
-                    v5 = multiByteToWideCharOr(*dword_11070728);
-                    writeEventToRingBuffer('/UTF', v5, mx, my);
                     *dword_11070728 = 0;
-                }
-                else
-                {
-                    v6 = multiByteToWideCharOr(a3);
-                    writeEventToRingBuffer('/UTF', v6, mx, my);
-                }
             }
             break;
         }

@@ -6,48 +6,241 @@
 
 #include <vector>
 
-// Replace and increase arrays
-// 1034FF20-10351728
-// 10351728-10352F2A
-// 1037B588-1037C588
-// 1037C588-1037C596        // Only move
-// 1037C596-1037E894
+template<GameVersion Version>
+struct UiTraits;
 
-// Full inject for CAD due to array increases
-// 55A20    done
-// 55DC0    done
-// 55E00    done
-// 55E90    done
-// 55F40    done
-// 55FE0    done
-// 56030    done
-// 56170    done
-// 563B0    done
-// 6AD20    done
-// 6AEA0    done
-// 6B1C0    done
-// 6B2C0    done
-// 6D940    done
-// 6F120    done
+struct UiAddresses
+{
+    // addUiElement
+    uintptr_t updateUiFlag;
+    uintptr_t pointedUiElem;
+    uintptr_t screenHeight;
+    uintptr_t screenWidth;
+    
+    // drawUiElement
+    uintptr_t uiGameDataArray;
+    uintptr_t fnDrawUiSprite;
+    uintptr_t fnGetFirstGameData;
+    uintptr_t fnGetNextGameData;
 
-// Only replace/move values due to array increases
-// 6E3D0    done
-// 6E460    done
-// 71310    done
-// 71CD0    done
+    // calculateClosedArea
+    uintptr_t closedAreaGameDataArray;
+    uintptr_t fnFillClosedAreaGameData;
 
-// Additional fixes
-// 6D0A0    done    // for correct objects displaying
-// 6DFA0    done    // for correct selection of buildings
+    // dispatchMouseButtonEvent
+    uintptr_t mouseX;
+    uintptr_t mouseY;
+    uintptr_t uiEventAreas;
+    uintptr_t fnWriteEventToRingBuffer;
 
-// Fix existing bugs
-// 71310    done    // don't remember what exactly bug
-// 7FD20    done    // selecting units under the screen by double click
-// 1FE00    done    // bug with supply trucks and enemy buildings
-// 3E7B0    done    // no nullptr check (dump sent by Alee)
-// 5C170    done    // no nullptr check (dump sent by Bulldozer)
-// 6CC60    done    // no nullptr check (dump sent by Bulldozer)
-// 99E01    done    // freeing bad memory (dump sent by Bulldozer)
+    // dispatchWndMessage
+    uintptr_t wndGlobalVariables;
+    uintptr_t fnDispatchMouseButtonEvent;
+    uintptr_t fnDispatchMouseMoveEvent;
+    uintptr_t fnMultiByteToWideCharOr;
+    uintptr_t fnAddUiEventArea;
+    uintptr_t fnRemoveUiEventAreaSafe;
+    uintptr_t fnAddUiElement;
+    uintptr_t fnRemoveUiElement;
+    uintptr_t strategicMapUiVtable;
+};
+
+template<>
+struct UiTraits<GameVersion::SS_GOLD_EN>
+{
+    static constexpr UiAddresses addresses
+    {
+        0x34FEEC,
+        0x34FEF8,
+        0x37E918,
+        0x37E91C,
+
+        0x34FF20,
+        0x6B0A0,
+        0x562F0,
+        0x56330,
+
+        0x351728,
+        0x55F40,
+
+        0x384484,
+        0x384488,
+        0x38549C,
+        0x8E7D0,
+
+        0x384480,
+        0x8E8D0,
+        0x8E960,
+        0x8F080,
+        0x8E660,
+        0x8E6A0,
+        0x6B570,
+        0x72340,
+        0xA8740
+    };
+};
+
+template<>
+struct UiTraits<GameVersion::SS_2>
+{
+    static constexpr UiAddresses addresses
+    {
+        0x103B6D4,
+        0x103B6E0,
+        0x106A128,
+        0x106A12C,
+
+        0x103B708,
+        0x98410,
+        0x79900,
+        0x79950,
+
+        0x103CF10,
+        0x794B0,
+
+        0x106F6F4,
+        0x106F6F8,
+        0x107070C,
+        0xCAAE0,
+
+        0x106F6F0,
+        0xCACD0,
+        0xCAD50,
+        0xCB5E0,
+        0xCA810,
+        0xCA850,
+        0x988C0,
+        0xA0DF0,
+        0xEFF2C
+    };
+};
+
+template<>
+struct UiTraits<GameVersion::SS_RW_V2_3>
+{
+    static constexpr UiAddresses addresses
+    {
+        0x107AAAC,
+        0x107AAB8,
+        0x10A9500,
+        0x10A9504,
+
+        0x107AAE0,
+        0x955F0,
+        0x78E90,
+        0x78EE0,
+
+        0x107C2E8,
+        0x78B10,
+
+        0x10AEACC,
+        0x10AEAD0,
+        0x10AFAE4,
+        0xC5500,
+
+        0x10AEAC8,
+        0xC5600,
+        0xC5680,
+        0xC5F70,
+        0xC5390,
+        0xC53D0,
+        0x95AA0,
+        0x9D8C0,
+        0xE2FAC
+    };
+};
+
+template<>
+struct UiTraits<GameVersion::SS_RW_V2_4>
+{
+    static constexpr UiAddresses addresses
+    {
+        0x107AAAC,
+        0x107AAB8,
+        0x10A9500,
+        0x10A9504,
+
+        0x107AAE0,
+        0x955F0,
+        0x78E90,
+        0x78EE0,
+
+        0x107C2E8,
+        0x78B10,
+
+        0x10AEACC,
+        0x10AEAD0,
+        0x10AFAE4,
+        0xC5510,
+
+        0x10AEAC8,
+        0xC5610,
+        0xC5690,
+        0xC5F80,
+        0xC53A0,
+        0xC53E0,
+        0x95AA0,
+        0x9D8C0,
+        0xE2FAC
+    };
+};
+
+template<>
+struct UiTraits<GameVersion::SS_BLACK_GOLD>
+{
+    static constexpr UiAddresses addresses
+    {
+        0x106AC5C,
+        0x106AC68,
+        0x10996B0,
+        0x10996B4,
+
+        0x106AC90,
+        0x955C0,
+        0x78E70,
+        0x78EC0,
+
+        0x106C498,
+        0x78AF0,
+
+        0x109EC7C,
+        0x109EC80,
+        0x109FC94,
+        0xC5430,
+
+        0x109EC78,
+        0xC5530,
+        0xC55B0,
+        0xC5DD0,
+        0xC52C0,
+        0xC5300,
+        0x95A70,
+        0x9D890,
+        0xE2FAC
+    };
+};
+
+
+template<GameVersion V, typename = void>
+struct HasUiTraits : std::false_type {};
+
+template<GameVersion V>
+struct HasUiTraits<V, std::void_t<
+    decltype(UiTraits<V>::addresses)
+    >> : std::true_type {};
+
+template<GameVersion V>
+constexpr bool ValidateUiTraits()
+{
+    constexpr auto& A = UiTraits<V>::addresses;
+
+    return
+        A.pointedUiElem &&
+        A.updateUiFlag &&
+        A.screenHeight &&
+        A.screenWidth;
+}
+
 
 constexpr uint32_t kRowStrideOldDwordSize = 0x10;
 constexpr uint32_t kRowStrideOldShift = 6;
@@ -482,6 +675,24 @@ private:
     static_assert(offsetof(UiStrategicMapElement, dstBuf) == 0x48, "dstBuf offset mismatch");
     static_assert(offsetof(UiStrategicMapElement, isMapLoaded) == 0x61, "isMapLoaded offset mismatch");
     static_assert(offsetof(UiStrategicMapElement, srcBuf) == 0x6F, "srcBuf offset mismatch");
+
+    struct UIRenderElement
+    {
+        void** vtable;
+        UIRenderElement* prev;
+        UIRenderElement* next;
+        Rect rect;
+        int x;
+        int y;
+        int* scale;
+        int some_ui_param;
+        int type;
+        int* var_30;
+        int parent;
+        int flags;
+    };
+
+    static_assert(sizeof(UIRenderElement) == 0x3C, "UIRenderElement size mismatch");
 #pragma endregion
 
 #pragma region UI_Common_Function_Structs
@@ -596,8 +807,8 @@ private:
 
     struct FogOnStrategicMap
     {
-        void(__cdecl* fn_97740)(int*, int, int, int, int);
-        void(__thiscall* fn_A1110)(UiStrategicMapElement*);
+        void(__cdecl* fnWriteClipRect)(int*, int, int, int, int);
+        void(__thiscall* fnResetUiImage)(UiStrategicMapElement*);
 
         void(__thiscall* drawHorLine)(UiElementBase*, int, int, int, int16_t);
         void(__thiscall* drawVertLine)(UiElementBase*, int, int, int, int16_t);
@@ -707,38 +918,135 @@ public:
     static void __declspec(noinline) __fastcall sub_100BE6F0(PlaneData* self, void* /*dummy*/, int halfScreenWidth, int vertCenterMargin, int scale);   // SS:RW
     static void __declspec(noinline) __fastcall sub_100BE6C0(PlaneData* self, void* /*dummy*/, int halfScreenWidth, int vertCenterMargin, int scale);   // Black Gold
 
-    // These methods are used to add opportunity to disable/enable in-game UI
+    // Template functions to disable/enable in-game UI
+    template<GameVersion V>
+    static void __declspec(noinline) __cdecl    addUiElement_ver(UiElementBase* self, int type)
+    {
+        static_assert(HasUiTraits<V>::value, "UiTraits specialization missing");
+        static_assert(ValidateUiTraits<V>(), "One or more UiTraits addresses are zero");
 
-    // SS 2
-    static void __declspec(noinline) __cdecl    addUiElement_v2_2(UiElementBase* self, int type);
-    static void __declspec(noinline) __fastcall drawUiElement_v2_2(UiElementBase* self);
-    static void __declspec(noinline) __fastcall calculateClosedArea_v2_2(UiElementBase* self);
-    static void __declspec(noinline) __cdecl    dispatchMouseButtonEvent_v2_2(int eventTag);
-    static void __declspec(noinline) __cdecl    dispatchMouseMoveEvent_v2_2(int prevMouseX, int prevMouseY, int mouseX, int mouseY);
-    static int  __declspec(noinline) __cdecl    dispatchWndMessage_v2_2(int a1, int a2, int a3, int a4);
+        auto* const g = globals_;
+        constexpr auto& A = UiTraits<V>::addresses;
 
-    // SS:RW v2.3/v2.4
-    static void __declspec(noinline) __cdecl    addUiElement_rw(UiElementBase* self, int type);
-    static void __declspec(noinline) __fastcall drawUiElement_rw(UiElementBase* self);
-    static void __declspec(noinline) __fastcall calculateClosedArea_rw(UiElementBase* self);
+        AddUiElementData data
+        {
+            type,
+            g->getPtr<UiElementBase*>(A.pointedUiElem),
+            g->getPtr<int>(A.updateUiFlag),
+            g->getValue<int>(A.screenHeight),
+            g->getValue<int>(A.screenWidth)
+        };
 
-    static void __declspec(noinline) __cdecl    dispatchMouseButtonEvent_rw_v2_3(int eventTag);
-    static void __declspec(noinline) __cdecl    dispatchMouseButtonEvent_rw_v2_4(int eventTag);
-    static void __declspec(noinline) __cdecl    dispatchMouseMoveEvent_rw_v2_3(int prevMouseX, int prevMouseY, int mouseX, int mouseY);
-    static void __declspec(noinline) __cdecl    dispatchMouseMoveEvent_rw_v2_4(int prevMouseX, int prevMouseY, int mouseX, int mouseY);
-    static int  __declspec(noinline) __cdecl    dispatchWndMessage_rw_v2_3(int a1, int a2, int a3, int a4);
-    static int  __declspec(noinline) __cdecl    dispatchWndMessage_rw_v2_4(int a1, int a2, int a3, int a4);
+        addUiElement(self, data);
+    }
+    template<GameVersion V>
+    static void __declspec(noinline) __fastcall drawUiElement_ver(UiElementBase* self)
+    {
+        static_assert(HasUiTraits<V>::value, "UiTraits specialization missing");
+        static_assert(ValidateUiTraits<V>(), "One or more UiTraits addresses are zero");
 
-    // Black Gold
-    static void __declspec(noinline) __cdecl    addUiElement_bg(UiElementBase* self, int type);
-    static void __declspec(noinline) __fastcall drawUiElement_bg(UiElementBase* self);
-    static void __declspec(noinline) __fastcall calculateClosedArea_bg(UiElementBase* self);
-    static void __declspec(noinline) __cdecl    dispatchMouseButtonEvent_bg(int eventTag);
-    static void __declspec(noinline) __cdecl    dispatchMouseMoveEvent_bg(int prevMouseX, int prevMouseY, int mouseX, int mouseY);
-    static int  __declspec(noinline) __cdecl    dispatchWndMessage_bg(int a1, int a2, int a3, int a4);
+        auto* const g = globals_;
+        constexpr auto& A = UiTraits<V>::addresses;
 
-    // Common function to disable/enable in-game UI
+        DrawUiElementData data
+        {
+            g->getPtr<int>(A.uiGameDataArray),
+            g->getFn<int(__thiscall)(int*, GameData*)>(A.fnGetFirstGameData),
+            g->getFn<int(__thiscall)(int*, GameData*)>(A.fnGetNextGameData),
+            g->getFn<void(__cdecl)(int, int, int, int, int, int, void*)>(A.fnDrawUiSprite)
+        };
+
+        drawUiElement(self, data);
+    }
+    template<GameVersion V>
+    static void __declspec(noinline) __fastcall calculateClosedArea_ver(UiElementBase* self)
+    {
+        static_assert(HasUiTraits<V>::value, "UiTraits specialization missing");
+        static_assert(ValidateUiTraits<V>(), "One or more UiTraits addresses are zero");
+
+        auto* const g = globals_;
+        constexpr auto& A = UiTraits<V>::addresses;
+
+        CalculateClosedAreaData data
+        {
+            g->getPtr<int>(A.closedAreaGameDataArray),
+            g->getFn<void(__thiscall)(int*, char, int, int, int, int)>(A.fnFillClosedAreaGameData)
+        };
+
+        calculateClosedArea(self, data);
+    }
     static int  __declspec(noinline) __fastcall calculateCursorType(UiElementBase* self, void* /*dummy*/, int x, int y, int* a4);
+    template<GameVersion V>
+    static void __declspec(noinline) __cdecl    dispatchMouseButtonEvent_ver(int eventTag)
+    {
+        static_assert(HasUiTraits<V>::value, "UiTraits specialization missing");
+        static_assert(ValidateUiTraits<V>(), "One or more UiTraits addresses are zero");
+
+        auto* const g = globals_;
+        constexpr auto& A = UiTraits<V>::addresses;
+
+        DispatchMouseButtonEventData data
+        {
+            eventTag,
+            g->getValue<int>(A.mouseX),
+            g->getValue<int>(A.mouseY),
+            g->getValue<UiEventArea*>(A.uiEventAreas),
+            g->getFn<int(__cdecl)(int, int, int, int)>(A.fnWriteEventToRingBuffer)
+        };
+
+        dispatchMouseButtonEvent(data);
+    }
+    template<GameVersion V>
+    static void __declspec(noinline) __cdecl    dispatchMouseMoveEvent_ver(int prevMouseX, int prevMouseY, int mouseX, int mouseY)
+    {
+        static_assert(HasUiTraits<V>::value, "UiTraits specialization missing");
+        static_assert(ValidateUiTraits<V>(), "One or more UiTraits addresses are zero");
+
+        auto* const g = globals_;
+        constexpr auto& A = UiTraits<V>::addresses;
+
+        DispatchMouseMoveEventData data
+        {
+            prevMouseX,
+            prevMouseY,
+            mouseX,
+            mouseY,
+            g->getValue<UiEventArea*>(A.uiEventAreas),
+            g->getFn<int(__cdecl)(int, int, int, int)>(A.fnWriteEventToRingBuffer)
+        };
+
+        dispatchMouseMoveEvent(data);
+    }
+    template<GameVersion V>
+    static int __declspec(noinline) __cdecl     dispatchWndMessage_ver(int a1, int a2, int a3, int a4)
+    {
+        static_assert(HasUiTraits<V>::value, "UiTraits specialization missing");
+        static_assert(ValidateUiTraits<V>(), "One or more UiTraits addresses are zero");
+
+        auto* const g = globals_;
+        constexpr auto& A = UiTraits<V>::addresses;
+
+        DispatchWndMessageData data
+        {
+            a2,
+            a3,
+            a4,
+            g->getPtr<int>(A.wndGlobalVariables),
+            g->getFn<int(__cdecl)(int)>(A.fnDispatchMouseButtonEvent),
+            g->getFn<int(__cdecl)(int, int, int, int)>(A.fnDispatchMouseMoveEvent),
+            g->getFn<int(__cdecl)(int, int, int, int)>(A.fnWriteEventToRingBuffer),
+            g->getFn<int(__cdecl)(int)>(A.fnMultiByteToWideCharOr),
+            g->getValue<int>(A.screenHeight),
+            g->getValue<int>(A.screenWidth),
+            g->getFn<int(__cdecl)(UiEventArea*)>(A.fnAddUiEventArea),
+            g->getFn<int(__cdecl)(UiEventArea*)>(A.fnRemoveUiEventAreaSafe),
+            g->getFn<void(__cdecl)(UiElementBase*, int)>(A.fnAddUiElement),
+            g->getFn<void(__thiscall)(UiElementBase*)>(A.fnRemoveUiElement),
+            g->getPtr<UiElementVtable>(A.strategicMapUiVtable)
+        };
+
+        return dispatchWndMessage(data);
+    }
 private:
     static bool is_valid_ptr(void* p);
 

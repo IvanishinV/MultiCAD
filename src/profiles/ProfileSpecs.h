@@ -63,6 +63,7 @@ constexpr std::array relocs_game_ss_gold_en
     RelocateGapSpec{ 0x0037C596, 0x0037E898, 2 + sizeof(((ModuleStateBase*)0)->fogSprites) },
 };
 
+template<GameVersion V>
 const std::array hooks_game_ss_gold_en
 {
     HookSpec{0x55A20, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_10055A20)},
@@ -88,6 +89,15 @@ const std::array hooks_game_ss_gold_en
     HookSpec{0x6CC60, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_1006CC60)},
     HookSpec{0x5C170, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_1005C170)},
     HookSpec{0x99E01, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_10099E01)},
+
+    // Hooks for disabling UI via shortcut
+    HookSpec{0x6B570, reinterpret_cast<uintptr_t>(&GameDllHooks::addUiElement_ver<V>)},
+    HookSpec{0x726A0, reinterpret_cast<uintptr_t>(&GameDllHooks::drawUiElement_ver<V>)},
+    HookSpec{0x72770, reinterpret_cast<uintptr_t>(&GameDllHooks::calculateClosedArea_ver<V>)},
+    HookSpec{0x72790, reinterpret_cast<uintptr_t>(&GameDllHooks::calculateCursorType)},
+    HookSpec{0x8E8D0, reinterpret_cast<uintptr_t>(&GameDllHooks::dispatchMouseButtonEvent_ver<V>)},
+    HookSpec{0x8E960, reinterpret_cast<uintptr_t>(&GameDllHooks::dispatchMouseMoveEvent_ver<V>)},
+    HookSpec{0x8EAD0, reinterpret_cast<uintptr_t>(&GameDllHooks::dispatchWndMessage_ver<V>)},
 };
 
 const std::array patches_game_ss_gold_en
@@ -340,6 +350,7 @@ constexpr std::array relocs_game_ss_gold_hd_v1_2
     RelocateGapSpec{ 0x003B2000, 0x003BC000, 2 + sizeof(((ModuleStateBase*)0)->fogSprites) },
 };
 
+template<GameVersion V>
 const std::array hooks_game_ss_gold_hd_v1_2
 {
     HookSpec{0x55A20, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_10055A20)},
@@ -363,6 +374,15 @@ const std::array hooks_game_ss_gold_hd_v1_2
     HookSpec{0x6CC60, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_1006CC60)},
     HookSpec{0x5C170, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_1005C170)},
     HookSpec{0x99E01, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_10099E01)},
+
+    // Hooks for disabling UI via shortcut
+    HookSpec{0x6B570, reinterpret_cast<uintptr_t>(&GameDllHooks::addUiElement_ver<V>)},
+    HookSpec{0x726A0, reinterpret_cast<uintptr_t>(&GameDllHooks::drawUiElement_ver<V>)},
+    HookSpec{0x72770, reinterpret_cast<uintptr_t>(&GameDllHooks::calculateClosedArea_ver<V>)},
+    HookSpec{0x72790, reinterpret_cast<uintptr_t>(&GameDllHooks::calculateCursorType)},
+    HookSpec{0x8E8D0, reinterpret_cast<uintptr_t>(&GameDllHooks::dispatchMouseButtonEvent_ver<V>)},
+    HookSpec{0x8E960, reinterpret_cast<uintptr_t>(&GameDllHooks::dispatchMouseMoveEvent_ver<V>)},
+    HookSpec{0x8EAD0, reinterpret_cast<uintptr_t>(&GameDllHooks::dispatchWndMessage_ver<V>)},
 };
 
 const std::array patches_game_ss_gold_hd_v1_2
@@ -626,6 +646,7 @@ constexpr std::array relocs_game_ss_2_v2_2
     RelocateGapSpec{ 0x01067DA2, 0x0106A0A8, 2 + sizeof(((ModuleStateBase*)0)->fogSprites) },
 };
 
+template<GameVersion V>
 const std::array hooks_game_ss_2_v2_2
 {
     HookSpec{0x78F60, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_10055A20)},
@@ -653,13 +674,13 @@ const std::array hooks_game_ss_2_v2_2
     HookSpec{0xC3830, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_100C3830)},
 
     // Hooks for disabling UI via shortcut
-    HookSpec{0x988C0, reinterpret_cast<uintptr_t>(&GameDllHooks::addUiElement_v2_2)},
-    HookSpec{0xA1130, reinterpret_cast<uintptr_t>(&GameDllHooks::drawUiElement_v2_2)},
-    HookSpec{0xA1200, reinterpret_cast<uintptr_t>(&GameDllHooks::calculateClosedArea_v2_2)},
+    HookSpec{0x988C0, reinterpret_cast<uintptr_t>(&GameDllHooks::addUiElement_ver<V>)},
+    HookSpec{0xA1130, reinterpret_cast<uintptr_t>(&GameDllHooks::drawUiElement_ver<V>)},
+    HookSpec{0xA1200, reinterpret_cast<uintptr_t>(&GameDllHooks::calculateClosedArea_ver<V>)},
     HookSpec{0xA1220, reinterpret_cast<uintptr_t>(&GameDllHooks::calculateCursorType)},
-    HookSpec{0xCACD0, reinterpret_cast<uintptr_t>(&GameDllHooks::dispatchMouseButtonEvent_v2_2)},
-    HookSpec{0xCAD50, reinterpret_cast<uintptr_t>(&GameDllHooks::dispatchMouseMoveEvent_v2_2)},
-    HookSpec{0xCAF30, reinterpret_cast<uintptr_t>(&GameDllHooks::dispatchWndMessage_v2_2)},
+    HookSpec{0xCACD0, reinterpret_cast<uintptr_t>(&GameDllHooks::dispatchMouseButtonEvent_ver<V>)},
+    HookSpec{0xCAD50, reinterpret_cast<uintptr_t>(&GameDllHooks::dispatchMouseMoveEvent_ver<V>)},
+    HookSpec{0xCAF30, reinterpret_cast<uintptr_t>(&GameDllHooks::dispatchWndMessage_ver<V>)},
 };
 
 const std::array patches_game_ss_2_v2_2
@@ -719,6 +740,7 @@ const std::array hooks_menu_ss_2_v2_2
 };
 
 
+template<GameVersion V>
 const std::array hooks_game_ss_rw_v2_3
 {
     HookSpec{0x785C0, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_10055A20)},
@@ -746,12 +768,12 @@ const std::array hooks_game_ss_rw_v2_3
     HookSpec{0xBE6E0, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_100BE6F0)},
 
     // Hooks for disabling UI via shortcut
-    HookSpec{0x95AA0, reinterpret_cast<uintptr_t>(&GameDllHooks::addUiElement_rw)},
-    HookSpec{0x9DC00, reinterpret_cast<uintptr_t>(&GameDllHooks::drawUiElement_rw)},
-    HookSpec{0x9DCD0, reinterpret_cast<uintptr_t>(&GameDllHooks::calculateClosedArea_rw)},
-    HookSpec{0xC5600, reinterpret_cast<uintptr_t>(&GameDllHooks::dispatchMouseButtonEvent_rw_v2_3)},
-    HookSpec{0xC5680, reinterpret_cast<uintptr_t>(&GameDllHooks::dispatchMouseMoveEvent_rw_v2_3)},
-    HookSpec{0xC5820, reinterpret_cast<uintptr_t>(&GameDllHooks::dispatchWndMessage_rw_v2_3)},
+    HookSpec{0x95AA0, reinterpret_cast<uintptr_t>(&GameDllHooks::addUiElement_ver<V>)},
+    HookSpec{0x9DC00, reinterpret_cast<uintptr_t>(&GameDllHooks::drawUiElement_ver<V>)},
+    HookSpec{0x9DCD0, reinterpret_cast<uintptr_t>(&GameDllHooks::calculateClosedArea_ver<V>)},
+    HookSpec{0xC5600, reinterpret_cast<uintptr_t>(&GameDllHooks::dispatchMouseButtonEvent_ver<V>)},
+    HookSpec{0xC5680, reinterpret_cast<uintptr_t>(&GameDllHooks::dispatchMouseMoveEvent_ver<V>)},
+    HookSpec{0xC5820, reinterpret_cast<uintptr_t>(&GameDllHooks::dispatchWndMessage_ver<V>)},
 };
 
 const std::array hooks_menu_ss_rw_v2_3
@@ -769,6 +791,7 @@ constexpr std::array relocs_game_ss_rw_v2_4
     RelocateGapSpec{ 0x010A717A, 0x010A9480, 2 + sizeof(((ModuleStateBase*)0)->fogSprites) },
 };
 
+template<GameVersion V>
 const std::array hooks_game_ss_rw_v2_4
 {
     HookSpec{0x785C0, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_10055A20)},
@@ -796,13 +819,13 @@ const std::array hooks_game_ss_rw_v2_4
     HookSpec{0xBE6F0, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_100BE6F0)},
 
     // Hooks for disabling UI via shortcut
-    HookSpec{0x95AA0, reinterpret_cast<uintptr_t>(&GameDllHooks::addUiElement_rw)},
-    HookSpec{0x9DC00, reinterpret_cast<uintptr_t>(&GameDllHooks::drawUiElement_rw)},
-    HookSpec{0x9DCD0, reinterpret_cast<uintptr_t>(&GameDllHooks::calculateClosedArea_rw)},
+    HookSpec{0x95AA0, reinterpret_cast<uintptr_t>(&GameDllHooks::addUiElement_ver<V>)},
+    HookSpec{0x9DC00, reinterpret_cast<uintptr_t>(&GameDllHooks::drawUiElement_ver<V>)},
+    HookSpec{0x9DCD0, reinterpret_cast<uintptr_t>(&GameDllHooks::calculateClosedArea_ver<V>)},
     HookSpec{0x9DCF0, reinterpret_cast<uintptr_t>(&GameDllHooks::calculateCursorType)},
-    HookSpec{0xC5610, reinterpret_cast<uintptr_t>(&GameDllHooks::dispatchMouseButtonEvent_rw_v2_4)},
-    HookSpec{0xC5690, reinterpret_cast<uintptr_t>(&GameDllHooks::dispatchMouseMoveEvent_rw_v2_4)},
-    HookSpec{0xC5830, reinterpret_cast<uintptr_t>(&GameDllHooks::dispatchWndMessage_rw_v2_4)},
+    HookSpec{0xC5610, reinterpret_cast<uintptr_t>(&GameDllHooks::dispatchMouseButtonEvent_ver<V>)},
+    HookSpec{0xC5690, reinterpret_cast<uintptr_t>(&GameDllHooks::dispatchMouseMoveEvent_ver<V>)},
+    HookSpec{0xC5830, reinterpret_cast<uintptr_t>(&GameDllHooks::dispatchWndMessage_ver<V>)},
 };
 
 const std::array patches_game_ss_rw_v2_4
@@ -876,6 +899,7 @@ constexpr std::array relocs_game_black_gold
     RelocateGapSpec{ 0x0109732A, 0x01099630, 2 + sizeof(((ModuleStateBase*)0)->fogSprites) },
 };
 
+template<GameVersion V>
 const std::array hooks_game_black_gold
 {
     HookSpec{0x785A0, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_10055A20)},
@@ -903,13 +927,13 @@ const std::array hooks_game_black_gold
     HookSpec{0xBE6C0, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_100BE6C0)},
 
     // Hooks for disabling UI via shortcut
-    HookSpec{0x95A70, reinterpret_cast<uintptr_t>(&GameDllHooks::addUiElement_bg)},
-    HookSpec{0x9DBD0, reinterpret_cast<uintptr_t>(&GameDllHooks::drawUiElement_bg)},
-    HookSpec{0x9DCA0, reinterpret_cast<uintptr_t>(&GameDllHooks::calculateClosedArea_bg)},
+    HookSpec{0x95A70, reinterpret_cast<uintptr_t>(&GameDllHooks::addUiElement_ver<V>)},
+    HookSpec{0x9DBD0, reinterpret_cast<uintptr_t>(&GameDllHooks::drawUiElement_ver<V>)},
+    HookSpec{0x9DCA0, reinterpret_cast<uintptr_t>(&GameDllHooks::calculateClosedArea_ver<V>)},
     HookSpec{0x9DCC0, reinterpret_cast<uintptr_t>(&GameDllHooks::calculateCursorType)},
-    HookSpec{0xC5530, reinterpret_cast<uintptr_t>(&GameDllHooks::dispatchMouseButtonEvent_bg)},
-    HookSpec{0xC55B0, reinterpret_cast<uintptr_t>(&GameDllHooks::dispatchMouseMoveEvent_bg)},
-    HookSpec{0xC5750, reinterpret_cast<uintptr_t>(&GameDllHooks::dispatchWndMessage_bg)},
+    HookSpec{0xC5530, reinterpret_cast<uintptr_t>(&GameDllHooks::dispatchMouseButtonEvent_ver<V>)},
+    HookSpec{0xC55B0, reinterpret_cast<uintptr_t>(&GameDllHooks::dispatchMouseMoveEvent_ver<V>)},
+    HookSpec{0xC5750, reinterpret_cast<uintptr_t>(&GameDllHooks::dispatchWndMessage_ver<V>)},
 };
 
 const std::array patches_game_black_gold
