@@ -33,6 +33,17 @@ bool UIFilter::shouldIgnore(const int type) const
     return false;
 }
 
+bool UIFilter::shouldIgnoreDecor(const int type) const
+{
+    if (uiEnabled_)
+        return false;
+
+    if (isDecorUI(type))
+        return true;
+
+    return false;
+}
+
 bool UIFilter::shouldIgnoreByTag(const int tag) const
 {
     if (uiEnabled_)
@@ -70,6 +81,11 @@ bool UIFilter::isCrewUi(const int type) const
 bool UIFilter::isChatUI(const int type) const
 {
     return type == 601;
+}
+
+bool UIFilter::isDecorUI(const int type) const
+{
+    return type == 11 || type == 12 || type == 21;
 }
 
 int UIFilter::getCustomType()
