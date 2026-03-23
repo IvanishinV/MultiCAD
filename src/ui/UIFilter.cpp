@@ -18,6 +18,11 @@ bool UIFilter::isEnabled() const
     return uiEnabled_;
 }
 
+void UIFilter::setCrewCheck(const bool enabled)
+{
+    checkCrew_ = enabled;
+}
+
 bool UIFilter::shouldIgnore(const int type) const
 {
     if (uiEnabled_)
@@ -27,7 +32,7 @@ bool UIFilter::shouldIgnore(const int type) const
         return true;
     if (isStatsUi(type))
         return true;
-    if (isCrewUi(type))
+    if (checkCrew_ && isCrewUi(type))
         return true;
 
     return false;

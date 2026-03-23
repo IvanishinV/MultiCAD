@@ -30,11 +30,16 @@
 // 12 - vertical dark line to the right of minimap
 // 21 - horizontal decor above stats
 
+// Also, there is a one case only in SS v1.0, when smal exit confirmation in-game window has
+// type 320, when top vehicle icon in SS 2/ SS:RW has the same type 320. To fix it, I disable
+// crew check only for SS v1.0 using a lack of multiByteToWideChar function. See setCrewCheck usage
+
 class UIFilter
 {
 public:
     void setEnabled(const bool enabled);
     bool isEnabled() const;
+    void setCrewCheck(const bool enabled);
 
     /**
      * Checks UI type, if it should be skipped on rendering.
@@ -56,6 +61,7 @@ public:
 
 private:
     bool uiEnabled_{ true };
+    bool checkCrew_{ true };
 };
 
 UIFilter& GetUIFilter();

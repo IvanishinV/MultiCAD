@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "PatchInstallers.h"
 #include "AudioHelper.h"
+#include "UIFilter.h"
 
 bool InstallGamePatches(TargetState& state, uintptr_t base, size_t size, const std::wstring& path)
 {
@@ -56,6 +57,8 @@ bool InstallGamePatches(TargetState& state, uintptr_t base, size_t size, const s
         GameDllHooks::shutdown();
         state.patchEngine.reset();
 
+        GetUIFilter().setEnabled(true);
+
         ShowErrorAsync("Couldn't patch game dll due to some error. Contact the author.");
         Screen::UpdateToOrigSize();
         return false;
@@ -73,6 +76,8 @@ bool UninstallGamePatches(TargetState& state)
     }
 
     GameDllHooks::shutdown();
+
+    GetUIFilter().setEnabled(true);
 
     return true;
 }
