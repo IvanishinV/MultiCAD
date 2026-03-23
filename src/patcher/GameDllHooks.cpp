@@ -1169,6 +1169,79 @@ void __declspec(noinline) __stdcall  GameDllHooks::sub_1005C170_fr()
     sub_100592C0(byte_10295C60, writeIndex);
 }
 
+void __declspec(noinline) __stdcall  GameDllHooks::sub_1006AD20_v1_0()
+{
+    auto* const g = globals_;
+
+    auto* obj = g->getValue<UIRenderElement*>(0x33D5FC);
+    for (; obj; obj = obj->prev)
+    {
+        if (GetUIFilter().shouldIgnoreDecor(obj->type))
+            continue;
+        using Fn = void(__thiscall*)(UIRenderElement*);
+        Fn fn = reinterpret_cast<Fn>(obj->vtable[1]);
+        fn(obj);
+    }
+
+    auto sub_1006AEA0 = g->getFn<void(__stdcall)()>(0x5ED00);
+    auto sub_100564F0 = g->getFn<int(__thiscall)(int*, GameData2*)>(0x4A380);
+    auto sub_10056530 = g->getFn<int(__thiscall)(int*, GameData2*)>(0x4A3D0);
+    auto sub_1006AE80 = g->getFn<void(__thiscall)(int*, int, int, int, int)>(0x5ECB0);
+
+    sub_1006AEA0();
+
+
+    GameData2 gd{};
+    gd.x = 0;
+    gd.y = 0;
+    gd.maxX = 0x7FFFFFFF;
+    gd.maxY = 0x7FFFFFFF;
+    gd.mask = 16;
+    gd.maskValue = 32;
+
+
+    int* div16Ptr = g->getPtr<int>(0x33EE20);
+    uintptr_t cadObj = g->getValue<uintptr_t>(0x370EE4);
+    auto cad_2B90 = *reinterpret_cast<void(__cdecl**)(int, int, int, int)>(cadObj + 0xAA38);
+    auto cad_2A90 = *reinterpret_cast<void(__cdecl**)(int, int, int, int)>(cadObj + 0xAA3C);
+
+    if (sub_100564F0(div16Ptr, &gd))
+    {
+        do
+        {
+            if (gd.cellMask == 16)
+                cad_2B90(gd.alignX, gd.alignY, gd.allowX, gd.allowY);
+            else
+                cad_2A90(gd.alignX, gd.alignY, gd.allowX - gd.alignX + 1, gd.allowY - gd.alignY + 1);
+        } while (sub_10056530(div16Ptr, &gd));
+    }
+
+    int v9[4]{};
+    sub_1006AE80(v9, 0, 0, g->getValue<int>(0x33D608) - 1, g->getValue<int>(0x33D604) - 1);
+
+    int x0 = v9[0] >> 4;
+    int x1 = v9[2] >> 4;
+    int y0 = v9[1] >> 3;
+    int y1 = v9[3] >> 3;
+
+    x0 = std::max(x0, 0);
+    y0 = std::max(y0, 0);
+
+    x1 = std::min(x1, *div16Ptr - 1);
+    y1 = std::min(y1, *(div16Ptr + 1) - 1);     // 0x35172C
+
+    for (int row = y0; row <= y1; ++row)
+    {
+        uint8_t* line = reinterpret_cast<uint8_t*>(div16Ptr + 2) + kRowStrideByteSize * row; // 0x351730
+        for (int j = x0; j <= x1; ++j)
+        {
+            uint8_t val = line[j];
+            if (val & 0x40)
+                line[j] = (val & 0xBF) | 0x18;
+        }
+    }
+}
+
 void __declspec(noinline) __stdcall  GameDllHooks::sub_1006AD20()
 {
     auto* const g = globals_;
@@ -4014,7 +4087,8 @@ int __declspec(noinline) __cdecl     GameDllHooks::dispatchWndMessage(const Disp
         case WM_SYSKEYDOWN:
         {
             writeEventToRingBuffer('/KBD', a3 + 256, *mouseX, *mouseY);
-            writeEventToRingBuffer('/UTF', a3 + 0x1000000, *mouseX, *mouseY);
+            if (data.multiByteToWideCharOr)
+                writeEventToRingBuffer('/UTF', a3 + 0x1000000, *mouseX, *mouseY);
 
             // ALT + E toggle UI
             if (a3 == VK_MENU)
@@ -4024,6 +4098,10 @@ int __declspec(noinline) __cdecl     GameDllHooks::dispatchWndMessage(const Disp
             {
                 bool newState = !GetUIFilter().isEnabled();
                 GetUIFilter().setEnabled(newState);
+
+                // There is some difference for SS v1.0. Since it doesn't have multiByte function, I use it to disable crew check
+                if (!data.multiByteToWideCharOr)
+                    GetUIFilter().setCrewCheck(false);
 
                 const int screenHeight = data.screenHeight;
                 const int screenWidth = data.screenWidth;
@@ -4080,7 +4158,8 @@ int __declspec(noinline) __cdecl     GameDllHooks::dispatchWndMessage(const Disp
         case WM_SYSKEYUP:
         {
             writeEventToRingBuffer('/KBD', a3 + 512, *mouseX, *mouseY);
-            writeEventToRingBuffer('/UTF', a3 + 0x2000000, *mouseX, *mouseY);
+            if (data.multiByteToWideCharOr)
+                writeEventToRingBuffer('/UTF', a3 + 0x2000000, *mouseX, *mouseY);
 
             if (a3 == VK_MENU)
                 altPressed = false;
@@ -4092,6 +4171,9 @@ int __declspec(noinline) __cdecl     GameDllHooks::dispatchWndMessage(const Disp
         case WM_SYSCHAR:
         {
             writeEventToRingBuffer('/KBD', a3, *mouseX, *mouseY);
+
+            if (!data.multiByteToWideCharOr)
+                break;
 
             if (IsDBCSLeadByte((BYTE)a3))
             {

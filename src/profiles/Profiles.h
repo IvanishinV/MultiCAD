@@ -16,7 +16,7 @@ using Profile_Empty = GameVersionProfile<
 using Profile_SS_v1_0 = GameVersionProfile<
     GameVersion::SS_V1_0,
     relocs_game_ss_ru,
-    hooks_game_ss_ru,
+    hooks_game_ss_ru<GameVersion::SS_V1_0>,
     patches_game_ss_ru,
     relocs_empty,
     hooks_menu_ss_ru,

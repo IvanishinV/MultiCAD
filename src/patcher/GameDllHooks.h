@@ -46,6 +46,41 @@ struct UiAddresses
 };
 
 template<>
+struct UiTraits<GameVersion::SS_V1_0>
+{
+    static constexpr UiAddresses addresses
+    {
+        0x33D5E4,
+        0x33D5F0,
+        0x36C018,
+        0x36C01C,
+
+        0x33D618,
+        0x5EE60,
+        0x4A170,
+        0x4A1C0,
+
+        0x33EE20,
+        0x49DF0,
+
+        0x370EF4,
+        0x370EF8,
+        0x371F0C,
+        0x80C20,
+
+        0x370EF0,
+        0x80FA0,
+        0x81020,
+        0x0,
+        0x80AB0,
+        0x80AF0,
+        0x5F2C0,
+        0x661C0,
+        0x98F24
+    };
+};
+
+template<>
 struct UiTraits<GameVersion::SS_GOLD_EN>
 {
     static constexpr UiAddresses addresses
@@ -868,6 +903,7 @@ public:
     static void __declspec(noinline) __stdcall  sub_1005C170();
     static void __declspec(noinline) __stdcall  sub_1005C170_de();
     static void __declspec(noinline) __stdcall  sub_1005C170_fr();
+    static void __declspec(noinline) __stdcall  sub_1006AD20_v1_0();
     static void __declspec(noinline) __stdcall  sub_1006AD20();
     static void __declspec(noinline) __stdcall  sub_1006AD20_de();
     static void __declspec(noinline) __stdcall  sub_1006AD20_hd();
@@ -1035,7 +1071,7 @@ public:
             g->getFn<int(__cdecl)(int)>(A.fnDispatchMouseButtonEvent),
             g->getFn<int(__cdecl)(int, int, int, int)>(A.fnDispatchMouseMoveEvent),
             g->getFn<int(__cdecl)(int, int, int, int)>(A.fnWriteEventToRingBuffer),
-            g->getFn<int(__cdecl)(int)>(A.fnMultiByteToWideCharOr),
+            A.fnMultiByteToWideCharOr != 0 ? g->getFn<int(__cdecl)(int)>(A.fnMultiByteToWideCharOr) : 0,
             g->getValue<int>(A.screenHeight),
             g->getValue<int>(A.screenWidth),
             g->getFn<int(__cdecl)(UiEventArea*)>(A.fnAddUiEventArea),
