@@ -258,7 +258,16 @@ struct ModuleStateBase
     // Important! We need to increase fog array, so moved it up to the main structure used by game
     Fog                 fogSprites[(Graphics::kMaxHeight >> 3) + 0x10];      //10012b5a-10014e5b     // For array for screen. Originally it was 112 elements. Adding 0x10 for borderline cases
 
-    U32                 pad_4[2];
+    union pad
+    {
+        U32                 pad_4[2];
+        struct
+        {
+            U32 isLong : 1;
+            U32 unused : 31;
+            U32 reserved;
+        } bits;
+    } pad;
 
     // All pointers to the CAD structure point here
     Rect                windowRect;

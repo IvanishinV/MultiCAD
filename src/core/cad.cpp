@@ -83,6 +83,8 @@ inline void InitActionsPostfix(RendererActionsPostfix& p)
 template<typename ModuleState>
 void InitModuleState(ModuleState& s)
 {
+    s.pad.bits.isLong = std::is_same_v<ModuleState, ModuleStateLong> ? 1 : 0;
+
     s.surface.main = g_rendererState.surfaces.main;
     s.surface.back = g_rendererState.surfaces.back;
     s.surface.stencil = g_rendererState.surfaces.stencil;
@@ -96,7 +98,7 @@ void InitModuleState(ModuleState& s)
         InitActionsPostfix(s.actionsPostfix);
     }
 
-    if constexpr (std::derived_from<ModuleState, RendererActionsAnimationSprite>)
+    if constexpr (requires { s.actionsPostfix.drawMainSurfaceAnimationSprite; })
     {
         InitActionsAnimationSprite(s.actionsPostfix);
     }
