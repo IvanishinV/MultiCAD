@@ -46,7 +46,7 @@ using Profile_SS_GOLD_EN = GameVersionProfile<
 using Profile_SS_GOLD_DE = GameVersionProfile<
     GameVersion::SS_GOLD_DE,
     relocs_game_ss_gold_de_ru,
-    hooks_game_ss_gold_de_ru,
+    hooks_game_ss_gold_de_ru<GameVersion::SS_GOLD_DE>,
     patches_game_ss_gold_de_ru,
     relocs_empty,
     hooks_menu_ss_gold_en,
@@ -66,7 +66,7 @@ using Profile_SS_GOLD_FR = GameVersionProfile<
 using Profile_SS_GOLD_RU = GameVersionProfile<
     GameVersion::SS_GOLD_RU,
     relocs_game_ss_gold_de_ru,
-    hooks_game_ss_gold_de_ru,
+    hooks_game_ss_gold_de_ru<GameVersion::SS_GOLD_DE>,
     patches_game_ss_gold_de_ru,
     relocs_empty,
     hooks_menu_ss_gold_ru,

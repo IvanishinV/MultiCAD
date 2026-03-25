@@ -1320,7 +1320,7 @@ void __declspec(noinline) __stdcall  GameDllHooks::sub_1006AD20_de()
     auto* const g = globals_;
 
     auto* obj = g->getValue<UIRenderElement*>(0x34FEBC);
-    for (; obj; obj = obj->next)
+    for (; obj; obj = obj->prev)
     {
         if (GetUIFilter().shouldIgnoreDecor(obj->type))
             continue;
@@ -1346,10 +1346,23 @@ void __declspec(noinline) __stdcall  GameDllHooks::sub_1006AD20_de()
     gd.maskValue = 32;
 
 
-    int* div16Ptr = g->getPtr<int>(0x351728);
-    uintptr_t cadObj = g->getValue<uintptr_t>(0x384474);
-    auto cad_2B90 = *reinterpret_cast<void(__cdecl**)(int, int, int, int)>(cadObj + 0xAA3C);
-    auto cad_2A90 = *reinterpret_cast<void(__cdecl**)(int, int, int, int)>(cadObj + 0xAA40);
+    int* div16Ptr = g->getPtr<int>(0x3516E0);
+    uintptr_t windowPtr = g->getValue<uintptr_t>(0x38446C);
+    ModuleStateBase* const cadPtr = reinterpret_cast<ModuleStateBase*>(windowPtr - (offsetof(ModuleStateBase, windowRect) - offsetof(ModuleStateBase, fogSprites)));
+    uintptr_t off1, off2;
+    if (cadPtr->pad.bits.isLong)
+    {
+        off1 = 0xAA3C;
+        off2 = 0xAA40;
+    }
+    else
+    {
+        off1 = 0xAA38;
+        off2 = 0xAA3C;
+    }
+
+    auto cad_2B90 = *reinterpret_cast<void(__cdecl**)(int, int, int, int)>(windowPtr + off1);
+    auto cad_2A90 = *reinterpret_cast<void(__cdecl**)(int, int, int, int)>(windowPtr + off2);
 
     if (sub_100564F0(div16Ptr, &gd))
     {
@@ -1363,7 +1376,7 @@ void __declspec(noinline) __stdcall  GameDllHooks::sub_1006AD20_de()
     }
 
     int v9[4]{};
-    sub_1006AE80(v9, 0, 0, g->getValue<int>(0x34FF10) - 1, g->getValue<int>(0x34FF0C) - 1);
+    sub_1006AE80(v9, 0, 0, g->getValue<int>(0x34FEC8) - 1, g->getValue<int>(0x34FEC4) - 1);
 
     int x0 = v9[0] >> 4;
     int x1 = v9[2] >> 4;
@@ -1374,11 +1387,11 @@ void __declspec(noinline) __stdcall  GameDllHooks::sub_1006AD20_de()
     y0 = std::max(y0, 0);
 
     x1 = std::min(x1, *div16Ptr - 1);
-    y1 = std::min(y1, *(div16Ptr + 1) - 1);     // 0x35172C
+    y1 = std::min(y1, *(div16Ptr + 1) - 1);
 
     for (int row = y0; row <= y1; ++row)
     {
-        uint8_t* line = reinterpret_cast<uint8_t*>(div16Ptr + 2) + kRowStrideByteSize * row; // 0x351730
+        uint8_t* line = reinterpret_cast<uint8_t*>(div16Ptr + 2) + kRowStrideByteSize * row;
         for (int j = x0; j <= x1; ++j)
         {
             uint8_t val = line[j];

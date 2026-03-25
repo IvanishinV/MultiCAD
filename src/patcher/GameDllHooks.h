@@ -81,6 +81,41 @@ struct UiTraits<GameVersion::SS_V1_0>
 };
 
 template<>
+struct UiTraits<GameVersion::SS_GOLD_DE>
+{
+    static constexpr UiAddresses addresses
+    {
+        0x34FEA4,
+        0x34FEB0,
+        0x37E8D8,
+        0x37E8DC,
+
+        0x34FED8,
+        0x6DA00,
+        0x58820,
+        0x58860,
+
+        0x3516E0,
+        0x584B0,
+
+        0x38447C,
+        0x384480,
+        0x385494,
+        0x91660,
+
+        0x384478,
+        0x91760,
+        0x917E0,
+        0x91F10,
+        0x914F0,
+        0x91530,
+        0x6DE60,
+        0x74F40,
+        0xAA6B0
+    };
+};
+
+template<>
 struct UiTraits<GameVersion::SS_GOLD_EN>
 {
     static constexpr UiAddresses addresses
