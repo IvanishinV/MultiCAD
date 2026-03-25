@@ -2303,7 +2303,7 @@ void __declspec(noinline) __stdcall  GameDllHooks::sub_1006F120_fr()
         g->getPtr<uint8_t>(0x1C53E6),
         g->getValue<int>(0xC54D4),
         g->getValue<int>(0xC54D8),
-        reinterpret_cast<ModuleStateBase*>(g->getValue<uintptr_t>(0x384598) - (offsetof(ModuleStateBase, windowRect) - offsetof(ModuleStateBase, fogSprites))),
+        reinterpret_cast<ModuleStateBase*>(g->getValue<uintptr_t>(0x388598) - (offsetof(ModuleStateBase, windowRect) - offsetof(ModuleStateBase, fogSprites))),
 
         g->getValue<int>(0x382900),
         g->getValue<int>(0x382904),
