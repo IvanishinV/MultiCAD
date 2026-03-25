@@ -56,7 +56,7 @@ using Profile_SS_GOLD_DE = GameVersionProfile<
 using Profile_SS_GOLD_FR = GameVersionProfile<
     GameVersion::SS_GOLD_FR,
     relocs_game_ss_gold_fr,
-    hooks_game_ss_gold_fr,
+    hooks_game_ss_gold_fr<GameVersion::SS_GOLD_FR>,
     patches_game_ss_gold_fr,
     relocs_empty,
     hooks_menu_ss_gold_fr,

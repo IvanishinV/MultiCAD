@@ -268,6 +268,7 @@ constexpr std::array relocs_game_ss_gold_fr
     RelocateGapSpec{ 0x00380752, 0x00382878, 2 + sizeof(((ModuleStateBase*)0)->fogSprites) },
 };
 
+template<GameVersion V>
 const std::array hooks_game_ss_gold_fr
 {
     HookSpec{0x57EF0, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_10055A20)},
@@ -279,7 +280,7 @@ const std::array hooks_game_ss_gold_fr
     HookSpec{0x58500, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_10056030)},
     HookSpec{0x58640, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_10056170)},
     HookSpec{0x58880, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_100563B0)},
-    //HookSpec{0x6AD20, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_1006AD20)},
+    HookSpec{0x6D7D0, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_1006AD20_fr)},
     //HookSpec{0x6AEA0, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_1006AEA0)},
     //HookSpec{0x6B1C0, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_1006B1C0)},
     //HookSpec{0x6B2C0, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_1006B2C0)},
@@ -293,6 +294,15 @@ const std::array hooks_game_ss_gold_fr
     HookSpec{0x6F540, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_1006CC60_fr)},
     HookSpec{0x5E810, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_1005C170_fr)},
     HookSpec{0x9D611, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_10099E01_fr)},
+
+    // Hooks for disabling UI via shortcut
+    HookSpec{0x6DEE0, reinterpret_cast<uintptr_t>(&GameDllHooks::addUiElement_ver<V>)},
+    HookSpec{0x752C0, reinterpret_cast<uintptr_t>(&GameDllHooks::drawUiElement_ver<V>)},
+    HookSpec{0x75390, reinterpret_cast<uintptr_t>(&GameDllHooks::calculateClosedArea_ver<V>)},
+    HookSpec{0x753B0, reinterpret_cast<uintptr_t>(&GameDllHooks::calculateCursorType)},
+    HookSpec{0x91CC0, reinterpret_cast<uintptr_t>(&GameDllHooks::dispatchMouseButtonEvent_ver<V>)},
+    HookSpec{0x91D40, reinterpret_cast<uintptr_t>(&GameDllHooks::dispatchMouseMoveEvent_ver<V>)},
+    HookSpec{0x91E60, reinterpret_cast<uintptr_t>(&GameDllHooks::dispatchWndMessage_ver<V>)},
 };
 
 const std::array patches_game_ss_gold_fr
