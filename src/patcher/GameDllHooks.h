@@ -116,6 +116,41 @@ struct UiTraits<GameVersion::SS_HD_V1_1_RU>
 };
 
 template<>
+struct UiTraits<GameVersion::SS_V1_2>
+{
+    static constexpr UiAddresses addresses
+    {
+        0x34FF3C,
+        0x34FF48,
+        0x37E970,
+        0x37E974,
+
+        0x34FF70,
+        0x6D850,
+        0x58550,
+        0x585A0,
+
+        0x351778,
+        0x581D0,
+
+        0x38450C,
+        0x384510,
+        0x385524,
+        0x913E0,
+
+        0x384508,
+        0x914E0,
+        0x91560,
+        0x91D50,
+        0x91270,
+        0x912B0,
+        0x6DCB0,
+        0x74E10,
+        0xAA6B0
+    };
+};
+
+template<>
 struct UiTraits<GameVersion::SS_GOLD_DE>
 {
     static constexpr UiAddresses addresses
@@ -1009,6 +1044,7 @@ public:
     static void __declspec(noinline) __stdcall  sub_1005C170_de();
     static void __declspec(noinline) __stdcall  sub_1005C170_fr();
     static void __declspec(noinline) __stdcall  sub_1006AD20_v1_0();
+    static void __declspec(noinline) __stdcall  sub_1006AD20_v1_2();
     static void __declspec(noinline) __stdcall  sub_1006AD20();
     static void __declspec(noinline) __stdcall  sub_1006AD20_de();
     static void __declspec(noinline) __stdcall  sub_1006AD20_fr();

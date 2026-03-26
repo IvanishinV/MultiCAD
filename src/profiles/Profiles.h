@@ -26,7 +26,7 @@ using Profile_SS_v1_0 = GameVersionProfile<
 using Profile_SS_v1_2 = GameVersionProfile<
     GameVersion::SS_V1_2,
     relocs_game_ss_cd_en,
-    hooks_game_ss_cd_en,
+    hooks_game_ss_cd_en<GameVersion::SS_V1_2>,
     patches_game_ss_cd_en,
     relocs_empty,
     hooks_menu_ss_cd_en,

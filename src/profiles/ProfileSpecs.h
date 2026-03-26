@@ -613,6 +613,7 @@ constexpr std::array relocs_game_ss_cd_en
     RelocateGapSpec{ 0x0037C5EA, 0x0037E8F0, 2 + sizeof(((ModuleStateBase*)0)->fogSprites) },
 };
 
+template<GameVersion V>
 const std::array hooks_game_ss_cd_en
 {
     HookSpec{0x57C80, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_10055A20)},
@@ -624,7 +625,7 @@ const std::array hooks_game_ss_cd_en
     HookSpec{0x582A0, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_10056030)},
     HookSpec{0x583E0, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_10056170)},
     HookSpec{0x58630, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_100563B0)},
-    //HookSpec{0x6AD20, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_1006AD20)},
+    HookSpec{0x6D5A0, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_1006AD20_v1_2)},
     //HookSpec{0x6AEA0, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_1006AEA0)},
     //HookSpec{0x6B1C0, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_1006B1C0)},
     //HookSpec{0x6B2C0, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_1006B2C0)},
@@ -632,6 +633,15 @@ const std::array hooks_game_ss_cd_en
     //HookSpec{0x6F120, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_1006F120)},
     HookSpec{0x6DA90, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_1006DC40)},
     HookSpec{0x71850, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_1006F120_v1_2_en)},
+
+    // Hooks for disabling UI via shortcut
+    HookSpec{0x6DCB0, reinterpret_cast<uintptr_t>(&GameDllHooks::addUiElement_ver<V>)},
+    HookSpec{0x75150, reinterpret_cast<uintptr_t>(&GameDllHooks::drawUiElement_ver<V>)},
+    HookSpec{0x75220, reinterpret_cast<uintptr_t>(&GameDllHooks::calculateClosedArea_ver<V>)},
+    HookSpec{0x75240, reinterpret_cast<uintptr_t>(&GameDllHooks::calculateCursorType)},
+    HookSpec{0x914E0, reinterpret_cast<uintptr_t>(&GameDllHooks::dispatchMouseButtonEvent_ver<V>)},
+    HookSpec{0x91560, reinterpret_cast<uintptr_t>(&GameDllHooks::dispatchMouseMoveEvent_ver<V>)},
+    HookSpec{0x916D0, reinterpret_cast<uintptr_t>(&GameDllHooks::dispatchWndMessage_ver<V>)},
 };
 
 const std::array patches_game_ss_cd_en
