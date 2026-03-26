@@ -88,6 +88,14 @@ To use a custom resolution, add a `Resolution` line **anywhere after** the `[Gam
 > ```
 Restart the game to apply the change.
 
+### UI Toggle Hotkey
+
+You can temporarily disable or enable the in-game UI overlay by pressing:
+
+**Alt + Y**
+
+This can be useful when taking screenshots or when the UI interferes with gameplay.
+
 ## Compilation
 
 To build the project from source:
