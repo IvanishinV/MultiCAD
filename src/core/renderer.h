@@ -234,7 +234,8 @@ void drawMainSurfaceColorRect(S32 x, S32 y, S32 width, S32 height, const Pixel p
 
 // 0x100015d0
 /**
- * Draws a filled rectangle on main surface.
+ * Draws a filled rectangle on main surface. 
+ * Draws vertical lines for infantry in guns and passenger cells.
  *
  * Created by AM.
  *
@@ -806,7 +807,7 @@ void drawMainSurfacePaletteSpriteStencil(S32 x, S32 y, U16 param_3, const Pixel*
 // 0x100050df
 /**
  * Draws a sprite on main surface using palette with only 0x80 and 0x00 count mask.
- * Draws text and decorative UI around the minimap UI in SS.
+ * Draws text during typing, decorative UI around the minimap UI in SS and "PAUSE" text.
  * 
  * Created by IVA 18.07.2025.
  * 

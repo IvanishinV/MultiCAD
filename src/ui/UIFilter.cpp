@@ -45,6 +45,10 @@ bool UIFilter::shouldIgnoreDecor(const int type) const
 
     if (isDecorUI(type))
         return true;
+    if (isPauseUi(type))
+        return true;
+    if (isChatUI(type))
+        return true;
 
     return false;
 }
@@ -83,9 +87,14 @@ bool UIFilter::isCrewUi(const int type) const
     return type >= 320 && type < 440;
 }
 
+bool UIFilter::isPauseUi(const int type) const
+{
+    return type == 40;
+}
+
 bool UIFilter::isChatUI(const int type) const
 {
-    return type == 601;
+    return (type >= 60 && type < 100) || type == 600;
 }
 
 bool UIFilter::isDecorUI(const int type) const

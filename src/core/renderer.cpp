@@ -8,6 +8,7 @@
 #include "ProfileFactory.h"
 #include "MemoryRelocator.h"
 #include "CodePatcher.h"
+#include "UIFilter.h"
 
 #ifdef _DEBUG
 #include <format>
@@ -355,6 +356,9 @@ bool initWindowDxSurface(S32 width, S32 height)
 // 0x10001420
 void drawMainSurfaceHorLine(const S32 x, const S32 y, const S32 length, const Pixel pixel)
 {
+    // Skip showing unit bars if UI is disabled
+    if (!GetUIFilter().isEnabled())
+        return;
     S32 max_x = x + length - 1;
     S32 new_x = x;
 
@@ -382,6 +386,9 @@ void drawMainSurfaceHorLine(const S32 x, const S32 y, const S32 length, const Pi
 // 0x100014b0
 void drawMainSurfaceVertLine(const S32 x, const S32 y, const S32 height, const Pixel pixel)
 {
+    // Skip showing vertical lines for units if UI is disabled
+    if (!GetUIFilter().isEnabled())
+        return;
     S32 max_y = height + y - 1;
     S32 new_y = y;
 
@@ -460,6 +467,9 @@ void drawMainSurfaceColorRect(const S32 x, const S32 y, const S32 width, const S
 // 0x100015d0
 void drawMainSurfaceFilledColorRect(S32 x, S32 y, S32 width, S32 height, const Pixel pixel)
 {
+    // Skip showing vertical lines for units in guns if UI is disabled
+    if (!GetUIFilter().isEnabled())
+        return;
     if (x < g_moduleState->windowRect.x)
     {
         width += x - g_moduleState->windowRect.x;
