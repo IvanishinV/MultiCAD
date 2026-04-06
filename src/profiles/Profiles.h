@@ -96,7 +96,7 @@ using Profile_SS_HD_v1_1_EN = GameVersionProfile<
 using Profile_SS_GOLD_HD_v1_2_RU = GameVersionProfile<
     GameVersion::SS_GOLD_HD_1_2_RU,
     relocs_game_ss_gold_hd_v1_2,
-    hooks_game_ss_gold_hd_v1_2<GameVersion::SS_GOLD_EN>,
+    hooks_game_ss_gold_hd_v1_2<GameVersion::SS_GOLD_HD_1_2_INT>,
     patches_game_ss_gold_hd_v1_2,
     relocs_empty,
     hooks_menu_ss_gold_hd_v1_2,
@@ -106,7 +106,7 @@ using Profile_SS_GOLD_HD_v1_2_RU = GameVersionProfile<
 using Profile_SS_GOLD_HD_v1_2_INT = GameVersionProfile<
     GameVersion::SS_GOLD_HD_1_2_INT,
     relocs_game_ss_gold_hd_v1_2,
-    hooks_game_ss_gold_hd_v1_2<GameVersion::SS_GOLD_EN>,
+    hooks_game_ss_gold_hd_v1_2<GameVersion::SS_GOLD_HD_1_2_INT>,
     patches_game_ss_gold_hd_v1_2,
     relocs_empty,
     hooks_menu_ss_gold_hd_v1_2,

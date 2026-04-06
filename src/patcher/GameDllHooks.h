@@ -256,6 +256,41 @@ struct UiTraits<GameVersion::SS_GOLD_FR>
 };
 
 template<>
+struct UiTraits<GameVersion::SS_GOLD_HD_1_2_INT>
+{
+    static constexpr UiAddresses addresses
+    {
+        0x34FEEC,
+        0x34FEF8,
+        0x37E918,
+        0x37E91C,
+
+        0x3A8000,
+        0x6B0A0,
+        0x562F0,
+        0x56330,
+
+        0x3AD000,
+        0x55F40,
+
+        0x384484,
+        0x384488,
+        0x38549C,
+        0x8E7D0,
+
+        0x384480,
+        0x8E8D0,
+        0x8E960,
+        0x8F080,
+        0x8E660,
+        0x8E6A0,
+        0x6B570,
+        0x72340,
+        0xA8740
+    };
+};
+
+template<>
 struct UiTraits<GameVersion::SS_2>
 {
     static constexpr UiAddresses addresses
