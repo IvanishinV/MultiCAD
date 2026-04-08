@@ -3882,6 +3882,8 @@ void drawMainSurfacePaletteSpriteStencil(S32 x, S32 y, U16 level, const Pixel* c
 // 0x100050df
 void drawMainSurfacePaletteSpriteCompact(S32 x, S32 y, const Pixel* palette, const ImagePaletteSprite* const sprite)
 {
+    if (sprite->width == 3 && sprite->height == 5 && !GetUIFilter().isEnabled())
+        return;
     g_rendererState.sprite.height = sprite->height;
     //g_rendererState.sprite.width = sprite->width + 1;
 

@@ -807,7 +807,8 @@ void drawMainSurfacePaletteSpriteStencil(S32 x, S32 y, U16 param_3, const Pixel*
 // 0x100050df
 /**
  * Draws a sprite on main surface using palette with only 0x80 and 0x00 count mask.
- * Draws text during typing, decorative UI around the minimap UI in SS and "PAUSE" text.
+ * Draws text during typing, decorative UI around the minimap UI in SS, "PAUSE" text
+ * and digits of numbered units.
  * 
  * Created by IVA 18.07.2025.
  * 
