@@ -43,6 +43,12 @@ struct UiAddresses
     uintptr_t fnAddUiElement;
     uintptr_t fnRemoveUiElement;
     uintptr_t strategicMapUiVtable;
+
+    // drawDecorUiElement
+    uintptr_t cadPtr;
+    uintptr_t fnBlendMainWithWarFog;
+    uintptr_t fnGetFirstDecorUi;
+    uintptr_t fnGetNextDecorUi;
 };
 
 template<>
@@ -76,7 +82,12 @@ struct UiTraits<GameVersion::SS_V1_0>
         0x80AF0,
         0x5F2C0,
         0x661C0,
-        0x98F24
+        0x98F24,
+
+        0x370EE4,
+        0x5ED00,
+        0x4A380,
+        0x4A3D0
     };
 };
 
@@ -111,7 +122,12 @@ struct UiTraits<GameVersion::SS_HD_V1_1_RU>
         0x80AF0,
         0x5F2C0,
         0x661C0,
-        0x98F24
+        0x98F24,
+
+        0x370EE4,
+        0x5ED00,
+        0x4A380,
+        0x4A3D0
     };
 };
 
@@ -146,7 +162,12 @@ struct UiTraits<GameVersion::SS_V1_2>
         0x912B0,
         0x6DCB0,
         0x74E10,
-        0xAA6B0
+        0xAA6B0,
+
+        0x3844FC,
+        0x6D6F0,
+        0x58760,
+        0x587B0
     };
 };
 
@@ -181,7 +202,12 @@ struct UiTraits<GameVersion::SS_GOLD_DE>
         0x91530,
         0x6DE60,
         0x74F40,
-        0xAA6B0
+        0xAA6B0,
+
+        0x38446C,
+        0x6D8A0,
+        0x58A10,
+        0x58A50
     };
 };
 
@@ -216,7 +242,12 @@ struct UiTraits<GameVersion::SS_GOLD_EN>
         0x8E6A0,
         0x6B570,
         0x72340,
-        0xA8740
+        0xA8740,
+
+        0x384474,
+        0x6AEA0,
+        0x564F0,
+        0x56530
     };
 };
 
@@ -251,7 +282,12 @@ struct UiTraits<GameVersion::SS_GOLD_FR>
         0x91A90,
         0x6DEE0,
         0x74F80,
-        0xAC6B8
+        0xAC6B8,
+
+        0x388598,
+        0x6D8F0,
+        0x589C0,
+        0x58A00
     };
 };
 
@@ -286,7 +322,12 @@ struct UiTraits<GameVersion::SS_GOLD_HD_1_2_INT>
         0x8E6A0,
         0x6B570,
         0x72340,
-        0xA8740
+        0xA8740,
+
+        0x384474,
+        0x6AEA0,
+        0x564F0,
+        0x56530
     };
 };
 
@@ -321,7 +362,12 @@ struct UiTraits<GameVersion::SS_2>
         0xCA850,
         0x988C0,
         0xA0DF0,
-        0xEFF2C
+        0xEFF2C,
+
+        0x106F6E4,
+        0x982B0,
+        0x79B10,
+        0x79B60
     };
 };
 
@@ -356,7 +402,12 @@ struct UiTraits<GameVersion::SS_RW_V2_3>
         0xC53D0,
         0x95AA0,
         0x9D8C0,
-        0xE2FAC
+        0xE2FAC,
+
+        0x10AEABC,
+        0x95490,
+        0x790A0,
+        0x790F0
     };
 };
 
@@ -391,7 +442,12 @@ struct UiTraits<GameVersion::SS_RW_V2_4>
         0xC53E0,
         0x95AA0,
         0x9D8C0,
-        0xE2FAC
+        0xE2FAC,
+
+        0x10AEABC,
+        0x95490,
+        0x790A0,
+        0x790F0
     };
 };
 
@@ -426,7 +482,12 @@ struct UiTraits<GameVersion::SS_BLACK_GOLD>
         0xC5300,
         0x95A70,
         0x9D890,
-        0xE2FAC
+        0xE2FAC,
+
+        0x109EC6C,
+        0x95460,
+        0x79080,
+        0x790D0
     };
 };
 
@@ -906,6 +967,20 @@ private:
 #pragma endregion
 
 #pragma region UI_Common_Function_Structs
+    struct DrawDecorUiElementData
+    {
+        UIRenderElement* uiRenderElem;
+        int* closedAreaGameDataArray;
+        uintptr_t cadPtr;
+
+        int surfaceHeight;
+        int surfaceWidth;
+
+        void(__stdcall* blendMainWithWarFog)();
+        int(__thiscall* getFirstDecorUi)(int*, GameData2*);
+        int(__thiscall* getNextDecorUi)(int*, GameData2*);
+    };
+
     struct AddUiElementData
     {
         int type;
@@ -1078,13 +1153,31 @@ public:
     static void __declspec(noinline) __stdcall  sub_1005C170();
     static void __declspec(noinline) __stdcall  sub_1005C170_de();
     static void __declspec(noinline) __stdcall  sub_1005C170_fr();
-    static void __declspec(noinline) __stdcall  sub_1006AD20_v1_0();
-    static void __declspec(noinline) __stdcall  sub_1006AD20_v1_2();
-    static void __declspec(noinline) __stdcall  sub_1006AD20();
-    static void __declspec(noinline) __stdcall  sub_1006AD20_de();
-    static void __declspec(noinline) __stdcall  sub_1006AD20_fr();
-    static void __declspec(noinline) __stdcall  sub_1006AD20_hd_v1_1();
-    static void __declspec(noinline) __stdcall  sub_1006AD20_hd();
+    template<GameVersion V>
+    static void __declspec(noinline) __stdcall  drawDecorUiElements_ver()
+    {
+        static_assert(HasUiTraits<V>::value, "UiTraits specialization missing");
+        static_assert(ValidateUiTraits<V>(), "One or more UiTraits addresses are zero");
+
+        auto* const g = globals_;
+        constexpr auto& A = UiTraits<V>::addresses;
+        
+        DrawDecorUiElementData data
+        {
+            g->getValue<UIRenderElement*>(A.pointedUiElem + 0xC),
+            g->getPtr<int>(A.closedAreaGameDataArray),
+            g->getValue<uintptr_t>(A.cadPtr),
+
+            g->getValue<int>(A.pointedUiElem + 0x14),
+            g->getValue<int>(A.pointedUiElem + 0x18),
+
+            g->getFn<void(__stdcall)()>(A.fnBlendMainWithWarFog),
+            g->getFn<int(__thiscall)(int*, GameData2*)>(A.fnGetFirstDecorUi),
+            g->getFn<int(__thiscall)(int*, GameData2*)>(A.fnGetNextDecorUi),
+        };
+
+        drawDecorUiElements(data);
+    }
     static void __declspec(noinline) __stdcall  sub_1006AEA0();
     static void __declspec(noinline) __stdcall  sub_1006AEA0_hd();
     static void __declspec(noinline) __cdecl    sub_1006B1C0(char mask, int* a2);
@@ -1262,6 +1355,8 @@ public:
         return dispatchWndMessage(data);
     }
 private:
+    static void drawDecorUiElements(const DrawDecorUiElementData& data);
+
     static bool is_valid_ptr(void* p);
 
     static void someRandCalc(const SomeRandCalcData& data);

@@ -1169,24 +1169,21 @@ void __declspec(noinline) __stdcall  GameDllHooks::sub_1005C170_fr()
     sub_100592C0(byte_10295C60, writeIndex);
 }
 
-void __declspec(noinline) __stdcall  GameDllHooks::sub_1006AD20_v1_0()
-{
-    auto* const g = globals_;
 
-    auto* obj = g->getValue<UIRenderElement*>(0x33D5FC);
-    for (; obj; obj = obj->prev)
+void GameDllHooks::drawDecorUiElements(const DrawDecorUiElementData& data)
+{
+    for (UIRenderElement* uiObj = data.uiRenderElem; uiObj; uiObj = uiObj->prev)
     {
-        if (GetUIFilter().shouldIgnoreDecor(obj->type))
+        if (GetUIFilter().shouldIgnoreDecor(uiObj->type))
             continue;
         using Fn = void(__thiscall*)(UIRenderElement*);
-        Fn fn = reinterpret_cast<Fn>(obj->vtable[1]);
-        fn(obj);
+        Fn fn = reinterpret_cast<Fn>(uiObj->vtable[1]);
+        fn(uiObj);
     }
 
-    auto sub_1006AEA0 = g->getFn<void(__stdcall)()>(0x5ED00);
-    auto sub_100564F0 = g->getFn<int(__thiscall)(int*, GameData2*)>(0x4A380);
-    auto sub_10056530 = g->getFn<int(__thiscall)(int*, GameData2*)>(0x4A3D0);
-    auto sub_1006AE80 = g->getFn<void(__thiscall)(int*, int, int, int, int)>(0x5ECB0);
+    auto sub_1006AEA0 = data.blendMainWithWarFog;
+    auto sub_100564F0 = data.getFirstDecorUi;
+    auto sub_10056530 = data.getNextDecorUi;
 
     sub_1006AEA0();
 
@@ -1200,228 +1197,7 @@ void __declspec(noinline) __stdcall  GameDllHooks::sub_1006AD20_v1_0()
     gd.maskValue = 32;
 
 
-    int* div16Ptr = g->getPtr<int>(0x33EE20);
-    uintptr_t cadObj = g->getValue<uintptr_t>(0x370EE4);
-    auto cad_2B90 = *reinterpret_cast<void(__cdecl**)(int, int, int, int)>(cadObj + 0xAA38);
-    auto cad_2A90 = *reinterpret_cast<void(__cdecl**)(int, int, int, int)>(cadObj + 0xAA3C);
-
-    if (sub_100564F0(div16Ptr, &gd))
-    {
-        do
-        {
-            if (gd.cellMask == 16)
-                cad_2B90(gd.alignX, gd.alignY, gd.allowX, gd.allowY);
-            else
-                cad_2A90(gd.alignX, gd.alignY, gd.allowX - gd.alignX + 1, gd.allowY - gd.alignY + 1);
-        } while (sub_10056530(div16Ptr, &gd));
-    }
-
-    int v9[4]{};
-    sub_1006AE80(v9, 0, 0, g->getValue<int>(0x33D608) - 1, g->getValue<int>(0x33D604) - 1);
-
-    int x0 = v9[0] >> 4;
-    int x1 = v9[2] >> 4;
-    int y0 = v9[1] >> 3;
-    int y1 = v9[3] >> 3;
-
-    x0 = std::max(x0, 0);
-    y0 = std::max(y0, 0);
-
-    x1 = std::min(x1, *div16Ptr - 1);
-    y1 = std::min(y1, *(div16Ptr + 1) - 1);     // 0x35172C
-
-    for (int row = y0; row <= y1; ++row)
-    {
-        uint8_t* line = reinterpret_cast<uint8_t*>(div16Ptr + 2) + kRowStrideByteSize * row; // 0x351730
-        for (int j = x0; j <= x1; ++j)
-        {
-            uint8_t val = line[j];
-            if (val & 0x40)
-                line[j] = (val & 0xBF) | 0x18;
-        }
-    }
-}
-
-void __declspec(noinline) __stdcall  GameDllHooks::sub_1006AD20_v1_2()
-{
-    auto* const g = globals_;
-
-    auto* obj = g->getValue<UIRenderElement*>(0x34FF54);
-    for (; obj; obj = obj->prev)
-    {
-        if (GetUIFilter().shouldIgnoreDecor(obj->type))
-            continue;
-        using Fn = void(__thiscall*)(UIRenderElement*);
-        Fn fn = reinterpret_cast<Fn>(obj->vtable[1]);
-        fn(obj);
-    }
-
-    auto sub_1006AEA0 = g->getFn<void(__stdcall)()>(0x6D6F0);
-    auto sub_100564F0 = g->getFn<int(__thiscall)(int*, GameData2*)>(0x58760);
-    auto sub_10056530 = g->getFn<int(__thiscall)(int*, GameData2*)>(0x587B0);
-    auto sub_1006AE80 = g->getFn<void(__thiscall)(int*, int, int, int, int)>(0x6D6A0);
-
-    sub_1006AEA0();
-
-
-    GameData2 gd{};
-    gd.x = 0;
-    gd.y = 0;
-    gd.maxX = 0x7FFFFFFF;
-    gd.maxY = 0x7FFFFFFF;
-    gd.mask = 16;
-    gd.maskValue = 32;
-
-
-    int* div16Ptr = g->getPtr<int>(0x351778);
-    uintptr_t cadObj = g->getValue<uintptr_t>(0x3844FC);
-    auto cad_2B90 = *reinterpret_cast<void(__cdecl**)(int, int, int, int)>(cadObj + 0xAA38);
-    auto cad_2A90 = *reinterpret_cast<void(__cdecl**)(int, int, int, int)>(cadObj + 0xAA3C);
-
-    if (sub_100564F0(div16Ptr, &gd))
-    {
-        do
-        {
-            if (gd.cellMask == 16)
-                cad_2B90(gd.alignX, gd.alignY, gd.allowX, gd.allowY);
-            else
-                cad_2A90(gd.alignX, gd.alignY, gd.allowX - gd.alignX + 1, gd.allowY - gd.alignY + 1);
-        } while (sub_10056530(div16Ptr, &gd));
-    }
-
-    int v9[4]{};
-    sub_1006AE80(v9, 0, 0, g->getValue<int>(0x34FF60) - 1, g->getValue<int>(0x34FF5C) - 1);
-
-    int x0 = v9[0] >> 4;
-    int x1 = v9[2] >> 4;
-    int y0 = v9[1] >> 3;
-    int y1 = v9[3] >> 3;
-
-    x0 = std::max(x0, 0);
-    y0 = std::max(y0, 0);
-
-    x1 = std::min(x1, *div16Ptr - 1);
-    y1 = std::min(y1, *(div16Ptr + 1) - 1);
-
-    for (int row = y0; row <= y1; ++row)
-    {
-        uint8_t* line = reinterpret_cast<uint8_t*>(div16Ptr + 2) + kRowStrideByteSize * row;
-        for (int j = x0; j <= x1; ++j)
-        {
-            uint8_t val = line[j];
-            if (val & 0x40)
-                line[j] = (val & 0xBF) | 0x18;
-        }
-    }
-}
-
-void __declspec(noinline) __stdcall  GameDllHooks::sub_1006AD20()
-{
-    auto* const g = globals_;
-
-    auto* obj = g->getValue<UIRenderElement*>(0x34FF04);
-    for (; obj; obj = obj->prev)
-    {
-        if (GetUIFilter().shouldIgnoreDecor(obj->type))
-            continue;
-        using Fn = void(__thiscall*)(UIRenderElement*);
-        Fn fn = reinterpret_cast<Fn>(obj->vtable[1]);
-        fn(obj);
-    }
-
-    auto sub_1006AEA0 = g->getFn<void(__stdcall)()>(0x6AEA0);
-    auto sub_100564F0 = g->getFn<int(__thiscall)(int*, GameData2*)>(0x564F0);
-    auto sub_10056530 = g->getFn<int(__thiscall)(int*, GameData2*)>(0x56530);
-    auto sub_1006AE80 = g->getFn<void(__thiscall)(int*, int, int, int, int)>(0x6AE80);
-
-    sub_1006AEA0();
-
-
-    GameData2 gd{};
-    gd.x = 0;
-    gd.y = 0;
-    gd.maxX = 0x7FFFFFFF;
-    gd.maxY = 0x7FFFFFFF;
-    gd.mask = 16;
-    gd.maskValue = 32;
-
-
-    int* div16Ptr = g->getPtr<int>(0x351728);
-    uintptr_t cadObj = g->getValue<uintptr_t>(0x384474);
-    auto cad_2B90 = *reinterpret_cast<void(__cdecl**)(int, int, int, int)>(cadObj + 0xAA3C);
-    auto cad_2A90 = *reinterpret_cast<void(__cdecl**)(int, int, int, int)>(cadObj + 0xAA40);
-
-    if (sub_100564F0(div16Ptr, &gd))
-    {
-        do
-        {
-            if (gd.cellMask == 16)
-                cad_2B90(gd.alignX, gd.alignY, gd.allowX, gd.allowY);
-            else
-                cad_2A90(gd.alignX, gd.alignY, gd.allowX - gd.alignX + 1, gd.allowY - gd.alignY + 1);
-        } while (sub_10056530(div16Ptr, &gd));
-    }
-
-    int v9[4]{};
-    sub_1006AE80(v9, 0, 0, g->getValue<int>(0x34FF10) - 1, g->getValue<int>(0x34FF0C) - 1);
-
-    int x0 = v9[0] >> 4;
-    int x1 = v9[2] >> 4;
-    int y0 = v9[1] >> 3;
-    int y1 = v9[3] >> 3;
-
-    x0 = std::max(x0, 0);
-    y0 = std::max(y0, 0);
-
-    x1 = std::min(x1, *div16Ptr - 1);
-    y1 = std::min(y1, *(div16Ptr + 1) - 1);     // 0x35172C
-
-    for (int row = y0; row <= y1; ++row)
-    {
-        uint8_t* line = reinterpret_cast<uint8_t*>(div16Ptr + 2) + kRowStrideByteSize * row; // 0x351730
-        for (int j = x0; j <= x1; ++j)
-        {
-            uint8_t val = line[j];
-            if (val & 0x40)
-                line[j] = (val & 0xBF) | 0x18;
-        }
-    }
-}
-
-void __declspec(noinline) __stdcall  GameDllHooks::sub_1006AD20_de()
-{
-    auto* const g = globals_;
-
-    auto* obj = g->getValue<UIRenderElement*>(0x34FEBC);
-    for (; obj; obj = obj->prev)
-    {
-        if (GetUIFilter().shouldIgnoreDecor(obj->type))
-            continue;
-        using Fn = void(__thiscall*)(UIRenderElement*);
-        Fn fn = reinterpret_cast<Fn>(obj->vtable[1]);
-        fn(obj);
-    }
-
-    auto sub_1006AEA0 = g->getFn<void(__stdcall)()>(0x6D8A0);
-    auto sub_100564F0 = g->getFn<int(__thiscall)(int*, GameData2*)>(0x58A10);
-    auto sub_10056530 = g->getFn<int(__thiscall)(int*, GameData2*)>(0x58A50);
-    auto sub_1006AE80 = g->getFn<void(__thiscall)(int*, int, int, int, int)>(0x6D850);
-
-    sub_1006AEA0();
-
-
-    GameData2 gd{};
-    gd.x = 0;
-    gd.y = 0;
-    gd.maxX = 0x7FFFFFFF;
-    gd.maxY = 0x7FFFFFFF;
-    gd.mask = 16;
-    gd.maskValue = 32;
-
-
-    int* div16Ptr = g->getPtr<int>(0x3516E0);
-    uintptr_t windowPtr = g->getValue<uintptr_t>(0x38446C);
-    ModuleStateBase* const cadPtr = reinterpret_cast<ModuleStateBase*>(windowPtr - (offsetof(ModuleStateBase, windowRect) - offsetof(ModuleStateBase, fogSprites)));
+    ModuleStateBase* const cadPtr = reinterpret_cast<ModuleStateBase*>(data.cadPtr - (offsetof(ModuleStateBase, windowRect) - offsetof(ModuleStateBase, fogSprites)));
     uintptr_t off1, off2;
     if (cadPtr->pad.bits.isLong)
     {
@@ -1434,9 +1210,10 @@ void __declspec(noinline) __stdcall  GameDllHooks::sub_1006AD20_de()
         off2 = 0xAA3C;
     }
 
-    auto cad_2B90 = *reinterpret_cast<void(__cdecl**)(int, int, int, int)>(windowPtr + off1);
-    auto cad_2A90 = *reinterpret_cast<void(__cdecl**)(int, int, int, int)>(windowPtr + off2);
+    auto cad_2B90 = *reinterpret_cast<void(__cdecl**)(int, int, int, int)>(data.cadPtr + off1);
+    auto cad_2A90 = *reinterpret_cast<void(__cdecl**)(int, int, int, int)>(data.cadPtr + off2);
 
+    int* div16Ptr = data.closedAreaGameDataArray;
     if (sub_100564F0(div16Ptr, &gd))
     {
         do
@@ -1448,24 +1225,13 @@ void __declspec(noinline) __stdcall  GameDllHooks::sub_1006AD20_de()
         } while (sub_10056530(div16Ptr, &gd));
     }
 
-    int v9[4]{};
-    sub_1006AE80(v9, 0, 0, g->getValue<int>(0x34FEC8) - 1, g->getValue<int>(0x34FEC4) - 1);
+    const int x1 = std::min((data.surfaceWidth - 1) >> 4, *div16Ptr - 1);
+    const int y1 = std::min((data.surfaceHeight - 1) >> 3, * (div16Ptr + 1) - 1);
 
-    int x0 = v9[0] >> 4;
-    int x1 = v9[2] >> 4;
-    int y0 = v9[1] >> 3;
-    int y1 = v9[3] >> 3;
-
-    x0 = std::max(x0, 0);
-    y0 = std::max(y0, 0);
-
-    x1 = std::min(x1, *div16Ptr - 1);
-    y1 = std::min(y1, *(div16Ptr + 1) - 1);
-
-    for (int row = y0; row <= y1; ++row)
+    for (int row = 0; row <= y1; ++row)
     {
         uint8_t* line = reinterpret_cast<uint8_t*>(div16Ptr + 2) + kRowStrideByteSize * row;
-        for (int j = x0; j <= x1; ++j)
+        for (int j = 0; j <= x1; ++j)
         {
             uint8_t val = line[j];
             if (val & 0x40)
@@ -1474,225 +1240,6 @@ void __declspec(noinline) __stdcall  GameDllHooks::sub_1006AD20_de()
     }
 }
 
-void __declspec(noinline) __stdcall  GameDllHooks::sub_1006AD20_fr()
-{
-    auto* const g = globals_;
-
-    auto* obj = g->getValue<UIRenderElement*>(0x353EDC);
-    for (; obj; obj = obj->prev)
-    {
-        if (GetUIFilter().shouldIgnoreDecor(obj->type))
-            continue;
-        using Fn = void(__thiscall*)(UIRenderElement*);
-        Fn fn = reinterpret_cast<Fn>(obj->vtable[1]);
-        fn(obj);
-    }
-
-    auto sub_1006AEA0 = g->getFn<void(__stdcall)()>(0x6D8F0);
-    auto sub_100564F0 = g->getFn<int(__thiscall)(int*, GameData2*)>(0x589C0);
-    auto sub_10056530 = g->getFn<int(__thiscall)(int*, GameData2*)>(0x58A00);
-    auto sub_1006AE80 = g->getFn<void(__thiscall)(int*, int, int, int, int)>(0x6D8D0);
-
-    sub_1006AEA0();
-
-
-    GameData2 gd{};
-    gd.x = 0;
-    gd.y = 0;
-    gd.maxX = 0x7FFFFFFF;
-    gd.maxY = 0x7FFFFFFF;
-    gd.mask = 16;
-    gd.maskValue = 32;
-
-
-    int* div16Ptr = g->getPtr<int>(0x355700);
-    uintptr_t windowPtr = g->getValue<uintptr_t>(0x388598);
-
-    auto cad_2B90 = *reinterpret_cast<void(__cdecl**)(int, int, int, int)>(windowPtr + 0xAA3C);
-    auto cad_2A90 = *reinterpret_cast<void(__cdecl**)(int, int, int, int)>(windowPtr + 0xAA40);
-
-    if (sub_100564F0(div16Ptr, &gd))
-    {
-        do
-        {
-            if (gd.cellMask == 16)
-                cad_2B90(gd.alignX, gd.alignY, gd.allowX, gd.allowY);
-            else
-                cad_2A90(gd.alignX, gd.alignY, gd.allowX - gd.alignX + 1, gd.allowY - gd.alignY + 1);
-        } while (sub_10056530(div16Ptr, &gd));
-    }
-
-    int v9[4]{};
-    sub_1006AE80(v9, 0, 0, g->getValue<int>(0x353EE8) - 1, g->getValue<int>(0x353EE4) - 1);
-
-    int x0 = v9[0] >> 4;
-    int x1 = v9[2] >> 4;
-    int y0 = v9[1] >> 3;
-    int y1 = v9[3] >> 3;
-
-    x0 = std::max(x0, 0);
-    y0 = std::max(y0, 0);
-
-    x1 = std::min(x1, *div16Ptr - 1);
-    y1 = std::min(y1, *(div16Ptr + 1) - 1);
-
-    for (int row = y0; row <= y1; ++row)
-    {
-        uint8_t* line = reinterpret_cast<uint8_t*>(div16Ptr + 2) + kRowStrideByteSize * row;
-        for (int j = x0; j <= x1; ++j)
-        {
-            uint8_t val = line[j];
-            if (val & 0x40)
-                line[j] = (val & 0xBF) | 0x18;
-        }
-    }
-}
-
-void __declspec(noinline) __stdcall  GameDllHooks::sub_1006AD20_hd_v1_1()
-{
-    auto* const g = globals_;
-
-    auto* obj = g->getValue<UIRenderElement*>(0x33D5FC);
-    for (; obj; obj = obj->prev)
-    {
-        if (GetUIFilter().shouldIgnoreDecor(obj->type))
-            continue;
-        using Fn = void(__thiscall*)(UIRenderElement*);
-        Fn fn = reinterpret_cast<Fn>(obj->vtable[1]);
-        fn(obj);
-    }
-
-    auto sub_1006AEA0 = g->getFn<void(__stdcall)()>(0x5ED00);
-    auto sub_100564F0 = g->getFn<int(__thiscall)(int*, GameData2*)>(0x4A380);
-    auto sub_10056530 = g->getFn<int(__thiscall)(int*, GameData2*)>(0x4A3D0);
-    auto sub_1006AE80 = g->getFn<void(__thiscall)(int*, int, int, int, int)>(0x5ECB0);
-
-    sub_1006AEA0();
-
-
-    GameData2 gd{};
-    gd.x = 0;
-    gd.y = 0;
-    gd.maxX = 0x7FFFFFFF;
-    gd.maxY = 0x7FFFFFFF;
-    gd.mask = 16;
-    gd.maskValue = 32;
-
-
-    int* div16Ptr = g->getPtr<int>(0x39A000);
-    uintptr_t cadObj = g->getValue<uintptr_t>(0x370EE4);
-    auto cad_2B90 = *reinterpret_cast<void(__cdecl**)(int, int, int, int)>(cadObj + 0xAA38);
-    auto cad_2A90 = *reinterpret_cast<void(__cdecl**)(int, int, int, int)>(cadObj + 0xAA3C);
-
-    if (sub_100564F0(div16Ptr, &gd))
-    {
-        do
-        {
-            if (gd.cellMask == 16)
-                cad_2B90(gd.alignX, gd.alignY, gd.allowX, gd.allowY);
-            else
-                cad_2A90(gd.alignX, gd.alignY, gd.allowX - gd.alignX + 1, gd.allowY - gd.alignY + 1);
-        } while (sub_10056530(div16Ptr, &gd));
-    }
-
-    int v9[4]{};
-    sub_1006AE80(v9, 0, 0, g->getValue<int>(0x33D608) - 1, g->getValue<int>(0x33D604) - 1);
-
-    int x0 = v9[0] >> 4;
-    int x1 = v9[2] >> 4;
-    int y0 = v9[1] >> 3;
-    int y1 = v9[3] >> 3;
-
-    x0 = std::max(x0, 0);
-    y0 = std::max(y0, 0);
-
-    x1 = std::min(x1, *div16Ptr - 1);
-    y1 = std::min(y1, *(div16Ptr + 1) - 1);     // 0x35172C
-
-    for (int row = y0; row <= y1; ++row)
-    {
-        uint8_t* line = reinterpret_cast<uint8_t*>(div16Ptr + 2) + kRowStrideByteSize * row; // 0x351730
-        for (int j = x0; j <= x1; ++j)
-        {
-            uint8_t val = line[j];
-            if (val & 0x40)
-                line[j] = (val & 0xBF) | 0x18;
-        }
-    }
-}
-
-void __declspec(noinline) __stdcall  GameDllHooks::sub_1006AD20_hd()
-{
-    auto* const g = globals_;
-
-    auto* obj = g->getValue<UIRenderElement*>(0x34FF04);
-    for (; obj; obj = obj->prev)
-    {
-        if (GetUIFilter().shouldIgnoreDecor(obj->type))
-            continue;
-        using Fn = void(__thiscall*)(UIRenderElement*);
-        Fn fn = reinterpret_cast<Fn>(obj->vtable[1]);
-        fn(obj);
-    }
-
-    auto sub_1006AEA0 = g->getFn<void(__stdcall)()>(0x6AEA0);
-    auto sub_100564F0 = g->getFn<int(__thiscall)(int*, GameData2*)>(0x564F0);
-    auto sub_10056530 = g->getFn<int(__thiscall)(int*, GameData2*)>(0x56530);
-    auto sub_1006AE80 = g->getFn<void(__thiscall)(int*, int, int, int, int)>(0x6AE80);
-
-    sub_1006AEA0();
-
-
-    GameData2 gd{};
-    gd.x = 0;
-    gd.y = 0;
-    gd.maxX = 0x7FFFFFFF;
-    gd.maxY = 0x7FFFFFFF;
-    gd.mask = 16;
-    gd.maskValue = 32;
-
-
-    int* div16Ptr = g->getPtr<int>(0x3AD000);
-    uintptr_t cadObj = g->getValue<uintptr_t>(0x384474);
-    auto cad_2B90 = *reinterpret_cast<void(__cdecl**)(int, int, int, int)>(cadObj + 0xAA3C);
-    auto cad_2A90 = *reinterpret_cast<void(__cdecl**)(int, int, int, int)>(cadObj + 0xAA40);
-
-    if (sub_100564F0(div16Ptr, &gd))
-    {
-        do
-        {
-            if (gd.cellMask == 16)
-                cad_2B90(gd.alignX, gd.alignY, gd.allowX, gd.allowY);
-            else
-                cad_2A90(gd.alignX, gd.alignY, gd.allowX - gd.alignX + 1, gd.allowY - gd.alignY + 1);
-        } while (sub_10056530(div16Ptr, &gd));
-    }
-
-    int v9[4]{};
-    sub_1006AE80(v9, 0, 0, g->getValue<int>(0x34FF10) - 1, g->getValue<int>(0x34FF0C) - 1);
-
-    int x0 = v9[0] >> 4;
-    int x1 = v9[2] >> 4;
-    int y0 = v9[1] >> 3;
-    int y1 = v9[3] >> 3;
-
-    x0 = std::max(x0, 0);
-    y0 = std::max(y0, 0);
-
-    x1 = std::min(x1, *div16Ptr - 1);
-    y1 = std::min(y1, *(div16Ptr + 1) - 1);     // 0x35172C
-
-    for (int row = y0; row <= y1; ++row)
-    {
-        uint8_t* line = reinterpret_cast<uint8_t*>(div16Ptr + 2) + kRowStrideByteSize * row; // 0x351730
-        for (int j = x0; j <= x1; ++j)
-        {
-            uint8_t val = line[j];
-            if (val & 0x40)
-                line[j] = (val & 0xBF) | 0x18;
-        }
-    }
-}
 
 void __declspec(noinline) __stdcall  GameDllHooks::sub_1006AEA0()
 {

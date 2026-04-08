@@ -30,10 +30,11 @@
 // 21     - horizontal decor above stats
 // 40     - "PAUSE" output
 // 60-99  - chat on the left
-// 600    - your chat
+// 450    - your chat in SS v1.0
+// 600    - your chat in SS Gold v1.21
 
 // Also, there is a one case only in SS v1.0, when smal exit confirmation in-game window has
-// type 320, when top vehicle icon in SS 2/ SS:RW has the same type 320. To fix it, I disable
+// type 320, when top vehicle icon in SS 2/ SS:RW has the same type 320. To fix it, I disabled
 // crew check only for SS v1.0 using a lack of multiByteToWideChar function. See setCrewCheck usage
 
 class UIFilter

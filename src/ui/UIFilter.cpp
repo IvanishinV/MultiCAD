@@ -94,7 +94,7 @@ bool UIFilter::isPauseUi(const int type) const
 
 bool UIFilter::isChatUI(const int type) const
 {
-    return (type >= 60 && type < 100) || type == 600;
+    return (type >= 60 && type < 100) || (checkCrew_ ? type == 600 : type == 450);
 }
 
 bool UIFilter::isDecorUI(const int type) const
