@@ -264,8 +264,8 @@ constexpr std::array relocs_game_ss_gold_fr
     RelocateGapSpec{ 0x00353EF8, 0x00355700, 8 + sizeof(uint32_t) * kRowStrideDwordSize * ((Graphics::kMaxHeight + 7) >> 3) },
     RelocateGapSpec{ 0x00355700, 0x00356F08, 8 + sizeof(uint32_t) * kRowStrideDwordSize * ((Graphics::kMaxHeight + 7) >> 3) },
     RelocateGapSpec{ 0x0037F55C, 0x0038055C, ARRAY_37B588_BYTE_SIZE },
-    RelocateGapSpec{ 0x0038055C, 0x00380752, 0x10 },
-    RelocateGapSpec{ 0x00380752, 0x00382878, 2 + sizeof(((ModuleStateBase*)0)->fogSprites) },
+    RelocateGapSpec{ 0x0038055C, 0x00380572, 0x10 },
+    RelocateGapSpec{ 0x00380572, 0x00382878, 2 + sizeof(((ModuleStateBase*)0)->fogSprites) },
 };
 
 template<GameVersion V>
