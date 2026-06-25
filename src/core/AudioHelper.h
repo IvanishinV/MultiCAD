@@ -8,13 +8,11 @@
 class AudioHelper
 {
 public:
-    static float EnsureMaxVolume()
+    static void EnsureMaxVolume()
     {
-        float volume{ 0.0f };
-
         HRESULT hr = CoInitialize(nullptr);
         if (FAILED(hr) && hr != RPC_E_CHANGED_MODE)
-            return 0.0f;
+            return;
         const bool needUninit = SUCCEEDED(hr);
 
         CComPtr<IMMDeviceEnumerator> en;
@@ -23,7 +21,7 @@ public:
         {
             if (needUninit)
                 CoUninitialize();
-            return 0.0f;
+            return;
         }
 
         CComPtr<IMMDevice> dev;
@@ -32,7 +30,7 @@ public:
         {
             if (needUninit)
                 CoUninitialize();
-            return 0.0f;
+            return;
         }
 
         CComPtr<IAudioSessionManager2> mgr;
@@ -41,7 +39,7 @@ public:
         {
             if (needUninit)
                 CoUninitialize();
-            return 0.0f;
+            return;
         }
 
         DWORD pid = GetCurrentProcessId();
@@ -83,13 +81,17 @@ public:
                 ctrl2->QueryInterface(IID_PPV_ARGS(&vol));
                 if (vol)
                 {
-                    hr = vol->GetMasterVolume(&volume);
+                    BOOL muted = FALSE;
+                    if (SUCCEEDED(vol->GetMute(&muted)) && muted)
+                        vol->SetMute(FALSE, nullptr);
 
-                    if (SUCCEEDED(hr) && volume < 0.001f)
+                    float volume = 0.0f;
+                    if (SUCCEEDED(vol->GetMasterVolume(&volume)) && volume < 0.001f)
                         vol->SetMasterVolume(1.0f, nullptr);
+
+                    found = true;
                 }
 
-                found = true;
                 break;
             }
 
@@ -99,7 +101,5 @@ public:
 
         if (needUninit)
             CoUninitialize();
-
-        return volume;
     }
 };
