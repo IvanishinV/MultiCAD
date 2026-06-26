@@ -408,22 +408,18 @@ int  __declspec(noinline) __fastcall GameDllHooks::sub_10056030(uint8_t* input, 
 
     uint8_t* line = &input[kRowStrideByteSize * y + 8];
 
-    while (x >= maxX)
+    for (;;)
     {
-    LABEL_7:
-        ++y;
-        if (y >= maxY)
-            return 0;
-
-        x = gd->x;
-        line += kRowStrideByteSize;
-    }
-    while ((mask & line[x]) == 0)
-    {
-        if (++x >= maxX)
+        while (x >= maxX)
         {
-            goto LABEL_7;
+            if (++y >= maxY)
+                return 0;
+            x = gd->x;
+            line += kRowStrideByteSize;
         }
+        if ((mask & line[x]) != 0)
+            break;
+        ++x;
     }
 
     line[x] &= maskValue;
@@ -499,22 +495,18 @@ int  __declspec(noinline) __fastcall GameDllHooks::sub_10056170(uint8_t* input, 
 
     uint8_t* line = &input[kRowStrideByteSize * y + 8];
 
-    while (x >= maxX)
+    for (;;)
     {
-    LABEL_7:
-        ++y;
-        if (y >= maxY)
-            return 0;
-
-        x = gd->x;
-        line += kRowStrideByteSize;
-    }
-    while ((mask & line[x]) != mask)
-    {
-        if (++x >= maxX)
+        while (x >= maxX)
         {
-            goto LABEL_7;
+            if (++y >= maxY)
+                return 0;
+            x = gd->x;
+            line += kRowStrideByteSize;
         }
+        if ((mask & line[x]) == mask)
+            break;
+        ++x;
     }
 
     line[x] &= maskValue;
