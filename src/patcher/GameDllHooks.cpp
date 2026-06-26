@@ -1808,9 +1808,11 @@ void __declspec(noinline) __stdcall  GameDllHooks::sub_1006D940()
         uint8_t* line = reinterpret_cast<uint8_t*>(div16Ptr + 2) + kRowStrideByteSize * row; // 0x351730
         for (int j = x0; j <= x1; ++j)
         {
-            uint8_t val = line[j];
-            if ((val & 1) != 0)
-                line[j] = static_cast<uint8_t>((val & 0xFB) | 0x1A);
+            // Branchless form of: if (val & 1) val = (val & 0xFB) | 0x1A; (vectorizes)
+            const uint8_t val = line[j];
+            const uint8_t m = static_cast<uint8_t>(0u - (val & 1u));   // 0x00 or 0xFF
+            const uint8_t hit = static_cast<uint8_t>((val & 0xFB) | 0x1A);
+            line[j] = static_cast<uint8_t>((val & ~m) | (hit & m));
         }
     }
 
@@ -1917,9 +1919,11 @@ void __declspec(noinline) __stdcall  GameDllHooks::sub_1006D940_hd()
         uint8_t* line = reinterpret_cast<uint8_t*>(div16Ptr + 2) + kRowStrideByteSize * row; // 0x351730
         for (int j = x0; j <= x1; ++j)
         {
-            uint8_t val = line[j];
-            if ((val & 1) != 0)
-                line[j] = static_cast<uint8_t>((val & 0xFB) | 0x1A);
+            // Branchless form of: if (val & 1) val = (val & 0xFB) | 0x1A; (vectorizes)
+            const uint8_t val = line[j];
+            const uint8_t m = static_cast<uint8_t>(0u - (val & 1u));   // 0x00 or 0xFF
+            const uint8_t hit = static_cast<uint8_t>((val & 0xFB) | 0x1A);
+            line[j] = static_cast<uint8_t>((val & ~m) | (hit & m));
         }
     }
 
