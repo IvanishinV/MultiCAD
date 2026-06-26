@@ -382,17 +382,19 @@ void __declspec(noinline) __fastcall GameDllHooks::sub_10055F40(int* input, void
 
 void __declspec(noinline) __fastcall GameDllHooks::sub_10055FE0(int* input, void* /*dummy*/, char a2)
 {
-    int v2 = 0;
-    if (input[1] > 0)
+    const int width = input[0];
+    const int height = input[1];
+    if (height <= 0)
+        return;
+
+    const uint8_t clearMask = static_cast<uint8_t>(~a2);
+    uint8_t* row = reinterpret_cast<uint8_t*>(input + 2);
+
+    for (int r = 0; r < height; ++r)
     {
-        int* v4 = input + 2;
-        do
-        {
-            for (int i = 0; i < *input; ++i)
-                *((unsigned char*)v4 + i) &= static_cast<unsigned char>(~a2);
-            ++v2;
-            v4 += kRowStrideDwordSize;
-        } while (v2 < input[1]);
+        for (int i = 0; i < width; ++i)
+            row[i] &= clearMask;
+        row += kRowStrideByteSize;
     }
 }
 
