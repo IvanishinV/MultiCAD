@@ -8,6 +8,7 @@
 #include "util.h"
 
 #include <algorithm>
+#include <condition_variable>
 #include <TlHelp32.h>
 
 /**
@@ -34,6 +35,8 @@ EntryHook g_entryHook;
 void* g_originalReturn{ nullptr };
 
 std::atomic<int> g_syncState{ 0 };  // 0 = wait, 1 = ready, 2 = done, 3 = shutdown
+std::mutex g_syncMutex;
+std::condition_variable g_syncCV;
 
 void* GetDllEntryPoint(uintptr_t base)
 {
@@ -48,6 +51,18 @@ void* GetDllEntryPoint(uintptr_t base)
     return reinterpret_cast<void*>(base + nt->OptionalHeader.AddressOfEntryPoint);
 }
 
+static void AfterEntryPointWait()
+{
+    g_syncState.store(1, std::memory_order_release);
+    g_syncCV.notify_one();
+
+    std::unique_lock<std::mutex> lk(g_syncMutex);
+    g_syncCV.wait(lk, [] {
+        const auto s = g_syncState.load(std::memory_order_acquire);
+        return s == 2 || s == 3;
+    });
+}
+
 #pragma warning(push)
 #pragma warning(disable: 4740)
 __declspec(naked) void AfterEntryPoint()
@@ -58,14 +73,7 @@ __declspec(naked) void AfterEntryPoint()
         pushfd
     }
 
-    g_syncState.store(1, std::memory_order_release);
-
-    while (g_syncState.load(std::memory_order_acquire) != 2)
-    {
-        if (g_syncState.load(std::memory_order_acquire) == 3)
-            break;
-        _mm_pause();
-    }
+    AfterEntryPointWait();
 
     __asm
     {
@@ -217,23 +225,21 @@ bool DllMonitor::Init()
     }
 
     std::thread([this]() {
-        while (g_syncState.load(std::memory_order_acquire) != 3)
         {
-            // Wait signal from AfterEntryPoint
-            while (g_syncState.load(std::memory_order_acquire) != 1)
-            {
-                if (g_syncState.load(std::memory_order_acquire) == 3)
-                    return; // Shutdown
-                _mm_pause();
-            }
-            
-            // Patch dll
-            NotifyUnpacked();
-
-            // Signal AfterEntryPoint to continue
-            g_syncState.store(2, std::memory_order_release);
+            std::unique_lock<std::mutex> lk(g_syncMutex);
+            g_syncCV.wait(lk, [] {
+                const auto s = g_syncState.load(std::memory_order_acquire);
+                return s == 1 || s == 3;
+            });
         }
-        }).detach();
+
+        if (g_syncState.load(std::memory_order_acquire) == 3)
+            return;
+
+        NotifyUnpacked();
+        g_syncState.store(2, std::memory_order_release);
+        g_syncCV.notify_one();
+    }).detach();
 
     ScanLoadedModules();
 
@@ -243,6 +249,7 @@ bool DllMonitor::Init()
 void DllMonitor::Shutdown()
 {
     g_syncState.store(3, std::memory_order_release);
+    g_syncCV.notify_all();
 
     if (m_dllNotificationCookie && m_pLdrUnregisterDllNotification)
     {
