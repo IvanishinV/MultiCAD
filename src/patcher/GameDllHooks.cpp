@@ -398,6 +398,96 @@ void __declspec(noinline) __fastcall GameDllHooks::sub_10055FE0(int* input, void
     }
 }
 
+// True iff (p[i] & mask) == mask for all i in [lo, hi], a native word at a time (SWAR).
+static inline bool spanAllMasked(const uint8_t* p, int lo, int hi, uint8_t mask)
+{
+    constexpr int W = static_cast<int>(sizeof(size_t));
+    const size_t ones = static_cast<size_t>(-1) / 0xFF;     // 0x01010101.. repunit
+    const size_t maskB = static_cast<size_t>(mask) * ones;  // mask broadcast to every byte
+    int i = lo;
+    for (; i + W <= hi + 1; i += W)
+    {
+        size_t w;
+        std::memcpy(&w, p + i, sizeof(w));
+        if ((w & maskB) != maskB)
+            return false;
+    }
+    for (; i <= hi; ++i)
+        if ((mask & p[i]) != mask)
+            return false;
+    return true;
+}
+
+// True iff (p[i] & mask) != 0 for all i in [lo, hi], a native word at a time (has-zero-byte SWAR).
+static inline bool spanAllHaveMask(const uint8_t* p, int lo, int hi, uint8_t mask)
+{
+    constexpr int W = static_cast<int>(sizeof(size_t));
+    const size_t ones = static_cast<size_t>(-1) / 0xFF;     // 0x01010101.. repunit
+    const size_t high = ones * 0x80;                        // 0x80808080..
+    const size_t maskB = static_cast<size_t>(mask) * ones;
+    int i = lo;
+    for (; i + W <= hi + 1; i += W)
+    {
+        size_t w;
+        std::memcpy(&w, p + i, sizeof(w));
+        const size_t t = w & maskB;                         // per-byte p[i] & mask
+        if ((t - ones) & ~t & high)                         // any zero byte -> some (p[i]&mask)==0
+            return false;
+    }
+    for (; i <= hi; ++i)
+        if ((p[i] & mask) == 0)
+            return false;
+    return true;
+}
+
+// First i in [lo, hiExcl) with (p[i] & mask) == mask, else hiExcl. Skips a native
+// word of non-matching cells at a time (hasvalue SWAR), then pinpoints scalar.
+static inline int findFirstAllMasked(const uint8_t* p, int lo, int hiExcl, uint8_t mask)
+{
+    constexpr int W = static_cast<int>(sizeof(size_t));
+    const size_t ones = static_cast<size_t>(-1) / 0xFF;
+    const size_t high = ones * 0x80;
+    const size_t maskB = static_cast<size_t>(mask) * ones;
+    int i = lo;
+    for (; i + W <= hiExcl; i += W)
+    {
+        size_t w;
+        std::memcpy(&w, p + i, sizeof(w));
+        const size_t x = (w & maskB) ^ maskB;               // zero byte where (p[i]&mask)==mask
+        if ((x - ones) & ~x & high)
+            for (int j = i; j < i + W; ++j)
+                if ((mask & p[j]) == mask)
+                    return j;
+    }
+    for (; i < hiExcl; ++i)
+        if ((mask & p[i]) == mask)
+            return i;
+    return hiExcl;
+}
+
+// First i in [lo, hiExcl) with (p[i] & mask) != 0, else hiExcl. Skips words with
+// no matching cell (mask broadcast), then pinpoints scalar.
+static inline int findFirstAnyMasked(const uint8_t* p, int lo, int hiExcl, uint8_t mask)
+{
+    constexpr int W = static_cast<int>(sizeof(size_t));
+    const size_t ones = static_cast<size_t>(-1) / 0xFF;
+    const size_t maskB = static_cast<size_t>(mask) * ones;
+    int i = lo;
+    for (; i + W <= hiExcl; i += W)
+    {
+        size_t w;
+        std::memcpy(&w, p + i, sizeof(w));
+        if ((w & maskB) != 0)
+            for (int j = i; j < i + W; ++j)
+                if ((p[j] & mask) != 0)
+                    return j;
+    }
+    for (; i < hiExcl; ++i)
+        if ((p[i] & mask) != 0)
+            return i;
+    return hiExcl;
+}
+
 int  __declspec(noinline) __fastcall GameDllHooks::sub_10056030(uint8_t* input, void* /*dummy*/, int x, int y, GameData* const gd)
 {
     const int maxX = gd->maxX;
@@ -419,9 +509,9 @@ int  __declspec(noinline) __fastcall GameDllHooks::sub_10056030(uint8_t* input, 
             x = gd->x;
             line += kRowStrideByteSize;
         }
-        if ((mask & line[x]) != 0)
+        x = findFirstAnyMasked(line, x, maxX, mask);
+        if (x < maxX)
             break;
-        ++x;
     }
 
     line[x] &= maskValue;
@@ -480,48 +570,6 @@ doneMasking:
     return 1;
 }
 
-// True iff (p[i] & mask) == mask for all i in [lo, hi], a native word at a time (SWAR).
-static inline bool spanAllMasked(const uint8_t* p, int lo, int hi, uint8_t mask)
-{
-    constexpr int W = static_cast<int>(sizeof(size_t));
-    const size_t ones = static_cast<size_t>(-1) / 0xFF;     // 0x01010101.. repunit
-    const size_t maskB = static_cast<size_t>(mask) * ones;  // mask broadcast to every byte
-    int i = lo;
-    for (; i + W <= hi + 1; i += W)
-    {
-        size_t w;
-        std::memcpy(&w, p + i, sizeof(w));
-        if ((w & maskB) != maskB)
-            return false;
-    }
-    for (; i <= hi; ++i)
-        if ((mask & p[i]) != mask)
-            return false;
-    return true;
-}
-
-// True iff (p[i] & mask) != 0 for all i in [lo, hi], a native word at a time (has-zero-byte SWAR).
-static inline bool spanAllHaveMask(const uint8_t* p, int lo, int hi, uint8_t mask)
-{
-    constexpr int W = static_cast<int>(sizeof(size_t));
-    const size_t ones = static_cast<size_t>(-1) / 0xFF;     // 0x01010101.. repunit
-    const size_t high = ones * 0x80;                        // 0x80808080..
-    const size_t maskB = static_cast<size_t>(mask) * ones;
-    int i = lo;
-    for (; i + W <= hi + 1; i += W)
-    {
-        size_t w;
-        std::memcpy(&w, p + i, sizeof(w));
-        const size_t t = w & maskB;                         // per-byte p[i] & mask
-        if ((t - ones) & ~t & high)                         // any zero byte -> some (p[i]&mask)==0
-            return false;
-    }
-    for (; i <= hi; ++i)
-        if ((p[i] & mask) == 0)
-            return false;
-    return true;
-}
-
 int  __declspec(noinline) __fastcall GameDllHooks::sub_10056170(uint8_t* input, void* /*dummy*/, int x, int y, GameData* const gd)
 {
     const int maxX = gd->maxX;
@@ -543,9 +591,9 @@ int  __declspec(noinline) __fastcall GameDllHooks::sub_10056170(uint8_t* input, 
             x = gd->x;
             line += kRowStrideByteSize;
         }
-        if ((mask & line[x]) == mask)
+        x = findFirstAllMasked(line, x, maxX, mask);
+        if (x < maxX)
             break;
-        ++x;
     }
 
     line[x] &= maskValue;
@@ -616,19 +664,9 @@ int  __declspec(noinline) __fastcall GameDllHooks::sub_100563B0(uint8_t* input, 
 
     uint8_t* line = &input[kRowStrideByteSize * y + 8];
 
-    while (x >= maxX)
+    for (;;)
     {
-        ++y;
-        if (y >= maxY)
-            return 0;
-
-        line += kRowStrideByteSize;
-        x = gd->x;
-    }
-
-    while ((combinedMask & line[x]) == 0)
-    {
-        if (++x >= maxX)
+        while (x >= maxX)
         {
             ++y;
             if (y >= maxY)
@@ -637,6 +675,13 @@ int  __declspec(noinline) __fastcall GameDllHooks::sub_100563B0(uint8_t* input, 
             line += kRowStrideByteSize;
             x = gd->x;
         }
+        const int found = findFirstAnyMasked(line, x, maxX, combinedMask);
+        if (found < maxX)
+        {
+            x = found;
+            break;
+        }
+        x = maxX;
     }
 
     uint8_t cellMask = line[x] & combinedMask;
