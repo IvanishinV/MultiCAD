@@ -448,13 +448,8 @@ int  __declspec(noinline) __fastcall GameDllHooks::sub_10056030(uint8_t* input, 
 
         while (v15 < maxY)
         {
-            for (int i = x; i <= v14; ++i)
-            {
-                if ((nextLine[i] & mask) == 0)
-                {
-                    goto doneMasking;
-                }
-            }
+            if (!spanAllHaveMask(nextLine, x, v14, mask))
+                goto doneMasking;
 
             bool cond1 = (x <= gd->x) || ((nextLine[x - 1] & mask) == 0);
             bool cond2 = (v14 >= (gd->maxX - 1)) || ((*ptrMask & mask) == 0);
@@ -501,6 +496,28 @@ static inline bool spanAllMasked(const uint8_t* p, int lo, int hi, uint8_t mask)
     }
     for (; i <= hi; ++i)
         if ((mask & p[i]) != mask)
+            return false;
+    return true;
+}
+
+// True iff (p[i] & mask) != 0 for all i in [lo, hi], a native word at a time (has-zero-byte SWAR).
+static inline bool spanAllHaveMask(const uint8_t* p, int lo, int hi, uint8_t mask)
+{
+    constexpr int W = static_cast<int>(sizeof(size_t));
+    const size_t ones = static_cast<size_t>(-1) / 0xFF;     // 0x01010101.. repunit
+    const size_t high = ones * 0x80;                        // 0x80808080..
+    const size_t maskB = static_cast<size_t>(mask) * ones;
+    int i = lo;
+    for (; i + W <= hi + 1; i += W)
+    {
+        size_t w;
+        std::memcpy(&w, p + i, sizeof(w));
+        const size_t t = w & maskB;                         // per-byte p[i] & mask
+        if ((t - ones) & ~t & high)                         // any zero byte -> some (p[i]&mask)==0
+            return false;
+    }
+    for (; i <= hi; ++i)
+        if ((p[i] & mask) == 0)
             return false;
     return true;
 }
@@ -645,13 +662,8 @@ int  __declspec(noinline) __fastcall GameDllHooks::sub_100563B0(uint8_t* input, 
         line += kRowStrideByteSize;
         while (vNextY < maxY)
         {
-            for (int idx = x; idx <= vEndX; ++idx)
-            {
-                if ((cellMask & line[idx]) == 0)
-                {
-                    goto doneMasking;
-                }
-            }
+            if (!spanAllHaveMask(line, x, vEndX, cellMask))
+                goto doneMasking;
 
             for (int idx = x; idx <= vEndX; ++idx)
                 line[idx] &= -1 - combinedMask;
