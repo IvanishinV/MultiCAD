@@ -485,6 +485,26 @@ doneMasking:
     return 1;
 }
 
+// True iff (p[i] & mask) == mask for all i in [lo, hi], a native word at a time (SWAR).
+static inline bool spanAllMasked(const uint8_t* p, int lo, int hi, uint8_t mask)
+{
+    constexpr int W = static_cast<int>(sizeof(size_t));
+    const size_t ones = static_cast<size_t>(-1) / 0xFF;     // 0x01010101.. repunit
+    const size_t maskB = static_cast<size_t>(mask) * ones;  // mask broadcast to every byte
+    int i = lo;
+    for (; i + W <= hi + 1; i += W)
+    {
+        size_t w;
+        std::memcpy(&w, p + i, sizeof(w));
+        if ((w & maskB) != maskB)
+            return false;
+    }
+    for (; i <= hi; ++i)
+        if ((mask & p[i]) != mask)
+            return false;
+    return true;
+}
+
 int  __declspec(noinline) __fastcall GameDllHooks::sub_10056170(uint8_t* input, void* /*dummy*/, int x, int y, GameData* const gd)
 {
     const int maxX = gd->maxX;
@@ -534,13 +554,8 @@ int  __declspec(noinline) __fastcall GameDllHooks::sub_10056170(uint8_t* input, 
 
         while (v12 < maxY)
         {
-            for (int idx = x; idx <= v13; ++idx)
-            {
-                if ((mask & nextLine[idx]) != mask)
-                {
-                    goto doneMasking;
-                }
-            }
+            if (!spanAllMasked(nextLine, x, v13, mask))
+                goto doneMasking;
 
             bool cond1 = (x <= gd->x) || ((mask & nextLine[x - 1]) != mask);
             bool cond2 = (v13 >= maxX - 1) || ((*ptrMask & mask) != mask);
