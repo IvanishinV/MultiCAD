@@ -2934,37 +2934,30 @@ void GameDllHooks::drawFogOnWorld(const FogDrawData& data)
         } while (--cnt);
     }
 
-    // 5. Update fogSprites
-    int width = len_sar_4 + 9;
-    if (v4 + 9 > 0)
+    // 5. Update fogSprites. `width` is invariant in the original; skip unchanged
+    // rows with one memcmp, per-cell scan only the changed ones (same draws/order).
+    const int width = len_sar_4 + 9;
+    const int rows = v4 + 9;
+    if (rows > 0 && width > 0)
     {
-        int y = 0;
-        int screenY = -72;
-        int rows = v4 + 9;
-        do
+        for (int y = 0; y < rows; ++y)
         {
-            if (width > 0)
-            {
-                int x = 0;
-                int screenX = -144;
-                do
-                {
-                    const uint8_t v = data.fogBuf[x + y * kFogLineByteSize];
-                    uint8_t* dst = &data.cadPtr->fogSprites[y].unk[x];
-                    if (v != *dst)
-                    {
-                        *dst = v;
+            const uint8_t* src = &data.fogBuf[y * kFogLineByteSize];
+            uint8_t* dst = &data.cadPtr->fogSprites[y].unk[0];
+            if (std::memcmp(src, dst, width) == 0)
+                continue;
 
-                        sub_10055E00(data.div16Ptr, nullptr, 24, screenX, screenY, screenX + 31, screenY + 15);
-                        width = len_sar_4 + 9;
-                    }
-                    ++x;
-                    screenX += 16;
-                } while (x < width);
+            const int screenY = -72 + 8 * y;
+            for (int x = 0; x < width; ++x)
+            {
+                if (src[x] != dst[x])
+                {
+                    dst[x] = src[x];
+                    const int screenX = -144 + 16 * x;
+                    sub_10055E00(data.div16Ptr, nullptr, 24, screenX, screenY, screenX + 31, screenY + 15);
+                }
             }
-            ++y;
-            screenY += 8;
-        } while (--rows);
+        }
     }
 }
 
@@ -3141,37 +3134,30 @@ void GameDllHooks::drawFogOnWorld_v2(const FogDrawData& data)
         } while (--cnt);
     }
 
-    // 5. Update fogSprites
-    int width = len_sar_4 + 9;
-    if (v4 + 9 > 0)
+    // 5. Update fogSprites. `width` is invariant in the original; skip unchanged
+    // rows with one memcmp, per-cell scan only the changed ones (same draws/order).
+    const int width = len_sar_4 + 9;
+    const int rows = v4 + 9;
+    if (rows > 0 && width > 0)
     {
-        int y = 0;
-        int screenY = -72;
-        int rows = v4 + 9;
-        do
+        for (int y = 0; y < rows; ++y)
         {
-            if (width > 0)
-            {
-                int x = 0;
-                int screenX = -144;
-                do
-                {
-                    const uint8_t v = data.fogBuf[x + y * kFogLineByteSize];
-                    uint8_t* dst = &data.cadPtr->fogSprites[y].unk[x];
-                    if (v != *dst)
-                    {
-                        *dst = v;
+            const uint8_t* src = &data.fogBuf[y * kFogLineByteSize];
+            uint8_t* dst = &data.cadPtr->fogSprites[y].unk[0];
+            if (std::memcmp(src, dst, width) == 0)
+                continue;
 
-                        sub_10055E00(data.div16Ptr, nullptr, 24, screenX, screenY, screenX + 31, screenY + 15);
-                        width = len_sar_4 + 9;
-                    }
-                    ++x;
-                    screenX += 16;
-                } while (x < width);
+            const int screenY = -72 + 8 * y;
+            for (int x = 0; x < width; ++x)
+            {
+                if (src[x] != dst[x])
+                {
+                    dst[x] = src[x];
+                    const int screenX = -144 + 16 * x;
+                    sub_10055E00(data.div16Ptr, nullptr, 24, screenX, screenY, screenX + 31, screenY + 15);
+                }
             }
-            ++y;
-            screenY += 8;
-        } while (--rows);
+        }
     }
 }
 
