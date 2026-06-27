@@ -2935,7 +2935,7 @@ void GameDllHooks::drawFogOnWorld(const FogDrawData& data)
     }
 
     // 5. Update fogSprites. `width` is invariant in the original; skip unchanged
-    // rows with one memcmp, per-cell scan only the changed ones (same draws/order).
+    // 16-cell chunks, per-cell scan only changed ones (same draws, row-major order).
     const int width = len_sar_4 + 9;
     const int rows = v4 + 9;
     if (rows > 0 && width > 0)
@@ -2944,11 +2944,25 @@ void GameDllHooks::drawFogOnWorld(const FogDrawData& data)
         {
             const uint8_t* src = &data.fogBuf[y * kFogLineByteSize];
             uint8_t* dst = &data.cadPtr->fogSprites[y].unk[0];
-            if (std::memcmp(src, dst, width) == 0)
-                continue;
-
             const int screenY = -72 + 8 * y;
-            for (int x = 0; x < width; ++x)
+
+            int x = 0;
+            for (; x + 16 <= width; x += 16)
+            {
+                if (std::memcmp(src + x, dst + x, 16) == 0)
+                    continue;
+
+                for (int j = x; j < x + 16; ++j)
+                {
+                    if (src[j] != dst[j])
+                    {
+                        dst[j] = src[j];
+                        const int screenX = -144 + 16 * j;
+                        sub_10055E00(data.div16Ptr, nullptr, 24, screenX, screenY, screenX + 31, screenY + 15);
+                    }
+                }
+            }
+            for (; x < width; ++x)
             {
                 if (src[x] != dst[x])
                 {
@@ -3135,7 +3149,7 @@ void GameDllHooks::drawFogOnWorld_v2(const FogDrawData& data)
     }
 
     // 5. Update fogSprites. `width` is invariant in the original; skip unchanged
-    // rows with one memcmp, per-cell scan only the changed ones (same draws/order).
+    // 16-cell chunks, per-cell scan only changed ones (same draws, row-major order).
     const int width = len_sar_4 + 9;
     const int rows = v4 + 9;
     if (rows > 0 && width > 0)
@@ -3144,11 +3158,25 @@ void GameDllHooks::drawFogOnWorld_v2(const FogDrawData& data)
         {
             const uint8_t* src = &data.fogBuf[y * kFogLineByteSize];
             uint8_t* dst = &data.cadPtr->fogSprites[y].unk[0];
-            if (std::memcmp(src, dst, width) == 0)
-                continue;
-
             const int screenY = -72 + 8 * y;
-            for (int x = 0; x < width; ++x)
+
+            int x = 0;
+            for (; x + 16 <= width; x += 16)
+            {
+                if (std::memcmp(src + x, dst + x, 16) == 0)
+                    continue;
+
+                for (int j = x; j < x + 16; ++j)
+                {
+                    if (src[j] != dst[j])
+                    {
+                        dst[j] = src[j];
+                        const int screenX = -144 + 16 * j;
+                        sub_10055E00(data.div16Ptr, nullptr, 24, screenX, screenY, screenX + 31, screenY + 15);
+                    }
+                }
+            }
+            for (; x < width; ++x)
             {
                 if (src[x] != dst[x])
                 {
