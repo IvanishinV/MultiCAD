@@ -22,6 +22,17 @@ constexpr S32 DEFAULT_FONT_ASSET_SPACING = 2;
 * to 0x10, which is 1 << 4, and changed STENCIL_PIXEL_OFFET to 0x800. In that case I still have
 * 4 significant lower bits and all rows are in the range 0x8000-0xC380. It should work fine.
 *
+* UPDATE (4K / 2160 support): shift 4 capped the level field at 0x7FF (2047), because the
+* baseline fill (y << shift) collides with the 0x8000 occupied bit and the encoded value
+* (level + offset) << shift overflows the 16-bit pixel beyond that. The 4th reserved low bit
+* was never used though - only bits 0-2 are touched (shadow mask 0x7, and sprite redraw
+* preserves only & 3). So I reduced kStencilPixelColorShift to 3 and bumped kStencilPixelOffset
+* to 0x1000, keeping offset << shift == 0x8000 (the occupied bit). That leaves 3 low flag bits
+* (exact fit, no spare), a 12-bit level field, and raises the height ceiling to 0xFFF = 4095.
+* The decode mask kStencilPixelSmallMask is now 0xFFF. Example: 2160 -> baseline 2160 << 3 =
+* 0x4380 (< 0x8000), sprite (2160 + 0x1000) << 3 = 0xC380, decode 0xC380 >> 3 - 0x1000 & 0xFFF
+* = 2160.
+*
 * FYI: in the original HD mod I used values 4 and 0x370 for some reason, and a bug appeared
 * with 0x8007 mask used for shadowing. Therefore, it was necessary to handle this case separately
 * in the unit shadow display function. So, I added condition
@@ -29,11 +40,11 @@ constexpr S32 DEFAULT_FONT_ASSET_SPACING = 2;
 * Again, I don't remember correctly why I chose exactly 4 and 0x370 values.
 */
 constexpr U32 kPixelColorBitMask      = 0x8000;
-constexpr S32 kStencilPixelColorShift = 4;
+constexpr S32 kStencilPixelColorShift = 3;
 constexpr S32 kStencilPixelColorValue = 1 << kStencilPixelColorShift;
-constexpr S32 kStencilPixelOffset     = 0x800;
+constexpr S32 kStencilPixelOffset     = 0x1000;
 constexpr S32 kStencilPixelShadowMask = kPixelColorBitMask | 0x7;
-constexpr S32 kStencilPixelSmallMask  = 0x7FF;
+constexpr S32 kStencilPixelSmallMask  = 0xFFF;
 constexpr S32 kStencilPixelBigMask    = 0xFFFB;
 
 
@@ -277,7 +288,7 @@ struct ModuleStateBase
     U16                 initialRedMask;                  //10012b26
     U16                 actualGreenMask;                 //10012b28
     U16                 initialGreenMask;                //10012b2a
-    U16                 actualBlueMask;                  //10012b2ñ
+    U16                 actualBlueMask;                  //10012b2ï¿½
     U16                 initialBlueMask;                 //10012b2e
 
     U16                 redOffset;                       //10012b30

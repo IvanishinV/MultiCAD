@@ -18,8 +18,8 @@ namespace Graphics
     constexpr U32 kDefaultWidth = 1920;
     constexpr U32 kDefaultHeight = 1080;
 
-    constexpr U32 kMaxWidth = 3440;
-    constexpr U32 kMaxHeight = 1600;
+    constexpr U32 kMaxWidth = 3840;
+    constexpr U32 kMaxHeight = 2160;
 }
 
 class Screen
