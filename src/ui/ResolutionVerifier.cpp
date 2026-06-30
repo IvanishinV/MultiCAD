@@ -89,6 +89,35 @@ bool ResolutionVerifier::IsSupported(int width, int height, int bits) const
     return false;
 }
 
+bool ResolutionVerifier::FindNearest(int& width, int& height, int bits) const
+{
+    const Resolution* best = nullptr;
+    long long bestScore = 0;
+
+    for (const auto& res : supportedResolutions_)
+    {
+        if (res.bits != bits)
+            continue;
+
+        const long long dw = static_cast<long long>(res.width) - width;
+        const long long dh = static_cast<long long>(res.height) - height;
+        const long long score = dw * dw + dh * dh;
+
+        if (best == nullptr || score < bestScore)
+        {
+            best = &res;
+            bestScore = score;
+        }
+    }
+
+    if (best == nullptr)
+        return false;
+
+    width = best->width;
+    height = best->height;
+    return true;
+}
+
 bool ResolutionVerifier::ChooseResolution(int& width, int& height) const
 {
     HINSTANCE hInstance = GetModuleHandle(NULL);

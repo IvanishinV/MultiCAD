@@ -17,6 +17,10 @@ public:
     bool IsSupported(int width, int height, int bits) const;
     bool ChooseResolution(int& width, int& height) const;
 
+    // Snaps width/height to the closest supported mode (by squared distance) for
+    // the given bit depth. Returns false when no supported mode matches the depth.
+    bool FindNearest(int& width, int& height, int bits) const;
+
     struct Resolution
     {
         int width;

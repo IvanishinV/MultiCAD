@@ -3,6 +3,7 @@
 #include "resource.h"
 #include "version.h"
 #include "SplashTextRenderer.h"
+#include "ScreenConfig.h"
 
 struct SplashLayout
 {
@@ -24,6 +25,10 @@ struct SplashLayout
     int writeTextFnPtr;
 
     int surfacePtr;
+
+    // Top-right position of the "WIDTHxHEIGHT" label.
+    int resX;
+    int resY;
 };
 
 void MenuDllHooks::renderGameVersion(void* self, const SplashLayout& layout)
@@ -70,6 +75,17 @@ void MenuDllHooks::renderGameVersion(void* self, const SplashLayout& layout)
     y += 13;
     writeTextFn(surface, layout.titleX, y, SS_HD_MOD_AUTHOR_EMAIL, 1);
 
+    // Show the active game resolution in the top-right corner.
+    if (layout.resX != 0 || layout.resY != 0)
+    {
+        S32 resWidth, resHeight;
+        Screen::ResolveTargetResolution(resWidth, resHeight);
+
+        char resBuf[32];
+        std::snprintf(resBuf, sizeof(resBuf), "%dx%d", resWidth, resHeight);
+        writeTextFn(surface, layout.resX, layout.resY, resBuf, 0);
+    }
+
     const SplashTextRenderer::Params splash =
         SplashTextRenderer::MakeParams(splashCfg, setColorFn, writeTextFn, surface);
 
@@ -93,6 +109,8 @@ void __fastcall MenuDllHooks::sub_10014B70(void* self)
         0x39F0,
         0x3D10,
         0x590F8,
+        553,
+        125,
     };
 
     renderGameVersion(self, layout);
@@ -115,6 +133,8 @@ void __fastcall MenuDllHooks::sub_10014B70_hd(void* self)
         0x39F0,
         0x3D10,
         0x590F8,
+        553,
+        125,
     };
 
     renderGameVersion(self, layout);
@@ -137,6 +157,8 @@ void __fastcall MenuDllHooks::sub_10014B70_fr(void* self)
         0x3A20,
         0x3D40,
         0x59118,
+        553,
+        125,
     };
 
     renderGameVersion(self, layout);
@@ -159,6 +181,8 @@ void __fastcall MenuDllHooks::sub_10014B70_ru(void* self)
         0x3BA0,
         0x3EC0,
         0x580F8,
+        553,
+        125,
     };
 
     renderGameVersion(self, layout);
@@ -181,6 +205,8 @@ void __fastcall MenuDllHooks::sub_1000E3D0_ru(void* self)
         0x3960,
         0x3CA0,
         0x4C268,
+        553,
+        125,
     };
 
     renderGameVersion(self, layout);
@@ -203,6 +229,8 @@ void __fastcall MenuDllHooks::sub_1000E3D0_hd_ru(void* self)
         0x3960,
         0x3CA0,
         0x4C268,
+        553,
+        125,
     };
 
     renderGameVersion(self, layout);
@@ -225,6 +253,8 @@ void __fastcall MenuDllHooks::sub_1000E3D0_hd_en(void* self)
         0x3960,
         0x3CA0,
         0x4C268,
+        553,
+        125,
     };
 
     renderGameVersion(self, layout);
@@ -247,6 +277,8 @@ void __fastcall MenuDllHooks::sub_1000F2D0_en(void* self)
         0x39F0,
         0x3D10,
         0x4FAA8,
+        553,
+        125,
     };
 
     renderGameVersion(self, layout);
@@ -269,6 +301,8 @@ void __fastcall MenuDllHooks::sub_1001AC60(void* self)
         0x2C00,
         0x2FA0,
         0xB4B48,
+        750,
+        30,
     };
 
     renderGameVersion(self, layout);
@@ -291,6 +325,8 @@ void __fastcall MenuDllHooks::sub_1001AC60_hs(void* self)
         0x2C00,
         0x2FA0,
         0xB4B48,
+        750,
+        30,
     };
 
     renderGameVersion(self, layout);
@@ -313,6 +349,8 @@ void __fastcall MenuDllHooks::sub_1001AC60_bs_eu_2015(void* self)
         0x2C00,
         0x2FA0,
         0xB4B48,
+        750,
+        30,
     };
 
     renderGameVersion(self, layout);
@@ -335,6 +373,8 @@ void __fastcall MenuDllHooks::sub_1001B470(void* self)
         0x2BD0,
         0x2F70,
         0xB2BE8,
+        750,
+        30,
     };
 
     renderGameVersion(self, layout);
@@ -357,6 +397,8 @@ void __fastcall MenuDllHooks::sub_1001B380(void* self)
         0x2BC0,
         0x2F60,
         0xB2C68,
+        750,
+        30,
     };
 
     renderGameVersion(self, layout);

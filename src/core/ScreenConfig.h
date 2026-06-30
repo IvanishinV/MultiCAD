@@ -33,6 +33,11 @@ public:
     static S32 sizeInBytes_;        // Number of bytes are in the screen
     static S32 sizeInDoublePixels_; // Number of double pixels are in the screen
 
+    // True when the active game resolution came from an explicit sudtest.ini entry
+    // rather than the auto-detected native one. The renderer uses this to decide
+    // whether to prompt the user or silently snap to the nearest supported mode.
+    static bool resolutionFromIni_;
+
     static void UpdateSize(S32 width, S32 height)
     {
         width_ = width;
@@ -62,41 +67,98 @@ public:
         sizeInDoublePixels_ = sizeInPixels_ * sizeof(Pixel) * 2;
     }
 
-    static void UpdateResolutionFromIni()
+    // Reads the current desktop resolution, clamped to the supported range and
+    // with height snapped down to a multiple of 8 (renderer requirement, see
+    // ResolutionVerifier). Falls back to the default if the query fails.
+    static void GetNativeResolution(S32& width, S32& height)
     {
-        std::string iniPath = GetIniPath();
-        if (iniPath.empty())
-            return;
+        width = Graphics::kDefaultWidth;
+        height = Graphics::kDefaultHeight;
 
-        char buffer[64];
-        if (GetPrivateProfileStringA("Game", "Resolution", "", buffer, sizeof(buffer), iniPath.c_str()) == 0)
-            return;
-
-        U32 width, height;
-        char* xPos = std::strchr(buffer, 'x');
-
-        if (xPos == nullptr)
-            return;
-
-        width = std::atol(buffer);
-        height = std::atol(xPos + 1);
-
-        if (width < Graphics::kMinWidth || height < Graphics::kMinHeight)
+        // Registry, not current: the menu's 640x480 exclusive-fullscreen mode would
+        // otherwise be reported as "current". The desktop mode persists in registry.
+        DEVMODEA dm{};
+        dm.dmSize = sizeof(dm);
+        if (EnumDisplaySettingsA(nullptr, ENUM_REGISTRY_SETTINGS, &dm))
         {
-            ShowErrorAsync("The resolution you specified is too small to be supported, so the default one is specified (1920x1080). Minimum supported is 640x480.");
-            return;
+            width = static_cast<S32>(dm.dmPelsWidth);
+            height = static_cast<S32>(dm.dmPelsHeight);
         }
 
-        if (width > Graphics::kMaxWidth || height > Graphics::kMaxHeight)
+        if (width < static_cast<S32>(Graphics::kMinWidth))   width = Graphics::kMinWidth;
+        if (width > static_cast<S32>(Graphics::kMaxWidth))   width = Graphics::kMaxWidth;
+        if (height < static_cast<S32>(Graphics::kMinHeight)) height = Graphics::kMinHeight;
+        if (height > static_cast<S32>(Graphics::kMaxHeight)) height = Graphics::kMaxHeight;
+
+        // Renderer cannot handle a height that isn't divisible by 8.
+        height &= ~7;
+        if (height < static_cast<S32>(Graphics::kMinHeight))
+            height = Graphics::kMinHeight; // 480 is divisible by 8
+    }
+
+    // Computes the resolution the game should run at: the native desktop one by
+    // default, overridden by an explicit sudtest.ini entry when present and valid.
+    // The result is cached, so the desktop and ini are only read once.
+    static void ResolveTargetResolution(S32& width, S32& height)
+    {
+        if (!targetResolved_)
         {
-            ShowErrorAsync("The resolution you specified is too large to be supported, so the default one is specified (1920x1080). Maximum supported is 2560x1440.");
-            return;
+            GetNativeResolution(targetWidth_, targetHeight_);
+            resolutionFromIni_ = ApplyIniResolution(targetWidth_, targetHeight_);
+            targetResolved_ = true;
         }
 
+        width = targetWidth_;
+        height = targetHeight_;
+    }
+
+    // Applies the resolved target resolution to the screen geometry. Must be
+    // called when the game dll loads (the menu always runs at its own size).
+    static void ApplyGameResolution()
+    {
+        S32 width, height;
+        ResolveTargetResolution(width, height);
         UpdateSize(width, height);
     }
 
 private:
+    // Reads "[Game] Resolution = WIDTHxHEIGHT" from sudtest.ini into the supplied
+    // out-params. Returns true only when a valid in-range value was found; an
+    // out-of-range value is reported and ignored (out-params left untouched).
+    static bool ApplyIniResolution(S32& outWidth, S32& outHeight)
+    {
+        std::string iniPath = GetIniPath();
+        if (iniPath.empty())
+            return false;
+
+        char buffer[64];
+        if (GetPrivateProfileStringA("Game", "Resolution", "", buffer, sizeof(buffer), iniPath.c_str()) == 0)
+            return false;
+
+        char* xPos = std::strchr(buffer, 'x');
+        if (xPos == nullptr)
+            return false;
+
+        S32 width = std::atol(buffer);
+        S32 height = std::atol(xPos + 1);
+
+        if (width < static_cast<S32>(Graphics::kMinWidth) || height < static_cast<S32>(Graphics::kMinHeight))
+        {
+            ShowErrorAsync("The resolution specified in sudtest.ini is too small and will be ignored. Minimum supported is 640x480.");
+            return false;
+        }
+
+        if (width > static_cast<S32>(Graphics::kMaxWidth) || height > static_cast<S32>(Graphics::kMaxHeight))
+        {
+            ShowErrorAsync("The resolution specified in sudtest.ini is too large and will be ignored. Maximum supported is 3840x2160.");
+            return false;
+        }
+
+        outWidth = width;
+        outHeight = height;
+        return true;
+    }
+
     static std::string GetIniPath()
     {
         char dllPath[MAX_PATH] = { 0 };
@@ -117,4 +179,8 @@ private:
         std::string iniPath = std::string(dllPath) + "\\sudtest.ini";
         return iniPath;
     }
+
+    static bool targetResolved_;
+    static S32 targetWidth_;
+    static S32 targetHeight_;
 };

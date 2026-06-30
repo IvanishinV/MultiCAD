@@ -24,8 +24,6 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fwdReason, LPVOID lpvReserved)
         if (!monitor.Init())
             ShowErrorAsync("Couldn't init dll monitor. HD mod is not working correctly.");
 
-        Screen::UpdateResolutionFromIni();
-
         break;
     }
     case DLL_PROCESS_DETACH:

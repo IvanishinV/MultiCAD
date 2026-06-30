@@ -262,8 +262,20 @@ bool initWindowDxSurface(S32 width, S32 height)
     {
         const bool isSupported = ResolutionVerifier::GetInstance().IsSupported(width, height, Graphics::kBitsPerPixel16);
         if (!isSupported)
-            if (ResolutionVerifier::GetInstance().ChooseResolution(width, height))
-                Screen::UpdateSize(width, height);
+        {
+            if (Screen::resolutionFromIni_)
+            {
+                // The user asked for this resolution explicitly - let them pick a supported one.
+                if (ResolutionVerifier::GetInstance().ChooseResolution(width, height))
+                    Screen::UpdateSize(width, height);
+            }
+            else
+            {
+                // Auto-detected native resolution has no exact match - snap to the closest mode silently.
+                if (ResolutionVerifier::GetInstance().FindNearest(width, height, Graphics::kBitsPerPixel16))
+                    Screen::UpdateSize(width, height);
+            }
+        }
 
         if (FAILED(g_moduleState->directX.instance->SetDisplayMode(width, height, Graphics::kBitsPerPixel16)))
         {

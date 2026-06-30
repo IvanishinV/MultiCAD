@@ -45,6 +45,11 @@ bool InstallGamePatches(TargetState& state, uintptr_t base, size_t size, const s
     }
     }
 
+    // Resolve the game resolution here (and only here): native desktop by
+    // default, overridden by sudtest.ini. The menu always runs at its own size,
+    // so the high resolution must not be applied before the game dll loads.
+    Screen::ApplyGameResolution();
+
     const auto& module = detector.GetModuleInfo(DllType::Game);
     GameDllHooks::init(module.base);
     state.patchEngine.emplace(
