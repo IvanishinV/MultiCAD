@@ -265,13 +265,17 @@ bool initWindowDxSurface(S32 width, S32 height)
         {
             if (Screen::resolutionFromIni_)
             {
-                // The user asked for this resolution explicitly - let them pick a supported one.
+                // Explicit ini value: let the user pick a supported one, and persist
+                // it so the dialog won't reappear next launch.
                 if (ResolutionVerifier::GetInstance().ChooseResolution(width, height))
+                {
                     Screen::UpdateSize(width, height);
+                    Screen::SaveResolutionToIni(width, height);
+                }
             }
             else
             {
-                // Auto-detected native resolution has no exact match - snap to the closest mode silently.
+                // Native default: snap to the closest mode, no prompt.
                 if (ResolutionVerifier::GetInstance().FindNearest(width, height, Graphics::kBitsPerPixel16))
                     Screen::UpdateSize(width, height);
             }

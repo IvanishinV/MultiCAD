@@ -75,7 +75,7 @@ void MenuDllHooks::renderGameVersion(void* self, const SplashLayout& layout)
     y += 13;
     writeTextFn(surface, layout.titleX, y, SS_HD_MOD_AUTHOR_EMAIL, 1);
 
-    // Show the active game resolution in the top-right corner.
+    // Show active game resolution
     if (layout.resX != 0 || layout.resY != 0)
     {
         S32 resWidth, resHeight;
