@@ -40,7 +40,8 @@ public:
     void Shutdown();
 
     void RegisterTarget(const TargetInfo& info);
-    void NotifyUnpacked();
+    // Called on the loader thread from a packed module's hooked entry point.
+    void NotifyUnpacked(uintptr_t base);
 
 private:
     void HandleLoad(const std::wstring& matched, uintptr_t base, size_t size, const std::wstring& fullPath);

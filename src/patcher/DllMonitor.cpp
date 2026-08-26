@@ -8,7 +8,9 @@
 #include "util.h"
 
 #include <algorithm>
-#include <condition_variable>
+#include <cstring>
+#include <mutex>
+#include <unordered_map>
 #include <TlHelp32.h>
 
 /**
@@ -23,20 +25,61 @@
                       MemoryRelocator       CodePatcher
 * */
 
-struct EntryHook
+namespace
 {
-    uint8_t original[5];
-    void* entry;
-    void* trampoline;
-    uintptr_t base;
-};
+    constexpr size_t kPrologueSize = 5;
 
-EntryHook g_entryHook;
-void* g_originalReturn{ nullptr };
+    // One RWX block per hooked module; the stubs address it by absolute
+    // immediate, so hooked modules share no state.
+    //
+    //   +0x00  trampoline : original prologue, then jmp EP+5
+    //   +0x10  enterStub  : swaps the loader return address for afterStub
+    //   +0x20  afterStub  : calls OnUnpacked, then returns to the loader
+    //   +0x40  retAddr    : loader return address of the in-flight EP call
+    constexpr size_t kOffTrampoline = 0x00;
+    constexpr size_t kOffEnterStub  = 0x10;
+    constexpr size_t kOffAfterStub  = 0x20;
+    constexpr size_t kOffRetAddr    = 0x40;
+    constexpr size_t kHookBlockSize = 0x50;
 
-std::atomic<int> g_syncState{ 0 };  // 0 = wait, 1 = ready, 2 = done, 3 = shutdown
-std::mutex g_syncMutex;
-std::condition_variable g_syncCV;
+    struct EntryHook
+    {
+        uint8_t   original[kPrologueSize]{};
+        uint8_t*  block{ nullptr };
+        void*     entry{ nullptr };
+        uintptr_t base{ 0 };
+        bool      hooked{ false };
+    };
+
+    std::mutex g_hooksMutex;
+    std::unordered_map<uintptr_t, EntryHook> g_hooks;   // module base -> hook
+
+    void Emit8(uint8_t*& p, uint8_t v) { *p++ = v; }
+
+    void Emit32(uint8_t*& p, uint32_t v) { memcpy(p, &v, sizeof(v)); p += sizeof(v); }
+
+    // rel32 displacements are measured from the end of the instruction
+    void EmitRel32(uint8_t*& p, const void* target)
+    {
+        const uintptr_t end = reinterpret_cast<uintptr_t>(p) + sizeof(uint32_t);
+        Emit32(p, static_cast<uint32_t>(reinterpret_cast<uintptr_t>(target) - end));
+    }
+
+    uint32_t Imm(const void* p) { return static_cast<uint32_t>(reinterpret_cast<uintptr_t>(p)); }
+}
+
+// Called from afterStub, on the loader thread, with the loader lock held: the
+// packer stub has just decompressed the image, so this is the only point where
+// the real code is patchable and has not yet run.
+//
+// Runs inline on purpose. The loader thread blocks until patching finishes
+// either way, so a worker buys no concurrency - and it turns the loader-lock
+// calls on the patch path (GetIniPath -> GetModuleHandleExA) from a safe
+// recursive acquire into a cross-thread deadlock.
+extern "C" void __cdecl OnUnpacked(uintptr_t base)
+{
+    GetDllMonitor().NotifyUnpacked(base);
+}
 
 void* GetDllEntryPoint(uintptr_t base)
 {
@@ -51,95 +94,170 @@ void* GetDllEntryPoint(uintptr_t base)
     return reinterpret_cast<void*>(base + nt->OptionalHeader.AddressOfEntryPoint);
 }
 
-static void AfterEntryPointWait()
+namespace
 {
-    g_syncState.store(1, std::memory_order_release);
-    g_syncCV.notify_one();
-
-    std::unique_lock<std::mutex> lk(g_syncMutex);
-    g_syncCV.wait(lk, [] {
-        const auto s = g_syncState.load(std::memory_order_acquire);
-        return s == 2 || s == 3;
-    });
-}
-
-#pragma warning(push)
-#pragma warning(disable: 4740)
-__declspec(naked) void AfterEntryPoint()
-{
-    __asm
+    // The 5-byte jmp that redirects the entry point at enterStub. Also used to
+    // recognise our own patch when unhooking.
+    void MakeEntryPatch(uint8_t (&out)[kPrologueSize], const uint8_t* ep, const uint8_t* enterStub)
     {
-        pushad
-        pushfd
+        uint8_t* p = out;
+        Emit8(p, 0xE9);                                     // jmp rel32
+        Emit32(p, static_cast<uint32_t>(enterStub - (ep + kPrologueSize)));
     }
 
-    AfterEntryPointWait();
-
-    __asm
+    bool HookEntryPoint(void* entryPoint, uintptr_t base)
     {
-        popfd
-        popad
+        auto* ep = static_cast<uint8_t*>(entryPoint);
 
-        jmp g_originalReturn
+        {
+            std::lock_guard lk(g_hooksMutex);
+            if (g_hooks.count(base))
+                return true;   // re-hooking would save our own jmp as the prologue
+        }
+
+        auto* block = static_cast<uint8_t*>(VirtualAlloc(
+            nullptr, kHookBlockSize, MEM_COMMIT | MEM_RESERVE, PAGE_EXECUTE_READWRITE));
+        if (!block)
+            return false;
+
+        EntryHook hook;
+        hook.block = block;
+        hook.entry = entryPoint;
+        hook.base = base;
+        memcpy(hook.original, ep, kPrologueSize);
+
+        uint8_t* const trampoline = block + kOffTrampoline;
+        uint8_t* const enterStub  = block + kOffEnterStub;
+        uint8_t* const afterStub  = block + kOffAfterStub;
+        uint8_t* const retAddr    = block + kOffRetAddr;
+
+        memset(retAddr, 0, sizeof(void*));
+
+        // trampoline: run the displaced prologue, then rejoin the entry point
+        {
+            uint8_t* p = trampoline;
+            memcpy(p, hook.original, kPrologueSize);
+            p += kPrologueSize;
+            Emit8(p, 0xE9);                                 // jmp rel32
+            EmitRel32(p, ep + kPrologueSize);
+        }
+
+        // enterStub: stash the loader's return address, substitute afterStub
+        {
+            uint8_t* p = enterStub;
+            Emit8(p, 0x58);                                 // pop eax
+            Emit8(p, 0xA3); Emit32(p, Imm(retAddr));        // mov [retAddr], eax
+            Emit8(p, 0x68); Emit32(p, Imm(afterStub));      // push afterStub
+            Emit8(p, 0xE9); EmitRel32(p, trampoline);       // jmp trampoline
+        }
+
+        // afterStub: entry point returned, image is unpacked. eax holds
+        // DllMain's return value and is preserved by pushad/popad.
+        {
+            uint8_t* p = afterStub;
+            Emit8(p, 0x60);                                 // pushad
+            Emit8(p, 0x9C);                                 // pushfd
+            Emit8(p, 0x68); Emit32(p, static_cast<uint32_t>(base));   // push base
+            Emit8(p, 0xE8);                                 // call rel32
+            EmitRel32(p, reinterpret_cast<const void*>(&OnUnpacked));
+            Emit8(p, 0x83); Emit8(p, 0xC4); Emit8(p, 0x04); // add esp, 4  (cdecl)
+            Emit8(p, 0x9D);                                 // popfd
+            Emit8(p, 0x61);                                 // popad
+            Emit8(p, 0xFF); Emit8(p, 0x25); Emit32(p, Imm(retAddr));  // jmp [retAddr]
+        }
+
+        FlushInstructionCache(GetCurrentProcess(), block, kHookBlockSize);
+
+        DWORD oldProt;
+        if (!VirtualProtect(ep, kPrologueSize, PAGE_EXECUTE_READWRITE, &oldProt))
+        {
+            VirtualFree(block, 0, MEM_RELEASE);
+            return false;
+        }
+
+        uint8_t patch[kPrologueSize];
+        MakeEntryPatch(patch, ep, enterStub);
+        memcpy(ep, patch, kPrologueSize);
+
+        VirtualProtect(ep, kPrologueSize, oldProt, &oldProt);
+        FlushInstructionCache(GetCurrentProcess(), ep, kPrologueSize);
+
+        hook.hooked = true;
+
+        std::lock_guard lk(g_hooksMutex);
+        g_hooks[base] = hook;
+
+        return true;
     }
-}
-#pragma warning(pop)
 
-__declspec(naked) void EntryPointThunk()
-{
-    __asm
+    // Only restores when our jmp is still there: if the packer rewrote its own
+    // prologue, the saved bytes are stale. VirtualProtect runs first so an
+    // unmapped module fails cleanly instead of faulting in the memcmp.
+    bool UnhookEntryPoint(EntryHook& hook)
     {
-        // stack on input:
-        // [esp] = loader return address
+        if (!hook.hooked)
+            return false;
 
-        pop eax                         // eax = loader retaddr
-        mov g_originalReturn, eax       // save it to global
-        push offset AfterEntryPoint     // swap return address
+        auto* ep = static_cast<uint8_t*>(hook.entry);
 
-        // call original entry point
-        jmp g_entryHook.trampoline
+        uint8_t expected[kPrologueSize];
+        MakeEntryPatch(expected, ep, hook.block + kOffEnterStub);
+
+        DWORD oldProt;
+        if (!VirtualProtect(ep, kPrologueSize, PAGE_EXECUTE_READWRITE, &oldProt))
+            return false;
+
+        const bool ours = memcmp(ep, expected, kPrologueSize) == 0;
+        if (ours)
+            memcpy(ep, hook.original, kPrologueSize);
+
+        VirtualProtect(ep, kPrologueSize, oldProt, &oldProt);
+
+        if (ours)
+            FlushInstructionCache(GetCurrentProcess(), ep, kPrologueSize);
+
+        hook.hooked = false;
+        return ours;
     }
-}
 
-bool HookEntryPoint(void* entryPoint)
-{
-    g_entryHook.entry = entryPoint;
+    // Keeps the block mapped: afterStub is still executing out of it.
+    void UnhookEntryPointFor(uintptr_t base)
+    {
+        std::lock_guard lk(g_hooksMutex);
 
-    DWORD oldProt;
-    if (!VirtualProtect(entryPoint, 5, PAGE_EXECUTE_READWRITE, &oldProt))
-        return false;
+        auto it = g_hooks.find(base);
+        if (it != g_hooks.end())
+            UnhookEntryPoint(it->second);
+    }
 
-    memcpy(g_entryHook.original, entryPoint, 5);
+    // Safe only once no stub can be in flight: module gone, or process detach.
+    void ReleaseHook(uintptr_t base, bool restoreEntryPoint)
+    {
+        std::lock_guard lk(g_hooksMutex);
 
-    uint8_t* tramp = (uint8_t*)VirtualAlloc(
-        nullptr,
-        16,
-        MEM_COMMIT | MEM_RESERVE,
-        PAGE_EXECUTE_READWRITE
-    );
-    if (!tramp)
-        return false;
+        auto it = g_hooks.find(base);
+        if (it == g_hooks.end())
+            return;
 
-    g_entryHook.trampoline = tramp;
+        if (restoreEntryPoint)
+            UnhookEntryPoint(it->second);
 
-    // Original bytes
-    memcpy(tramp, g_entryHook.original, 5);
+        VirtualFree(it->second.block, 0, MEM_RELEASE);
+        g_hooks.erase(it);
+    }
 
-    // jmp back to EP+5
-    tramp[5] = 0xE9;
-    *(int32_t*)(tramp + 6) = (int32_t)((uint8_t*)entryPoint + 5 - (tramp + 10));
+    void ReleaseAllHooks()
+    {
+        std::lock_guard lk(g_hooksMutex);
 
-    // Patch EP jmp EntryPointThunk
-    uint8_t patch[5];
-    patch[0] = 0xE9;
-    *(int32_t*)(patch + 1) = (int32_t)((uint8_t*)&EntryPointThunk - ((uint8_t*)entryPoint + 5));
+        for (auto& kv : g_hooks)
+        {
+            UnhookEntryPoint(kv.second);
+            VirtualFree(kv.second.block, 0, MEM_RELEASE);
+        }
 
-    memcpy(entryPoint, patch, 5);
-
-    VirtualProtect(entryPoint, 5, oldProt, &oldProt);
-    FlushInstructionCache(GetCurrentProcess(), entryPoint, 5);
-
-    return true;
+        g_hooks.clear();
+    }
 }
 
 
@@ -224,23 +342,7 @@ bool DllMonitor::Init()
         return false;
     }
 
-    std::thread([this]() {
-        {
-            std::unique_lock<std::mutex> lk(g_syncMutex);
-            g_syncCV.wait(lk, [] {
-                const auto s = g_syncState.load(std::memory_order_acquire);
-                return s == 1 || s == 3;
-            });
-        }
-
-        if (g_syncState.load(std::memory_order_acquire) == 3)
-            return;
-
-        NotifyUnpacked();
-        g_syncState.store(2, std::memory_order_release);
-        g_syncCV.notify_one();
-    }).detach();
-
+    // No worker thread: OnUnpacked services unpack notifications inline.
     ScanLoadedModules();
 
     return true;
@@ -248,9 +350,6 @@ bool DllMonitor::Init()
 
 void DllMonitor::Shutdown()
 {
-    g_syncState.store(3, std::memory_order_release);
-    g_syncCV.notify_all();
-
     if (m_dllNotificationCookie && m_pLdrUnregisterDllNotification)
     {
         m_pLdrUnregisterDllNotification(m_dllNotificationCookie);
@@ -273,6 +372,8 @@ void DllMonitor::Shutdown()
     }
     m_states.clear();
 
+    ReleaseAllHooks();
+
     {
         std::lock_guard lkTargets(m_targetsMutex);
         m_targets.clear();
@@ -284,6 +385,13 @@ void DllMonitor::HandleLoad(const std::wstring& matched, uintptr_t base, size_t 
 #ifdef _DEBUG
     OutputDebugStringW(std::format(L"HandleLoad for {}\n", fullPath).c_str());
 #endif
+
+    {
+        std::lock_guard lk(m_statesMutex);
+        auto it = m_states.find(matched);
+        if (it != m_states.end() && it->second.base == base)
+            return;   // ScanLoadedModules and the notification can both report it
+    }
 
     TargetInfo target;
     {
@@ -310,12 +418,8 @@ void DllMonitor::HandleLoad(const std::wstring& matched, uintptr_t base, size_t 
     else
     {
         void* ep = GetDllEntryPoint(base);
-        if (ep)
-        {
-            g_entryHook.base = base;
-            HookEntryPoint(ep);
+        if (ep && HookEntryPoint(ep, base))
             shouldTrack = true;
-        }
     }
 
     if (shouldTrack)
@@ -346,32 +450,43 @@ void DllMonitor::HandleUnload(const std::wstring& matched)
         }
     }
 
+    // The module is on its way out, so don't write its entry point back.
+    ReleaseHook(st.base, false);
+
     m_states.erase(it);
 }
 
-void DllMonitor::NotifyUnpacked()
+void DllMonitor::NotifyUnpacked(uintptr_t base)
 {
-    std::lock_guard lk(m_statesMutex);
+    bool handled = false;
 
-    for (auto& [key, st] : m_states)
     {
-        if (st.base == g_entryHook.base && st.packed && !st.unpacked)
+        std::lock_guard lk(m_statesMutex);
+
+        for (auto& [key, st] : m_states)
         {
+            if (st.base != base || !st.packed || st.unpacked)
+                continue;
+
             st.unpacked = true;
+            handled = true;
 
             std::lock_guard lk2(m_targetsMutex);
             auto it = m_targets.find(key);
             if (it != m_targets.end() && it->second.onLoaded)
             {
                 if (it->second.onLoaded(st, st.base, st.size, st.fullPath))
-                {
                     st.active = true;
-
-                    return;
-                }
             }
+
+            break;
         }
     }
+
+    // The entry point is DllMain, re-entered on every DLL_THREAD_ATTACH. It
+    // only needs unpacking once, so let every later call go straight through.
+    if (handled)
+        UnhookEntryPointFor(base);
 }
 
 bool DllMonitor::TryMatchTargets(const std::wstring& moduleBaseName, std::wstring& outMatchedPart)
