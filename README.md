@@ -1,7 +1,7 @@
 # MultiCAD
 
 **MultiCAD** is a universal graphics DLL replacement for **Sudden Strike**, **Sudden Strike Forever**, and related games.
-It supports **any custom screen resolution** from 640x480 up to 3440x1600  (note: higher resolutions may be a bit laggy) and includes various bug fixes across different game versions.
+It supports **any custom screen resolution** from 640x480 up to 3840x2160 (4K) — note that higher resolutions may be a bit laggy — and includes various bug fixes across different game versions.
 
 ## Supported Games
 
@@ -52,7 +52,6 @@ It supports **any custom screen resolution** from 640x480 up to 3440x1600  (note
 | **Vietnam Project**              |   ✔   | 1.0, 1.1, 1.2         | 6 bug fixes |
 | **Warzone 2**                    |   ✔   |                       | 6 bug fixes |
 | **World at War**                 |   ✔   | 0.5                   | 6 bug fixes |
-| **Warzone 2**                    |   ✔   |                       | 6 bug fixes |
 
 > 💡 Note: `Audio Mixer Zero-Volume Fix` restores the game volume in the audio mixer to full if it was set to zero. Applies to **all versions**.
 
@@ -60,7 +59,7 @@ It supports **any custom screen resolution** from 640x480 up to 3440x1600  (note
 
 1. Download the latest precompiled `cadMulti.dll` file from the [Releases](../../releases/latest) page.
 2. Place `cadMulti.dll` into the folder containing the original `cad*.dll` files (typically the game directory).
-3. Open `sudtest.ini` in the game folder and set **at least one** `SSDraw` entry to `cadMulti.dll`. Example:
+3. Open the game's ini in the game folder — `sudtest.ini` for Sudden Strike, or `gulfwar.ini`, `blackgold.ini`, `blacksea.ini`, `euro2015.ini` for the Confrontation titles — and set **at least one** `SSDraw` entry to `cadMulti.dll`. Example:
 > ```ini
 > [Game]
 > SSDraw1=cad640.dll
@@ -77,8 +76,9 @@ It supports **any custom screen resolution** from 640x480 up to 3440x1600  (note
 
 ### Resolution Setup
 
-By default, the game will launch in 1920x1080.
-To use a custom resolution, add a `Resolution` line **anywhere after** the `[Game]` header in `sudtest.ini`:
+The game launches at your desktop resolution by default — no configuration needed.
+
+To set a specific resolution, add a `Resolution` line **anywhere after** the `[Game]` header in the game's ini:
 > ```ini
 > [Game]
 > Resolution=1600x900
@@ -87,6 +87,9 @@ To use a custom resolution, add a `Resolution` line **anywhere after** the `[Gam
 > SSDraw3=cadMulti.dll
 > ```
 Restart the game to apply the change.
+
+> 💡 Note: `Resolution` must be between 640x480 and 3840x2160, with a height divisible by 8 — a renderer requirement. Out-of-range values are ignored with a message.
+> A height that isn't divisible by 8, or any mode your display doesn't report, brings up a picker listing the supported modes and saves your choice back to the ini. With no `Resolution` line set, the game uses your desktop resolution with the height rounded down to a multiple of 8.
 
 ### UI Toggle Hotkey
 
