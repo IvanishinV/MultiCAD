@@ -1,15 +1,12 @@
 # Contact Information
 
 **Authors:**
-- **Vladislav Ivanishin** – author and maintainer; project development, reverse, feature implementation, optimization, bug fixing
-- **NashRipper** – reverse of some drawing functions and structures research
-- **AmericusMaximus** - reverse of some base functions. For compatibility, some structures and types are taken from his [project](https://github.com/americusmaximus) (raw dll reproduction)
+- **[Vladislav Ivanishin](https://github.com/IvanishinV)** – author and maintainer; project development, reverse, feature implementation, optimization, bug fixing
+- **[NashRipper](https://github.com/NASHRIPPER)** – reverse of some drawing functions and structures research
+- **[AmericusMaximus](https://github.com/americusmaximus)** – reverse of some base functions. For compatibility, some structures and types are taken from his raw dll reproduction project
 
 **Email:** ivanishin.vladislav@gmail.com
 
-**GitHub:**
-- [IvanishinV](https://github.com/IvanishinV)  
-- [NASHRIPPER](https://github.com/NASHRIPPER)
-- [AmericusMaximus](https://github.com/americusmaximus)
+**Telegram:** [@ss_hd_mod](https://t.me/ss_hd_mod)
 
-If you encounter any bugs, have questions, or want to suggest features, please feel free to open an issue or submit a pull request on GitHub.
+If you encounter any bugs, have questions, or want to suggest features, please [open an issue](../../issues) or submit a pull request.
