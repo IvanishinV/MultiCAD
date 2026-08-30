@@ -57,6 +57,10 @@ private:
         PVOID context);
 
 private:
+    // Neither mutex is held across an onLoaded/onUnloaded callback: hashing a
+    // module loads the crypto providers, and every load re-enters
+    // DllNotification on this thread, where re-taking one would throw.
+
     // lowercase name part -> TargetInfo
     std::mutex m_targetsMutex;
     std::unordered_map<std::wstring, TargetInfo> m_targets;

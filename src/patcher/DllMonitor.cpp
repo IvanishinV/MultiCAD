@@ -435,30 +435,40 @@ void DllMonitor::HandleUnload(const std::wstring& matched)
     OutputDebugStringW(std::format(L"HandleUnload for {}\n", matched).c_str());
 #endif
 
-    std::lock_guard lk(m_statesMutex);
-    auto it = m_states.find(matched);
-    if (it == m_states.end())
-        return;
-
-    TargetState& st = it->second;
+    TargetState* state = nullptr;
     {
-        std::lock_guard lk2(m_targetsMutex);
-        auto it2 = m_targets.find(matched);
-        if (it2 != m_targets.end() && it2->second.onUnloaded)
-        {
-            it2->second.onUnloaded(st);
-        }
+        std::lock_guard lk(m_statesMutex);
+        auto it = m_states.find(matched);
+        if (it == m_states.end())
+            return;
+
+        state = &it->second;
     }
 
-    // The module is on its way out, so don't write its entry point back.
-    ReleaseHook(st.base, false);
+    TargetInfo target;
+    {
+        std::lock_guard lk(m_targetsMutex);
+        auto it = m_targets.find(matched);
+        if (it != m_targets.end())
+            target = it->second;
+    }
 
-    m_states.erase(it);
+    const uintptr_t base = state->base;
+
+    if (target.onUnloaded)
+        target.onUnloaded(*state);
+
+    // The module is on its way out, so don't write its entry point back.
+    ReleaseHook(base, false);
+
+    std::lock_guard lk(m_statesMutex);
+    m_states.erase(matched);
 }
 
 void DllMonitor::NotifyUnpacked(uintptr_t base)
 {
-    bool handled = false;
+    std::wstring matched;
+    TargetState* state = nullptr;
 
     {
         std::lock_guard lk(m_statesMutex);
@@ -469,24 +479,30 @@ void DllMonitor::NotifyUnpacked(uintptr_t base)
                 continue;
 
             st.unpacked = true;
-            handled = true;
-
-            std::lock_guard lk2(m_targetsMutex);
-            auto it = m_targets.find(key);
-            if (it != m_targets.end() && it->second.onLoaded)
-            {
-                if (it->second.onLoaded(st, st.base, st.size, st.fullPath))
-                    st.active = true;
-            }
+            matched = key;
+            state = &st;
 
             break;
         }
     }
 
+    if (!state)
+        return;
+
+    TargetInfo target;
+    {
+        std::lock_guard lk(m_targetsMutex);
+        auto it = m_targets.find(matched);
+        if (it != m_targets.end())
+            target = it->second;
+    }
+
+    if (target.onLoaded && target.onLoaded(*state, state->base, state->size, state->fullPath))
+        state->active = true;
+
     // The entry point is DllMain, re-entered on every DLL_THREAD_ATTACH. It
     // only needs unpacking once, so let every later call go straight through.
-    if (handled)
-        UnhookEntryPointFor(base);
+    UnhookEntryPointFor(base);
 }
 
 bool DllMonitor::TryMatchTargets(const std::wstring& moduleBaseName, std::wstring& outMatchedPart)
