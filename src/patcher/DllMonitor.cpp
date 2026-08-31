@@ -391,12 +391,22 @@ void DllMonitor::HandleLoad(const std::wstring& matched, uintptr_t base, size_t 
         auto it = m_states.find(matched);
         if (it != m_states.end() && it->second.base == base)
             return;   // ScanLoadedModules and the notification can both report it
+
+        // The name part is a substring: "game" also matches
+        // gameoverlayrenderer.dll. Patching a second claimant would rebase the
+        // cached ModuleInfo and write the patches into the wrong module.
+        if (it != m_states.end() && it->second.active)
+            return;
     }
 
     TargetInfo target;
     {
         std::lock_guard lk(m_targetsMutex);
-        target = m_targets.at(matched);
+        auto it = m_targets.find(matched);
+        if (it == m_targets.end())
+            return;   // unregistered between the match and here: never throw out of DllMain
+
+        target = it->second;
     }
 
     TargetState st;
