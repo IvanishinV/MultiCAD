@@ -133,6 +133,16 @@ using Profile_HS_2 = GameVersionProfile<
     patches_empty
 >;
 
+using Profile_FMRM_2_1_5_3 = GameVersionProfile<
+    GameVersion::FMRM_2_1_5_3,
+    relocs_game_ss_2_v2_2,
+    hooks_game_ss_2_v2_2<GameVersion::SS_2>,
+    patches_game_ss_2_v2_2,
+    relocs_empty,
+    hooks_menu_fmrm,
+    patches_empty
+>;
+
 using Profile_SS_RW_v2_3 = GameVersionProfile<
     GameVersion::SS_RW_V2_3,
     relocs_game_ss_rw_v2_4,

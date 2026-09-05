@@ -940,6 +940,12 @@ const std::array hooks_menu_hs
 };
 
 
+const std::array hooks_menu_fmrm
+{
+    HookSpec{0x1AC60, reinterpret_cast<uintptr_t>(&MenuDllHooks::sub_1001AC60_fmrm)},
+};
+
+
 constexpr std::array relocs_game_black_gold
 {
     RelocateGapSpec{ 0x0106AC90, 0x0106C498, 8 + sizeof(uint32_t) * kRowStrideDwordSize * ((Graphics::kMaxHeight + 7) >> 3) },

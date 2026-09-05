@@ -35,6 +35,7 @@ It supports **any custom screen resolution** from 640x480 up to 3840x2160 (4K) �
 | **AXPRM**                        |   ✔   | 2.0                   | 7 bug fixes |
 | **TWO**                          |   ✔   | en                    | 7 bug fixes |
 | **Eastern Front Mod**            |   ✔   |                       | 6 bug fixes |
+| **FMRM**                         |   ✔   | 2.1.5.3               | 6 bug fixes |
 | **Hidden Stroke 2 APRM**         |   ✔   |                       | 6 bug fixes |
 | **Hidden Stroke 2 Fusion**       |   ✔   |                       | 6 bug fixes |
 | **Hidden Stroke 2 Resource War** |   ✔   |                       | 6 bug fixes |
@@ -48,6 +49,7 @@ It supports **any custom screen resolution** from 640x480 up to 3840x2160 (4K) �
 | **RCM**                          |   ✔   | 2.7                   | 6 bug fixes |
 | **RWM 6.x**                      |   ✔   | 6.5, 6.6, 6.71, 6.8   | 6 bug fixes |
 | **RWM 8.x**                      |   ✔   | 8.0, 8.5              | 6 bug fixes |
+| **RWG**                          |   ✔   | 3.6                   | 6 bug fixes |
 | **RWG Truth of War**             |   ✔   | en, de, fr, ru        | 6 bug fixes |
 | **Vietnam Project**              |   ✔   | 1.0, 1.1, 1.2         | 6 bug fixes |
 | **Warzone 2**                    |   ✔   |                       | 6 bug fixes |

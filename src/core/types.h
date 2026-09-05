@@ -84,6 +84,8 @@ enum class GameVersion
     HS_2,               // Hidden Stroke 2 (2005, March)
     HS_2_RW,            // Hidden Stroke 2: Resource War
 
+    FMRM_2_1_5_3,       // Real War Game FMRM 2.1.5.3 (Sudden Strike 2 v2.2 code, ASPack packed)
+
     RWG_1,              // Real War Game (FMRM 3.0)
     RWG_2,              // ? Real War Game 2.99 (2011)
     RWG_3_5,            // Real War Game 3 by Inductor (2013-2014)

@@ -241,6 +241,7 @@ private:
         // Ini name differs per game version; pick the one that references us.
         static constexpr const char* kCandidateInis[] = {
             "sudtest.ini",   // base Sudden Strike
+            "sudfmrm.ini",   // mods that ship their own ini
             "gulfwar.ini",   // addons
             "blackgold.ini",
             "blacksea.ini",

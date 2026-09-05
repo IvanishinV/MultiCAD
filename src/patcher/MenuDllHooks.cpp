@@ -332,6 +332,30 @@ void __fastcall MenuDllHooks::sub_1001AC60_hs(void* self)
     renderGameVersion(self, layout);
 }
 
+void __fastcall MenuDllHooks::sub_1001AC60_fmrm(void* self)
+{
+    static const SplashLayout layout
+    {
+        780,
+        498,
+        FMRM_GAME_STR,
+        nullptr,
+        SplashVariant::SS_2,
+        0xA06A0,
+        0xB6F3C,
+        0xB6F40,
+        0x75F80,
+        0xD1B0,
+        0x2C00,
+        0x2FA0,
+        0xB4B48,
+        750,
+        30,
+    };
+
+    renderGameVersion(self, layout);
+}
+
 void __fastcall MenuDllHooks::sub_1001AC60_bs_eu_2015(void* self)
 {
     static const SplashLayout layout

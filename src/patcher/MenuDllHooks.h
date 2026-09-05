@@ -29,6 +29,9 @@ public:
     // Hidden Stroke 2
     static void __declspec(noinline) __fastcall sub_1001AC60_hs(void* self);
 
+    // Real War Game FMRM
+    static void __declspec(noinline) __fastcall sub_1001AC60_fmrm(void* self);
+
     // Confrontation: Europe 2015
     static void __declspec(noinline) __fastcall sub_1001AC60_bs_eu_2015(void* self);
 
