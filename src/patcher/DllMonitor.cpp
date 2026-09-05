@@ -27,27 +27,33 @@
 
 namespace
 {
-    constexpr size_t kPrologueSize = 5;
+    // Our entry-point patch is always a 5-byte jmp rel32.
+    constexpr size_t kPatchSize = 5;
+
+    // The displaced prologue is whole instructions, so it can be longer than the
+    // patch: ASPack opens with pushad + jmp rel32, which is 6.
+    constexpr size_t kMaxPrologue = 16;
 
     // One RWX block per hooked module; the stubs address it by absolute
     // immediate, so hooked modules share no state.
     //
-    //   +0x00  trampoline : original prologue, then jmp EP+5
-    //   +0x10  enterStub  : swaps the loader return address for afterStub
-    //   +0x20  afterStub  : calls OnUnpacked, then returns to the loader
-    //   +0x40  retAddr    : loader return address of the in-flight EP call
+    //   +0x00  trampoline : unpatches the entry point, then the displaced prologue
+    //   +0x40  enterStub  : swaps the loader return address for afterStub
+    //   +0x80  afterStub  : calls OnUnpacked, then returns to the loader
+    //   +0xC0  retAddr    : loader return address of the in-flight EP call
     constexpr size_t kOffTrampoline = 0x00;
-    constexpr size_t kOffEnterStub  = 0x10;
-    constexpr size_t kOffAfterStub  = 0x20;
-    constexpr size_t kOffRetAddr    = 0x40;
-    constexpr size_t kHookBlockSize = 0x50;
+    constexpr size_t kOffEnterStub  = 0x40;
+    constexpr size_t kOffAfterStub  = 0x80;
+    constexpr size_t kOffRetAddr    = 0xC0;
+    constexpr size_t kHookBlockSize = 0x100;
 
     struct EntryHook
     {
-        uint8_t   original[kPrologueSize]{};
+        uint8_t   original[kMaxPrologue]{};
         uint8_t*  block{ nullptr };
         void*     entry{ nullptr };
         uintptr_t base{ 0 };
+        DWORD     oldProtect{ 0 };
         bool      hooked{ false };
     };
 
@@ -66,6 +72,22 @@ namespace
     }
 
     uint32_t Imm(const void* p) { return static_cast<uint32_t>(reinterpret_cast<uintptr_t>(p)); }
+
+    // mov dword ptr [addr], imm32
+    void EmitStoreDword(uint8_t*& p, const void* addr, uint32_t value)
+    {
+        Emit8(p, 0xC7); Emit8(p, 0x05);
+        Emit32(p, Imm(addr));
+        Emit32(p, value);
+    }
+
+    // mov byte ptr [addr], imm8
+    void EmitStoreByte(uint8_t*& p, const void* addr, uint8_t value)
+    {
+        Emit8(p, 0xC6); Emit8(p, 0x05);
+        Emit32(p, Imm(addr));
+        Emit8(p, value);
+    }
 }
 
 // Called from afterStub, on the loader thread, with the loader lock held: the
@@ -98,11 +120,107 @@ namespace
 {
     // The 5-byte jmp that redirects the entry point at enterStub. Also used to
     // recognise our own patch when unhooking.
-    void MakeEntryPatch(uint8_t (&out)[kPrologueSize], const uint8_t* ep, const uint8_t* enterStub)
+    void MakeEntryPatch(uint8_t (&out)[kPatchSize], const uint8_t* ep, const uint8_t* enterStub)
     {
         uint8_t* p = out;
         Emit8(p, 0xE9);                                     // jmp rel32
-        Emit32(p, static_cast<uint32_t>(enterStub - (ep + kPrologueSize)));
+        Emit32(p, static_cast<uint32_t>(enterStub - (ep + kPatchSize)));
+    }
+
+    // Bytes taken by a ModRM operand: the byte itself, an optional SIB, and
+    // whatever displacement the addressing mode implies.
+    size_t ModRmSize(const uint8_t* p)
+    {
+        const uint8_t modrm = *p;
+        const uint8_t mod   = static_cast<uint8_t>(modrm >> 6);
+        const uint8_t rm    = static_cast<uint8_t>(modrm & 0x07);
+
+        if (mod == 3)
+            return 1;                       // register direct
+
+        size_t n = 1;
+        if (rm == 4)                        // a SIB byte follows
+        {
+            ++n;
+            if (mod == 0 && (p[1] & 0x07) == 5)
+                return n + 4;               // disp32, no base register
+        }
+        else if (mod == 0 && rm == 5)
+            return n + 4;                   // absolute disp32
+
+        if (mod == 1) return n + 1;
+        if (mod == 2) return n + 4;
+        return n;
+    }
+
+    // What the trampoline has to reproduce: whole instructions covering at least
+    // the 5 bytes the patch overwrites.
+    struct Prologue
+    {
+        size_t         size{ 0 };       // bytes displaced at the entry point
+        size_t         copySize{ 0 };   // bytes copied verbatim into the trampoline
+        const uint8_t* resume{ nullptr };   // where the trampoline jumps when done
+    };
+
+    // A relative jmp cannot be copied verbatim - the trampoline sits at another
+    // address, so the displacement would land somewhere else. It is re-emitted
+    // against its original target instead, which also ends the prologue.
+    // An opcode this does not know is a refusal to hook, never a split instruction.
+    bool DecodePrologue(const uint8_t* ep, Prologue& out)
+    {
+        size_t n = 0;
+
+        while (n < kPatchSize)
+        {
+            const uint8_t  op    = ep[n];
+            const uint8_t* modrm = ep + n + 1;
+            size_t len = 0;
+
+            if (op == 0x60 || op == 0x9C || op == 0x90 || (op >= 0x50 && op <= 0x57))
+                len = 1;                                    // pushad/pushfd/nop/push r32
+            else if (op == 0x6A)
+                len = 2;                                    // push imm8
+            else if (op == 0x68 || (op >= 0xB8 && op <= 0xBF))
+                len = 5;                                    // push imm32 / mov r32, imm32
+            else if (op == 0x89 || op == 0x8B || op == 0x33 || op == 0x31
+                     || op == 0x03 || op == 0x2B || op == 0x85 || op == 0x39)
+                len = 1 + ModRmSize(modrm);                 // mov/xor/add/sub/test/cmp r/m32
+            else if (op == 0x83)
+                len = 1 + ModRmSize(modrm) + 1;             // grp1 r/m32, imm8
+            else if (op == 0x81)
+                len = 1 + ModRmSize(modrm) + 4;             // grp1 r/m32, imm32
+            else if (op == 0xE9 || op == 0xEB)
+            {
+                const size_t jmpLen = (op == 0xE9) ? 5 : 2;
+                const ptrdiff_t rel = (op == 0xE9)
+                    ? static_cast<ptrdiff_t>(*reinterpret_cast<const int32_t*>(ep + n + 1))
+                    : static_cast<ptrdiff_t>(*reinterpret_cast<const int8_t*>(ep + n + 1));
+
+                out.copySize = n;
+                out.size     = n + jmpLen;
+                out.resume   = ep + n + jmpLen + rel;
+
+                // A rel8 jmp can end the prologue in fewer bytes than the patch
+                // overwrites. Refuse those: the saved prologue has to cover every
+                // byte the patch touches, or restoring it writes zeros over code
+                // that was never ours.
+                return out.size >= kPatchSize && out.size <= kMaxPrologue;
+            }
+            else
+                return false;
+
+            if (n + len > kMaxPrologue)
+                return false;
+
+            n += len;
+        }
+
+        // Reaching here means n >= kPatchSize, so the saved prologue always
+        // covers the patch.
+        out.size     = n;
+        out.copySize = n;
+        out.resume   = ep + n;
+        return true;
     }
 
     bool HookEntryPoint(void* entryPoint, uintptr_t base)
@@ -115,6 +233,10 @@ namespace
                 return true;   // re-hooking would save our own jmp as the prologue
         }
 
+        Prologue prologue;
+        if (!DecodePrologue(ep, prologue))
+            return false;   // unknown entry shape: leave the module alone
+
         auto* block = static_cast<uint8_t*>(VirtualAlloc(
             nullptr, kHookBlockSize, MEM_COMMIT | MEM_RESERVE, PAGE_EXECUTE_READWRITE));
         if (!block)
@@ -124,7 +246,7 @@ namespace
         hook.block = block;
         hook.entry = entryPoint;
         hook.base = base;
-        memcpy(hook.original, ep, kPrologueSize);
+        memcpy(hook.original, ep, prologue.size);
 
         uint8_t* const trampoline = block + kOffTrampoline;
         uint8_t* const enterStub  = block + kOffEnterStub;
@@ -133,13 +255,28 @@ namespace
 
         memset(retAddr, 0, sizeof(void*));
 
-        // trampoline: run the displaced prologue, then rejoin the entry point
+        // trampoline: put the entry point back before anything else, then run the
+        // displaced prologue and rejoin the original flow.
+        //
+        // Unpatching here rather than after the fact is what makes this safe with
+        // a self-modifying stub. ASPack finishes by zeroing the displacement of
+        // the jmp at its entry point so later thread attaches fall through to an
+        // already-unpacked path - and that write lands inside our 5-byte patch,
+        // leaving a jmp to nowhere. Restoring first means the packer only ever
+        // sees, and rewrites, its own bytes. The page is left writable until
+        // UnhookEntryPoint runs, since these stores execute before it.
         {
             uint8_t* p = trampoline;
-            memcpy(p, hook.original, kPrologueSize);
-            p += kPrologueSize;
+
+            uint32_t head;
+            memcpy(&head, hook.original, sizeof(head));
+            EmitStoreDword(p, ep, head);
+            EmitStoreByte(p, ep + sizeof(head), hook.original[sizeof(head)]);
+
+            memcpy(p, hook.original, prologue.copySize);
+            p += prologue.copySize;
             Emit8(p, 0xE9);                                 // jmp rel32
-            EmitRel32(p, ep + kPrologueSize);
+            EmitRel32(p, prologue.resume);
         }
 
         // enterStub: stash the loader's return address, substitute afterStub
@@ -169,19 +306,20 @@ namespace
         FlushInstructionCache(GetCurrentProcess(), block, kHookBlockSize);
 
         DWORD oldProt;
-        if (!VirtualProtect(ep, kPrologueSize, PAGE_EXECUTE_READWRITE, &oldProt))
+        if (!VirtualProtect(ep, kPatchSize, PAGE_EXECUTE_READWRITE, &oldProt))
         {
             VirtualFree(block, 0, MEM_RELEASE);
             return false;
         }
 
-        uint8_t patch[kPrologueSize];
+        uint8_t patch[kPatchSize];
         MakeEntryPatch(patch, ep, enterStub);
-        memcpy(ep, patch, kPrologueSize);
+        memcpy(ep, patch, kPatchSize);
 
-        VirtualProtect(ep, kPrologueSize, oldProt, &oldProt);
-        FlushInstructionCache(GetCurrentProcess(), ep, kPrologueSize);
+        // Deliberately left writable: the trampoline restores these bytes itself.
+        FlushInstructionCache(GetCurrentProcess(), ep, kPatchSize);
 
+        hook.oldProtect = oldProt;
         hook.hooked = true;
 
         std::lock_guard lk(g_hooksMutex);
@@ -190,9 +328,12 @@ namespace
         return true;
     }
 
-    // Only restores when our jmp is still there: if the packer rewrote its own
-    // prologue, the saved bytes are stale. VirtualProtect runs first so an
-    // unmapped module fails cleanly instead of faulting in the memcmp.
+    // By now the trampoline has usually put the entry point back itself, so this
+    // only rewrites bytes when the entry point never ran - a module unloaded
+    // before initialisation. Whatever the packer has since written there is left
+    // alone. VirtualProtect runs first so an unmapped module fails cleanly
+    // instead of faulting in the memcmp, and the page protection the hook left
+    // open is closed again here.
     bool UnhookEntryPoint(EntryHook& hook)
     {
         if (!hook.hooked)
@@ -200,21 +341,22 @@ namespace
 
         auto* ep = static_cast<uint8_t*>(hook.entry);
 
-        uint8_t expected[kPrologueSize];
+        uint8_t expected[kPatchSize];
         MakeEntryPatch(expected, ep, hook.block + kOffEnterStub);
 
         DWORD oldProt;
-        if (!VirtualProtect(ep, kPrologueSize, PAGE_EXECUTE_READWRITE, &oldProt))
+        if (!VirtualProtect(ep, kPatchSize, PAGE_EXECUTE_READWRITE, &oldProt))
             return false;
 
-        const bool ours = memcmp(ep, expected, kPrologueSize) == 0;
-        if (ours)
-            memcpy(ep, hook.original, kPrologueSize);
-
-        VirtualProtect(ep, kPrologueSize, oldProt, &oldProt);
+        const bool ours = memcmp(ep, expected, kPatchSize) == 0;
 
         if (ours)
-            FlushInstructionCache(GetCurrentProcess(), ep, kPrologueSize);
+            memcpy(ep, hook.original, kPatchSize);
+
+        VirtualProtect(ep, kPatchSize, hook.oldProtect, &oldProt);
+
+        if (ours)
+            FlushInstructionCache(GetCurrentProcess(), ep, kPatchSize);
 
         hook.hooked = false;
         return ours;
@@ -273,6 +415,7 @@ bool IsPackedModule(uintptr_t base)
     for (int i = 0; i < nt->FileHeader.NumberOfSections; i++)
     {
         if (memcmp(sec[i].Name, ".petite", 7) == 0
+            || memcmp(sec[i].Name, ".aspack", 7) == 0
             || (memcmp(sec[i].Name, ".\0\0\0\0\0\0\0", 8) == 0 && i == 0)
             || (memcmp(sec[i].Name, "\0\0\0\0\0\0\0\0", 8) == 0 && i == 0))
         {
@@ -436,7 +579,19 @@ void DllMonitor::HandleLoad(const std::wstring& matched, uintptr_t base, size_t 
     {
         void* ep = GetDllEntryPoint(base);
         if (ep && HookEntryPoint(ep, base))
+        {
             shouldTrack = true;
+        }
+        else
+        {
+            // Nothing downstream runs for this module - no unpack callback, so no
+            // installer and none of its error paths. Report it here or the failure
+            // is silent.
+#ifdef _DEBUG
+            OutputDebugStringA("Couldn't hook the packed dll entry point.\n");
+#endif
+            ShowErrorAsync("MultiCAD couldn't hook the packed dll entry point and doesn't try to patch it. The game will NOT work correctly. \nTo add support, contact the author of the mod.");
+        }
     }
 
     if (shouldTrack)
@@ -503,6 +658,12 @@ void DllMonitor::NotifyUnpacked(uintptr_t base)
         }
     }
 
+    // The entry point is DllMain, re-entered on every DLL_THREAD_ATTACH. It
+    // only needs unpacking once, so let every later call go straight through.
+    // Done before the state check so a module without one still releases its
+    // hook instead of leaking it until shutdown.
+    UnhookEntryPointFor(base);
+
     if (!state)
         return;
 
@@ -516,10 +677,6 @@ void DllMonitor::NotifyUnpacked(uintptr_t base)
 
     if (target.onLoaded && target.onLoaded(*state, state->base, state->size, state->fullPath))
         state->active = true;
-
-    // The entry point is DllMain, re-entered on every DLL_THREAD_ATTACH. It
-    // only needs unpacking once, so let every later call go straight through.
-    UnhookEntryPointFor(base);
 }
 
 bool DllMonitor::TryMatchTargets(const std::wstring& moduleBaseName, std::wstring& outMatchedPart)
