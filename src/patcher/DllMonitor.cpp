@@ -356,28 +356,35 @@ void DllMonitor::Shutdown()
         m_dllNotificationCookie = nullptr;
     }
 
-    std::lock_guard lkStates(m_statesMutex);
-    for (auto& kv : m_states)
+    // Take both maps first, so the callbacks below run unlocked like the ones
+    // in HandleLoad, HandleUnload and NotifyUnpacked.
+    std::unordered_map<std::wstring, TargetState> states;
     {
-        auto& state = kv.second;
-        if (state.active && !kv.first.empty())
-        {
-            std::lock_guard lk2(m_targetsMutex);
-            auto it = m_targets.find(kv.first);
-            if (it != m_targets.end() && it->second.onUnloaded)
-            {
-                it->second.onUnloaded(state);
-            }
-        }
+        std::lock_guard lkStates(m_statesMutex);
+        states.swap(m_states);
     }
-    m_states.clear();
 
-    ReleaseAllHooks();
-
+    std::unordered_map<std::wstring, TargetInfo> targets;
     {
         std::lock_guard lkTargets(m_targetsMutex);
-        m_targets.clear();
+        targets.swap(m_targets);
     }
+
+    for (auto& [key, state] : states)
+    {
+        if (!state.active || key.empty())
+            continue;
+
+        auto it = targets.find(key);
+        if (it != targets.end() && it->second.onUnloaded)
+        {
+            it->second.onUnloaded(state);
+        }
+    }
+
+    states.clear();   // ~PatchSession unapplies whatever onUnloaded left behind
+
+    ReleaseAllHooks();
 }
 
 void DllMonitor::HandleLoad(const std::wstring& matched, uintptr_t base, size_t size, const std::wstring& fullPath)

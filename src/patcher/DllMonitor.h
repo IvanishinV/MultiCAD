@@ -60,6 +60,11 @@ private:
     // Neither mutex is held across an onLoaded/onUnloaded callback: hashing a
     // module loads the crypto providers, and every load re-enters
     // DllNotification on this thread, where re-taking one would throw.
+    //
+    // What a callback sees stays consistent because the loader serialises the
+    // callers - notifications, ScanLoadedModules and Shutdown all run under the
+    // loader lock - and unordered_map keeps element references valid across
+    // inserts. A TargetState* may therefore outlive the lock it came from.
 
     // lowercase name part -> TargetInfo
     std::mutex m_targetsMutex;
