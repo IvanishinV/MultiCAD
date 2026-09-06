@@ -61,7 +61,7 @@ It supports **any custom screen resolution** from 640x480 up to 3840x2160 (4K) �
 
 1. Download the latest precompiled `cadMulti.dll` file from the [Releases](../../releases/latest) page.
 2. Place `cadMulti.dll` into the folder containing the original `cad*.dll` files (typically the game directory).
-3. Open the game's ini in the game folder — `sudtest.ini` for Sudden Strike, or `gulfwar.ini`, `blackgold.ini`, `blacksea.ini`, `euro2015.ini` for the Confrontation titles — and set **at least one** `SSDraw` entry to `cadMulti.dll`. Example:
+3. Open the game's ini in the game folder — `sudtest.ini` for Sudden Strike and most mods, `sudfmrm.ini` for FMRM, `aprmnew.ini` for Hidden Stroke 2 APRM, or `gulfwar.ini`, `blackgold.ini`, `blacksea.ini`, `euro2015.ini` for the Confrontation titles — and set **at least one** `SSDraw` entry to `cadMulti.dll`. The Confrontation titles use their own prefix in place of `SSDraw`: `GWDraw`, `BGDraw`, `BSDraw` and `EUDraw` respectively. Example:
 > ```ini
 > [Game]
 > SSDraw1=cad640.dll

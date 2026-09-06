@@ -242,6 +242,7 @@ private:
         static constexpr const char* kCandidateInis[] = {
             "sudtest.ini",   // base Sudden Strike
             "sudfmrm.ini",   // mods that ship their own ini
+            "aprmnew.ini",   // Hidden Stroke 2 / APRM
             "gulfwar.ini",   // addons
             "blackgold.ini",
             "blacksea.ini",
