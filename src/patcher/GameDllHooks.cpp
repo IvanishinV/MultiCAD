@@ -34,6 +34,108 @@ int __declspec(noinline) __fastcall GameDllHooks::sub_1001D240(GameData5* self, 
 }
 
 
+// The stock routine re-reads the head after each unlink and dereferences it
+// before testing for kObjRefNone, so emptying the list indexes entries[0xFFFF]
+// and reads ~0x6FFF9 bytes past the array (crash at Game_Dll+0x30EE9). The tail
+// of its second pass repeats the mistake, which is why both passes are
+// reimplemented here instead of the deref being patched in place.
+void GameDllHooks::unlinkObjectRefs(uint16_t* head, uint32_t object, const ObjectRefListData& data)
+{
+    ObjectRefEntry* const entries = data.entries;
+
+    if (!head || !entries)
+        return;
+
+    // Strip matching nodes off the front of the list.
+    for (uint16_t idx = *head; idx != kObjRefNone; idx = *head)
+    {
+        ObjectRefEntry& entry = entries[idx];
+
+        if ((entry.flags & kObjRefInUse) == 0 || entry.object != object)
+            break;
+
+        *head = entry.next;
+        entry.next = data.freeHead;
+        data.freeHead = idx;
+    }
+
+    // Walk what is left, unlinking matches behind `prev`.
+    uint16_t prev = *head;
+    if (prev == kObjRefNone)
+        return;
+
+    for (uint16_t cur = entries[prev].next; cur != kObjRefNone; )
+    {
+        ObjectRefEntry& entry = entries[cur];
+
+        if ((entry.flags & kObjRefInUse) != 0 && entry.object == object)
+        {
+            entries[prev].next = entry.next;
+            entry.next = data.freeHead;
+            data.freeHead = cur;
+        }
+
+        const uint16_t next = entries[prev].next;
+        if (next == kObjRefNone)
+            return;
+
+        prev = next;
+        cur = entries[prev].next;
+    }
+}
+
+void __declspec(noinline) __fastcall GameDllHooks::sub_10030E80(uint16_t* self, void* /*dummy*/, uint32_t object)
+{
+    auto* const g = globals_;
+
+    ObjectRefListData data
+    {
+        g->getValue<ObjectRefEntry*>(0xB31E8),
+        *g->getPtr<uint16_t>(0xB31E0)
+    };
+
+    unlinkObjectRefs(self, object, data);
+}
+
+void __declspec(noinline) __fastcall GameDllHooks::sub_10031A40(uint16_t* self, void* /*dummy*/, uint32_t object)
+{
+    auto* const g = globals_;
+
+    ObjectRefListData data
+    {
+        g->getValue<ObjectRefEntry*>(0xB3238),
+        *g->getPtr<uint16_t>(0xB3230)
+    };
+
+    unlinkObjectRefs(self, object, data);
+}
+
+void __declspec(noinline) __fastcall GameDllHooks::sub_10031DE0(uint16_t* self, void* /*dummy*/, uint32_t object)
+{
+    auto* const g = globals_;
+
+    ObjectRefListData data
+    {
+        g->getValue<ObjectRefEntry*>(0xB71E8),
+        *g->getPtr<uint16_t>(0xB71E0)
+    };
+
+    unlinkObjectRefs(self, object, data);
+}
+
+void __declspec(noinline) __fastcall GameDllHooks::sub_10031DF0(uint16_t* self, void* /*dummy*/, uint32_t object)
+{
+    auto* const g = globals_;
+
+    ObjectRefListData data
+    {
+        g->getValue<ObjectRefEntry*>(0xB31C8),
+        *g->getPtr<uint16_t>(0xB31C0)
+    };
+
+    unlinkObjectRefs(self, object, data);
+}
+
 void __declspec(noinline) __cdecl GameDllHooks::sub_1003E7B0(UnkEntry* a1, int a2, int* a3, int a4)
 {
     auto* const g = globals_;

@@ -1049,6 +1049,27 @@ private:
 
 #pragma region Common_Function_Structs
     // Structures used in common patterns
+    static constexpr uint16_t kObjRefNone  = 0xFFFF;
+    static constexpr uint8_t  kObjRefInUse = 0x80;
+
+#pragma pack(push, 1)
+    // Node of the object-reference chain walked by sub_10030E80, reached through
+    // a 16-bit index into a global array.
+    struct ObjectRefEntry
+    {
+        uint16_t next;
+        uint8_t  flags;
+        uint32_t object;
+    };
+#pragma pack(pop)
+    static_assert(sizeof(ObjectRefEntry) == 7, "ObjectRefEntry must match the 7-byte game layout");
+
+    struct ObjectRefListData
+    {
+        ObjectRefEntry* entries;
+        uint16_t&       freeHead;
+    };
+
     struct SomeRandCalcData
     {
         UnkEntry* a1;
@@ -1139,6 +1160,10 @@ private:
 
 public:
     static int  __declspec(noinline) __fastcall sub_1001D240(GameData5* self, void* /*dummy*/, int** a2);
+    static void __declspec(noinline) __fastcall sub_10030E80(uint16_t* self, void* /*dummy*/, uint32_t object);
+    static void __declspec(noinline) __fastcall sub_10031A40(uint16_t* self, void* /*dummy*/, uint32_t object);
+    static void __declspec(noinline) __fastcall sub_10031DE0(uint16_t* self, void* /*dummy*/, uint32_t object);
+    static void __declspec(noinline) __fastcall sub_10031DF0(uint16_t* self, void* /*dummy*/, uint32_t object);
     static void __declspec(noinline) __cdecl    sub_1003E7B0(UnkEntry* a1, int a2, int* a3, int a4);
     static void __declspec(noinline) __cdecl    sub_1003E7B0_de(UnkEntry* a1, int a2, int* a3, int a4);
     static void __declspec(noinline) __cdecl    sub_1003E7B0_fr(UnkEntry* a1, int a2, int* a3, int a4);
@@ -1361,6 +1386,8 @@ private:
     static bool is_valid_ptr(void* p);
 
     static void someRandCalc(const SomeRandCalcData& data);
+
+    static void unlinkObjectRefs(uint16_t* head, uint32_t object, const ObjectRefListData& data);
 
     static void drawFogOnWorld(const FogDrawData& data);
     static void drawFogOnWorld_v2(const FogDrawData& data);
