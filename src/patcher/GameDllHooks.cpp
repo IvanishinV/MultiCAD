@@ -2577,6 +2577,7 @@ void __declspec(noinline) __fastcall GameDllHooks::sub_100ACDE0(UiStrategicMapEl
         g->getFn<void(__thiscall)(UiElementBase*, int, int, int, int16_t)>(0xAC790),
         g->getFn<void(__thiscall)(UiElementBase*, int, int, int, int16_t)>(0xAC800),
         g->getFn<void(__stdcall)(int, int, int)>(0xC3420),
+        g->getValue<uintptr_t*>(0x106F69C),
         g->getValue<UnitData*>(0x10F258),
         105,
         g->getValue<int16_t>(0x106F12E),
@@ -2604,6 +2605,7 @@ void __declspec(noinline) __fastcall GameDllHooks::sub_100A9060_v2_3(UiStrategic
         g->getFn<void(__thiscall)(UiElementBase*, int, int, int, int16_t)>(0xA8A10),
         g->getFn<void(__thiscall)(UiElementBase*, int, int, int, int16_t)>(0xA8A80),
         g->getFn<void(__stdcall)(int, int, int)>(0xBE2D0),
+        g->getValue<uintptr_t*>(0x10AEA74),
 
         g->getValue<UnitData*>(0xFCC90),
         113,
@@ -2634,6 +2636,7 @@ void __declspec(noinline) __fastcall GameDllHooks::sub_100A9060_v2_4(UiStrategic
         g->getFn<void(__thiscall)(UiElementBase*, int, int, int, int16_t)>(0xA8A10),
         g->getFn<void(__thiscall)(UiElementBase*, int, int, int, int16_t)>(0xA8A80),
         g->getFn<void(__stdcall)(int, int, int)>(0xBE2E0),
+        g->getValue<uintptr_t*>(0x10AEA74),
 
         g->getValue<UnitData*>(0xFCC90),
         113,
@@ -2663,6 +2666,7 @@ void __declspec(noinline) __fastcall GameDllHooks::sub_100A9060_bg(UiStrategicMa
         g->getFn<void(__thiscall)(UiElementBase*, int, int, int, int16_t)>(0xA89E0),
         g->getFn<void(__thiscall)(UiElementBase*, int, int, int, int16_t)>(0xA8A50),
         g->getFn<void(__stdcall)(int, int, int)>(0xBE2B0),
+        nullptr,
         g->getValue<UnitData*>(0xFCE40),
         113,
         g->getValue<int16_t>(0x109E6B6),
@@ -3460,24 +3464,20 @@ void GameDllHooks::drawFogOnStrategicMap(UiStrategicMapElement* mapData, const F
         static_cast<int>(scale)
     );
 
-    // This code always calls stubs
-    /*
-    const int* dword_1106F69C = g->getValue<int*>(0x106F69C);
+    if (data.strategicMapOverlay)
+    {
+        const uintptr_t overlayVtable = *data.strategicMapOverlay;
+        const uintptr_t drawOverlay = *reinterpret_cast<uintptr_t*>(overlayVtable + 56);
+        const uint64_t scaleBits = *reinterpret_cast<const uint64_t*>(&scale2);
 
-    const uintptr_t objAddr = static_cast<uintptr_t>(*dword_1106F69C);
-    const uintptr_t funcAddr = *reinterpret_cast<uintptr_t*>(objAddr + 56);
-
-    const uint64_t bits = *reinterpret_cast<const uint64_t*>(&scale2);
-    const uint32_t lo = static_cast<uint32_t>(bits & 0xFFFFFFFF);
-    const uint32_t hi = static_cast<uint32_t>(bits >> 32);
-
-    reinterpret_cast<void(__stdcall*)(int, int, uint32_t, uint32_t)>(funcAddr)(
-        mapData->screenSurfaceWidth / 2,
-        mapData->verticalCenterMargin,
-        lo,
-        hi
+        reinterpret_cast<void(__thiscall*)(uintptr_t*, int, int, uint32_t, uint32_t)>(drawOverlay)(
+            data.strategicMapOverlay,
+            mapData->screenSurfaceWidth / 2,
+            mapData->verticalCenterMargin,
+            static_cast<uint32_t>(scaleBits),
+            static_cast<uint32_t>(scaleBits >> 32)
         );
-    */
+    }
 
     // Draw units points
     // It also shows building occupied by enemy as red dot even if we don't know that the building is occupied by them

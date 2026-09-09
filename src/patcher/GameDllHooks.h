@@ -1098,6 +1098,7 @@ private:
         void(__thiscall* drawHorLine)(UiElementBase*, int, int, int, int16_t);
         void(__thiscall* drawVertLine)(UiElementBase*, int, int, int, int16_t);
         void(__stdcall* drawPlaneCrosses)(int, int, int);
+        uintptr_t* strategicMapOverlay;
 
         UnitData* units;
         int unitVtableOffset;
