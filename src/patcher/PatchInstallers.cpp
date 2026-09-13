@@ -2,6 +2,7 @@
 #include "PatchInstallers.h"
 #include "AudioHelper.h"
 #include "UIFilter.h"
+#include "CursorMapping.h"
 
 bool InstallGamePatches(TargetState& state, uintptr_t base, size_t size, const std::wstring& path)
 {
@@ -49,6 +50,9 @@ bool InstallGamePatches(TargetState& state, uintptr_t base, size_t size, const s
     Screen::ApplyGameResolution();
 
     const auto& module = detector.GetModuleInfo(DllType::Game);
+
+    CursorMapping::Install(module.base);
+
     GameDllHooks::init(module.base);
     state.patchEngine.emplace(
         std::make_unique<MemoryRelocator>(),
@@ -124,6 +128,9 @@ bool InstallMenuPatches(TargetState& state, uintptr_t base, size_t size, const s
     }
 
     const auto& module = detector.GetModuleInfo(DllType::Menu);
+
+    CursorMapping::Install(module.base);
+
     MenuDllHooks::init(module.base);
     state.patchEngine.emplace(
         std::make_unique<MemoryRelocator>(),

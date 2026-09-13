@@ -88,6 +88,7 @@
   <ItemGroup>
     <ClInclude Include="core\assets.h" />
     <ClInclude Include="core\AudioHelper.h" />
+    <ClInclude Include="core\CursorMapping.h" />
     <ClInclude Include="core\cad.h" />
     <ClInclude Include="core\pch.h" />
     <ClInclude Include="core\renderer.h" />
@@ -97,6 +98,7 @@
     <ClInclude Include="core\util.h" />
     <ClInclude Include="core\version.h" />
     <ClInclude Include="patcher\CodePatcher.h" />
+    <ClInclude Include="patcher\ImportHooks.h" />
     <ClInclude Include="patcher\DllHooksBase.h" />
     <ClInclude Include="patcher\DllMonitor.h" />
     <ClInclude Include="patcher\DllVersionDetector.h" />
