@@ -11,5 +11,6 @@ S32 Screen::sizeInDoublePixels_ = Screen::sizeInPixels_ * sizeof(Pixel) * 2;
 
 bool Screen::resolutionFromIni_ = false;
 bool Screen::targetResolved_ = false;
+bool Screen::windowed_ = false;
 S32 Screen::targetWidth_ = Graphics::kDefaultWidth;
 S32 Screen::targetHeight_ = Graphics::kDefaultHeight;

@@ -19,6 +19,16 @@
 
 RendererState g_rendererState;
 
+// Windowed renders here and blits on unlock: it never changes the display mode,
+// so the primary is the 32 bit desktop and the blit converts. Not in
+// ModuleStateBase - the game indexes that structure by offset.
+static LPDIRECTDRAWSURFACE g_windowedSurface = nullptr;
+
+// RGB 565, the format this renderer emits.
+constexpr U32 kWindowedRedMask = 0xF800;
+constexpr U32 kWindowedGreenMask = 0x07E0;
+constexpr U32 kWindowedBlueMask = 0x001F;
+
 // 0x10001000
 void initValues()
 {
@@ -55,12 +65,16 @@ bool initDxInstance(const HWND hwnd, const bool fullscreen)
     g_moduleState->isFullScreen = fullscreen;
     g_moduleState->hwnd = hwnd;
 
+    // A window must leave room for its frame, so the target depends on this.
+    Screen::SetWindowed(!fullscreen);
+
     return true;
 }
 
 // 0x100010b0
 void releaseDxSurface()
 {
+    dxRelease(g_windowedSurface);
     dxRelease(g_moduleState->directX.surface);
 }
 
@@ -300,16 +314,18 @@ bool initWindowDxSurface(S32 width, S32 height)
 
         ReleaseDC(g_moduleState->hwnd, hdc);
 
-        SetWindowLongA(g_moduleState->hwnd, GWL_STYLE, WS_CAPTION);
+        SetWindowLongA(g_moduleState->hwnd, GWL_STYLE, Graphics::kWindowedStyle);
 
         RECT rect;
         ZeroMemory(&rect, sizeof(RECT));
-        AdjustWindowRect(&rect, WS_CAPTION, false);
+        AdjustWindowRect(&rect, Graphics::kWindowedStyle, false);
 
-        width = width + (rect.right - rect.left);
-        height = height + (rect.bottom - rect.top);
+        const S32 framedWidth = width + (rect.right - rect.left);
+        const S32 framedHeight = height + (rect.bottom - rect.top);
 
-        SetWindowPos(g_moduleState->hwnd, NULL, (sw - width) / 2, (sh - height) / 2, width, height, SWP_SHOWWINDOW);
+        SetWindowPos(g_moduleState->hwnd, NULL,
+                     (sw - framedWidth) / 2, (sh - framedHeight) / 2,
+                     framedWidth, framedHeight, SWP_SHOWWINDOW);
     }
 
     DDSURFACEDESC desc;
@@ -329,9 +345,14 @@ bool initWindowDxSurface(S32 width, S32 height)
         return false;
     }
 
-    setPixelColorMasks(desc.ddpfPixelFormat.dwRBitMask, desc.ddpfPixelFormat.dwGBitMask, desc.ddpfPixelFormat.dwBBitMask);
-
-    if (!g_moduleState->isFullScreen)
+    if (g_moduleState->isFullScreen)
+    {
+        // The mode was just set to 16 bit, so the primary already matches.
+        setPixelColorMasks(desc.ddpfPixelFormat.dwRBitMask,
+                           desc.ddpfPixelFormat.dwGBitMask,
+                           desc.ddpfPixelFormat.dwBBitMask);
+    }
+    else
     {
         LPDIRECTDRAWCLIPPER clipper = NULL;
 
@@ -356,6 +377,32 @@ bool initWindowDxSurface(S32 width, S32 height)
         }
 
         dxRelease(clipper);
+
+        DDSURFACEDESC offscreen;
+        ZeroMemory(&offscreen, sizeof(DDSURFACEDESC));
+
+        offscreen.dwSize  = sizeof(DDSURFACEDESC);
+        offscreen.dwFlags = DDSD_CAPS | DDSD_WIDTH | DDSD_HEIGHT | DDSD_PIXELFORMAT;
+        offscreen.dwWidth  = static_cast<DWORD>(width);
+        offscreen.dwHeight = static_cast<DWORD>(height);
+        offscreen.ddsCaps.dwCaps = DDSCAPS_OFFSCREENPLAIN | DDSCAPS_SYSTEMMEMORY;
+
+        offscreen.ddpfPixelFormat.dwSize        = sizeof(DDPIXELFORMAT);
+        offscreen.ddpfPixelFormat.dwFlags       = DDPF_RGB;
+        offscreen.ddpfPixelFormat.dwRGBBitCount = Graphics::kBitsPerPixel16;
+        offscreen.ddpfPixelFormat.dwRBitMask    = kWindowedRedMask;
+        offscreen.ddpfPixelFormat.dwGBitMask    = kWindowedGreenMask;
+        offscreen.ddpfPixelFormat.dwBBitMask    = kWindowedBlueMask;
+
+        if (FAILED(g_moduleState->directX.instance->CreateSurface(&offscreen, &g_windowedSurface, NULL)))
+        {
+            dxRelease(g_moduleState->directX.surface);
+            return false;
+        }
+
+        // Of the surface drawn into: the desktop's 32 bit masks truncate to
+        // 16 bits with red left zero.
+        setPixelColorMasks(kWindowedRedMask, kWindowedGreenMask, kWindowedBlueMask);
     }
 
     g_moduleState->actions.initValues();
@@ -1452,7 +1499,11 @@ bool lockDxSurface()
     ZeroMemory(&desc, sizeof(DDSURFACEDESC));
     desc.dwSize = sizeof(DDSURFACEDESC);
 
-    HRESULT result = g_moduleState->directX.surface->Lock(NULL, &desc, DDLOCK_WAIT, NULL);
+    LPDIRECTDRAWSURFACE target = g_moduleState->isFullScreen
+                               ? g_moduleState->directX.surface
+                               : g_windowedSurface;
+
+    HRESULT result = target->Lock(NULL, &desc, DDLOCK_WAIT, NULL);
 
     while (true)
     {
@@ -1460,33 +1511,16 @@ bool lockDxSurface()
         {
             g_moduleState->pitch = desc.lPitch;
 
-            U32 offset = 0;
-
-            if (!g_moduleState->isFullScreen)
-            {
-                RECT rect;
-                ZeroMemory(&rect, sizeof(RECT));
-                GetClientRect(g_moduleState->hwnd, &rect);
-
-                POINT point;
-                ZeroMemory(&point, sizeof(POINT));
-                ClientToScreen(g_moduleState->hwnd, &point);
-
-                OffsetRect(&rect, point.x, point.y);
-
-                offset = desc.lPitch * rect.top + rect.left * sizeof(Pixel);
-            }
-
-            g_moduleState->surface.renderer = (void*)((Addr)desc.lpSurface + (Addr)offset);
+            g_moduleState->surface.renderer = desc.lpSurface;
 
             return true;
         }
 
         if (result != DDERR_SURFACEBUSY && result != DDERR_SURFACELOST)
-            if (FAILED(g_moduleState->directX.surface->Restore()))
+            if (FAILED(target->Restore()))
                 break;
 
-        result = g_moduleState->directX.surface->Lock(NULL, &desc, DDLOCK_WAIT, NULL);
+        result = target->Lock(NULL, &desc, DDLOCK_WAIT, NULL);
     }
 
     return false;
@@ -1495,7 +1529,32 @@ bool lockDxSurface()
 // 0x10002970
 void unlockDxSurface()
 {
-    g_moduleState->directX.surface->Unlock(NULL);
+    if (g_moduleState->isFullScreen)
+    {
+        g_moduleState->directX.surface->Unlock(NULL);
+    }
+    else
+    {
+        g_windowedSurface->Unlock(NULL);
+
+        // The clipper keeps this inside the window; the blit converts format.
+        RECT destination;
+        ZeroMemory(&destination, sizeof(RECT));
+        GetClientRect(g_moduleState->hwnd, &destination);
+
+        POINT origin;
+        ZeroMemory(&origin, sizeof(POINT));
+        ClientToScreen(g_moduleState->hwnd, &origin);
+
+        OffsetRect(&destination, origin.x, origin.y);
+
+        if (g_moduleState->directX.surface->Blt(&destination, g_windowedSurface, NULL, DDBLT_WAIT, NULL)
+            == DDERR_SURFACELOST)
+        {
+            g_moduleState->directX.surface->Restore();
+            g_windowedSurface->Restore();
+        }
+    }
 
     g_moduleState->surface.renderer = NULL;
 }

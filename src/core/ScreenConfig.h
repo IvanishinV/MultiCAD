@@ -20,6 +20,8 @@ namespace Graphics
 
     constexpr U32 kMaxWidth = 3840;
     constexpr U32 kMaxHeight = 2160;
+
+    constexpr DWORD kWindowedStyle = WS_CAPTION | WS_SYSMENU;
 }
 
 class Screen
@@ -90,6 +92,16 @@ public:
             height = Graphics::kMinHeight;
     }
 
+    // Set from the renderer. Drops the cache: the target depends on it.
+    static void SetWindowed(bool windowed)
+    {
+        if (windowed_ == windowed)
+            return;
+
+        windowed_ = windowed;
+        targetResolved_ = false;
+    }
+
     // Native desktop resolution, overridden by an explicit ini value. Cached.
     static void ResolveTargetResolution(S32& width, S32& height)
     {
@@ -97,6 +109,10 @@ public:
         {
             GetNativeResolution(targetWidth_, targetHeight_);
             resolutionFromIni_ = ApplyIniResolution(targetWidth_, targetHeight_);
+
+            if (windowed_)
+                ClampToWindowedArea(targetWidth_, targetHeight_);
+
             targetResolved_ = true;
         }
 
@@ -125,8 +141,35 @@ public:
 private:
 
     static bool targetResolved_;
+    static bool windowed_;
     static S32 targetWidth_;
     static S32 targetHeight_;
+
+    // Work area minus the frame: a window must fit the screen showing it.
+    static void ClampToWindowedArea(S32& width, S32& height)
+    {
+        RECT work{};
+        if (!SystemParametersInfoA(SPI_GETWORKAREA, 0, &work, 0))
+            return;
+
+        RECT frame{};   // zero rect in, frame thickness out
+        AdjustWindowRect(&frame, Graphics::kWindowedStyle, FALSE);
+
+        const S32 maxWidth = (work.right - work.left) - (frame.right - frame.left);
+        const S32 maxHeight = (work.bottom - work.top) - (frame.bottom - frame.top);
+
+        if (maxWidth <= 0 || maxHeight <= 0)
+            return;
+
+        if (width > maxWidth)   width = maxWidth;
+        if (height > maxHeight) height = maxHeight;
+
+        // Renderer requires a height divisible by 8.
+        height &= ~7;
+
+        if (width < static_cast<S32>(Graphics::kMinWidth))   width = Graphics::kMinWidth;
+        if (height < static_cast<S32>(Graphics::kMinHeight)) height = Graphics::kMinHeight;
+    }
 
     // Reads "[Game] Resolution=WIDTHxHEIGHT" from the ini. True if a valid value was found.
     static bool ApplyIniResolution(S32& outWidth, S32& outHeight)
