@@ -9,7 +9,9 @@
 *.user
 *.userosscache
 *.sln.docstates
-doc/
+# IDA databases and working notes; only the server contract is tracked.
+doc/*
+!doc/report-format.md
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs

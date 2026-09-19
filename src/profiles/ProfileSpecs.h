@@ -792,6 +792,9 @@ const std::array patches_game_ss_2_v2_2
 const std::array hooks_menu_ss_2_v2_2
 {
     HookSpec{0x1AC60, reinterpret_cast<uintptr_t>(&MenuDllHooks::sub_1001AC60)},
+
+    // Match reporting.
+    HookSpec{0x0D190, reinterpret_cast<uintptr_t>(&MenuDllHooks::sub_1000D190)},
 };
 
 
@@ -936,18 +939,26 @@ const std::array patches_game_ss_rw_v2_4
 const std::array hooks_menu_ss_rw_v2_4
 {
     HookSpec{0x1B380, reinterpret_cast<uintptr_t>(&MenuDllHooks::sub_1001B380)},
+    // Match reporting.
+    HookSpec{0x0D390, reinterpret_cast<uintptr_t>(&MenuDllHooks::sub_1000D390)},
 };
 
 
 const std::array hooks_menu_hs
 {
     HookSpec{0x1AC60, reinterpret_cast<uintptr_t>(&MenuDllHooks::sub_1001AC60_hs)},
+
+    // Match reporting.
+    HookSpec{0x0D190, reinterpret_cast<uintptr_t>(&MenuDllHooks::sub_1000D190)},
 };
 
 
 const std::array hooks_menu_fmrm
 {
     HookSpec{0x1AC60, reinterpret_cast<uintptr_t>(&MenuDllHooks::sub_1001AC60_fmrm)},
+
+    // Match reporting.
+    HookSpec{0x0D190, reinterpret_cast<uintptr_t>(&MenuDllHooks::sub_1000D190)},
 };
 
 

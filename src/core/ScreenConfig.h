@@ -27,6 +27,8 @@ namespace Graphics
 class Screen
 {
 public:
+    static std::string IniPath() { return GetIniPath(); }
+
     static S32 width_;              // Width in pixels
     static S32 height_;             // Height in pixels
     static S32 widthInBytes_;       // Width in bytes

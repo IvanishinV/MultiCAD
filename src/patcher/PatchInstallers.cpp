@@ -3,6 +3,8 @@
 #include "AudioHelper.h"
 #include "UIFilter.h"
 #include "CursorMapping.h"
+#include "StatsReporter.h"
+#include "OutcomeHook.h"
 
 bool InstallGamePatches(TargetState& state, uintptr_t base, size_t size, const std::wstring& path)
 {
@@ -46,6 +48,14 @@ bool InstallGamePatches(TargetState& state, uintptr_t base, size_t size, const s
     }
     }
 
+    // The game dll loading is the match starting: the map is only named now,
+    // the previous match's verdicts must not survive into this one, and a queued
+    // report has been waiting for a live process.
+    Stats::CaptureMapName();
+    Stats::ResetOutcomes();
+    Stats::MarkMatchStart();
+    Stats::FlushPending();
+
     // Apply the game resolution now - must not happen during the menu (fixed size).
     Screen::ApplyGameResolution();
 
@@ -70,6 +80,11 @@ bool InstallGamePatches(TargetState& state, uintptr_t base, size_t size, const s
         Screen::UpdateToOrigSize();
         return false;
     }
+
+    // None of the addresses it needs lie in a relocated gap, so the module base
+    // is the whole of the mapping.
+    GameGlobals statsGlobals(module.base);
+    Stats::InstallOutcomeHook(statsGlobals, version);
 
     return true;
 }

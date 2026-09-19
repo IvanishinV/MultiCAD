@@ -6,6 +6,8 @@
 struct MenuTag {};
 struct SplashLayout;
 
+namespace Stats { struct StatsLayout; }
+
 class MenuDllHooks : public DllHooksBase<MenuTag>
 {
 public:
@@ -41,6 +43,13 @@ public:
     // Sudden Strike: Resource War v2.4
     static void __declspec(noinline) __fastcall sub_1001B380(void* self);
 
+    // Generic composite-screen hide, and where a finished match is reported
+    // from - see hideAndReport.
+    static void __declspec(noinline) __fastcall sub_1000D190(void* self);   // v2.2 family
+    static void __declspec(noinline) __fastcall sub_1000D390(void* self);   // Resource War v2.4
+
 private:
     static void renderGameVersion(void* self, const SplashLayout& layout);
+    static void hideAndReport(void* self, uintptr_t baseTeardownRva,
+                              const Stats::StatsLayout& layout);
 };
