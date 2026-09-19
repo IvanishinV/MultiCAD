@@ -90,6 +90,10 @@ To set a specific resolution, add a `Resolution` line **anywhere after** the `[G
 > ```
 Restart the game to apply the change.
 
+`FullScreen=0` in the same section runs the game windowed. A window is never
+larger than the screen showing it, so a `Resolution` that does not fit is reduced
+and the menu shows the size actually used.
+
 > 💡 Note: `Resolution` must be between 640x480 and 3840x2160, with a height divisible by 8 — a renderer requirement. Out-of-range values are ignored with a message.
 > A height that isn't divisible by 8, or any mode your display doesn't report, brings up a picker listing the supported modes and saves your choice back to the ini. With no `Resolution` line set, the game uses your desktop resolution with the height rounded down to a multiple of 8.
 
@@ -100,6 +104,33 @@ You can temporarily disable or enable the in-game UI overlay by pressing:
 **Alt + Y**
 
 This can be useful when taking screenshots or when the UI interferes with gameplay.
+
+### Mod Name and Version
+
+*For mod authors.* Declare your mod so the splash and match reports show the
+right version:
+> ```ini
+> [Launcher]
+> ModName=FMRM
+> ModVer=2.1.5.4
+> ```
+
+Both keys are required, otherwise `[StartUp] ProcessName` is used.
+
+### Match Statistics
+
+Off unless you set an endpoint. Reports carry every player's nickname, so it is
+opt-in:
+> ```ini
+> [Game]
+> StatsUrl=https://example.org/api/battles/report
+> ```
+
+Sent when you close the results screen — see
+[report-format.md](doc/report-format.md) for exactly what it contains. Nothing
+identifies your machine. Remove the line to stop.
+
+> 💡 Note: Only SS 2 and SS:RW 2.4 based games report.
 
 ## Compilation
 
