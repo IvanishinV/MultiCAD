@@ -57,6 +57,9 @@
     <ClInclude Include="core\cad.h">
       <Filter>Header Files\Core</Filter>
     </ClInclude>
+    <ClInclude Include="core\ModInfo.h">
+      <Filter>Header Files\Core</Filter>
+    </ClInclude>
     <ClInclude Include="core\pch.h">
       <Filter>Header Files\Core</Filter>
     </ClInclude>

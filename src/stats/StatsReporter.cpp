@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "StatsReporter.h"
 
+#include "ModInfo.h"
 #include "ScreenConfig.h"
 #include "version.h"
 
@@ -647,6 +648,11 @@ namespace Stats
 
     std::string DetectModName()
     {
+        // What the mod declares about itself, where it does.
+        std::string launcherName, launcherVersion;
+        if (ModInfo::FromLauncher(launcherName, launcherVersion))
+            return launcherName + " " + launcherVersion;
+
         std::string name = ReadIniValue("StartUp", "ProcessName");
 
         // Mods tend to prefix the base game they run on - FMRM ships

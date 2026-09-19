@@ -90,6 +90,7 @@
     <ClInclude Include="core\AudioHelper.h" />
     <ClInclude Include="core\CursorMapping.h" />
     <ClInclude Include="core\cad.h" />
+    <ClInclude Include="core\ModInfo.h" />
     <ClInclude Include="core\pch.h" />
     <ClInclude Include="core\renderer.h" />
     <ClInclude Include="core\resource.h" />

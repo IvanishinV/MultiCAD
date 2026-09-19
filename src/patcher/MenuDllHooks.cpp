@@ -4,6 +4,7 @@
 #include "version.h"
 #include "SplashTextRenderer.h"
 #include "ScreenConfig.h"
+#include "ModInfo.h"
 #include "MatchStatsReader.h"
 #include "OutcomeHook.h"
 #include "StatsReporter.h"
@@ -340,11 +341,21 @@ void __fastcall MenuDllHooks::sub_1001AC60_hs(void* self)
 
 void __fastcall MenuDllHooks::sub_1001AC60_fmrm(void* self)
 {
+    // FMRM_GAME_STR is whatever version this dll was built against, so prefer
+    // what the mod declares about itself.
+    static const std::string title = []
+        {
+            std::string name, version;
+
+            return ModInfo::FromLauncher(name, version) ? name + " v" + version
+                                                        : std::string(FMRM_GAME_STR);
+        }();
+
     static const SplashLayout layout
     {
         780,
         498,
-        FMRM_GAME_STR,
+        title.c_str(),
         nullptr,
         SplashVariant::SS_2,
         0xA06A0,
