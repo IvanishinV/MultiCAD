@@ -2666,7 +2666,7 @@ void __declspec(noinline) __fastcall GameDllHooks::sub_100A9060_bg(UiStrategicMa
         g->getFn<void(__thiscall)(UiElementBase*, int, int, int, int16_t)>(0xA89E0),
         g->getFn<void(__thiscall)(UiElementBase*, int, int, int, int16_t)>(0xA8A50),
         g->getFn<void(__stdcall)(int, int, int)>(0xBE2B0),
-        nullptr,
+        g->getValue<uintptr_t*>(0x109EC24),
         g->getValue<UnitData*>(0xFCE40),
         113,
         g->getValue<int16_t>(0x109E6B6),
@@ -3464,20 +3464,17 @@ void GameDllHooks::drawFogOnStrategicMap(UiStrategicMapElement* mapData, const F
         static_cast<int>(scale)
     );
 
-    if (data.strategicMapOverlay)
-    {
-        const uintptr_t overlayVtable = *data.strategicMapOverlay;
-        const uintptr_t drawOverlay = *reinterpret_cast<uintptr_t*>(overlayVtable + 56);
-        const uint64_t scaleBits = *reinterpret_cast<const uint64_t*>(&scale2);
+    const uintptr_t overlayVtable = *data.strategicMapOverlay;
+    const uintptr_t drawOverlay = *reinterpret_cast<uintptr_t*>(overlayVtable + 56);
+    const uint64_t scaleBits = *reinterpret_cast<const uint64_t*>(&scale2);
 
-        reinterpret_cast<void(__thiscall*)(uintptr_t*, int, int, uint32_t, uint32_t)>(drawOverlay)(
-            data.strategicMapOverlay,
-            mapData->screenSurfaceWidth / 2,
-            mapData->verticalCenterMargin,
-            static_cast<uint32_t>(scaleBits),
-            static_cast<uint32_t>(scaleBits >> 32)
-        );
-    }
+    reinterpret_cast<void(__thiscall*)(uintptr_t*, int, int, uint32_t, uint32_t)>(drawOverlay)(
+        data.strategicMapOverlay,
+        mapData->screenSurfaceWidth / 2,
+        mapData->verticalCenterMargin,
+        static_cast<uint32_t>(scaleBits),
+        static_cast<uint32_t>(scaleBits >> 32)
+    );
 
     // Draw units points
     // It also shows building occupied by enemy as red dot even if we don't know that the building is occupied by them
