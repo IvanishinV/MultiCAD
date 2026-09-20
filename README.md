@@ -90,12 +90,11 @@ To set a specific resolution, add a `Resolution` line **anywhere after** the `[G
 > ```
 Restart the game to apply the change.
 
-`FullScreen=0` in the same section runs the game windowed. A window is never
-larger than the screen showing it, so a `Resolution` that does not fit is reduced
-and the menu shows the size actually used.
+`FullScreen=0` in the same section runs the game in a window instead, which now draws and tracks the cursor correctly at any resolution.
 
-> 💡 Note: `Resolution` must be between 640x480 and 3840x2160, with a height divisible by 8 — a renderer requirement. Out-of-range values are ignored with a message.
-> A height that isn't divisible by 8, or any mode your display doesn't report, brings up a picker listing the supported modes and saves your choice back to the ini. With no `Resolution` line set, the game uses your desktop resolution with the height rounded down to a multiple of 8.
+> 💡 Note: `Resolution` must be between 640x480 and 3840x2160; values outside that range are ignored
+> with a message. The renderer needs a height divisible by 8, so heights are rounded down to the
+> nearest multiple of 8. With no `Resolution` line, your desktop resolution is used.
 
 ### UI Toggle Hotkey
 
