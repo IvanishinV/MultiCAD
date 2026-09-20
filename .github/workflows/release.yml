@@ -1,0 +1,86 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-2022
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Add MSBuild to PATH
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Compute build name
+        shell: pwsh
+        run: |
+          # ref_name can be a branch like "fix/foo" on workflow_dispatch; make it filename-safe.
+          $name = '${{ github.ref_name }}' -replace '[^A-Za-z0-9._-]', '-'
+          "BUILD_NAME=$name" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+
+      - name: Check version.h matches the tag
+        if: startsWith(github.ref, 'refs/tags/')
+        shell: pwsh
+        run: |
+          $tag = '${{ github.ref_name }}'
+          $h = Get-Content src/core/version.h -Raw
+          $maj = [regex]::Match($h, '#define\s+MULTICAD_VERSION_MAJOR\s+(\d+)').Groups[1].Value
+          $min = [regex]::Match($h, '#define\s+MULTICAD_VERSION_MINOR\s+(\d+)').Groups[1].Value
+          $pat = [regex]::Match($h, '#define\s+MULTICAD_VERSION_PATCH\s+(\d+)').Groups[1].Value
+          $ver = "v$maj.$min.$pat"
+          "tag = $tag / version.h = $ver"
+          if ($tag -ne $ver) { throw "Tag $tag does not match version.h ($ver) - bump src/core/version.h" }
+
+      - name: Build Release
+        run: msbuild MultiCAD.sln -p:Configuration=Release -p:Platform=x86 -m -v:minimal
+
+      - name: Build Release_MT
+        run: msbuild MultiCAD.sln -p:Configuration=Release_MT -p:Platform=x86 -m -v:minimal
+
+      - name: Collect artifacts
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Path dist, pdb | Out-Null
+
+          # DLLs stay loose: the README tells users to download cadMulti.dll directly.
+          Copy-Item bin\Win32\Release\cadMulti.dll       dist\
+          Copy-Item bin\Win32\Release_MT\cadMulti_mt.dll dist\
+
+          # PDBs ship zipped - needed to symbolise crash dumps sent in by users.
+          Copy-Item bin\Win32\Release\cadMulti.pdb       pdb\
+          Copy-Item bin\Win32\Release_MT\cadMulti_mt.pdb pdb\
+          Compress-Archive -Path pdb\* -DestinationPath "dist\cadMulti-$env:BUILD_NAME-pdb.zip"
+
+          Get-FileHash dist\* -Algorithm SHA256 |
+            ForEach-Object { "$($_.Hash)  $(Split-Path $_.Path -Leaf)" } |
+            Tee-Object dist\SHA256SUMS.txt
+
+          Get-ChildItem dist | Select-Object Name, Length | Format-Table -AutoSize
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cadMulti-${{ env.BUILD_NAME }}
+          path: dist/
+
+      - name: Publish release
+        if: startsWith(github.ref, 'refs/tags/')
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $tag = '${{ github.ref_name }}'
+          $files = (Get-ChildItem dist).FullName
+          gh release view $tag > $null 2> $null
+          if ($LASTEXITCODE -eq 0) {
+            gh release upload $tag @files --clobber
+          } else {
+            gh release create $tag @files --title $tag --generate-notes
+          }
