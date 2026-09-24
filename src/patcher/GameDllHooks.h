@@ -562,6 +562,23 @@ private:
     static_assert(offsetof(GameData, maxX) == 26, "maxX offset mismatch");
     static_assert(offsetof(GameData, maxY) == 30, "maxY offset mismatch");
 
+    // Game's file wrapper around a WinAPI handle. Only the write slot of the vtable is used
+    struct GameFile;
+    struct GameFileVtable
+    {
+        void* unused[5];
+        uint32_t(__thiscall* write)(GameFile* self, const void* data, uint32_t size);
+    };
+
+    struct GameFile
+    {
+        const GameFileVtable* vtable;
+        HANDLE handle;
+    };
+
+    static_assert(offsetof(GameFileVtable, write) == 0x14, "write offset mismatch");
+    static_assert(offsetof(GameFile, handle) == 4, "handle offset mismatch");
+
     static_assert(sizeof(GameData) == 34, "GameData size mismatch");
 
 
@@ -1255,6 +1272,10 @@ public:
     static void __declspec(noinline) __fastcall sub_100C3830(PlaneData* self, void* /*dummy*/, int halfScreenWidth, int vertCenterMargin, int scale);   // SS 2
     static void __declspec(noinline) __fastcall sub_100BE6F0(PlaneData* self, void* /*dummy*/, int halfScreenWidth, int vertCenterMargin, int scale);   // SS:RW
     static void __declspec(noinline) __fastcall sub_100BE6C0(PlaneData* self, void* /*dummy*/, int halfScreenWidth, int vertCenterMargin, int scale);   // Black Gold
+
+    // Writes the PrintScreen .tga screenshot. The original converts each row in a 1024 pixel stack buffer,
+    // which overflows at wider resolutions. Exists in SS2, SS:RW and Black Gold
+    static void __declspec(noinline) __cdecl    writeScreenshotTga(GameFile* file);
 
     // Template functions to disable/enable in-game UI
     template<GameVersion V>

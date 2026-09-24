@@ -728,6 +728,9 @@ const std::array hooks_game_ss_2_v2_2
     HookSpec{0xAD2C0, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_100AD2C0)},
     HookSpec{0xC3830, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_100C3830)},
 
+    // Writes the PrintScreen .tga screenshot. The original overflows its stack row buffer at widths over 1024
+    HookSpec{0x7F290, reinterpret_cast<uintptr_t>(&GameDllHooks::writeScreenshotTga)},
+
     // Hooks for disabling UI via shortcut
     HookSpec{0x988C0, reinterpret_cast<uintptr_t>(&GameDllHooks::addUiElement_ver<V>)},
     HookSpec{0xA1130, reinterpret_cast<uintptr_t>(&GameDllHooks::drawUiElement_ver<V>)},
@@ -750,11 +753,6 @@ const std::array patches_game_ss_2_v2_2
         0x74, 0x06,                             // je 25F51
         0x90, 0x90                              // nop nop
     }},
-
-    // Fixes new bug starting from SS2 caused by saving screenshot to .tga file by pressed PrintScreen button.
-    // It uses small stack for one pixel row (3072 bytes = 1024 pixels * 3 channels)
-    // which is not enough for increased resolution. So, I just disabled this function
-    PatchSpec{0x7F290, {0xC3}},
 
     // Sets the screen height at which units are displayed
     PatchSpec{0x9AAA9, PatchSpec::to_bytes(SCREEN_HEIGHT_TO_SHOW_UNITS)},
@@ -825,6 +823,9 @@ const std::array hooks_game_ss_rw_v2_3
     HookSpec{0xA97C0, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_100A97C0)},
     HookSpec{0xBE6E0, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_100BE6F0)},
 
+    // Writes the PrintScreen .tga screenshot. The original overflows its stack row buffer at widths over 1024
+    HookSpec{0x7D240, reinterpret_cast<uintptr_t>(&GameDllHooks::writeScreenshotTga)},
+
     // Hooks for disabling UI via shortcut
     HookSpec{0x95AA0, reinterpret_cast<uintptr_t>(&GameDllHooks::addUiElement_ver<V>)},
     HookSpec{0x9DC00, reinterpret_cast<uintptr_t>(&GameDllHooks::drawUiElement_ver<V>)},
@@ -876,6 +877,9 @@ const std::array hooks_game_ss_rw_v2_4
     HookSpec{0xA97C0, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_100A97C0)},
     HookSpec{0xBE6F0, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_100BE6F0)},
 
+    // Writes the PrintScreen .tga screenshot. The original overflows its stack row buffer at widths over 1024
+    HookSpec{0x7D240, reinterpret_cast<uintptr_t>(&GameDllHooks::writeScreenshotTga)},
+
     // Hooks for disabling UI via shortcut
     HookSpec{0x95AA0, reinterpret_cast<uintptr_t>(&GameDllHooks::addUiElement_ver<V>)},
     HookSpec{0x9DC00, reinterpret_cast<uintptr_t>(&GameDllHooks::drawUiElement_ver<V>)},
@@ -898,11 +902,6 @@ const std::array patches_game_ss_rw_v2_4
         0x74, 0x06,                             // je 25FF1
         0x90, 0x90                              // nop nop
     }},
-
-    // Fixes new bug starting from SS2 caused by saving screenshot to .tga file by pressed PrintScreen button.
-    // It uses small stack for one pixel row (3072 bytes = 1024 pixels * 3 channels)
-    // which is not enough for increased resolution. So, I just disabled this function
-    PatchSpec{0x7D240, {0xC3}},
 
     // Sets the screen height at which units are displayed
     PatchSpec{0x97C19, PatchSpec::to_bytes(SCREEN_HEIGHT_TO_SHOW_UNITS)},
@@ -998,6 +997,9 @@ const std::array hooks_game_black_gold
     HookSpec{0xA9790, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_100A97C0_bg)},
     HookSpec{0xBE6C0, reinterpret_cast<uintptr_t>(&GameDllHooks::sub_100BE6C0)},
 
+    // Writes the PrintScreen .tga screenshot. The original overflows its stack row buffer at widths over 1024
+    HookSpec{0x7D210, reinterpret_cast<uintptr_t>(&GameDllHooks::writeScreenshotTga)},
+
     // Hooks for disabling UI via shortcut
     HookSpec{0x95A70, reinterpret_cast<uintptr_t>(&GameDllHooks::addUiElement_ver<V>)},
     HookSpec{0x9DBD0, reinterpret_cast<uintptr_t>(&GameDllHooks::drawUiElement_ver<V>)},
@@ -1020,11 +1022,6 @@ const std::array patches_game_black_gold
         0x74, 0x06,                             // je 25FF1
         0x90, 0x90                              // nop nop
     }},
-
-    // Fixes new bug starting from SS2 caused by saving screenshot to .tga file by pressed PrintScreen button.
-    // It uses small stack for one pixel row (3072 bytes = 1024 pixels * 3 channels)
-    // which is not enough for increased resolution. So, I just disabled this function
-    PatchSpec{0x7D210, {0xC3}},
 
     // Sets the screen height at which units are displayed
     PatchSpec{0x97BE9, PatchSpec::to_bytes(SCREEN_HEIGHT_TO_SHOW_UNITS)},

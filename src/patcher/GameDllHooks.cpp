@@ -3,6 +3,8 @@
 #include "UiFilter.h"
 #include "types.h"
 
+#include <bit>
+
 int __declspec(noinline) __fastcall GameDllHooks::sub_1001D240(GameData5* self, void* /*dummy*/, int** a2)
 {
     if (!self || !a2 || !a2[1] || !self->param_04)
@@ -2886,6 +2888,90 @@ void __declspec(noinline) __fastcall GameDllHooks::sub_100BE6C0(PlaneData* self,
     };
 
     drawPlaneCrossOnStrategicMap(self, data);
+}
+
+void __declspec(noinline) __cdecl GameDllHooks::writeScreenshotTga(GameFile* file)
+{
+    if (!file || !file->vtable || !file->vtable->write)
+        return;
+
+    auto* const state = g_moduleState;
+    const int width = state->surface.width;
+    const int height = state->surface.height;
+
+    // Maps a channel value to 0..255. The initial masks describe the surface format,
+    // the actual ones could be narrowed by the game
+    struct Channel
+    {
+        uint32_t mask;
+        int shift;
+        uint8_t levels[256];
+    };
+    const auto makeChannel = [](const uint32_t mask, Channel& c)
+        {
+            c.mask = mask;
+            c.shift = mask ? std::countr_zero(mask) : 0;
+            const uint32_t max = std::min<uint32_t>(mask >> c.shift, 0xFF);
+            for (uint32_t v = 0; v <= 0xFF; ++v)
+                c.levels[v] = max ? static_cast<uint8_t>((std::min(v, max) * 0xFF + max / 2) / max) : 0;
+        };
+    const auto level = [](const Channel& c, const uint32_t pixel) -> uint8_t
+        {
+            return c.levels[std::min<uint32_t>((pixel & c.mask) >> c.shift, 0xFF)];
+        };
+
+    Channel red, green, blue;
+    makeChannel(state->initialRedMask, red);
+    makeChannel(state->initialGreenMask, green);
+    makeChannel(state->initialBlueMask, blue);
+
+    const auto write = [file](const void* data, const uint32_t size) -> bool
+        {
+            return file->vtable->write(file, data, size) == size;
+        };
+
+    // Screenshots are requested outside of a frame, so the surface is normally unlocked
+    const bool locked = state->surface.renderer == nullptr;
+    if (locked && !state->actions.lockDxSurface())
+        return;
+
+    const uint8_t* const pixels = static_cast<const uint8_t*>(state->surface.renderer);
+    const size_t pitch = state->pitch;
+
+    // Uncompressed true-color, 24 bpp, bottom-up rows: the same format the game wrote
+    uint8_t header[18]{};
+    header[2] = 2;
+    header[12] = static_cast<uint8_t>(width);
+    header[13] = static_cast<uint8_t>(width >> 8);
+    header[14] = static_cast<uint8_t>(height);
+    header[15] = static_cast<uint8_t>(height >> 8);
+    header[16] = 24;
+
+    if (pixels && pitch >= static_cast<size_t>(width) * sizeof(Pixel) && write(header, sizeof(header)))
+    {
+        uint8_t row[Graphics::kMaxWidth * 3];
+        const uint32_t rowSize = static_cast<uint32_t>(width) * 3;
+
+        for (int y = height - 1; y >= 0; --y)
+        {
+            const Pixel* const src = reinterpret_cast<const Pixel*>(pixels + static_cast<size_t>(y) * pitch);
+
+            uint8_t* out = row;
+            for (int x = 0; x < width; ++x)
+            {
+                const uint32_t pixel = src[x];
+                *out++ = level(blue, pixel);
+                *out++ = level(green, pixel);
+                *out++ = level(red, pixel);
+            }
+
+            if (!write(row, rowSize))
+                break;
+        }
+    }
+
+    if (locked)
+        state->actions.unlockDxSurface();
 }
 
 
