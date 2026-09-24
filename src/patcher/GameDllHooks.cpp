@@ -3934,13 +3934,13 @@ int __declspec(noinline) __cdecl     GameDllHooks::dispatchWndMessage(const Disp
     int* const mouseY = dword_1106F6F0 + 2;
     int* const dword_1106F6FC = dword_1106F6F0 + 3;
     int* const dword_1106F700 = dword_1106F6F0 + 4;
-    int* const dword_11070710 = dword_1106F6F0 + 8;
-    int* const dword_11070714 = dword_1106F6F0 + 9;
-    int* const dword_11070718 = dword_1106F6F0 + 10;
-    int* const dword_1107071C = dword_1106F6F0 + 11;
-    int* const dword_11070720 = dword_1106F6F0 + 12;
-    int* const dword_11070724 = dword_1106F6F0 + 13;
-    int* const dword_11070728 = dword_1106F6F0 + 14;
+    int* const dword_11070710 = data.wndClickGlobals;
+    int* const dword_11070714 = data.wndClickGlobals + 1;
+    int* const dword_11070718 = data.wndClickGlobals + 2;
+    int* const dword_1107071C = data.wndClickGlobals + 3;
+    int* const dword_11070720 = data.wndClickGlobals + 4;
+    int* const dword_11070724 = data.wndClickGlobals + 5;
+    int* const dword_11070728 = data.wndClickGlobals + 6;
 
     auto const dispatchMouseButtonEvent = data.dispatchMouseButtonEvent;
     auto const dispatchMouseMoveEvent = data.dispatchMouseMoveEvent;
@@ -4144,9 +4144,11 @@ int __declspec(noinline) __cdecl     GameDllHooks::dispatchWndMessage(const Disp
             }
             else
             {
-                const int ch = multiByteToWideCharOr(*dword_11070728 ? *dword_11070728 : a3);
+                const int lead = *dword_11070728;
+                const int ch = multiByteToWideCharOr(
+                    lead ? (((a3 & 0xFF) << 8) | lead) : (a3 & 0xFF));
                 writeEventToRingBuffer('/UTF', ch, *mouseX, *mouseY);
-                if (*dword_11070728)
+                if (lead)
                     *dword_11070728 = 0;
             }
             break;
