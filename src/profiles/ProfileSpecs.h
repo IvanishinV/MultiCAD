@@ -755,6 +755,8 @@ const std::array patches_game_ss_2_v2_2
     // It uses small stack for one pixel row (3072 bytes = 1024 pixels * 3 channels)
     // which is not enough for increased resolution. So, I just disabled this function
     PatchSpec{0x7F290, {0xC3}},
+    // Skip the Print Screen request before it opens a TGA (75 05 -> EB 05).
+    PatchSpec{0xAE185, {0xEB}},
 
     // Sets the screen height at which units are displayed
     PatchSpec{0x9AAA9, PatchSpec::to_bytes(SCREEN_HEIGHT_TO_SHOW_UNITS)},
@@ -903,6 +905,8 @@ const std::array patches_game_ss_rw_v2_4
     // It uses small stack for one pixel row (3072 bytes = 1024 pixels * 3 channels)
     // which is not enough for increased resolution. So, I just disabled this function
     PatchSpec{0x7D240, {0xC3}},
+    // Skip the Print Screen request before it opens a TGA (75 05 -> EB 05).
+    PatchSpec{0xAA705, {0xEB}},
 
     // Sets the screen height at which units are displayed
     PatchSpec{0x97C19, PatchSpec::to_bytes(SCREEN_HEIGHT_TO_SHOW_UNITS)},
@@ -1025,6 +1029,8 @@ const std::array patches_game_black_gold
     // It uses small stack for one pixel row (3072 bytes = 1024 pixels * 3 channels)
     // which is not enough for increased resolution. So, I just disabled this function
     PatchSpec{0x7D210, {0xC3}},
+    // The matching Black Gold address is 0x30 before Resource War.
+    PatchSpec{0xAA6D5, {0xEB}},
 
     // Sets the screen height at which units are displayed
     PatchSpec{0x97BE9, PatchSpec::to_bytes(SCREEN_HEIGHT_TO_SHOW_UNITS)},
