@@ -72,11 +72,22 @@ namespace ImportHooks
         return nullptr;
     }
 
+    // True when `address` lies inside a loaded module other than `self`.
+    inline bool PointsIntoOtherModule(const void* address, const uintptr_t self)
+    {
+        HMODULE owner = nullptr;
+        return address != nullptr
+            && GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
+                                  static_cast<LPCSTR>(address), &owner)
+            && reinterpret_cast<uintptr_t>(owner) != self;
+    }
+
     // Redirects every slot holding `original`, for modules whose import table a
     // packer rebuilt: ASPack zeroes OriginalFirstThunk, so the loader consumes
     // the names in place, and it mirrors the resolved addresses into the original
     // table that the game calls through. Matching on the address finds both
-    // copies. Data sections only - a match inside code would be an instruction.
+    // copies. Packers also place that table in executable sections; there a match
+    // must neighbour another import, as a lone match inside code is an instruction.
     inline size_t ReplaceByAddress(const uintptr_t moduleBase, void* original, void* replacement)
     {
         if (moduleBase == 0 || original == nullptr || replacement == nullptr)
@@ -95,8 +106,7 @@ namespace ImportHooks
 
         for (WORD i = 0; i < nt->FileHeader.NumberOfSections; ++i, ++section)
         {
-            if (section->Characteristics & IMAGE_SCN_MEM_EXECUTE)
-                continue;
+            const bool executable = (section->Characteristics & IMAGE_SCN_MEM_EXECUTE) != 0;
 
             const size_t size = section->Misc.VirtualSize != 0
                               ? section->Misc.VirtualSize
@@ -113,8 +123,19 @@ namespace ImportHooks
                 if (IsBadReadPtr(slot, sizeof(void*)) || *slot != original)
                     continue;
 
+                if (executable)
+                {
+                    const bool prevIsImport = slot > start && !IsBadReadPtr(slot - 1, sizeof(void*))
+                                           && PointsIntoOtherModule(slot[-1], moduleBase);
+                    const bool nextIsImport = slot + 1 < end && !IsBadReadPtr(slot + 1, sizeof(void*))
+                                           && PointsIntoOtherModule(slot[1], moduleBase);
+                    if (!prevIsImport && !nextIsImport)
+                        continue;
+                }
+
+                // Keep execute on: the page may also hold code.
                 DWORD oldProtect{};
-                if (!VirtualProtect(slot, sizeof(void*), PAGE_READWRITE, &oldProtect))
+                if (!VirtualProtect(slot, sizeof(void*), executable ? PAGE_EXECUTE_READWRITE : PAGE_READWRITE, &oldProtect))
                     continue;
 
                 *slot = replacement;
